@@ -1,8 +1,0 @@
-Package: benchmark
-Version: 1.8.3
-Port-Version: 2
-Depends: vcpkg-cmake, vcpkg-cmake-config
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 78e78d10ddd8a9455c4aa35b126ef2a1832dd6f15dd921001409899d5d9587f3
-Description: A library to support the benchmarking of functions, similar to unit-tests.

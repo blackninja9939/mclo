@@ -1,3 +1,0 @@
-ninja_dyndep_version = 1.0
-build source\CMakeFiles\mclo.dir\RelWithDebInfo\string_utils.cpp.obj: dyndep
-
