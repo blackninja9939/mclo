@@ -227,9 +227,13 @@ TEST_CASE( "tagged_unique_ptr piecewise throw", "[tagged_ptr]" )
 	struct throwing_tester
 	{
 		throwing_tester() = default;
-		throwing_tester( int )
+		throwing_tester( int val )
+			: i( val )
 		{
-			throw std::runtime_error( "Error" );
+			if ( i == 5 )
+			{
+				throw std::runtime_error( "Error" );
+			}
 		}
 		int i;
 	};
@@ -251,7 +255,7 @@ TEST_CASE( "tagged_unique_ptr piecewise throw", "[tagged_ptr]" )
 	try
 	{
 		const mclo::tagged_unique_ptr ptr = mclo::make_tagged_unique<const allocation_tracker, throwing_tester>(
-			std::piecewise_construct, std::forward_as_tuple( allocation_active ), std::forward_as_tuple( 1 ) );
+			std::piecewise_construct, std::forward_as_tuple( allocation_active ), std::forward_as_tuple( 5 ) );
 	}
 	catch ( ... )
 	{
