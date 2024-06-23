@@ -1,0 +1,3 @@
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/fixed-string_x64-windows/lib/cmake/fixed_string/fixed_stringConfigVersion.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/fixed-string_x64-windows/lib/cmake/fixed_string/fixed_stringConfig.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/fixed-string_x64-windows/./include/fixed_string.hpp

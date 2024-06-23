@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "tests\\CMakeFiles\\tests.dir\\RelWithDebInfo\\array_tests.cpp.obj",
+            "outputs": [
+                "C:\\Users\\Matthew Clohessy\\source\\repos\\mclo\\build\\ninja-multi-vcpkg\\vc140.pdb",
+                "tests\\CMakeFiles\\tests.dir\\RelWithDebInfo\\array_tests.cpp.obj.ddi"
+            ],
+            "requires": []
+        }
+    ]
+}

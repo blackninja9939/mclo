@@ -1,0 +1,10 @@
+prefix=C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows
+
+includedir=${prefix}/include
+
+Name: magic_enum
+Description: A library that provides static reflection for enums, work with any enum type without any macro or boilerplate code.
+URL: https://github.com/Neargye/magic_enum
+Version: 0.9.5
+
+Cflags: -I${includedir} 

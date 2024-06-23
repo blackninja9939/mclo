@@ -1,0 +1,9 @@
+{
+  "name": "mclo",
+  "version": "1.0",
+  "dependencies": [
+    "catch2",
+    "benchmark",
+    "magic-enum"
+  ]
+}

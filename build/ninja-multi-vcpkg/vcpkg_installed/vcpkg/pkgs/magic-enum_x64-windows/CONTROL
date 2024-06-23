@@ -1,0 +1,7 @@
+Package: magic-enum
+Version: 0.9.5
+Depends: vcpkg-cmake, vcpkg-cmake-config
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d5b87a32ff8402ed1ac56374d0a20361ef2c804b9f65fbd5e8d35baa43be3248
+Description: Header-only C++17 library provides static reflection for enums, work with any enum type without any macro or boilerplate code.

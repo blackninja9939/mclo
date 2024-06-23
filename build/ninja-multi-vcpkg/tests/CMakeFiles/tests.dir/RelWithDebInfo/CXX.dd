@@ -1,0 +1,11 @@
+ninja_dyndep_version = 1.0
+build tests\CMakeFiles\tests.dir\RelWithDebInfo\array_tests.cpp.obj: dyndep
+
+build tests\CMakeFiles\tests.dir\RelWithDebInfo\bit_tests.cpp.obj: dyndep
+
+build tests\CMakeFiles\tests.dir\RelWithDebInfo\string_util_tests.cpp.obj: dyndep
+
+build tests\CMakeFiles\tests.dir\RelWithDebInfo\meta_tests.cpp.obj: dyndep
+
+build tests\CMakeFiles\tests.dir\RelWithDebInfo\mph_tests.cpp.obj: dyndep
+

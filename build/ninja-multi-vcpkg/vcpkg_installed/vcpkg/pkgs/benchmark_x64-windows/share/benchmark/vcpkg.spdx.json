@@ -1,0 +1,132 @@
+{
+  "$schema": "https://raw.githubusercontent.com/spdx/spdx-spec/v2.2.1/schemas/spdx-schema.json",
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "documentNamespace": "https://spdx.org/spdxdocs/benchmark-x64-windows-1.8.3#2-fe4282b0-9664-4290-aabc-8412c0ea233c",
+  "name": "benchmark:x64-windows@1.8.3#2 78e78d10ddd8a9455c4aa35b126ef2a1832dd6f15dd921001409899d5d9587f3",
+  "creationInfo": {
+    "creators": [
+      "Tool: vcpkg-7d353e869753e5609a1f1a057df3db8fd356e49d"
+    ],
+    "created": "2024-06-18T22:17:30Z"
+  },
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "GENERATES",
+      "relatedSpdxElement": "SPDXRef-binary"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-0"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-1"
+    },
+    {
+      "spdxElementId": "SPDXRef-port",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-file-2"
+    },
+    {
+      "spdxElementId": "SPDXRef-binary",
+      "relationshipType": "GENERATED_FROM",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-0",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-1",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    },
+    {
+      "spdxElementId": "SPDXRef-file-2",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-port"
+    }
+  ],
+  "packages": [
+    {
+      "name": "benchmark",
+      "SPDXID": "SPDXRef-port",
+      "versionInfo": "1.8.3#2",
+      "downloadLocation": "git+https://github.com/microsoft/vcpkg@44a03f2c85841f8e1e434e6a7f0a4ae73f7b2310",
+      "homepage": "https://github.com/google/benchmark",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "description": "A library to support the benchmarking of functions, similar to unit-tests.",
+      "comment": "This is the port (recipe) consumed by vcpkg."
+    },
+    {
+      "name": "benchmark:x64-windows",
+      "SPDXID": "SPDXRef-binary",
+      "versionInfo": "78e78d10ddd8a9455c4aa35b126ef2a1832dd6f15dd921001409899d5d9587f3",
+      "downloadLocation": "NONE",
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "comment": "This is a binary package built by vcpkg."
+    },
+    {
+      "SPDXID": "SPDXRef-resource-1",
+      "name": "google/benchmark",
+      "downloadLocation": "git+https://github.com/google/benchmark@v1.8.3",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "4e12114251c79a426873cfba6e27270b69fc980cef9a68e9cb3170f8e2e203f77dee19ab1e65cad51cd67e60991d3bbfdd52553f22522ce5e6c611b5aa07602c"
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "fileName": "./C:/Users/Matthew Clohessy/AppData/Local/vcpkg/registries/git-trees/44a03f2c85841f8e1e434e6a7f0a4ae73f7b2310/fix_qnx.patch",
+      "SPDXID": "SPDXRef-file-0",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "b26059e245ba44d33bc3b02e7d0f7366ab490084050baa528b37569fa6078751"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/Matthew Clohessy/AppData/Local/vcpkg/registries/git-trees/44a03f2c85841f8e1e434e6a7f0a4ae73f7b2310/portfile.cmake",
+      "SPDXID": "SPDXRef-file-1",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4d54a7fa3a451697125ce7636233d70be8cf963b7cca011395c4ab581759e6e3"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "fileName": "./C:/Users/Matthew Clohessy/AppData/Local/vcpkg/registries/git-trees/44a03f2c85841f8e1e434e6a7f0a4ae73f7b2310/vcpkg.json",
+      "SPDXID": "SPDXRef-file-2",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "4ae24cfe6125dd9c9bbd9d179e52bda9368c19a2ae8d2ad2ca961ce7c75f3f3e"
+        }
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ]
+}

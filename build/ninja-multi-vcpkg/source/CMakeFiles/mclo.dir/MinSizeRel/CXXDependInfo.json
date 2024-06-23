@@ -1,0 +1,23 @@
+{
+	"bmi-installation" : null,
+	"compiler-frontend-variant" : "MSVC",
+	"compiler-id" : "MSVC",
+	"compiler-simulate-id" : "",
+	"config" : "MinSizeRel",
+	"cxx-modules" : {},
+	"dir-cur-bld" : "C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/source",
+	"dir-cur-src" : "C:/Users/Matthew Clohessy/source/repos/mclo/source",
+	"dir-top-bld" : "C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg",
+	"dir-top-src" : "C:/Users/Matthew Clohessy/source/repos/mclo",
+	"exports" : [],
+	"forward-modules-from-target-dirs" : [],
+	"include-dirs" : 
+	[
+		"C:\\Users\\Matthew Clohessy\\source\\repos\\mclo\\source\\..\\include",
+		"C:\\Users\\Matthew Clohessy\\source\\repos\\mclo\\source",
+		"vcpkg_installed\\x64-windows\\include"
+	],
+	"language" : "CXX",
+	"linked-target-dirs" : [],
+	"module-dir" : "C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/source/CMakeFiles/mclo.dir/MinSizeRel"
+}

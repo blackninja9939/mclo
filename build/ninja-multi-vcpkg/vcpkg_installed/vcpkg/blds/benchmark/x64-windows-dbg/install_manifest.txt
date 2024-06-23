@@ -1,0 +1,11 @@
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/benchmark.lib
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/bin/benchmark.dll
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/benchmark_main.lib
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/bin/benchmark_main.dll
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/include/benchmark/benchmark.h
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/include/benchmark/export.h
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/cmake/benchmark/benchmarkConfig.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/cmake/benchmark/benchmarkConfigVersion.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/pkgconfig/benchmark.pc
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/cmake/benchmark/benchmarkTargets.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/benchmark_x64-windows/debug/lib/cmake/benchmark/benchmarkTargets-debug.cmake

@@ -1,0 +1,7 @@
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/package.dir
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/package_source.dir
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/edit_cache.dir
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/rebuild_cache.dir
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/list_install_components.dir
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/install.dir
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/blds/magic-enum/x64-windows-rel/CMakeFiles/install/local.dir

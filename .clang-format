@@ -1,0 +1,44 @@
+---
+BasedOnStyle: Microsoft
+AccessModifierOffset: -4
+AlignArrayOfStructures: Right
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakConstructorInitializers: BeforeComma
+FixNamespaceComments: false
+IndentCaseLabels: true
+InsertBraces: true
+InsertNewlineAtEOF: true
+KeepEmptyLinesAtEOF: true
+NamespaceIndentation: All
+PackConstructorInitializers: Never
+PointerAlignment: Left
+QualifierAlignment: Left
+SpaceBeforeJsonColon: true
+SpacesInParens: Custom
+SpacesInParensOptions:
+  InConditionalStatements: true
+  InCStyleCasts: true
+  Other: true
+SpacesInSquareBrackets: true
+UseTab: ForContinuationAndIndentation

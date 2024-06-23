@@ -1,0 +1,13 @@
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_all.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_containers.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_flags.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_format.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_fuse.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_iostream.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_switch.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/include/magic_enum_utility.hpp
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/lib/cmake/magic_enum/magic_enumConfig.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/lib/cmake/magic_enum/magic_enumConfigVersion.cmake
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/lib/pkgconfig/magic_enum.pc
+C:/Users/Matthew Clohessy/source/repos/mclo/build/ninja-multi-vcpkg/vcpkg_installed/vcpkg/pkgs/magic-enum_x64-windows/share/magic_enum/package.xml
