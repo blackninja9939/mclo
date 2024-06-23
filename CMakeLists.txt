@@ -19,6 +19,10 @@ if ( MSVC )
 		/Zc:throwingNew
 		/wd5030
 	)
+else()
+	add_compile_options(
+		-Wnounknown-attributes
+	)
 endif()
 
 # Enable Hot Reload for MSVC compilers if supported.
