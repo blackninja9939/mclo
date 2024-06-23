@@ -1,6 +1,8 @@
 #pragma once
 
+#include "constant_evaluated.hpp"
 #include "platform.hpp"
+#include "type_traits.hpp"
 
 #if __cplusplus >= 202002L
 
@@ -24,9 +26,7 @@ namespace mclo
 
 #else
 
-#include "constant_evaluated.hpp"
-#include "type_traits.hpp"
-
+#include <climits>
 #include <cstddef>
 
 namespace mclo
@@ -105,7 +105,8 @@ namespace mclo
 			const int remainder = shift % digits;
 			if ( remainder > 0 )
 			{
-				return static_cast<T>( static_cast<T>( value << remainder ) | static_cast<T>( value >> (digits - remainder ) ) );
+				return static_cast<T>( static_cast<T>( value << remainder ) |
+									   static_cast<T>( value >> ( digits - remainder ) ) );
 			}
 			else if ( remainder == 0 )
 			{
@@ -124,7 +125,8 @@ namespace mclo
 			const int remainder = shift % digits;
 			if ( remainder > 0 )
 			{
-				return static_cast<T>( static_cast<T>( value >> remainder ) | static_cast<T>( value << (digits - remainder ) ) );
+				return static_cast<T>( static_cast<T>( value >> remainder ) |
+									   static_cast<T>( value << ( digits - remainder ) ) );
 			}
 			else if ( remainder == 0 )
 			{
@@ -405,8 +407,6 @@ namespace mclo
 #else
 
 #include "algorithm.hpp"
-#include "type_traits.hpp"
-#include "constant_evaluated.hpp"
 
 namespace mclo
 {
