@@ -61,6 +61,17 @@ namespace mclo
 		return to_string( std::begin( buffer ), std::end( buffer ), value, std::forward<ToCharArgs>( args )... );
 	}
 
+	template <typename String>
+	struct string_character_type
+	{
+		using type = typename String::value_type;
+	};
+	template <typename CharT>
+	struct string_character_type<const CharT*>
+	{
+		using type = CharT;
+	};
+
 	inline constexpr std::string_view whitespace_characters = " \n\f\t\r\v";
 	inline constexpr std::string_view numeric_characters = "0123456789";
 	inline constexpr std::string_view uppercase_characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -69,39 +80,45 @@ namespace mclo
 	inline constexpr std::string_view alphanumeric_characters =
 		"abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-	[[nodiscard]] constexpr std::string_view trim_front(
-		const std::string_view string, const std::string_view to_trim = whitespace_characters ) noexcept
+	template <typename CharT>
+	[[nodiscard]] constexpr std::basic_string_view<CharT> trim_front(
+		const std::basic_string_view<CharT> string,
+		const std::basic_string_view<CharT> to_trim = whitespace_characters ) noexcept
 	{
 		const auto start = string.find_first_not_of( to_trim );
-		if ( start == std::string_view::npos )
+		if ( start == std::basic_string_view<CharT>::npos )
 		{
 			return {};
 		}
 		return string.substr( start );
 	}
 
-	[[nodiscard]] constexpr std::string_view trim_back(
-		const std::string_view string, const std::string_view to_trim = whitespace_characters ) noexcept
+	template <typename CharT>
+	[[nodiscard]] constexpr std::basic_string_view<CharT> trim_back(
+		const std::basic_string_view<CharT> string,
+		const std::basic_string_view<CharT> to_trim = whitespace_characters ) noexcept
 	{
 		const auto end = string.find_last_not_of( to_trim );
-		if ( end == std::string_view::npos )
+		if ( end == std::basic_string_view<CharT>::npos )
 		{
 			return {};
 		}
 		return string.substr( 0, end + 1 );
 	}
 
-	[[nodiscard]] constexpr std::string_view trim( const std::string_view string,
-												   const std::string_view to_trim = whitespace_characters ) noexcept
+	template <typename CharT>
+	[[nodiscard]] constexpr std::basic_string_view<CharT> trim(
+		const std::basic_string_view<CharT> string,
+		const std::basic_string_view<CharT> to_trim = whitespace_characters ) noexcept
 	{
 		auto start = string.find_first_not_of( to_trim );
-		if ( start == std::string_view::npos )
+		if ( start == std::basic_string_view<CharT>::npos )
 		{
 			return {};
 		}
 
 		const auto end = string.find_last_not_of( to_trim );
-		if ( end == std::string_view::npos )
+		if ( end == std::basic_string_view<CharT>::npos )
 		{
 			return string.substr( start );
 		}
@@ -293,26 +310,70 @@ namespace mclo
 			}
 			return result;
 		}
+
+		template <typename String, typename It>
+		constexpr bool is_iterators_over_literals =
+			std::is_same_v<typename std::iterator_traits<It>::value_type, const typename String::value_type*>;
 	}
 
-	template <typename String = std::string, typename It>
+	template <typename String = std::string,
+			  std::size_t literal_size_buffer_max = 64,
+			  typename It,
+			  typename = std::enable_if_t<detail::is_iterators_over_literals<String, It>>>
 	[[nodiscard]] constexpr String join_string( It first, It last )
 	{
-		using value_type = typename std::iterator_traits<It>::value_type;
+		using string_value_type = typename String::value_type;
+		using traits_type = std::char_traits<string_value_type>;
+		using iterator_category = typename std::iterator_traits<It>::iterator_category;
 
-		if constexpr ( std::is_same_v<value_type, const char*> )
+		if constexpr ( std::is_base_of_v<std::forward_iterator_tag, iterator_category> )
 		{
+			if ( std::distance( first, last ) > literal_size_buffer_max )
+			{
+				return detail::join_string_iterators<String>(
+					first, last, []( const auto& string ) { return traits_type::length( string ); } );
+			}
+
+			std::array<std::basic_string_view<string_value_type>, literal_size_buffer_max> sizes{};
+			auto sizes_it = sizes.begin();
+			while ( first != last )
+			{
+				*sizes_it++ = *first++;
+			}
+
 			return detail::join_string_iterators<String>(
-				first, last, []( const auto& string ) { return std::char_traits<char>::length( string ); } );
+				sizes.begin(), sizes_it, []( const auto& string ) { return std::size( string ); } );
 		}
 		else
 		{
 			return detail::join_string_iterators<String>(
-				first, last, []( const auto& string ) { return std::size( string ); } );
+				first, last, []( const auto& string ) { return traits_type::length( string ); } );
 		}
 	}
 
-	template <typename String = std::string, typename Container>
+	template <typename String = std::string,
+			  typename It,
+			  typename = std::enable_if_t<!detail::is_iterators_over_literals<String, It>>>
+	[[nodiscard]] constexpr String join_string( It first, It last )
+	{
+		return detail::join_string_iterators<String>(
+			first, last, []( const auto& string ) { return std::size( string ); } );
+	}
+
+	template <
+		typename String = std::string,
+		std::size_t literal_size_buffer_max = 64,
+		typename Container,
+		typename = std::enable_if_t<detail::is_iterators_over_literals<String, typename Container::const_iterator>>>
+	[[nodiscard]] constexpr String join_string( const Container& strings )
+	{
+		return join_string<String, literal_size_buffer_max>( std::begin( strings ), std::end( strings ) );
+	}
+
+	template <
+		typename String = std::string,
+		typename Container,
+		typename = std::enable_if_t<!detail::is_iterators_over_literals<String, typename Container::const_iterator>>>
 	[[nodiscard]] constexpr String join_string( const Container& strings )
 	{
 		return join_string<String>( std::begin( strings ), std::end( strings ) );
