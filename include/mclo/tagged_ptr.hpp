@@ -13,6 +13,8 @@ namespace mclo
 {
 	namespace detail
 	{
+		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
+		// do we want to even support 32 bit code? I doubt it
 		inline constexpr std::size_t used_bits = 48;
 		inline constexpr std::size_t free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - used_bits;
 

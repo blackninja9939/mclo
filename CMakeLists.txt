@@ -19,9 +19,13 @@ if ( MSVC )
 		/Zc:throwingNew
 		/wd5030
 	)
-else()
+elseif( CMAKE_CXX_COMILER_ID STREQUAL "GNU" )
 	add_compile_options(
-		-Wnounknown-attributes
+		-Wno-attributes=msvc::
+	)
+elseif( CMAKE_CXX_COMILER_ID STREQUAL "Clang" )	
+	add_compile_options(
+		-Wno-unknown-attributes
 	)
 endif()
 
