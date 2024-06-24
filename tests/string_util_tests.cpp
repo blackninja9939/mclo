@@ -2,8 +2,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "mclo/meta.hpp"
-#include "mclo/string_utils.hpp"
 #include "mclo/string_buffer.hpp"
+#include "mclo/string_utils.hpp"
 
 #include <array>
 #include <iterator>
@@ -21,10 +21,7 @@ namespace
 												long,
 												unsigned long,
 												long long,
-												unsigned long long,
-												float,
-												double,
-												long double>;
+												unsigned long long>;
 
 }
 

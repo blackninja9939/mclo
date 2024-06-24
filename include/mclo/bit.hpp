@@ -58,8 +58,8 @@ namespace mclo
 		template <typename T>
 		[[nodiscard]] constexpr int popcount( const T value ) noexcept
 		{
-			int count;
-			for ( count = 0; value; ++count )
+			int count = 0;
+			for ( ; value; ++count )
 			{
 				value &= value - 1;
 			}

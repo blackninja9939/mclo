@@ -293,31 +293,6 @@ namespace mclo
 			}
 			return result;
 		}
-
-		template <typename String, typename It>
-		[[nodiscard]] constexpr String join_string_iterators( It first, It last )
-		{
-			return join_string_iterators<String>(
-				first, last, []( const auto& string ) { return std::size( string ); } );
-		}
-
-		template <typename String, typename It>
-		[[nodiscard]] constexpr String join_string_literals( It first, It last )
-		{
-			if ( mclo::is_constant_evaluated() )
-			{
-				return join_string_iterators<String>(
-					first, last, []( const auto& string ) { return std::char_traits<char>::length( string ); } );
-			}
-			else
-			{
-				const std::size_t num_strings = std::distance( first, last );
-				auto view_buffer = std::make_unique<std::string_view[]>( num_strings );
-				std::string_view* views = view_buffer.get();
-				std::copy( first, last, views );
-				return join_string_iterators<String>( views, views + num_strings );
-			}
-		}
 	}
 
 	template <typename String = std::string, typename It>
@@ -327,11 +302,13 @@ namespace mclo
 
 		if constexpr ( std::is_same_v<value_type, const char*> )
 		{
-			return detail::join_string_literals<String>( first, last );
+			return detail::join_string_iterators<String>(
+				first, last, []( const auto& string ) { return std::char_traits<char>::length( string ); } );
 		}
 		else
 		{
-			return detail::join_string_iterators<String>( first, last );
+			return detail::join_string_iterators<String>(
+				first, last, []( const auto& string ) { return std::size( string ); } );
 		}
 	}
 
