@@ -23,7 +23,7 @@ elseif( CMAKE_CXX_COMILER_ID STREQUAL "GNU" )
 	add_compile_options(
 		-Wno-attributes=msvc::
 	)
-elseif( CMAKE_CXX_COMILER_ID STREQUAL "Clang" )	
+elseif( CMAKE_CXX_COMILER_ID MATCHES "Clang" )	
 	add_compile_options(
 		-Wno-unknown-attributes
 	)
