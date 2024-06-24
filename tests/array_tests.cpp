@@ -31,12 +31,12 @@ TEST_CASE( "broadcast_array", "[array]" )
 
 TEST_CASE( "join_arrays", "[array]" )
 {
-	constexpr std::array first{ 1, 2, 3, 4, 5 };
-	constexpr std::array second{ 5, 4, 3, 2, 1 };
+	static constexpr std::array first{ 1, 2, 3, 4, 5 };
+	static constexpr std::array second{ 5, 4, 3, 2, 1 };
 
 	SECTION( "compile time" )
 	{
-		constexpr std::array joined = mclo::join_arrays( first, second );
+		static constexpr std::array joined = mclo::join_arrays( first, second );
 		STATIC_CHECK( are_equal( joined, std::array{ 1, 2, 3, 4, 5, 5, 4, 3, 2, 1 } ) );
 	}
 	SECTION( "run time" )

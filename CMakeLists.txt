@@ -26,6 +26,7 @@ elseif( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 elseif( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )	
 	add_compile_options(
 		-Wno-unknown-attributes
+		-Wno-c++2b-extensions # They are guarded by the feature flag ifdef already
 	)
 endif()
 
