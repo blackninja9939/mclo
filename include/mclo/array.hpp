@@ -36,16 +36,25 @@ namespace mclo
 		}
 	}
 
+// C++17 mode GCC fails to eliminate the else branch during constant evaluation producing an ill-formed constexpr
+// function because the result_type is always uninitialized, which is intended at run time
+#if defined( __GNUC__ ) && ( __cplusplus < 202002L )
+#define MCLO_GCC_CONSTANT_EVALUATED_WORKAROUND
+#endif
+
 	template <typename T, std::size_t... size>
 	[[nodiscard]] constexpr auto join_arrays( const std::array<T, size>&... arrays ) noexcept(
 		std::is_nothrow_default_constructible_v<T> && std::is_nothrow_copy_assignable_v<T> )
 	{
 		using result_type = std::array<T, ( size + ... )>;
+#ifndef MCLO_GCC_CONSTANT_EVALUATED_WORKAROUND
 		if ( mclo::is_constant_evaluated() )
 		{
+#endif
 			result_type result{};
 			detail::join_arrays_internal( result.begin(), arrays... );
 			return result;
+#ifndef MCLO_GCC_CONSTANT_EVALUATED_WORKAROUND
 		}
 		else
 		{
@@ -53,5 +62,8 @@ namespace mclo
 			detail::join_arrays_internal( result.begin(), arrays... );
 			return result;
 		}
+#endif
 	}
+
+#undef MCLO_GCC_CONSTANT_EVALUATED_WORKAROUND
 }
