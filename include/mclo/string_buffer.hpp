@@ -571,7 +571,15 @@ namespace mclo
 			}
 			catch ( ... )
 			{
-				is.setstate( istream_type::badbit, true );
+				try
+				{
+					is.setstate( istream_type::badbit );
+				}
+				catch ( ... )
+				{
+					// Discard the exception this sets to re-raise our more meaningful one
+				}
+				throw;
 			}
 		}
 
