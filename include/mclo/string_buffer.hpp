@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cassert>
+#include <stdexcept>
 #include <string_view>
 
 #ifdef __cpp_lib_format
