@@ -19,7 +19,7 @@ TEST_CASE( "string_buffer from literal", "[string_buffer]" )
 	}
 }
 
-TEST_CASE( "string_buffer ", "[string_buffer]" )
+TEST_CASE( "string_buffer", "[string_buffer]" )
 {
 	mclo::string_buffer<64> str( "hello 123" );
 
@@ -45,6 +45,23 @@ TEST_CASE( "string_buffer output streaming", "[string_buffer]" )
 	stream << str;
 
 	CHECK( stream.str() == "hello to the world" );
+}
+
+TEST_CASE( "string_buffer swap", "[string_buffer]" )
+{
+	mclo::string_buffer<64> str( "hello 123" );
+	mclo::string_buffer<64> str2( "goodbye 987" );
+
+	str.swap( str2 );
+
+	CHECK( str2 == "hello 123" );
+	CHECK( str == "goodbye 987" );
+
+	using std::swap;
+	swap( str, str2 );
+
+	CHECK( str == "hello 123" );
+	CHECK( str2 == "goodbye 987" );
 }
 
 #ifdef __cpp_lib_format

@@ -263,11 +263,22 @@ namespace mclo
 		}
 
 		/*
-		 * Must: append, operator+=, resize, swap
+		 * Must: append, operator+=
 		 * Nice: insert, erase
 		 * Low prio: replace
 		 * Low prio but easy:  copy
 		 */
+
+		constexpr void swap( basic_string_buffer& other ) noexcept
+		{
+			std::swap( m_data, other.m_data );
+			std::swap( m_length, other.m_length );
+		}
+
+		friend constexpr void swap( basic_string_buffer& lhs, basic_string_buffer& rhs ) noexcept
+		{
+			lhs.swap( rhs );
+		}
 
 		constexpr void resize( const size_type count, const value_type ch ) noexcept
 		{
