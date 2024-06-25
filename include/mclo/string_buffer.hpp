@@ -349,7 +349,7 @@ namespace mclo
 
 		constexpr int compare( const view_type& str ) const noexcept
 		{
-			return view_type( *this ).compare( stir );
+			return view_type( *this ).compare( str );
 		}
 
 #ifdef __cpp_lib_starts_ends_with

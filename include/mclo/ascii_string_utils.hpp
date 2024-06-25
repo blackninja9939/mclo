@@ -64,7 +64,7 @@ namespace mclo
 	namespace detail
 	{
 		template <typename It>
-		constexpr bool is_char_it = std::is_same_v<char, typename std::iterator_traits<It>::template value_type>;
+		constexpr bool is_char_it = std::is_same_v<char, typename std::iterator_traits<It>::value_type>;
 
 		template <typename Container, typename = void>
 		constexpr bool is_char_container = false;
