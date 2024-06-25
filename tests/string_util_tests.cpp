@@ -151,6 +151,21 @@ TEST_CASE( "join_string variadic", "[string]" )
 	CHECK( result == "hello to the world" );
 }
 
+TEMPLATE_TEST_CASE( "join_string iterators", "[string]", std::string, std::string_view, const char* )
+{
+	const std::array<TestType, 3> arr{ "hello", " to ", "the world" };
+	const std::string result = mclo::join_string( arr.rbegin(), arr.rend() );
+	CHECK( result == "the world to hello" );
+}
+
+TEST_CASE( "join_string input iterators", "[string]" )
+{
+	std::istringstream str( "hello to the world" );
+	const std::string result =
+		mclo::join_string( std::istreambuf_iterator<char>( str ), std::istreambuf_iterator<char>() );
+	CHECK( result == "hello to the world" );
+}
+
 TEMPLATE_TEST_CASE( "join_string container", "[string]", std::string, std::string_view, const char* )
 {
 	const std::array<TestType, 3> arr{ "hello", " to ", "the world" };
@@ -165,19 +180,14 @@ TEMPLATE_TEST_CASE( "join_string container constexpr", "[string]", std::string_v
 	STATIC_CHECK( std::string_view( result ) == "hello to the world" );
 }
 
-TEMPLATE_TEST_CASE( "join_string iterators", "[string]", std::string, std::string_view, const char* )
+TEST_CASE( "join_string char* iterators", "[string]" )
 {
-	const std::array<TestType, 3> arr{ "hello", " to ", "the world" };
-	const std::string result = mclo::join_string( arr.rbegin(), arr.rend() );
-	CHECK( result == "the world to hello" );
-}
+	const std::array<const char*, 3> arr{ "hello", " to ", "the world" };
+	const std::string result_out_buffer = mclo::join_string<std::string, 2>( arr.rbegin(), arr.rend() );
+	const std::string result_in_buffer = mclo::join_string<std::string, 6>( arr.rbegin(), arr.rend() );
 
-TEST_CASE( "join_string input iterators", "[string]" )
-{
-	std::istringstream str( "hello to the world" );
-	const std::string result =
-		mclo::join_string( std::istreambuf_iterator<char>( str ), std::istreambuf_iterator<char>() );
-	CHECK( result == "hello to the world" );
+	CHECK( result_out_buffer == "the world to hello" );
+	CHECK( result_in_buffer == result_out_buffer );
 }
 
 TEST_CASE( "string_hash", "[string][hash]" )

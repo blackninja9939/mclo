@@ -275,11 +275,13 @@ namespace mclo
 
 		template <typename String, typename It>
 		constexpr bool is_iterators_over_literals =
-			std::is_same_v<typename std::iterator_traits<It>::value_type, const typename String::value_type*>;
+			std::is_same_v<typename std::iterator_traits<It>::value_type, const string_character_t<String>*>;
+
+		inline constexpr std::size_t default_literal_size_buffer_max = 16;
 	}
 
 	template <typename String = std::string,
-			  std::size_t literal_size_buffer_max = 64,
+			  std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
 			  typename It,
 			  typename = std::enable_if_t<detail::is_iterators_over_literals<String, It>>>
 	[[nodiscard]] constexpr String join_string( It first, It last )
@@ -324,7 +326,7 @@ namespace mclo
 
 	template <
 		typename String = std::string,
-		std::size_t literal_size_buffer_max = 64,
+		std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
 		typename Container,
 		typename = std::enable_if_t<detail::is_iterators_over_literals<String, typename Container::const_iterator>>>
 	[[nodiscard]] constexpr String join_string( const Container& strings )
