@@ -232,4 +232,21 @@ namespace mclo::meta
 
 	template <template <typename> typename Function, typename... Lists>
 	using product = typename detail::product_impl<Function, Lists...>::type;
+
+	// Type list aliases
+	using signed_integers = type_list<signed char, signed short, signed int, signed long, signed long long>;
+	using unsigned_integers = type_list<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long>;
+	
+	using integers = join<signed_integers, unsigned_integers>;
+
+	using floating_points = type_list<float, double, long double>;
+	using numeric_types = join<floating_points, integers>;
+
+	using char_types = mclo::meta::type_list<char,
+											 wchar_t,
+#ifdef __cpp_char8_t
+											 char8_t,
+#endif
+											 char16_t,
+											 char32_t>;
 }
