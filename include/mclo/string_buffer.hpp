@@ -44,6 +44,15 @@ namespace mclo
 
 		constexpr basic_string_buffer() noexcept = default;
 
+		constexpr basic_string_buffer( const size_type count, const value_type ch ) noexcept
+		{
+			resize( count, ch );
+		}
+		constexpr explicit basic_string_buffer( const size_type count ) noexcept
+		{
+			resize( count );
+		}
+
 		template <std::size_t OtherSize, typename = std::enable_if_t<( OtherSize <= Size )>>
 		constexpr basic_string_buffer( const value_type ( &array )[ OtherSize ] ) noexcept
 		{
@@ -87,7 +96,7 @@ namespace mclo
 
 		// Element access
 
-		reference at( const size_type pos )
+		constexpr reference at( const size_type pos )
 		{
 			if ( pos >= m_length )
 			{
@@ -95,7 +104,7 @@ namespace mclo
 			}
 			return m_data[ pos ];
 		}
-		const_reference at( const size_type pos ) const
+		constexpr const_reference at( const size_type pos ) const
 		{
 			if ( pos >= m_length )
 			{
@@ -104,34 +113,34 @@ namespace mclo
 			return m_data[ pos ];
 		}
 
-		reference operator[]( const size_type pos ) noexcept
+		constexpr reference operator[]( const size_type pos ) noexcept
 		{
 			assert( pos < m_length );
 			return m_data[ pos ];
 		}
-		const_reference operator[]( const size_type pos ) const noexcept
+		constexpr const_reference operator[]( const size_type pos ) const noexcept
 		{
 			assert( pos < m_length );
 			return m_data[ pos ];
 		}
 
-		reference front() noexcept
+		constexpr reference front() noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.front();
 		}
-		const_reference front() const noexcept
+		constexpr const_reference front() const noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.front();
 		}
 
-		reference back() noexcept
+		constexpr reference back() noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.back();
 		}
-		const_reference back() const noexcept
+		constexpr const_reference back() const noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.back();
@@ -258,7 +267,43 @@ namespace mclo
 		 * Nice: insert, erase
 		 * Low prio: replace
 		 * Low prio but easy:  copy
-		*/
+		 */
+
+		constexpr void resize( const size_type count, const value_type ch ) noexcept
+		{
+			assert( count <= max_string_size );
+			if ( count == m_length )
+			{
+				return;
+			}
+
+			if ( count > m_length )
+			{
+				mclo::fill_n( end(), count - m_length, ch );
+			}
+
+			// Want to set length and terminate for trimming and growing, trimming just ignores existing characters and
+			// inserts null
+			m_length = count;
+			null_terminate_end();
+		}
+
+		constexpr void resize( const size_type count ) noexcept
+		{
+			assert( count <= max_string_size );
+			if ( count > m_length )
+			{
+				// We know we're filling null terminator so do it as part of the fill_n itself so do not call
+				// null_terminate_end
+				mclo::fill_n( end(), count - m_length + 1, value_type() );
+				m_length = count;
+			}
+			else if ( count < m_length )
+			{
+				m_length = count;
+				null_terminate_end();
+			}
+		}
 
 		constexpr void push_back( const value_type c ) noexcept
 		{
@@ -293,18 +338,18 @@ namespace mclo
 		template <std::size_t OtherSize>
 		constexpr int compare( const basic_string_buffer<CharT, OtherSize>& str ) const noexcept
 		{
-			return compare( str.data(), str.size() );
+			return compare( view_type( str ) );
 		}
 
 		template <std::size_t OtherSize>
 		constexpr int compare( const value_type ( &str )[ OtherSize ] ) const noexcept
 		{
-			return compare( str, OtherSize - 1 );
+			return compare( view_type( str ) );
 		}
 
 		constexpr int compare( const view_type& str ) const noexcept
 		{
-			return compare( str.data(), str.size() );
+			return view_type( *this ).compare( stir );
 		}
 
 #ifdef __cpp_lib_starts_ends_with
@@ -374,24 +419,6 @@ namespace mclo
 			}
 		}
 
-		constexpr int compare( const const_pointer str, const size_type str_size ) const noexcept
-		{
-			const int result = traits_type::compare( data(), str, std::min( m_length, str_size ) );
-			if ( result != 0 )
-			{
-				return result;
-			}
-			if ( m_length < str_size )
-			{
-				return -1;
-			}
-			if ( m_length > str_size )
-			{
-				return 1;
-			}
-			return 0;
-		}
-
 		constexpr void assign_with_null( const const_pointer str, const size_type size ) noexcept
 		{
 			traits_copy( m_data.data(), str, size + 1 );
@@ -421,36 +448,26 @@ namespace mclo
 		{
 			return N - 1;
 		}
+
+		template <typename String>
+		constexpr bool is_string_buffer = false;
+
+		template <typename CharT, std::size_t N>
+		constexpr bool is_string_buffer<mclo::basic_string_buffer<CharT, N>> = true;
 	}
 
-#define IMPLEMENT_COMPARISONS( OPERATOR, ... )                                                                         \
-	template <typename CharT, std::size_t LhsSize, std::size_t RhsSize>                                                \
-	[[nodiscard]] constexpr bool OPERATOR( const basic_string_buffer<CharT, LhsSize>& lhs,                             \
-										   const basic_string_buffer<CharT, RhsSize>& rhs ) noexcept                   \
+#define IMPLEMENT_COMPARISONS( OPERATOR )                                                                              \
+	template <typename CharT, std::size_t Size, typename String>                                                       \
+	[[nodiscard]] constexpr bool operator OPERATOR( const basic_string_buffer<CharT, Size>& lhs,                       \
+													const String& rhs ) noexcept                                       \
 	{                                                                                                                  \
-		__VA_ARGS__                                                                                                    \
-	}                                                                                                                  \
-                                                                                                                       \
-	template <typename CharT, std::size_t LhsSize, std::size_t RhsSize>                                                \
-	[[nodiscard]] constexpr auto OPERATOR( const basic_string_buffer<CharT, LhsSize>& lhs,                             \
-										   const CharT( &rhs )[ RhsSize ] ) noexcept                                   \
-	{                                                                                                                  \
-		__VA_ARGS__                                                                                                    \
-	}                                                                                                                  \
-                                                                                                                       \
-	template <typename CharT, std::size_t LhsSize>                                                                     \
-	[[nodiscard]] constexpr bool OPERATOR(                                                                             \
-		const basic_string_buffer<CharT, LhsSize>& lhs,                                                                \
-		const typename basic_string_buffer<CharT, LhsSize>::view_type& rhs ) noexcept                                  \
-	{                                                                                                                  \
-		__VA_ARGS__                                                                                                    \
+		using view_type = typename basic_string_buffer<CharT, Size>::view_type;                                        \
+		return view_type( lhs ) OPERATOR view_type( rhs );                                                             \
 	}
 
 	// != synthesized in C++20
 
-	IMPLEMENT_COMPARISONS( operator==, using traits = typename basic_string_buffer<CharT, LhsSize>::traits_type;
-						   return lhs.size() == detail::string_size( rhs ) &&
-								  traits::compare( lhs.data(), std::data( rhs ), lhs.size() ) == 0; )
+	IMPLEMENT_COMPARISONS( == )
 
 #ifdef __cpp_impl_three_way_comparison
 	namespace detail
@@ -472,36 +489,30 @@ namespace mclo
 		using string_comp_category_t = typename string_comp_category<T>::type;
 	}
 
-	IMPLEMENT_COMPARISONS( operator<=>, using traits = typename basic_string_buffer<CharT, LhsSize>::traits_type;
-						   return static_cast<detail::string_comp_category_t<traits>>( lhs.compare( rhs ) <=> 0 ); )
+	IMPLEMENT_COMPARISONS( <=> )
 
 #else
-#define IMPLEMENT_REVERSED_COMPARISONS( OPERATOR, ... )                                                                \
-	template <typename CharT, std::size_t LhsSize, std::size_t RhsSize>                                                \
-	[[nodiscard]] constexpr auto OPERATOR( const CharT( &lhs )[ LhsSize ],                                             \
-										   const basic_string_buffer<CharT, RhsSize>& rhs ) noexcept                   \
+
+#define IMPLEMENT_REVERSED_COMPARISONS( OPERATOR )                                                                     \
+	template <typename CharT, std::size_t Size, typename String>                                                       \
+	[[nodiscard]] constexpr bool operator OPERATOR( const String& lhs,                                                 \
+													const basic_string_buffer<CharT, Size>& rhs ) noexcept             \
 	{                                                                                                                  \
-		__VA_ARGS__                                                                                                    \
-	}                                                                                                                  \
-                                                                                                                       \
-	template <typename CharT, std::size_t N>                                                                           \
-	[[nodiscard]] constexpr bool OPERATOR( const typename basic_string_buffer<CharT, N>::view_type& lhs,               \
-										   const basic_string_buffer<CharT, N>& rhs ) noexcept                         \
-	{                                                                                                                  \
-		__VA_ARGS__                                                                                                    \
+		using view_type = typename basic_string_buffer<CharT, Size>::view_type;                                        \
+		return view_type( lhs ) OPERATOR view_type( rhs );                                                             \
 	}
 
-	IMPLEMENT_REVERSED_COMPARISONS( operator==, return rhs == lhs; );
-	IMPLEMENT_COMPARISONS( operator!=, return !( lhs == rhs ); )
-	IMPLEMENT_REVERSED_COMPARISONS( operator!=, return !( rhs == lhs ); );
-	IMPLEMENT_COMPARISONS( operator<, return lhs.compare( rhs ) < 0; )
-	IMPLEMENT_REVERSED_COMPARISONS( operator<, return rhs.compare( lhs ) > 0; );
-	IMPLEMENT_COMPARISONS( operator>, return rhs < lhs; )
-	IMPLEMENT_REVERSED_COMPARISONS( operator>, return rhs < lhs; )
-	IMPLEMENT_COMPARISONS( operator<=, return !( rhs < lhs ); )
-	IMPLEMENT_REVERSED_COMPARISONS( operator<=, return !( rhs < lhs ); )
-	IMPLEMENT_COMPARISONS( operator>=, return !( lhs < rhs ); )
-	IMPLEMENT_REVERSED_COMPARISONS( operator>=, return !( lhs < rhs ); )
+	IMPLEMENT_REVERSED_COMPARISONS( == );
+	IMPLEMENT_COMPARISONS( != )
+	IMPLEMENT_REVERSED_COMPARISONS( != );
+	IMPLEMENT_COMPARISONS( < )
+	IMPLEMENT_REVERSED_COMPARISONS( < );
+	IMPLEMENT_COMPARISONS( > )
+	IMPLEMENT_REVERSED_COMPARISONS( > )
+	IMPLEMENT_COMPARISONS( <= )
+	IMPLEMENT_REVERSED_COMPARISONS( <= )
+	IMPLEMENT_COMPARISONS( >= )
+	IMPLEMENT_REVERSED_COMPARISONS( >= )
 
 #undef IMPLEMENT_REVERSED_COMPARISONS
 #endif
@@ -648,6 +659,19 @@ namespace mclo
 		}
 	}
 #endif
+
+	template <typename CharT, std::size_t N>
+	[[nodiscard]] constexpr basic_string_buffer<CharT, N> trandscode_string_literal( const char ( &str )[ N ] ) noexcept
+	{
+		basic_string_buffer<CharT, N> buffer( N - 1 );
+		for ( std::size_t i = 0; i < N - 1; ++i )
+		{
+			const char ch = str[ i ];
+			assert( mclo::is_ascii( ch ) );
+			buffer[ i ] = static_cast<CharT>( ch );
+		}
+		return buffer;
+	}
 }
 
 namespace std
