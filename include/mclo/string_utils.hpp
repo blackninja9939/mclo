@@ -1,8 +1,10 @@
 #pragma once
 
 #include "algorithm.hpp"
+#include "ascii_string_utils.hpp"
 #include "fnva1.hpp"
 #include "numeric.hpp"
+#include "string_buffer.hpp"
 #include "type_traits.hpp"
 
 #include <array>
@@ -16,6 +18,23 @@
 
 namespace mclo
 {
+	template <typename String>
+	struct string_character
+	{
+		using type = typename String::value_type;
+	};
+	template <typename CharT>
+	struct string_character<const CharT*>
+	{
+		using type = CharT;
+	};
+
+	template <typename String>
+	using string_character_t = typename string_character<String>::type;
+
+	template <typename String>
+	using string_view_type_t = std::basic_string_view<string_character_t<String>>;
+
 	template <typename T, typename... FromCharArgs>
 	[[nodiscard]] std::optional<T> from_string( const std::string_view str, FromCharArgs&&... args ) noexcept
 	{
@@ -61,143 +80,81 @@ namespace mclo
 		return to_string( std::begin( buffer ), std::end( buffer ), value, std::forward<ToCharArgs>( args )... );
 	}
 
+	template <typename CharT>
+	constexpr auto whitespace_characters_v = trandscode_string_literal<CharT>( " \n\f\t\r\v" );
+
+	template <typename CharT>
+	constexpr auto numeric_characters_v = trandscode_string_literal<CharT>( "0123456789" );
+
+	template <typename CharT>
+	constexpr auto uppercase_characters_v = trandscode_string_literal<CharT>( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+
+	template <typename CharT>
+	constexpr auto lowercase_characters_v = trandscode_string_literal<CharT>( "abcdefgihjklmnopqrstuvwxyz" );
+
+	template <typename CharT>
+	constexpr auto alphabet_characters_v =
+		trandscode_string_literal<CharT>( "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+
+	template <typename CharT>
+	constexpr auto alphanumeric_characters_v =
+		trandscode_string_literal<CharT>( "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" );
+
+	inline constexpr auto whitespace_characters = whitespace_characters_v<char>;
+	inline constexpr auto numeric_characters = numeric_characters_v<char>;
+	inline constexpr auto uppercase_characters = uppercase_characters_v<char>;
+	inline constexpr auto lowercase_characters = lowercase_characters_v<char>;
+	inline constexpr auto alphabet_characters = alphabet_characters_v<char>;
+	inline constexpr auto alphanumeric_characters = alphanumeric_characters_v<char>;
+
 	template <typename String>
-	struct string_character_type
+	[[nodiscard]] constexpr string_view_type_t<String> trim_front(
+		const String& string,
+		const string_view_type_t<String> to_trim = whitespace_characters_v<string_character_t<String>> ) noexcept
 	{
-		using type = typename String::value_type;
-	};
-	template <typename CharT>
-	struct string_character_type<const CharT*>
-	{
-		using type = CharT;
-	};
-
-	inline constexpr std::string_view whitespace_characters = " \n\f\t\r\v";
-	inline constexpr std::string_view numeric_characters = "0123456789";
-	inline constexpr std::string_view uppercase_characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	inline constexpr std::string_view lowercase_characters = "abcdefgihjklmnopqrstuvwxyz";
-	inline constexpr std::string_view alphabet_characters = "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	inline constexpr std::string_view alphanumeric_characters =
-		"abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-	template <typename CharT>
-	[[nodiscard]] constexpr std::basic_string_view<CharT> trim_front(
-		const std::basic_string_view<CharT> string,
-		const std::basic_string_view<CharT> to_trim = whitespace_characters ) noexcept
-	{
-		const auto start = string.find_first_not_of( to_trim );
-		if ( start == std::basic_string_view<CharT>::npos )
+		const string_view_type_t<String> view{ string };
+		const auto start = view.find_first_not_of( to_trim );
+		if ( start == string_view_type_t<String>::npos )
 		{
 			return {};
 		}
-		return string.substr( start );
+		return view.substr( start );
 	}
 
-	template <typename CharT>
-	[[nodiscard]] constexpr std::basic_string_view<CharT> trim_back(
-		const std::basic_string_view<CharT> string,
-		const std::basic_string_view<CharT> to_trim = whitespace_characters ) noexcept
+	template <typename String>
+	[[nodiscard]] constexpr string_view_type_t<String> trim_back(
+		const String& string,
+		const string_view_type_t<String> to_trim = whitespace_characters_v<string_character_t<String>> ) noexcept
 	{
-		const auto end = string.find_last_not_of( to_trim );
-		if ( end == std::basic_string_view<CharT>::npos )
+		const string_view_type_t<String> view{ string };
+		const auto end = view.find_last_not_of( to_trim );
+		if ( end == string_view_type_t<String>::npos )
 		{
 			return {};
 		}
-		return string.substr( 0, end + 1 );
+		return view.substr( 0, end + 1 );
 	}
 
-	template <typename CharT>
-	[[nodiscard]] constexpr std::basic_string_view<CharT> trim(
-		const std::basic_string_view<CharT> string,
-		const std::basic_string_view<CharT> to_trim = whitespace_characters ) noexcept
+	template <typename String>
+	[[nodiscard]] constexpr string_view_type_t<String> trim(
+		const String& string,
+		const string_view_type_t<String> to_trim = whitespace_characters_v<string_character_t<String>> ) noexcept
 	{
-		auto start = string.find_first_not_of( to_trim );
-		if ( start == std::basic_string_view<CharT>::npos )
+		const string_view_type_t<String> view{ string };
+		auto start = view.find_first_not_of( to_trim );
+		if ( start == string_view_type_t<String>::npos )
 		{
 			return {};
 		}
 
-		const auto end = string.find_last_not_of( to_trim );
-		if ( end == std::basic_string_view<CharT>::npos )
+		const auto end = view.find_last_not_of( to_trim );
+		if ( end == string_view_type_t<String>::npos )
 		{
-			return string.substr( start );
+			return view.substr( start );
 		}
 
-		return string.substr( start, end + 1 - start );
+		return view.substr( start, end + 1 - start );
 	}
-
-	[[nodiscard]] constexpr bool is_digit( const char c ) noexcept
-	{
-		return c >= '0' && c <= '9';
-	}
-	[[nodiscard]] constexpr bool is_uppercase_letter( const char c ) noexcept
-	{
-		return c >= 'A' && c <= 'Z';
-	}
-	[[nodiscard]] constexpr bool is_lowercase_letter( const char c ) noexcept
-	{
-		return c >= 'a' && c <= 'z';
-	}
-	[[nodiscard]] constexpr bool is_letter( const char c ) noexcept
-	{
-		return is_uppercase_letter( c ) || is_lowercase_letter( c );
-	}
-	[[nodiscard]] constexpr bool is_alphanumeric( const char c ) noexcept
-	{
-		return is_digit( c ) || is_letter( c );
-	}
-
-	[[nodiscard]] constexpr char to_upper( const char c ) noexcept
-	{
-		if ( is_lowercase_letter( c ) )
-		{
-			return c - ( 'a' - 'A' );
-		}
-		return c;
-	}
-	[[nodiscard]] constexpr char to_lower( const char c ) noexcept
-	{
-		if ( is_uppercase_letter( c ) )
-		{
-			return c + ( 'a' - 'A' );
-		}
-		return c;
-	}
-
-	template <typename It>
-	constexpr void to_upper( It first, It last ) noexcept
-	{
-		while ( first != last )
-		{
-			char& c = *first++;
-			c = to_upper( c );
-		}
-	}
-
-	template <typename It>
-	constexpr void to_lower( It first, It last ) noexcept
-	{
-		while ( first != last )
-		{
-			char& c = *first++;
-			c = to_lower( c );
-		}
-	}
-
-	template <typename Container>
-	constexpr void to_upper( Container& string ) noexcept
-	{
-		to_upper( std::begin( string ), std::end( string ) );
-	}
-
-	template <typename Container>
-	constexpr void to_lower( Container& string ) noexcept
-	{
-		to_lower( std::begin( string ), std::end( string ) );
-	}
-
-	void to_upper( std::wstring& string ) noexcept;
-	void to_lower( std::wstring& string ) noexcept;
 
 	namespace detail
 	{
@@ -393,4 +350,7 @@ namespace mclo
 	{
 		return mclo::fnv1a( string.data(), string.size(), static_cast<char ( * )( char ) noexcept>( to_lower ) );
 	}
+
+	void to_upper( std::wstring& string ) noexcept;
+	void to_lower( std::wstring& string ) noexcept;
 }

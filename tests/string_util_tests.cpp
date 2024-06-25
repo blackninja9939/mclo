@@ -10,43 +10,31 @@
 #include <sstream>
 #include <string>
 
-namespace
-{
-	using numeric_types = mclo::meta::type_list<signed char,
-												unsigned char,
-												short,
-												unsigned short,
-												int,
-												unsigned int,
-												long,
-												unsigned long,
-												long long,
-												unsigned long long>;
+using mclo::meta::char_types;
+using mclo::meta::integers;
 
-}
-
-TEMPLATE_LIST_TEST_CASE( "from_string", "[string]", numeric_types )
+TEMPLATE_LIST_TEST_CASE( "from_string", "[string]", integers )
 {
 	auto result = mclo::from_string<TestType>( "42" );
 	REQUIRE( result );
 	CHECK( *result == 42 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "to_string std::array buffer", "[string]", numeric_types )
+TEMPLATE_LIST_TEST_CASE( "to_string std::array buffer", "[string]", integers )
 {
 	std::array<char, 64> buffer;
 	const std::string_view result = mclo::to_string( buffer, TestType( 42 ) );
 	CHECK( result == "42" );
 }
 
-TEMPLATE_LIST_TEST_CASE( "to_string c-buffer", "[string]", numeric_types )
+TEMPLATE_LIST_TEST_CASE( "to_string c-buffer", "[string]", integers )
 {
 	char buffer[ 64 ];
 	const std::string_view result = mclo::to_string( buffer, TestType( 42 ) );
 	CHECK( result == "42" );
 }
 
-TEMPLATE_LIST_TEST_CASE( "to_string std::string", "[string]", numeric_types )
+TEMPLATE_LIST_TEST_CASE( "to_string std::string", "[string]", integers )
 {
 	std::string buffer( 64, '\0' );
 	const std::string_view result = mclo::to_string( buffer.data(), buffer.data() + buffer.size(), TestType( 42 ) );
@@ -72,55 +60,55 @@ TEST_CASE( "to_lower", "[string]" )
 	}
 }
 
-TEST_CASE( "trim_front", "[string]" )
+TEMPLATE_LIST_TEST_CASE( "trim_front", "[string]", char_types )
 {
 	{
-		constexpr std::string_view string = "  \n leading spaces\n  ";
-		constexpr std::string_view trimmed = mclo::trim_front( string );
-		STATIC_CHECK( trimmed == "leading spaces\n  " );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( "  \n leading spaces\n  " );
+		constexpr auto trimmed = mclo::trim_front( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "leading spaces\n  " ) );
 	}
 	{
-		constexpr std::string_view string = "no leading spaces\n  ";
-		constexpr std::string_view trimmed = mclo::trim_front( string );
-		STATIC_CHECK( trimmed == "no leading spaces\n  " );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( "no leading spaces\n  " );
+		constexpr auto trimmed = mclo::trim_front( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "no leading spaces\n  " ) );
 	}
 }
 
-TEST_CASE( "trim_back", "[string]" )
+TEMPLATE_LIST_TEST_CASE( "trim_back", "[string]", char_types )
 {
 	{
-		constexpr std::string_view string = "  \n trailing spaces  \n";
-		constexpr std::string_view trimmed = mclo::trim_back( string );
-		STATIC_CHECK( trimmed == "  \n trailing spaces" );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( "  \n trailing spaces  \n" );
+		constexpr auto trimmed = mclo::trim_back( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "  \n trailing spaces" ) );
 	}
 	{
-		constexpr std::string_view string = "  \n no trailing spaces";
-		constexpr std::string_view trimmed = mclo::trim_back( string );
-		STATIC_CHECK( trimmed == "  \n no trailing spaces" );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( "  \n no trailing spaces" );
+		constexpr auto trimmed = mclo::trim_back( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "  \n no trailing spaces" ) );
 	}
 }
 
-TEST_CASE( "trim", "[string]" )
+TEMPLATE_LIST_TEST_CASE( "trim", "[string]", char_types )
 {
 	{
-		constexpr std::string_view string = " \n  all spaces   \n";
-		constexpr std::string_view trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == "all spaces" );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( " \n  all spaces   \n" );
+		constexpr auto trimmed = mclo::trim( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "all spaces" ) );
 	}
 	{
-		constexpr std::string_view string = "no leading spaces  \n ";
-		constexpr std::string_view trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == "no leading spaces" );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( "no leading spaces  \n " );
+		constexpr auto trimmed = mclo::trim( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "no leading spaces" ) );
 	}
 	{
-		constexpr std::string_view string = " \n   no trailing spaces";
-		constexpr std::string_view trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == "no trailing spaces" );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( " \n   no trailing spaces" );
+		constexpr auto trimmed = mclo::trim( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "no trailing spaces" ) );
 	}
 	{
-		constexpr std::string_view string = "no spaces";
-		constexpr std::string_view trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == "no spaces" );
+		static constexpr auto string = mclo::trandscode_string_literal<TestType>( "no spaces" );
+		constexpr auto trimmed = mclo::trim( string );
+		STATIC_CHECK( trimmed == mclo::trandscode_string_literal<TestType>( "no spaces" ) );
 	}
 }
 
@@ -145,32 +133,15 @@ TEST_CASE( "compare_ignore_case", "[string]" )
 	}
 }
 
-template <typename CharT>
-struct replace_test_data
+TEMPLATE_LIST_TEST_CASE( "replace_all", "[string]", char_types )
 {
-	using string = std::basic_string<CharT>;
-	static constexpr std::basic_string_view<CharT> initial = "1.2.14.9";
-	static constexpr std::basic_string_view<CharT> what = ".";
-	static constexpr std::basic_string_view<CharT> with = "..";
-	static constexpr std::basic_string_view<CharT> result = "1..2..14..9";
-};
-
-template <>
-struct replace_test_data<wchar_t>
-{
-	using string = std::wstring;
-	static constexpr std::wstring_view initial = L"1.2.14.9";
-	static constexpr std::wstring_view what = L".";
-	static constexpr std::wstring_view with = L"..";
-	static constexpr std::wstring_view result = L"1..2..14..9";
-};
-
-TEMPLATE_TEST_CASE( "replace_all", "[string]", char, wchar_t )
-{
-	using trait = replace_test_data<TestType>;
-	typename trait::string string( trait::initial );
-	mclo::replace_all( string, trait::what, trait::with );
-	CHECK( string == trait::result );
+	constexpr auto initial = mclo::trandscode_string_literal<TestType>( "1.2.14.9" );
+	constexpr auto what = mclo::trandscode_string_literal<TestType>( "." );
+	constexpr auto with = mclo::trandscode_string_literal<TestType>( ".." );
+	constexpr auto result = mclo::trandscode_string_literal<TestType>( "1..2..14..9" );
+	std::basic_string<TestType> string( initial );
+	mclo::replace_all( string, what, with );
+	CHECK( string == result );
 }
 
 TEST_CASE( "join_string variadic", "[string]" )
