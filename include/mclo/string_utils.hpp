@@ -28,6 +28,11 @@ namespace mclo
 	{
 		using type = CharT;
 	};
+	template <typename CharT, std::size_t N>
+	struct string_character<const CharT ( & )[ N ]>
+	{
+		using type = CharT;
+	};
 
 	template <typename String>
 	using string_character_t = typename string_character<String>::type;
