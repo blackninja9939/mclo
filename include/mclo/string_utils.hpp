@@ -23,13 +23,19 @@ namespace mclo
 	{
 		using type = typename String::value_type;
 	};
+
 	template <typename CharT>
 	struct string_character<const CharT*>
 	{
 		using type = CharT;
 	};
 	template <typename CharT, std::size_t N>
-	struct string_character<const CharT ( & )[ N ]>
+	struct string_character<const CharT[ N ]>
+	{
+		using type = CharT;
+	};
+	template <typename CharT, std::size_t N>
+	struct string_character<CharT[ N ]>
 	{
 		using type = CharT;
 	};
@@ -349,10 +355,14 @@ namespace mclo
 		return detail::join_string_views<String>( std::string_view( strings )... );
 	}
 
-	[[nodiscard]] constexpr std::size_t string_hash( const std::string_view string ) noexcept
+	template<typename String>
+	[[nodiscard]] constexpr std::size_t string_hash( const String& string ) noexcept
 	{
-		return mclo::fnv1a( string.data(), string.size() );
+		// Necessary so literals do not include null terminator and so char*'s calculate their length
+		const string_view_type_t<String> view{ string };
+		return mclo::fnv1a( view.data(), view.size() );
 	}
+
 	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const std::string_view string ) noexcept
 	{
 		return mclo::fnv1a( string.data(), string.size(), static_cast<char ( * )( char ) noexcept>( to_lower ) );

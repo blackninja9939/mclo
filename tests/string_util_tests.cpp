@@ -190,12 +190,26 @@ TEST_CASE( "join_string char* iterators", "[string]" )
 	CHECK( result_in_buffer == result_out_buffer );
 }
 
-TEST_CASE( "string_hash", "[string][hash]" )
+TEMPLATE_LIST_TEST_CASE( "string_hash", "[string][hash]", char_types )
+{
+	STATIC_CHECK( mclo::string_hash( mclo::trandscode_string_literal<TestType>( "hello" ) ) !=
+				  mclo::string_hash( mclo::trandscode_string_literal<TestType>( "Hello" ) ) );
+	CHECK( mclo::string_hash( mclo::trandscode_string_literal<TestType>( "hello" ) ) !=
+		   mclo::string_hash( mclo::trandscode_string_literal<TestType>( "Hello" ) ) );
+}
+
+TEST_CASE( "string_hash string types same hash", "[string][hash]" )
 {
 	using namespace std::literals;
-	STATIC_CHECK( mclo::string_hash( "hello" ) != mclo::string_hash( "Hello" ) );
-	STATIC_CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
+	const std::size_t literal_hash = mclo::string_hash( "hello" );
+	const char* ptr = "hello";
+	CHECK( literal_hash == mclo::string_hash( ptr ) );
+	CHECK( literal_hash == mclo::string_hash( "hello"sv ) );
+	CHECK( literal_hash == mclo::string_hash( "hello"s ) );
+}
 
-	CHECK( mclo::string_hash( "hello" ) != mclo::string_hash( "Hello" ) );
+TEST_CASE( "string_hash_ignore_case", "[string][hash]" )
+{
+	STATIC_CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
 	CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
 }
