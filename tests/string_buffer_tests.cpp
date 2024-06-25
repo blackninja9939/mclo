@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "mclo/string_buffer.hpp"
+#include "mclo/string_buffer_io.hpp"
 
 #include <sstream>
 
