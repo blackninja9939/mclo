@@ -355,7 +355,7 @@ namespace mclo
 		return detail::join_string_views<String>( std::string_view( strings )... );
 	}
 
-	template<typename String>
+	template <typename String>
 	[[nodiscard]] constexpr std::size_t string_hash( const String& string ) noexcept
 	{
 		// Necessary so literals do not include null terminator and so char*'s calculate their length

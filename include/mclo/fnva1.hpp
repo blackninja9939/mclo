@@ -8,7 +8,9 @@
 namespace mclo
 {
 	template <typename T, typename Transform = identity>
-	[[nodiscard]] constexpr std::size_t fnv1a( const T* data, const std::size_t size, Transform transform = {} ) noexcept
+	[[nodiscard]] constexpr std::size_t fnv1a( const T* data,
+											   const std::size_t size,
+											   Transform transform = {} ) noexcept
 	{
 		static_assert( std::is_convertible_v<decltype( transform( *data ) ), std::size_t>,
 					   "Transform result of data must be convertible to std::size_t" );

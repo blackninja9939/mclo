@@ -69,7 +69,7 @@ namespace mclo
 		template <typename Container, typename = void>
 		constexpr bool is_char_container = false;
 
-		template<typename T>
+		template <typename T>
 		using has_value_type = typename T::value_type;
 
 		template <typename Container>

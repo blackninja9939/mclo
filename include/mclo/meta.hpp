@@ -118,7 +118,7 @@ namespace mclo::meta
 		{
 			using type = type_list<>;
 		};
-		
+
 		template <typename List>
 		struct join_impl<List>
 		{
@@ -211,11 +211,11 @@ namespace mclo::meta
 		template <template <typename> typename Function, typename... Lists>
 		struct product_impl;
 
-		//template <template <typename> typename Function>
-		//struct product_impl<Function>
+		// template <template <typename> typename Function>
+		// struct product_impl<Function>
 		//{
 		//	using type = type_list<Function<>>;
-		//};
+		// };
 	}
 
 	template <template <typename...> typename F, typename List>
@@ -236,7 +236,7 @@ namespace mclo::meta
 	// Type list aliases
 	using signed_integers = type_list<signed char, signed short, signed int, signed long, signed long long>;
 	using unsigned_integers = type_list<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long>;
-	
+
 	using integers = join<signed_integers, unsigned_integers>;
 
 	using floating_points = type_list<float, double, long double>;
