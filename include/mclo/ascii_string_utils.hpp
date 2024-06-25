@@ -66,15 +66,11 @@ namespace mclo
 		template <typename It>
 		constexpr bool is_char_it = std::is_same_v<char, typename std::iterator_traits<It>::value_type>;
 
-		template <typename Container, typename = void>
-		constexpr bool is_char_container = false;
-
 		template <typename T>
 		using has_value_type = typename T::value_type;
 
 		template <typename Container>
-		constexpr bool is_char_container<Container, std::enable_if_t<is_detected_v<has_value_type, Container>>> =
-			std::is_same_v<char, typename Container::value_type>;
+		constexpr bool is_char_container = std::is_same_v<char, detected_t<has_value_type, Container>>;
 	}
 
 	template <typename It, typename = std::enable_if_t<detail::is_char_it<It>>>
