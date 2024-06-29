@@ -1,6 +1,7 @@
 #pragma once
 
 #include "algorithm.hpp"
+#include "ascii_string_utils.hpp"
 
 #include <array>
 #include <cassert>
@@ -469,7 +470,7 @@ namespace mclo
 
 #define IMPLEMENT_COMPARISONS( OPERATOR )                                                                              \
 	template <typename CharT, std::size_t Size, typename String>                                                       \
-	[[nodiscard]] constexpr bool operator OPERATOR( const basic_string_buffer<CharT, Size>& lhs,                       \
+	[[nodiscard]] constexpr auto operator OPERATOR( const basic_string_buffer<CharT, Size>& lhs,                       \
 													const String& rhs ) noexcept                                       \
 	{                                                                                                                  \
 		using view_type = typename basic_string_buffer<CharT, Size>::view_type;                                        \

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="mclo::basic_string_buffer&lt;char,*&gt;">
+    <AlternativeType Name="mclo::basic_string_buffer&lt;char8_t,*&gt;"/>
+    <DisplayString>{m_data._Elems,s}</DisplayString>
+    <StringView>m_data._Elems,s</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_length</Item>
+      <Item Name="[capacity]" ExcludeView="simple">max_string_size</Item>
+      <ArrayItems>
+        <Size>m_length</Size>
+        <ValuePointer>m_data._Elems</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="mclo::basic_string_buffer&lt;wchar_t,*&gt;">
+    <AlternativeType Name="mclo::basic_string_buffer&lt;unsigned short,*&gt;"/>
+    <AlternativeType Name="mclo::basic_string_buffer&lt;char16_t,*&gt;"/>
+    <DisplayString>{m_data._Elems,su}</DisplayString>
+    <StringView>m_data._Elems,su</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_length</Item>
+      <Item Name="[capacity]" ExcludeView="simple">max_string_size</Item>
+      <ArrayItems>
+        <Size>m_length</Size>
+        <ValuePointer>m_data._Elems</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="mclo::basic_string_buffer&lt;char32_t,*&gt;">
+    <DisplayString>{m_data._Elems,s32}</DisplayString>
+    <StringView>m_data._Elems,s32</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_length</Item>
+      <Item Name="[capacity]" ExcludeView="simple">max_string_size</Item>
+      <ArrayItems>
+        <Size>m_length</Size>
+        <ValuePointer>m_data._Elems</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  
+  <Type Name="mclo::tagged_ptr&lt;*,*&gt;">
+    <Intrinsic Name="ptr_bits" Expression="( m_bits &amp; ptr_mask ) >> free_upper_bits"/>
+    <Intrinsic Name="tag_bits" Expression="m_bits &amp; tag_mask"/>
+    <Intrinsic Name="ptr" Expression="($T1*)ptr_bits()"/>
+    <Intrinsic Optional="true" Name="tag" Expression="($T2)tag_bits()"/>
+    <SmartPointer Usage="Minimal">ptr()</SmartPointer>
+    <DisplayString Condition="m_bits == 0">empty</DisplayString>
+    <DisplayString Condition="ptr_bits() != 0 &amp;&amp; tag_bits() == 0">tagged_ptr {*ptr()}</DisplayString>
+    <DisplayString Condition="ptr_bits() == 0 &amp;&amp; tag_bits() != 0">tagged_ptr nullptr [tag: {tag()}]</DisplayString>
+    <DisplayString Condition="ptr_bits() != 0 &amp;&amp; tag_bits() != 0">tagged_ptr {*ptr()} [tag: {tag()}]</DisplayString>
+    <Expand>
+      <Item Condition="ptr_bits() != 0" Name="[ptr]">ptr()</Item>
+      <Item Condition="tag_bits() != 0" Name="[tag]">tag()</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

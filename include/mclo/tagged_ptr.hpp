@@ -13,11 +13,6 @@ namespace mclo
 {
 	namespace detail
 	{
-		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
-		// do we want to even support 32 bit code? I doubt it
-		inline constexpr std::size_t used_bits = 48;
-		inline constexpr std::size_t free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - used_bits;
-
 		// clang-format off
 		template <std::size_t Bits>
 		using tag_storage_type =
@@ -53,10 +48,16 @@ namespace mclo
 	class tagged_ptr
 	{
 	private:
+		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
+		// do we want to even support 32 bit code? I doubt it
+		static constexpr std::size_t free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - 48;
 		static constexpr std::size_t free_lower_bits = mclo::bit_width( Alignment );
-		static constexpr std::size_t total_free_bits = detail::free_upper_bits + free_lower_bits;
+		static constexpr std::size_t total_free_bits = free_upper_bits + free_lower_bits;
+		static constexpr std::size_t used_ptr_bits = ( sizeof( void* ) * CHAR_BIT ) - total_free_bits;
+
 		static constexpr std::size_t tag_mask = ( std::uintptr_t( 1 ) << total_free_bits ) - 1;
 		static constexpr std::size_t ptr_mask = ~tag_mask;
+
 		static constexpr bool is_integer = std::is_integral_v<Tag> || std::is_enum_v<Tag>;
 
 		using tag_storage_type = detail::tag_storage_type<total_free_bits>;
@@ -203,11 +204,11 @@ namespace mclo
 			const auto ptr_bits = reinterpret_cast<std::uintptr_t>( ptr );
 			assert( ( ptr_bits == 0 || mclo::bit_floor( ptr_bits ) >= free_lower_bits ) &&
 					"Ptr is too strictly aligned, it must be aligned to at least Alignment" );
-			return ptr_bits << detail::free_upper_bits;
+			return ptr_bits << free_upper_bits;
 		}
 		static pointer unpack_ptr( std::uintptr_t ptr ) noexcept
 		{
-			return reinterpret_cast<pointer>( ( ptr & ptr_mask ) >> detail::free_upper_bits );
+			return reinterpret_cast<pointer>( ( ptr & ptr_mask ) >> free_upper_bits );
 		}
 
 		static std::uintptr_t pack_tag( const tag_type tag ) noexcept
