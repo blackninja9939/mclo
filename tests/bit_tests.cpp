@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include <cinttypes>
 #include <array>
+#include <cinttypes>
 
 #include "mclo/bit.hpp"
 
@@ -50,7 +50,7 @@ TEST_CASE( "constexpr bit_cast", "[bit]" )
 	constexpr auto round_trip = mclo::bit_cast<std::uint32_t>( bytes );
 	STATIC_CHECK( value == round_trip );
 
-	constexpr std::array modified_bytes{ bytes[ 0 ], std::byte( 0b1101111 ), bytes[2], bytes[3] };
+	constexpr std::array modified_bytes{ bytes[ 0 ], std::byte( 0b1101111 ), bytes[ 2 ], bytes[ 3 ] };
 
 	constexpr auto modified_value = mclo::bit_cast<std::uint32_t>( modified_bytes );
 	STATIC_CHECK( modified_value == 0b1010100110111100010101 );

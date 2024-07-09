@@ -42,3 +42,4 @@ SpacesInParensOptions:
   Other: true
 SpacesInSquareBrackets: true
 UseTab: ForContinuationAndIndentation
+ColumnLimit: 120
