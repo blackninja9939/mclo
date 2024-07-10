@@ -49,10 +49,6 @@ namespace mclo
 	namespace detail
 	{
 		template <typename T>
-		constexpr bool is_standard_unsigned_integer_type =
-			std::is_integral_v<T> && std::is_unsigned_v<T> && !std::is_same_v<T, bool>;
-
-		template <typename T>
 		constexpr int num_unsigned_digits = sizeof( T ) * CHAR_BIT;
 
 		template <typename T>
@@ -276,13 +272,13 @@ namespace mclo
 	}
 
 	// integral powers of 2
-	template <typename T, typename = std::enable_if_t<detail::is_standard_unsigned_integer_type<T>>>
+	template <typename T, typename = std::enable_if_t<is_standard_unsigned_integer<T>>>
 	[[nodiscard]] constexpr bool has_single_bit( const T value ) noexcept
 	{
 		return value && !( value & ( value - 1 ) );
 	}
 
-	template <typename T, typename = std::enable_if_t<detail::is_standard_unsigned_integer_type<T>>>
+	template <typename T, typename = std::enable_if_t<is_standard_unsigned_integer<T>>>
 	[[nodiscard]] constexpr T bit_ceil( const T value ) noexcept
 	{
 		if ( value <= 1u )
@@ -309,13 +305,13 @@ namespace mclo
 		return static_cast<T>( T( 1 ) << num );
 	}
 
-	template <typename T, typename = std::enable_if_t<detail::is_standard_unsigned_integer_type<T>>>
+	template <typename T, typename = std::enable_if_t<is_standard_unsigned_integer<T>>>
 	[[nodiscard]] constexpr int bit_width( const T value ) noexcept
 	{
 		return detail::num_unsigned_digits<T> - mclo::countl_zero( value );
 	}
 
-	template <typename T, typename = std::enable_if_t<detail::is_standard_unsigned_integer_type<T>>>
+	template <typename T, typename = std::enable_if_t<is_standard_unsigned_integer<T>>>
 	[[nodiscard]] constexpr T bit_floor( const T value ) noexcept
 	{
 		return value == 0 ? 0 : ( T( 1 ) << ( mclo::bit_width( value ) - 1 ) );
