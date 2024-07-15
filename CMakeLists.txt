@@ -19,6 +19,7 @@ if ( MSVC )
 		/Zc:throwingNew
 		/wd5030
 	)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 elseif( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
 	add_compile_options(
 		-Wno-attributes

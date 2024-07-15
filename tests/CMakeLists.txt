@@ -10,6 +10,7 @@ add_executable( tests
 	hash_combine.cpp
 	tagged_ptr_tests.cpp
 	small_optional_integer_tests.cpp
+	string_table_tests.cpp
 )
 
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
