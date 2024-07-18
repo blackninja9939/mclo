@@ -2,7 +2,6 @@
 
 #include "small_optional_integer.hpp"
 
-#include <atomic>
 #include <cinttypes>
 #include <memory>
 #include <mutex>
@@ -12,11 +11,6 @@
 
 namespace mclo
 {
-	namespace detail
-	{
-		inline std::atomic_flag domain_used = ATOMIC_FLAG_INIT;
-	}
-
 	class heap_string
 	{
 	public:
@@ -90,16 +84,6 @@ namespace mclo
 	public:
 		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );
 		using handle = string_handle<Domain, IndexType>;
-
-		string_table()
-		{
-			const bool was_used = detail::domain_used.test_and_set();
-			assert( !was_used );
-		}
-		~string_table()
-		{
-			detail::domain_used.clear();
-		}
 
 		handle lookup_handle( const std::string_view str ) const noexcept
 		{
