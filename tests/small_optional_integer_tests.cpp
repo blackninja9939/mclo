@@ -20,6 +20,8 @@ TEMPLATE_LIST_TEST_CASE( "small_optional_integer default", "[small_optional_inte
 	CHECK_FALSE( value );
 	CHECK( value.raw_value() == 0 );
 	CHECK( value.value_or( 42 ) == 42 );
+
+	CHECK_THROWS_AS( value.value(), std::bad_optional_access );
 }
 
 TEMPLATE_LIST_TEST_CASE( "small_optional_integer construct value", "[small_optional_integer]", mclo::meta::integers )

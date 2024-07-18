@@ -57,4 +57,10 @@
       <Item Condition="tag_bits() != 0" Name="[tag]">tag()</Item>
     </Expand>
   </Type>
+
+  <Type Name="mclo::small_optional_integer&lt;*&gt;">
+    <DisplayString Condition="m_value == 0">nullopt</DisplayString>
+    <DisplayString Condition="m_value &gt; 0">{m_value - 1}</DisplayString>
+    <DisplayString Condition="m_value &lt; 0">{m_value}</DisplayString>
+  </Type>
 </AutoVisualizer>

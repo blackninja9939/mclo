@@ -3,6 +3,7 @@
 #include <cassert>
 #include <functional>
 #include <limits>
+#include <optional>
 
 #ifdef __cpp_impl_three_way_comparison
 #include <compare>
@@ -17,9 +18,8 @@ namespace mclo
 		{
 			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
 
-			[[nodiscard]] constexpr T value() const noexcept
+			[[nodiscard]] constexpr T get() const noexcept
 			{
-				assert( m_value != 0 );
 				return m_value - 1;
 			}
 			constexpr void set( const T value ) noexcept
@@ -36,9 +36,8 @@ namespace mclo
 		{
 			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
 
-			[[nodiscard]] constexpr T value() const noexcept
+			[[nodiscard]] constexpr T get() const noexcept
 			{
-				assert( m_value != 0 );
 				return m_value >= 0 ? m_value - 1 : m_value;
 			}
 			constexpr void set( const T value ) noexcept
@@ -88,6 +87,15 @@ namespace mclo
 			return *this;
 		}
 
+		constexpr small_optional_integer( const std::nullopt_t ) noexcept
+		{
+		}
+		constexpr small_optional_integer& operator=( const std::nullopt_t) noexcept
+		{
+			reset();
+			return *this;
+		}
+
 		[[nodiscard]] bool has_value() const noexcept
 		{
 			return m_value != 0;
@@ -97,10 +105,18 @@ namespace mclo
 			return has_value();
 		}
 
-		using base::value;
+		[[nodiscard]] constexpr T value() const
+		{
+			if ( !has_value() )
+			{
+				throw std::bad_optional_access();
+			}
+			return get();
+		}
 		[[nodiscard]] T operator*() const noexcept
 		{
-			return value();
+			assert( has_value() );
+			return get();
 		}
 
 		[[nodiscard]] T value_or( const T default ) const noexcept
