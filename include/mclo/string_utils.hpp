@@ -92,24 +92,24 @@ namespace mclo
 	}
 
 	template <typename CharT>
-	constexpr auto whitespace_characters_v = trandscode_string_literal<CharT>( " \n\f\t\r\v" );
+	constexpr auto whitespace_characters_v = trandscode_ascii_literal<CharT>( " \n\f\t\r\v" );
 
 	template <typename CharT>
-	constexpr auto numeric_characters_v = trandscode_string_literal<CharT>( "0123456789" );
+	constexpr auto numeric_characters_v = trandscode_ascii_literal<CharT>( "0123456789" );
 
 	template <typename CharT>
-	constexpr auto uppercase_characters_v = trandscode_string_literal<CharT>( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+	constexpr auto uppercase_characters_v = trandscode_ascii_literal<CharT>( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" );
 
 	template <typename CharT>
-	constexpr auto lowercase_characters_v = trandscode_string_literal<CharT>( "abcdefgihjklmnopqrstuvwxyz" );
+	constexpr auto lowercase_characters_v = trandscode_ascii_literal<CharT>( "abcdefgihjklmnopqrstuvwxyz" );
 
 	template <typename CharT>
 	constexpr auto alphabet_characters_v =
-		trandscode_string_literal<CharT>( "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" );
+		trandscode_ascii_literal<CharT>( "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" );
 
 	template <typename CharT>
 	constexpr auto alphanumeric_characters_v =
-		trandscode_string_literal<CharT>( "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" );
+		trandscode_ascii_literal<CharT>( "abcdefgihjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" );
 
 	inline constexpr auto whitespace_characters = whitespace_characters_v<char>;
 	inline constexpr auto numeric_characters = numeric_characters_v<char>;

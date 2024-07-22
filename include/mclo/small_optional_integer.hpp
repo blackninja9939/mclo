@@ -1,5 +1,7 @@
 #pragma once
 
+#include "platform.hpp"
+
 #include <cassert>
 #include <functional>
 #include <limits>
@@ -90,7 +92,7 @@ namespace mclo
 		constexpr small_optional_integer( const std::nullopt_t ) noexcept
 		{
 		}
-		constexpr small_optional_integer& operator=( const std::nullopt_t) noexcept
+		constexpr small_optional_integer& operator=( const std::nullopt_t ) noexcept
 		{
 			reset();
 			return *this;
@@ -244,8 +246,6 @@ namespace mclo
 template <typename T>
 struct std::hash<mclo::small_optional_integer<T>>
 {
-	[[nodiscard]] std::size_t operator()( const mclo::small_optional_integer<T> value )
-	{
-		return std::hash<T>( value.raw_value() );
-	}
+	[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()( const mclo::small_optional_integer<T> value )
+		MCLO_CONST_CALL_OPERATOR MCLO_NOEXCEPT_AND_BODY( std::hash<T>()( value.raw_value() ) )
 };

@@ -145,3 +145,13 @@ TEMPLATE_LIST_TEST_CASE( "small_optional_integer comparison different values",
 	CHECK_FALSE( lhs > rhs );
 	CHECK( lhs != rhs );
 }
+
+TEMPLATE_LIST_TEST_CASE( "small_optional_integer hash",
+						 "[small_optional_integer]",
+						 mclo::meta::integers )
+{
+	const mclo::small_optional_integer<TestType> empty;
+	const mclo::small_optional_integer<TestType> opt{ 16 };
+	using hash = std::hash<mclo::small_optional_integer<TestType>>;
+	CHECK( hash{}( empty ) != hash{}( opt ) );
+}

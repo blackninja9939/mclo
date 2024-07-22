@@ -26,7 +26,8 @@ namespace mclo
 	template <typename T, typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
 	struct mph_hash
 	{
-		constexpr std::size_t operator()( const T& value, const std::size_t seed ) const noexcept
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t seed )
+			MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			const auto bytes = std::bit_cast<std::array<std::byte, sizeof( T )>>( value );
 			return fnv1a_hash( bytes.begin(), bytes.end(), seed );
@@ -36,7 +37,8 @@ namespace mclo
 	template <typename T>
 	struct mph_hash<T, std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>>
 	{
-		constexpr std::size_t operator()( const T& value, const std::size_t seed ) const noexcept
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t seed )
+			MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			std::size_t key = seed ^ static_cast<std::size_t>( value );
 			key = ( ~key ) + ( key << 21 );
@@ -53,7 +55,8 @@ namespace mclo
 	template <>
 	struct mph_hash<std::string_view>
 	{
-		constexpr std::size_t operator()( const std::string_view& value, const std::size_t seed ) const noexcept
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+			const std::string_view& value, const std::size_t seed ) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			return fnv1a_hash( value.begin(), value.end(), seed );
 		}
@@ -62,7 +65,8 @@ namespace mclo
 	template <>
 	struct mph_hash<const char*>
 	{
-		constexpr std::size_t operator()( const char* const value, const std::size_t seed ) const noexcept
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const char* const value, const std::size_t seed )
+			MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			return fnv1a_hash( value, value + std::char_traits<char>::length( value ), seed );
 		}
@@ -299,7 +303,8 @@ namespace mclo
 		struct pair_key
 		{
 			template <typename T, typename U>
-			[[nodiscard]] constexpr const T& operator()( const std::pair<const T, U>& pair ) const noexcept
+			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr const T& operator()( const std::pair<const T, U>& pair )
+				MCLO_CONST_CALL_OPERATOR noexcept
 			{
 				return pair.first;
 			}

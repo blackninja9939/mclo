@@ -588,7 +588,7 @@ namespace mclo
 #endif
 
 	template <typename CharT, std::size_t N>
-	[[nodiscard]] constexpr basic_string_buffer<CharT, N> trandscode_string_literal( const char ( &str )[ N ] ) noexcept
+	[[nodiscard]] constexpr basic_string_buffer<CharT, N> trandscode_ascii_literal( const char ( &str )[ N ] ) noexcept
 	{
 		basic_string_buffer<CharT, N> buffer( N - 1 );
 		for ( std::size_t i = 0; i < N - 1; ++i )
