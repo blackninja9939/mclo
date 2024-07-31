@@ -40,12 +40,12 @@ namespace mclo
 
 			[[nodiscard]] constexpr T get() const noexcept
 			{
-				return m_value >= 0 ? m_value - 1 : m_value;
+				return m_value - static_cast<int>( m_value >= 0 );
 			}
 			constexpr void set( const T value ) noexcept
 			{
 				assert( value <= max_value );
-				m_value = value >= 0 ? value + 1 : value;
+				m_value = value + static_cast<int>( value >= 0 );
 			}
 
 			T m_value = 0;
