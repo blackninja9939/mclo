@@ -363,10 +363,52 @@ namespace mclo
 		return mclo::fnv1a( view.data(), view.size() );
 	}
 
-	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const std::string_view string ) noexcept
+	template <typename String>
+	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const String& string ) noexcept
 	{
-		return mclo::fnv1a( string.data(), string.size(), static_cast<char ( * )( char ) noexcept>( to_lower ) );
+		const string_view_type_t<String> view{ string };
+		return mclo::fnv1a( view.data(), view.size(), static_cast<char ( * )( char ) noexcept>( to_lower ) );
 	}
+
+	struct string_hash_t
+	{
+		template <typename String>
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const String& string )
+			MCLO_CONST_CALL_OPERATOR noexcept
+		{
+			return mclo::string_hash( string );
+		}
+	};
+
+	struct string_hash_ignore_case_t
+	{
+		template <typename String>
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const String& string )
+			MCLO_CONST_CALL_OPERATOR noexcept
+		{
+			return mclo::string_hash_ignore_case( string );
+		}
+	};
+
+	namespace detail
+	{
+		template <typename BaseOp>
+		struct string_compare_ignore_case_t
+		{
+			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+				const std::string_view lhs, const std::string_view rhs ) MCLO_CONST_CALL_OPERATOR noexcept
+			{
+				return BaseOp{}( mclo::compare_ignore_case( lhs, rhs ), 0 );
+			}
+		};
+	}
+
+	using string_equal_to_ignore_case = detail::string_compare_ignore_case_t<std::equal_to<>>;
+	using string_not_equal_to_ignore_case = detail::string_compare_ignore_case_t<std::not_equal_to<>>;
+	using string_less_ignore_case = detail::string_compare_ignore_case_t<std::less<>>;
+	using string_greater_ignore_case = detail::string_compare_ignore_case_t<std::greater<>>;
+	using string_less_equal_ignore_case = detail::string_compare_ignore_case_t<std::less_equal<>>;
+	using string_greater_equal_ignore_case = detail::string_compare_ignore_case_t<std::greater_equal<>>;
 
 	void to_upper( std::wstring& string ) noexcept;
 	void to_lower( std::wstring& string ) noexcept;
