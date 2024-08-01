@@ -38,7 +38,7 @@ namespace
 		const char_batch shifted = value - char_batch( 'a' - 128 );
 
 		// 0 = lower case, -1 = anything else
-		const char_batch nomodify = shifted > char_batch( -128 + 'z' - 'a' );
+		const char_batch nomodify( shifted > char_batch( -128 + 'z' - 'a' ) );
 
 		const char_batch flip = xsimd::bitwise_andnot( char_batch( 0x20 ), nomodify );
 
@@ -54,9 +54,6 @@ int mclo::detail::compare_ignore_case_simd( const char* lhs, const char* rhs, st
 	{
 		const char_batch lhs_data = to_upper_simd( lhs );
 		const char_batch rhs_data = to_upper_simd( rhs );
-		lhs += char_batch::size;
-		rhs += char_batch::size;
-		size -= char_batch::size;
 
 		const char_batch difference = lhs_data - rhs_data;
 		const char_batch::batch_bool_type result = difference == 0;
@@ -65,10 +62,12 @@ int mclo::detail::compare_ignore_case_simd( const char* lhs, const char* rhs, st
 
 		if ( first_not_equal != char_batch::size )
 		{
-			const char_batch shuffled =
-				xsimd::swizzle( difference, char_batch( static_cast<char>( first_not_equal ) ) );
-			return static_cast<signed char>( _mm_extract_epi8( shuffled, 0 ) );
+			return difference.get( first_not_equal );
 		}
+
+		lhs += char_batch::size;
+		rhs += char_batch::size;
+		size -= char_batch::size;
 	}
 
 	return detail::compare_ignore_case_scalar( lhs, rhs, size );

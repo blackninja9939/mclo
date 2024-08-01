@@ -73,6 +73,8 @@ namespace mclo
 		constexpr bool is_char_container = std::is_same_v<char, detected_t<has_value_type, Container>>;
 	}
 
+	// todo(mc): Make a SIMD implementation of this at runtime, re-use the to_upper in compare_ignore_case_simd
+	// and adjust a version for to_lower
 	template <typename It, typename = std::enable_if_t<detail::is_char_it<It>>>
 	constexpr void to_upper( It first, It last ) noexcept
 	{
