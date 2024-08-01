@@ -6,7 +6,7 @@ cmake_minimum_required( VERSION 3.28 )
 set( CMAKE_COMPILE_WARNING_AS_ERROR ON )
 set( CMAKE_CXX_STANDARD 17 )
 
-project ("mclo")
+project("mclo")
 
 if ( MSVC )
 	add_compile_options( 
@@ -38,7 +38,8 @@ if (POLICY CMP0141)
 endif()
 
 # Include sub-projects.
-add_subdirectory ("source")
+add_subdirectory("source")
 
 enable_testing()
-add_subdirectory ("tests")
+add_subdirectory("tests")
+add_subdirectory("benchmarks")

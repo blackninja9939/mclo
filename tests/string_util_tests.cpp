@@ -115,21 +115,26 @@ TEMPLATE_LIST_TEST_CASE( "trim", "[string]", char_types )
 TEST_CASE( "compare_ignore_case", "[string]" )
 {
 	{
-		constexpr std::string_view upper = "45 HELLO WORLD! 123";
-		constexpr std::string_view lower = "45 hello world! 123";
+		constexpr std::string_view upper = "45 HELLO WORLD! 123!!!!!!!!!!!!!!!!!!!!!!";
+		constexpr std::string_view lower = "45 hello world! 123!!!!!!!!!!!!!!!!!!!!!!";
 		STATIC_CHECK( mclo::compare_ignore_case( upper, lower ) == 0 );
+		CHECK( mclo::compare_ignore_case( upper, lower ) == 0 );
 	}
 	{
-		constexpr std::string_view upper = "HELLO WORLD";
-		constexpr std::string_view lower = "hello world!";
+		constexpr std::string_view upper = "HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!";
+		constexpr std::string_view lower = "hello world?!!!!!!!!!!!!!!!!!!!!!!";
 		STATIC_CHECK( mclo::compare_ignore_case( upper, lower ) < 0 );
 		STATIC_CHECK( mclo::compare_ignore_case( lower, upper ) > 0 );
+		CHECK( mclo::compare_ignore_case( upper, lower ) < 0 );
+		CHECK( mclo::compare_ignore_case( lower, upper ) > 0 );
 	}
 	{
-		constexpr std::string_view upper = "YELLO WORLD";
-		constexpr std::string_view lower = "hello world";
+		constexpr std::string_view upper = "YELLO WORLD!!!!!!!!!!!!!!!!!!!!!!";
+		constexpr std::string_view lower = "hello world!!!!!!!!!!!!!!!!!!!!!!";
 		STATIC_CHECK( mclo::compare_ignore_case( upper, lower ) > 0 );
 		STATIC_CHECK( mclo::compare_ignore_case( lower, upper ) < 0 );
+		CHECK( mclo::compare_ignore_case( upper, lower ) > 0 );
+		CHECK( mclo::compare_ignore_case( lower, upper ) < 0 );
 	}
 }
 

@@ -169,7 +169,11 @@ namespace mclo
 
 	namespace detail
 	{
-		constexpr int compare_ignore_case( const char* lhs, const char* rhs, std::size_t size ) noexcept
+		[[nodiscard]] int compare_ignore_case_simd( const char* lhs, const char* rhs, std::size_t size ) noexcept;
+		
+		[[nodiscard]] constexpr int compare_ignore_case_scalar( const char* lhs,
+																const char* rhs,
+																std::size_t size ) noexcept
 		{
 			while ( size-- > 0 )
 			{
@@ -183,9 +187,21 @@ namespace mclo
 			}
 			return 0;
 		}
+
+		[[nodiscard]] constexpr int compare_ignore_case( const char* lhs, const char* rhs, std::size_t size ) noexcept
+		{
+			if ( mclo::is_constant_evaluated() )
+			{
+				return compare_ignore_case_scalar( lhs, rhs, size );
+			}
+			else
+			{
+				return compare_ignore_case_simd( lhs, rhs, size );
+			}
+		}
 	}
 
-	constexpr int compare_ignore_case( const std::string_view lhs, const std::string_view rhs ) noexcept
+	[[nodiscard]] constexpr int compare_ignore_case( const std::string_view lhs, const std::string_view rhs ) noexcept
 	{
 		const std::size_t lhs_size = lhs.size();
 		const std::size_t rhs_size = rhs.size();
