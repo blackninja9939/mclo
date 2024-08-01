@@ -1,6 +1,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include "consteval_check.h"
 #include "mclo/meta.hpp"
 #include "mclo/string_buffer.hpp"
 #include "mclo/string_utils.hpp"
@@ -117,24 +118,19 @@ TEST_CASE( "compare_ignore_case", "[string]" )
 	{
 		constexpr std::string_view upper = "45 HELLO WORLD! 123!!!!!!!!!!!!!!!!!!!!!!";
 		constexpr std::string_view lower = "45 hello world! 123!!!!!!!!!!!!!!!!!!!!!!";
-		STATIC_CHECK( mclo::compare_ignore_case( upper, lower ) == 0 );
-		CHECK( mclo::compare_ignore_case( upper, lower ) == 0 );
+		CONSTEVAL_CHECK( mclo::compare_ignore_case( upper, lower ) == 0 );
 	}
 	{
 		constexpr std::string_view upper = "HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!";
 		constexpr std::string_view lower = "hello world?!!!!!!!!!!!!!!!!!!!!!!";
-		STATIC_CHECK( mclo::compare_ignore_case( upper, lower ) < 0 );
-		STATIC_CHECK( mclo::compare_ignore_case( lower, upper ) > 0 );
-		CHECK( mclo::compare_ignore_case( upper, lower ) < 0 );
-		CHECK( mclo::compare_ignore_case( lower, upper ) > 0 );
+		CONSTEVAL_CHECK( mclo::compare_ignore_case( upper, lower ) < 0 );
+		CONSTEVAL_CHECK( mclo::compare_ignore_case( lower, upper ) > 0 );
 	}
 	{
 		constexpr std::string_view upper = "YELLO WORLD!!!!!!!!!!!!!!!!!!!!!!";
 		constexpr std::string_view lower = "hello world!!!!!!!!!!!!!!!!!!!!!!";
-		STATIC_CHECK( mclo::compare_ignore_case( upper, lower ) > 0 );
-		STATIC_CHECK( mclo::compare_ignore_case( lower, upper ) < 0 );
-		CHECK( mclo::compare_ignore_case( upper, lower ) > 0 );
-		CHECK( mclo::compare_ignore_case( lower, upper ) < 0 );
+		CONSTEVAL_CHECK( mclo::compare_ignore_case( upper, lower ) > 0 );
+		CONSTEVAL_CHECK( mclo::compare_ignore_case( lower, upper ) < 0 );
 	}
 }
 
@@ -197,10 +193,8 @@ TEST_CASE( "join_string char* iterators", "[string]" )
 
 TEMPLATE_LIST_TEST_CASE( "string_hash", "[string][hash]", char_types )
 {
-	STATIC_CHECK( mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "hello" ) ) !=
-				  mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "Hello" ) ) );
-	CHECK( mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "hello" ) ) !=
-		   mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "Hello" ) ) );
+	CONSTEVAL_CHECK( mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "hello" ) ) !=
+					 mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "Hello" ) ) );
 }
 
 TEST_CASE( "string_hash string types same hash", "[string][hash]" )
@@ -215,6 +209,5 @@ TEST_CASE( "string_hash string types same hash", "[string][hash]" )
 
 TEST_CASE( "string_hash_ignore_case", "[string][hash]" )
 {
-	STATIC_CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
-	CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
+	CONSTEVAL_CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
 }

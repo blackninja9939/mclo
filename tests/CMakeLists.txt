@@ -11,7 +11,7 @@ add_executable( tests
 	tagged_ptr_tests.cpp
 	small_optional_integer_tests.cpp
 	string_table_tests.cpp
-)
+ "consteval_check.h")
 
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
 
