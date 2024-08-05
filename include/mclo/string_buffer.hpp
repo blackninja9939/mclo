@@ -60,6 +60,11 @@ namespace mclo
 			assign( array );
 		}
 
+		constexpr basic_string_buffer( const view_type& str ) noexcept
+		{
+			assign( str );
+		}
+
 		// Assign
 
 		constexpr void assign( const size_type count, value_type ch ) noexcept

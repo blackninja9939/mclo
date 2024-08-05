@@ -1,6 +1,7 @@
 find_package( Catch2 3 REQUIRED )
 
 add_executable( tests
+	consteval_check.h
 	array_tests.cpp
 	bit_tests.cpp
 	string_util_tests.cpp
@@ -11,7 +12,8 @@ add_executable( tests
 	tagged_ptr_tests.cpp
 	small_optional_integer_tests.cpp
 	string_table_tests.cpp
- "consteval_check.h")
+	math_tests.cpp
+)
 
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
 

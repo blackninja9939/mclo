@@ -1,6 +1,7 @@
 #pragma once
 
 #include "detected.hpp"
+#include "constant_evaluated.hpp"
 
 #include <type_traits>
 
@@ -71,27 +72,76 @@ namespace mclo
 
 		template <typename Container>
 		constexpr bool is_char_container = std::is_same_v<char, detected_t<has_value_type, Container>>;
+
+		void to_upper_simd( char* first, char* const last ) noexcept;
+		void to_lower_simd( char* first, char* const last ) noexcept;
+
+		template <typename It, typename = std::enable_if_t<detail::is_char_it<It>>>
+		constexpr void to_upper_scalar( It first, It last ) noexcept
+		{
+			while ( first != last )
+			{
+				char& c = *first++;
+				c = to_upper( c );
+			}
+		}
+
+		template <typename It, typename = std::enable_if_t<detail::is_char_it<It>>>
+		constexpr void to_lower_scalar( It first, It last ) noexcept
+		{
+			while ( first != last )
+			{
+				char& c = *first++;
+				c = to_lower( c );
+			}
+		}
 	}
 
-	// todo(mc): Make a SIMD implementation of this at runtime, re-use the to_upper in compare_ignore_case_simd
-	// and adjust a version for to_lower
 	template <typename It, typename = std::enable_if_t<detail::is_char_it<It>>>
 	constexpr void to_upper( It first, It last ) noexcept
 	{
-		while ( first != last )
+		if ( mclo::is_constant_evaluated() )
 		{
-			char& c = *first++;
-			c = to_upper( c );
+			detail::to_upper_scalar( first, last );
+		}
+		else
+		{
+#ifdef __cpp_lib_to_address
+			detail::to_upper_simd( std::to_address( first ), std::to_address( last ) );
+#else
+			if constexpr ( std::is_pointer_v<It> )
+			{
+				detail::to_upper_simd( first, last );
+			}
+			else
+			{
+				detail::to_upper_scalar( first, last );
+			}
+#endif
 		}
 	}
 
 	template <typename It, typename = std::enable_if_t<detail::is_char_it<It>>>
 	constexpr void to_lower( It first, It last ) noexcept
 	{
-		while ( first != last )
+		if ( mclo::is_constant_evaluated() )
 		{
-			char& c = *first++;
-			c = to_lower( c );
+			detail::to_lower_scalar( first, last );
+		}
+		else
+		{
+#ifdef __cpp_lib_to_address
+			detail::to_lower_simd( std::to_address( first ), std::to_address( last ) );
+#else
+			if constexpr ( std::is_pointer_v<It> )
+			{
+				detail::to_lower_simd( first, last );
+			}
+			else
+			{
+				detail::to_lower_scalar( first, last );
+			}
+#endif
 		}
 	}
 

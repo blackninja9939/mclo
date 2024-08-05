@@ -1,10 +1,9 @@
 ﻿#include <mclo/string_utils.hpp>
 
-#include <mclo/bit.hpp>
+#include "mclo/bit.hpp"
+#include "mclo/detail/ascii_string_simd.hpp"
 
 #include <cwctype>
-
-#include <xsimd/xsimd.hpp>
 
 namespace mclo
 {
@@ -22,29 +21,6 @@ namespace mclo
 		{
 			c = std::towlower( c );
 		}
-	}
-}
-
-namespace
-{
-	using char_batch = xsimd::batch<char>;
-
-	[[nodiscard]] char_batch to_upper_simd( const char* ptr ) noexcept
-	{
-		//// SSE has no unsigned comparisons, so we must do the unsigned trick by shifting the chars
-		//// into -128 to -128 + ('a' - 'z' )
-
-		const char_batch value = char_batch::load_unaligned( ptr );
-		const char_batch shifted = value - char_batch( 'a' - 128 );
-
-		// 0 = lower case, -1 = anything else
-		const char_batch nomodify( shifted > char_batch( -128 + 'z' - 'a' ) );
-
-		const char_batch flip = xsimd::bitwise_andnot( char_batch( 0x20 ), nomodify );
-
-		//// just mask the XOR-mask so elements are XORed with 0 instead of 0x20
-		//// XOR's identity value is 0, same as addition's
-		return xsimd::bitwise_xor( value, flip );
 	}
 }
 

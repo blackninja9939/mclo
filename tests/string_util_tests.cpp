@@ -42,24 +42,121 @@ TEMPLATE_LIST_TEST_CASE( "to_string std::string", "[string]", integers )
 	CHECK( result == "42" );
 }
 
+namespace
+{
+	constexpr std::string_view lorem_ipsum_mixed =
+		"LoReM IpSuM DoLoR SiT AmEt, CoNsEcTeTuR AdIpIsCiNg eLiT. vEsTiBuLuM NoN FeLiS.";
+
+	constexpr std::string_view lorem_ipsum_lower =
+		"lorem ipsum dolor sit amet, consectetur adipiscing elit. vestibulum non felis.";
+
+	constexpr std::string_view lorem_ipsum_upper =
+		"LOREM IPSUM DOLOR SIT AMET, CONSECTETUR ADIPISCING ELIT. VESTIBULUM NON FELIS.";
+}
+
 TEST_CASE( "to_lower", "[string]" )
 {
-	SECTION( "Run time" )
+	std::string string( lorem_ipsum_mixed );
+
+	SECTION( "Container" )
 	{
-		std::string string = "HELlo woRld";
 		mclo::to_lower( string );
-		CHECK( string == "hello world" );
+		CHECK( string == lorem_ipsum_lower );
 	}
-	SECTION( "Compile time" )
+	SECTION( "Iterators" )
 	{
-		constexpr mclo::string_buffer<32> string = []() constexpr {
-			mclo::string_buffer<32> string = "HELlo woRld";
-			mclo::to_lower( string.rbegin(), string.rend() );
-			return string;
-		}();
-		STATIC_CHECK( std::string_view( string ) == "hello world" );
+		mclo::to_lower( string.begin(), string.end() );
+		CHECK( string == lorem_ipsum_lower );
+	}
+	SECTION( "Pointers" )
+	{
+		mclo::to_lower( string.data(), string.data() + string.size() );
+		CHECK( string == lorem_ipsum_lower );
 	}
 }
+
+TEST_CASE( "to_lower compile time", "[string]" )
+{
+	SECTION( "Container" )
+	{
+		constexpr auto string = []() constexpr {
+			mclo::string_buffer<128> string( lorem_ipsum_mixed );
+			mclo::to_lower( string );
+			return string;
+		}();
+		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_lower );
+	}
+	SECTION( "Iterators" )
+	{
+		constexpr auto string = []() constexpr {
+			mclo::string_buffer<128> string( lorem_ipsum_mixed );
+			mclo::to_lower( string.begin(), string.end() );
+			return string;
+		}();
+		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_lower );
+	}
+	SECTION( "Pointers" )
+	{
+		constexpr auto string = []() constexpr {
+			mclo::string_buffer<128> string( lorem_ipsum_mixed );
+			mclo::to_lower( string.data(), string.data() + string.size() );
+			return string;
+		}();
+		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_lower );
+	}
+}
+
+TEST_CASE( "to_upper", "[string]" )
+{
+	std::string string( lorem_ipsum_mixed );
+
+	SECTION( "Container" )
+	{
+		mclo::to_upper( string );
+		CHECK( string == lorem_ipsum_upper );
+	}
+	SECTION( "Iterators" )
+	{
+		mclo::to_upper( string.begin(), string.end() );
+		CHECK( string == lorem_ipsum_upper );
+	}
+	SECTION( "Pointers" )
+	{
+		mclo::to_upper( string.data(), string.data() + string.size() );
+		CHECK( string == lorem_ipsum_upper );
+	}
+}
+
+ TEST_CASE( "to_upper compile time", "[string]" )
+{
+	SECTION( "Container" )
+	{
+		constexpr auto string = []() constexpr {
+			mclo::string_buffer<128> string( lorem_ipsum_mixed );
+			mclo::to_upper( string );
+			return string;
+		}();
+		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_upper );
+	}
+	SECTION( "Iterators" )
+	{
+		constexpr auto string = []() constexpr {
+			mclo::string_buffer<128> string( lorem_ipsum_mixed );
+			mclo::to_upper( string.begin(), string.end() );
+			return string;
+		}();
+		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_upper );
+	}
+	SECTION( "Pointers" )
+	{
+		constexpr auto string = []() constexpr {
+			mclo::string_buffer<128> string( lorem_ipsum_mixed );
+			mclo::to_upper( string.data(), string.data() + string.size() );
+			return string;
+		}();
+		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_upper );
+	}
+ }
 
 TEMPLATE_LIST_TEST_CASE( "trim_front", "[string]", char_types )
 {

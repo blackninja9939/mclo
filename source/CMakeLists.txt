@@ -6,6 +6,8 @@ set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
 
 # Add interal source files and non exported headers here
 add_library( ${LIBRARY_TARGET_NAME}
+    ascii_string_utils.cpp
+    ascii_string_simd.cpp
     string_utils.cpp
 )
 
