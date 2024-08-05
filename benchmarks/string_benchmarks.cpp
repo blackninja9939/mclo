@@ -56,4 +56,56 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		}
 	}
 	BENCHMARK( BM_CompareIgnoreCaseSimd );
+
+	void BM_ToUpperScalar( benchmark::State& state )
+	{
+		const std::string mixed_case = make_mixed_case();
+		for ( auto _ : state )
+		{
+			std::string string = mixed_case;
+			benchmark::DoNotOptimize( string.data() );
+			mclo::detail::to_upper_scalar( string.data(), string.data() + string.size() );
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ToUpperScalar );
+
+	void BM_ToUpperSimd( benchmark::State& state )
+	{
+		const std::string mixed_case = make_mixed_case();
+		for ( auto _ : state )
+		{
+			std::string string = mixed_case;
+			benchmark::DoNotOptimize( string.data() );
+			mclo::detail::to_upper_simd( string.data(), string.data() + string.size() );
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ToUpperSimd );
+
+	void BM_ToLowerScalar( benchmark::State& state )
+	{
+		const std::string mixed_case = make_mixed_case();
+		for ( auto _ : state )
+		{
+			std::string string = mixed_case;
+			benchmark::DoNotOptimize( string.data() );
+			mclo::detail::to_lower_scalar( string.data(), string.data() + string.size() );
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ToLowerScalar );
+
+	void BM_ToLowerSimd( benchmark::State& state )
+	{
+		const std::string mixed_case = make_mixed_case();
+		for ( auto _ : state )
+		{
+			std::string string = mixed_case;
+			benchmark::DoNotOptimize( string.data() );
+			mclo::detail::to_lower_simd( string.data(), string.data() + string.size() );
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ToLowerSimd );
 }
