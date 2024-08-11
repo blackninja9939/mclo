@@ -1,7 +1,7 @@
-﻿#include <mclo/string_utils.hpp>
+﻿#include <mclo/string/string_utils.hpp>
 
 #include "mclo/bit.hpp"
-#include "mclo/detail/ascii_string_simd.hpp"
+#include "mclo/string/detail/ascii_string_simd.hpp"
 
 #include <cwctype>
 

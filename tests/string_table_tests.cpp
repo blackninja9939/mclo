@@ -2,13 +2,13 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "mclo/meta.hpp"
-#include "mclo/string_table.hpp"
+#include "mclo/string/string_table.hpp"
 
 namespace
 {
 	struct test_domain;
 
-	template<typename IndexType>
+	template <typename IndexType>
 	using test_table = mclo::string_table<test_domain, IndexType>;
 }
 

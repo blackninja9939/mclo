@@ -3,8 +3,8 @@
 
 #include "consteval_check.h"
 #include "mclo/meta.hpp"
-#include "mclo/string_buffer.hpp"
-#include "mclo/string_utils.hpp"
+#include "mclo/string/string_buffer.hpp"
+#include "mclo/string/string_utils.hpp"
 
 #include <array>
 #include <iterator>
@@ -127,7 +127,7 @@ TEST_CASE( "to_upper", "[string]" )
 	}
 }
 
- TEST_CASE( "to_upper compile time", "[string]" )
+TEST_CASE( "to_upper compile time", "[string]" )
 {
 	SECTION( "Container" )
 	{
@@ -156,7 +156,7 @@ TEST_CASE( "to_upper", "[string]" )
 		}();
 		STATIC_CHECK( std::string_view( string ) == lorem_ipsum_upper );
 	}
- }
+}
 
 TEMPLATE_LIST_TEST_CASE( "trim_front", "[string]", char_types )
 {

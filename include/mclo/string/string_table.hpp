@@ -1,6 +1,6 @@
 #pragma once
 
-#include "small_optional_integer.hpp"
+#include "mclo/small_optional_integer.hpp"
 
 #include <cinttypes>
 #include <memory>
@@ -38,6 +38,7 @@ namespace mclo
 	class string_handle : private mclo::small_optional_integer<IndexType>
 	{
 		using base = mclo::small_optional_integer<IndexType>;
+
 	public:
 		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );
 		friend class string_table<Domain, IndexType>;
@@ -47,7 +48,7 @@ namespace mclo
 			return has_value();
 		}
 
-		[[nodsicard]] constexpr bool operator==( const string_handle other) const noexcept
+		[[nodsicard]] constexpr bool operator==( const string_handle other ) const noexcept
 		{
 			return static_cast<const base&>( *this ) == static_cast<const base&>( other );
 		}
@@ -74,8 +75,8 @@ namespace mclo
 
 	private:
 		using base::base;
-		using base::value;
 		using base::max_value;
+		using base::value;
 	};
 
 	template <typename Domain, typename IndexType = std::uint16_t>

@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include <mclo/string_utils.hpp>
+#include "mclo/string/string_utils.hpp"
 
 #include <random>
 #include <string>

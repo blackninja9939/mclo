@@ -1,7 +1,7 @@
 #pragma once
 
-#include "detected.hpp"
-#include "constant_evaluated.hpp"
+#include "mclo/constant_evaluated.hpp"
+#include "mclo/detected.hpp"
 
 #include <type_traits>
 

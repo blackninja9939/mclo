@@ -1,11 +1,12 @@
 #pragma once
 
-#include "algorithm.hpp"
+#include "mclo/algorithm.hpp"
+#include "mclo/fnva1.hpp"
+#include "mclo/numeric.hpp"
+#include "mclo/type_traits.hpp"
+
 #include "ascii_string_utils.hpp"
-#include "fnva1.hpp"
-#include "numeric.hpp"
 #include "string_buffer.hpp"
-#include "type_traits.hpp"
 
 #include <array>
 #include <charconv>
@@ -170,7 +171,7 @@ namespace mclo
 	namespace detail
 	{
 		[[nodiscard]] int compare_ignore_case_simd( const char* lhs, const char* rhs, std::size_t size ) noexcept;
-		
+
 		[[nodiscard]] constexpr int compare_ignore_case_scalar( const char* lhs,
 																const char* rhs,
 																std::size_t size ) noexcept
