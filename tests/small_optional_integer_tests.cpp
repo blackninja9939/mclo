@@ -1,7 +1,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "mclo/meta.hpp"
+#include "mclo/meta/type_aliases.hpp"
 #include "mclo/small_optional_integer.hpp"
 
 template <typename T>
@@ -146,9 +146,7 @@ TEMPLATE_LIST_TEST_CASE( "small_optional_integer comparison different values",
 	CHECK( lhs != rhs );
 }
 
-TEMPLATE_LIST_TEST_CASE( "small_optional_integer hash",
-						 "[small_optional_integer]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE( "small_optional_integer hash", "[small_optional_integer]", mclo::meta::integers )
 {
 	const mclo::small_optional_integer<TestType> empty;
 	const mclo::small_optional_integer<TestType> opt{ 16 };

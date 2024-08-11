@@ -1,4 +1,18 @@
-#include "mclo/meta.hpp"
+#include "mclo/meta/apply.hpp"
+#include "mclo/meta/filter.hpp"
+#include "mclo/meta/first.hpp"
+#include "mclo/meta/flatten.hpp"
+#include "mclo/meta/join.hpp"
+#include "mclo/meta/last.hpp"
+#include "mclo/meta/nth_type.hpp"
+#include "mclo/meta/pop_first.hpp"
+#include "mclo/meta/pop_last.hpp"
+#include "mclo/meta/push_first.hpp"
+#include "mclo/meta/push_last.hpp"
+#include "mclo/meta/repeat.hpp"
+#include "mclo/meta/transform.hpp"
+#include "mclo/meta/type_aliases.hpp"
+#include "mclo/meta/type_list.hpp"
 
 #include "mclo/type_traits.hpp"
 
@@ -11,8 +25,8 @@ namespace
 	static_assert( is_list<test_list> );
 	static_assert( !is_list<int> );
 
-	static_assert( size<test_list> == 3 );
-	static_assert( size<type_list<>> == 0 );
+	static_assert( test_list::size == 3 );
+	static_assert( type_list<>::size == 0 );
 
 	static_assert( !empty<test_list> );
 	static_assert( empty<type_list<>> );
@@ -25,6 +39,7 @@ namespace
 	static_assert( std::is_same_v<last<test_list>, bool> );
 
 	static_assert( std::is_same_v<pop_first<test_list>, type_list<float, bool>> );
+	static_assert( std::is_same_v<pop_last<test_list>, type_list<int, float>> );
 
 	static_assert( std::is_same_v<push_first<void, test_list>, type_list<void, int, float, bool>> );
 	static_assert( std::is_same_v<push_last<void, test_list>, type_list<int, float, bool, void>> );

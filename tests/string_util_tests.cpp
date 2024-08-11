@@ -2,7 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "consteval_check.h"
-#include "mclo/meta.hpp"
+#include "mclo/meta/type_aliases.hpp"
 #include "mclo/string/string_buffer.hpp"
 #include "mclo/string/string_utils.hpp"
 
