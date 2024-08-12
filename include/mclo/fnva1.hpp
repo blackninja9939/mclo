@@ -1,13 +1,11 @@
 #pragma once
 
-#include "identity.hpp"
-
 #include <cstddef>
 #include <type_traits>
 
 namespace mclo
 {
-	template <typename T, typename Transform = identity>
+	template <typename T, typename Transform = std::identity>
 	[[nodiscard]] constexpr std::size_t fnv1a( const T* data,
 											   const std::size_t size,
 											   Transform transform = {} ) noexcept

@@ -1,8 +1,8 @@
 ﻿#include <mclo/string/string_utils.hpp>
 
-#include "mclo/bit.hpp"
 #include "mclo/string/detail/ascii_string_simd.hpp"
 
+#include <bit>
 #include <cwctype>
 
 namespace mclo
@@ -34,7 +34,7 @@ int mclo::detail::compare_ignore_case_simd( const char* lhs, const char* rhs, st
 		const char_batch difference = lhs_data - rhs_data;
 		const char_batch::batch_bool_type result = difference == 0;
 		const auto mask = result.mask();
-		const int first_not_equal = mclo::countr_one( mask );
+		const int first_not_equal = std::countr_one( mask );
 
 		if ( first_not_equal != char_batch::size )
 		{

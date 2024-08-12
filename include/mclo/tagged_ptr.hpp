@@ -1,9 +1,9 @@
 #pragma once
 
-#include "bit.hpp"
-#include "tuple.hpp"
+#include "allocate_from_tuple.hpp"
 
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cinttypes>
 #include <climits>
@@ -28,7 +28,7 @@ namespace mclo
 		constexpr bool is_default_zero_initialized()
 		{
 			using bytes = std::array<std::byte, sizeof( T )>;
-			constexpr bytes b = mclo::bit_cast<bytes>( T() );
+			constexpr bytes b = std::bit_cast<bytes>( T() );
 			for ( std::size_t i = 0; i < b.size(); ++i )
 			{
 				if ( b[ i ] != std::byte( 0 ) )
@@ -51,7 +51,7 @@ namespace mclo
 		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
 		// do we want to even support 32 bit code? I doubt it
 		static constexpr std::size_t free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - 48;
-		static constexpr std::size_t free_lower_bits = mclo::bit_width( Alignment );
+		static constexpr std::size_t free_lower_bits = std::bit_width( Alignment );
 		static constexpr std::size_t total_free_bits = free_upper_bits + free_lower_bits;
 		static constexpr std::size_t used_ptr_bits = ( sizeof( void* ) * CHAR_BIT ) - total_free_bits;
 
@@ -70,7 +70,7 @@ namespace mclo
 			}
 			else
 			{
-				return mclo::bit_cast<tag_storage_type>( tag );
+				return std::bit_cast<tag_storage_type>( tag );
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace mclo
 			}
 			else
 			{
-				return mclo::bit_width( pack_tag_unchecked( tag ) ) <= total_free_bits;
+				return std::bit_width( pack_tag_unchecked( tag ) ) <= total_free_bits;
 			}
 		}
 
@@ -202,7 +202,7 @@ namespace mclo
 		static std::uintptr_t pack_ptr( pointer ptr ) noexcept
 		{
 			const auto ptr_bits = reinterpret_cast<std::uintptr_t>( ptr );
-			assert( ( ptr_bits == 0 || mclo::bit_floor( ptr_bits ) >= free_lower_bits ) &&
+			assert( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ) &&
 					"Ptr is too strictly aligned, it must be aligned to at least Alignment" );
 			return ptr_bits << free_upper_bits;
 		}
@@ -224,7 +224,7 @@ namespace mclo
 			}
 			else
 			{
-				return mclo::bit_cast<tag_type>( tag_storage_type( tag & tag_mask ) );
+				return std::bit_cast<tag_type>( tag_storage_type( tag & tag_mask ) );
 			}
 		}
 

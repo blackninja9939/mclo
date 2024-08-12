@@ -14,10 +14,11 @@ namespace
 
 TEMPLATE_LIST_TEST_CASE( "string_table default", "[string_table]", mclo::meta::unsigned_integers )
 {
+	constexpr typename test_table<TestType>::handle default_handle;
 	test_table<TestType> table;
 	CHECK( table.size() == 0 );
 	CHECK_FALSE( table.lookup_handle( "hello world" ).is_valid() );
-	CHECK( table.lookup_handle( "hello world" ) == decltype( table )::handle{} );
+	CHECK( table.lookup_handle( "hello world" ) == default_handle );
 }
 
 TEMPLATE_LIST_TEST_CASE( "string_table insert", "[string_table]", mclo::meta::unsigned_integers )

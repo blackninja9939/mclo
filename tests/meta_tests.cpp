@@ -14,7 +14,7 @@
 #include "mclo/meta/type_aliases.hpp"
 #include "mclo/meta/type_list.hpp"
 
-#include "mclo/type_traits.hpp"
+#include <type_traits>
 
 namespace
 {

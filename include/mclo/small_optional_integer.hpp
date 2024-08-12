@@ -3,13 +3,10 @@
 #include "platform.hpp"
 
 #include <cassert>
+#include <compare>
 #include <functional>
 #include <limits>
 #include <optional>
-
-#ifdef __cpp_impl_three_way_comparison
-#include <compare>
-#endif
 
 namespace mclo
 {
@@ -75,7 +72,7 @@ namespace mclo
 		}
 		constexpr small_optional_integer& operator=( small_optional_integer&& other ) noexcept
 		{
-			m_value = std::exchange( other.m_value, 0 );
+			base::m_value = std::exchange( other.m_value, 0 );
 			return *this;
 		}
 
@@ -100,7 +97,7 @@ namespace mclo
 
 		[[nodiscard]] bool has_value() const noexcept
 		{
-			return m_value != 0;
+			return base::m_value != 0;
 		}
 		[[nodiscard]] explicit operator bool() const noexcept
 		{
@@ -113,28 +110,28 @@ namespace mclo
 			{
 				throw std::bad_optional_access();
 			}
-			return get();
+			return base::get();
 		}
 		[[nodiscard]] T operator*() const noexcept
 		{
 			assert( has_value() );
-			return get();
+			return base::get();
 		}
 
-		[[nodiscard]] T value_or( const T default ) const noexcept
+		[[nodiscard]] T value_or( const T default_value ) const noexcept
 		{
-			return has_value() ? value() : default;
+			return has_value() ? value() : default_value;
 		}
 
 		void reset() noexcept
 		{
-			m_value = 0;
+			base::m_value = 0;
 		}
 		using base::set;
 
 		void swap( small_optional_integer& other ) noexcept
 		{
-			std::swap( m_value, other.m_value );
+			std::swap( base::m_value, other.m_value );
 		}
 
 		friend void swap( small_optional_integer& lhs, small_optional_integer& rhs ) noexcept
@@ -142,15 +139,21 @@ namespace mclo
 			lhs.swap( rhs );
 		}
 
-		[[nodicard]] T raw_value() const noexcept
+		[[nodiscard]] T raw_value() const noexcept
 		{
-			return m_value;
+			return base::m_value;
 		}
 	};
 
-#ifdef __cpp_impl_three_way_comparison
 	template <typename T, typename U>
-	[[nodsicard]] constexpr std::string_ordering operator<=>( const mclo::small_optional_integer<T> lhs,
+	[[nodiscard]] constexpr bool operator==( const mclo::small_optional_integer<T> lhs,
+											 const mclo::small_optional_integer<U> rhs ) noexcept
+	{
+		return lhs.raw_value() == rhs.raw_value();
+	}
+
+	template <typename T, typename U>
+	[[nodiscard]] constexpr std::strong_ordering operator<=>( const mclo::small_optional_integer<T> lhs,
 															  const mclo::small_optional_integer<U> rhs ) noexcept
 	{
 		const bool lhs_has_value = lhs.has_value();
@@ -162,85 +165,6 @@ namespace mclo
 
 		return lhs_has_value <=> rhs_has_value;
 	}
-#else
-	template <typename T, typename U>
-	[[nodsicard]] constexpr bool operator==( const mclo::small_optional_integer<T> lhs,
-											 const mclo::small_optional_integer<U> rhs ) noexcept
-	{
-		const bool lhs_has_value = lhs.has_value();
-		const bool rhs_has_value = rhs.has_value();
-		if ( lhs_has_value && rhs_has_value )
-		{
-			return *lhs == *rhs;
-		}
-		return lhs_has_value == rhs_has_value;
-	}
-
-	template <typename T, typename U>
-	[[nodsicard]] constexpr bool operator!=( const mclo::small_optional_integer<T> lhs,
-											 const mclo::small_optional_integer<U> rhs ) noexcept
-	{
-		const bool lhs_has_value = lhs.has_value();
-		const bool rhs_has_value = rhs.has_value();
-		if ( lhs_has_value && rhs_has_value )
-		{
-			return *lhs != *rhs;
-		}
-		return lhs_has_value != rhs_has_value;
-	}
-
-	template <typename T, typename U>
-	[[nodsicard]] constexpr bool operator<( const mclo::small_optional_integer<T> lhs,
-											const mclo::small_optional_integer<U> rhs ) noexcept
-	{
-		const bool lhs_has_value = lhs.has_value();
-		const bool rhs_has_value = rhs.has_value();
-		if ( lhs_has_value && rhs_has_value )
-		{
-			return *lhs < *rhs;
-		}
-		return lhs_has_value < rhs_has_value;
-	}
-
-	template <typename T, typename U>
-	[[nodsicard]] constexpr bool operator>( const mclo::small_optional_integer<T> lhs,
-											const mclo::small_optional_integer<U> rhs ) noexcept
-	{
-		const bool lhs_has_value = lhs.has_value();
-		const bool rhs_has_value = rhs.has_value();
-		if ( lhs_has_value && rhs_has_value )
-		{
-			return *lhs > *rhs;
-		}
-		return lhs_has_value > rhs_has_value;
-	}
-
-	template <typename T, typename U>
-	[[nodsicard]] constexpr bool operator<=( const mclo::small_optional_integer<T> lhs,
-											 const mclo::small_optional_integer<U> rhs ) noexcept
-	{
-		const bool lhs_has_value = lhs.has_value();
-		const bool rhs_has_value = rhs.has_value();
-		if ( lhs_has_value && rhs_has_value )
-		{
-			return *lhs <= *rhs;
-		}
-		return lhs_has_value <= rhs_has_value;
-	}
-
-	template <typename T, typename U>
-	[[nodsicard]] constexpr bool operator>=( const mclo::small_optional_integer<T> lhs,
-											 const mclo::small_optional_integer<U> rhs ) noexcept
-	{
-		const bool lhs_has_value = lhs.has_value();
-		const bool rhs_has_value = rhs.has_value();
-		if ( lhs_has_value && rhs_has_value )
-		{
-			return *lhs >= *rhs;
-		}
-		return lhs_has_value >= rhs_has_value;
-	}
-#endif
 }
 
 template <typename T>

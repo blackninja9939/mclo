@@ -45,33 +45,10 @@ namespace mclo
 
 		constexpr bool is_valid() const noexcept
 		{
-			return has_value();
+			return base::has_value();
 		}
 
-		[[nodsicard]] constexpr bool operator==( const string_handle other ) const noexcept
-		{
-			return static_cast<const base&>( *this ) == static_cast<const base&>( other );
-		}
-		[[nodsicard]] constexpr bool operator!=( const string_handle other ) const noexcept
-		{
-			return static_cast<const base&>( *this ) != static_cast<const base&>( other );
-		}
-		[[nodsicard]] constexpr bool operator<( const string_handle other ) const noexcept
-		{
-			return static_cast<const base&>( *this ) < static_cast<const base&>( other );
-		}
-		[[nodsicard]] constexpr bool operator<=( const string_handle other ) const noexcept
-		{
-			return static_cast<const base&>( *this ) <= static_cast<const base&>( other );
-		}
-		[[nodsicard]] constexpr bool operator>( const string_handle other ) const noexcept
-		{
-			return static_cast<const base&>( *this ) > static_cast<const base&>( other );
-		}
-		[[nodsicard]] constexpr bool operator>=( const string_handle other ) const noexcept
-		{
-			return static_cast<const base&>( *this ) >= static_cast<const base&>( other );
-		}
+		[[nodiscard]] constexpr auto operator<=>( const string_handle& other ) const noexcept = default;
 
 	private:
 		using base::base;

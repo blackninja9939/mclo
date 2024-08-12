@@ -64,7 +64,6 @@ TEST_CASE( "string_buffer swap", "[string_buffer]" )
 	CHECK( str2 == "goodbye 987" );
 }
 
-#ifdef __cpp_lib_format
 TEST_CASE( "string_buffer std::format", "[string_buffer]" )
 {
 	mclo::string_buffer<64> str( "hello to the world" );
@@ -73,7 +72,6 @@ TEST_CASE( "string_buffer std::format", "[string_buffer]" )
 
 	CHECK( formatted == "--hello to the world--" );
 }
-#endif
 
 #ifdef __cpp_lib_starts_ends_with
 TEST_CASE( "string_buffer starts_with", "[string_buffer]" )

@@ -9,14 +9,7 @@ namespace
 	template <typename T, std::size_t size>
 	constexpr bool are_equal( const std::array<T, size>& lhs, const std::array<T, size>& rhs )
 	{
-		for ( std::size_t index = 0; index < size; index++ )
-		{
-			if ( lhs[ index ] != rhs[ index ] )
-			{
-				return false;
-			}
-		}
-		return true;
+		return std::equal( lhs.begin(), lhs.end(), rhs.begin() );
 	}
 }
 

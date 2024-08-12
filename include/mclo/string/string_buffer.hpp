@@ -1,21 +1,15 @@
 #pragma once
 
-#include "mclo/algorithm.hpp"
-
 #include "ascii_string_utils.hpp"
+
+#include "mclo/platform.hpp"
 
 #include <array>
 #include <cassert>
+#include <compare>
+#include <format>
 #include <stdexcept>
 #include <string_view>
-
-#ifdef __cpp_lib_format
-#include <format>
-#endif
-
-#ifdef __cpp_impl_three_way_comparison
-#include <compare>
-#endif
 
 namespace mclo
 {
@@ -55,7 +49,8 @@ namespace mclo
 			resize( count );
 		}
 
-		template <std::size_t OtherSize, typename = std::enable_if_t<( OtherSize <= Size )>>
+		template <std::size_t OtherSize>
+			requires( OtherSize <= Size )
 		constexpr basic_string_buffer( const value_type ( &array )[ OtherSize ] ) noexcept
 		{
 			assign( array );
@@ -76,13 +71,15 @@ namespace mclo
 			null_terminate_end();
 		}
 
-		template <std::size_t OtherSize, typename = std::enable_if_t<( OtherSize <= Size )>>
+		template <std::size_t OtherSize>
+			requires( OtherSize <= Size )
 		constexpr void assign( const basic_string_buffer<CharT, OtherSize>& str ) noexcept
 		{
 			assign_with_null( str.data(), str.size() );
 		}
 
-		template <std::size_t OtherSize, typename = std::enable_if_t<( OtherSize <= Size )>>
+		template <std::size_t OtherSize>
+			requires( OtherSize <= Size )
 		constexpr void assign( const value_type ( &str )[ OtherSize ] ) noexcept
 		{
 			assign_with_null( str, OtherSize - 1 );
@@ -297,7 +294,7 @@ namespace mclo
 
 			if ( count > m_length )
 			{
-				mclo::fill_n( end(), count - m_length, ch );
+				std::fill_n( end(), count - m_length, ch );
 			}
 
 			// Want to set length and terminate for trimming and growing, trimming just ignores existing characters and
@@ -313,7 +310,7 @@ namespace mclo
 			{
 				// We know we're filling null terminator so do it as part of the fill_n itself so do not call
 				// null_terminate_end
-				mclo::fill_n( end(), count - m_length + 1, value_type() );
+				std::fill_n( end(), count - m_length + 1, value_type() );
 				m_length = count;
 			}
 			else if ( count < m_length )
@@ -416,25 +413,11 @@ namespace mclo
 	private:
 		static constexpr void traits_copy( pointer dest, const const_pointer src, const size_type count ) noexcept
 		{
-			if ( mclo::is_constant_evaluated() )
-			{
-				mclo::copy( src, src + count, dest );
-			}
-			else
-			{
-				traits_type::copy( dest, src, count );
-			}
+			traits_type::copy( dest, src, count );
 		}
 		static constexpr void traits_assign( pointer ptr, const size_type count, const value_type ch ) noexcept
 		{
-			if ( mclo::is_constant_evaluated() )
-			{
-				mclo::fill_n( ptr, count, ch );
-			}
-			else
-			{
-				traits_type::assign( ptr, count, ch );
-			}
+			traits_type::assign( ptr, count, ch );
 		}
 
 		constexpr void assign_with_null( const const_pointer str, const size_type size ) noexcept
@@ -454,88 +437,19 @@ namespace mclo
 
 	// Comparison operators
 
-	namespace detail
+	template <typename CharT, std::size_t Size, typename String>
+	[[nodiscard]] constexpr auto operator==( const basic_string_buffer<CharT, Size>& lhs, const String& rhs ) noexcept
 	{
-		template <typename T>
-		constexpr std::size_t string_size( const T& object ) noexcept
-		{
-			return object.size();
-		}
-		template <typename CharT, std::size_t N>
-		constexpr std::size_t string_size( const CharT ( & )[ N ] ) noexcept
-		{
-			return N - 1;
-		}
-
-		template <typename String>
-		constexpr bool is_string_buffer = false;
-
-		template <typename CharT, std::size_t N>
-		constexpr bool is_string_buffer<mclo::basic_string_buffer<CharT, N>> = true;
+		using view_type = typename basic_string_buffer<CharT, Size>::view_type;
+		return view_type( lhs ) == view_type( rhs );
 	}
 
-#define IMPLEMENT_COMPARISONS( OPERATOR )                                                                              \
-	template <typename CharT, std::size_t Size, typename String>                                                       \
-	[[nodiscard]] constexpr auto operator OPERATOR( const basic_string_buffer<CharT, Size>& lhs,                       \
-													const String& rhs ) noexcept                                       \
-	{                                                                                                                  \
-		using view_type = typename basic_string_buffer<CharT, Size>::view_type;                                        \
-		return view_type( lhs ) OPERATOR view_type( rhs );                                                             \
-	}
-
-	// != synthesized in C++20
-
-	IMPLEMENT_COMPARISONS( == )
-
-#ifdef __cpp_impl_three_way_comparison
-	namespace detail
+	template <typename CharT, std::size_t Size, typename String>
+	[[nodiscard]] constexpr auto operator<=>( const basic_string_buffer<CharT, Size>& lhs, const String& rhs ) noexcept
 	{
-		template <typename T>
-		struct string_comp_category
-		{
-			using type = std::weak_ordering;
-		};
-
-		template <typename T>
-			requires requires { typename T::comparison_category; }
-		struct string_comp_category<T>
-		{
-			using type = T::comparison_category;
-		};
-
-		template <typename T>
-		using string_comp_category_t = typename string_comp_category<T>::type;
+		using view_type = typename basic_string_buffer<CharT, Size>::view_type;
+		return view_type( lhs ) <=> view_type( rhs );
 	}
-
-	IMPLEMENT_COMPARISONS( <=> )
-
-#else
-
-#define IMPLEMENT_REVERSED_COMPARISONS( OPERATOR )                                                                     \
-	template <typename CharT, std::size_t Size, typename String>                                                       \
-	[[nodiscard]] constexpr bool operator OPERATOR( const String& lhs,                                                 \
-													const basic_string_buffer<CharT, Size>& rhs ) noexcept             \
-	{                                                                                                                  \
-		using view_type = typename basic_string_buffer<CharT, Size>::view_type;                                        \
-		return view_type( lhs ) OPERATOR view_type( rhs );                                                             \
-	}
-
-	IMPLEMENT_REVERSED_COMPARISONS( == );
-	IMPLEMENT_COMPARISONS( != )
-	IMPLEMENT_REVERSED_COMPARISONS( != );
-	IMPLEMENT_COMPARISONS( < )
-	IMPLEMENT_REVERSED_COMPARISONS( < );
-	IMPLEMENT_COMPARISONS( > )
-	IMPLEMENT_REVERSED_COMPARISONS( > )
-	IMPLEMENT_COMPARISONS( <= )
-	IMPLEMENT_REVERSED_COMPARISONS( <= )
-	IMPLEMENT_COMPARISONS( >= )
-	IMPLEMENT_REVERSED_COMPARISONS( >= )
-
-#undef IMPLEMENT_REVERSED_COMPARISONS
-#endif
-
-#undef IMPLEMENT_COMPARISONS
 
 	template <typename CharT, std::size_t N>
 	basic_string_buffer( const CharT ( & )[ N ] ) -> basic_string_buffer<CharT, N>;
@@ -622,11 +536,9 @@ namespace std
 		}
 	};
 
-#ifdef __cpp_lib_format
 	template <typename CharT, std::size_t Size>
 	struct formatter<mclo::basic_string_buffer<CharT, Size>>
 		: formatter<typename mclo::basic_string_buffer<CharT, Size>::view_type>
 	{
 	};
-#endif
 }

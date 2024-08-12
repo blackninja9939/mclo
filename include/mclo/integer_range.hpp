@@ -1,6 +1,6 @@
 #pragma once
 
-#include "type_traits.hpp"
+#include "standard_integer_type.hpp"
 
 #include <utility>
 

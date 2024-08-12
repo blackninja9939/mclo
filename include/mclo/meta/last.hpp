@@ -2,7 +2,7 @@
 
 #include "type_list.hpp"
 
-#include "mclo/type_traits.hpp"
+#include <type_traits>
 
 namespace mclo::meta
 {
@@ -14,7 +14,7 @@ namespace mclo::meta
 		template <typename... Ts>
 		struct last_impl<type_list<Ts...>>
 		{
-			using type = typename decltype( ( type_identity<Ts>{}, ... ) )::type;
+			using type = typename decltype( ( std::type_identity<Ts>{}, ... ) )::type;
 		};
 	}
 

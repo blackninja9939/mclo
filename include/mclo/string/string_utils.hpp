@@ -1,20 +1,22 @@
 #pragma once
 
-#include "mclo/algorithm.hpp"
+#include "mclo/always_false.hpp"
 #include "mclo/fnva1.hpp"
-#include "mclo/numeric.hpp"
-#include "mclo/type_traits.hpp"
+#include "mclo/platform.hpp"
 
 #include "ascii_string_utils.hpp"
 #include "string_buffer.hpp"
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <iterator>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 
 namespace mclo
@@ -191,7 +193,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr int compare_ignore_case( const char* lhs, const char* rhs, std::size_t size ) noexcept
 		{
-			if ( mclo::is_constant_evaluated() )
+			if ( std::is_constant_evaluated() )
 			{
 				return compare_ignore_case_scalar( lhs, rhs, size );
 			}
@@ -226,8 +228,8 @@ namespace mclo
 
 	template <typename CharT>
 	void replace_all( std::basic_string<CharT>& string,
-					  const std::basic_string_view<type_identity_t<CharT>> find,
-					  const std::basic_string_view<type_identity_t<CharT>> replace ) noexcept
+					  const std::basic_string_view<std::type_identity_t<CharT>> find,
+					  const std::basic_string_view<std::type_identity_t<CharT>> replace ) noexcept
 	{
 		const std::size_t find_size = find.size();
 		const std::size_t replace_size = replace.size();
@@ -264,7 +266,7 @@ namespace mclo
 			using iterator_category = typename std::iterator_traits<It>::iterator_category;
 			if constexpr ( std::is_base_of_v<std::forward_iterator_tag, iterator_category> )
 			{
-				const std::size_t size = mclo::accumulate(
+				const std::size_t size = std::accumulate(
 					first, last, std::size_t( 0 ), [ &string_length ]( const std::size_t current, const auto& string ) {
 						return current + string_length( string );
 					} );
@@ -305,8 +307,8 @@ namespace mclo
 
 	template <typename String = std::string,
 			  std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
-			  typename It,
-			  typename = std::enable_if_t<detail::is_iterators_over_literals<String, It>>>
+			  typename It>
+		requires( detail::is_iterators_over_literals<String, It> )
 	[[nodiscard]] constexpr String join_string( It first, It last )
 	{
 		using string_value_type = typename String::value_type;
@@ -338,29 +340,25 @@ namespace mclo
 		}
 	}
 
-	template <typename String = std::string,
-			  typename It,
-			  typename = std::enable_if_t<!detail::is_iterators_over_literals<String, It>>>
+	template <typename String = std::string, typename It>
+		requires( !detail::is_iterators_over_literals<String, It> )
 	[[nodiscard]] constexpr String join_string( It first, It last )
 	{
 		return detail::join_string_iterators<String>(
 			first, last, []( const auto& string ) { return std::size( string ); } );
 	}
 
-	template <
-		typename String = std::string,
-		std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
-		typename Container,
-		typename = std::enable_if_t<detail::is_iterators_over_literals<String, typename Container::const_iterator>>>
+	template <typename String = std::string,
+			  std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
+			  typename Container>
+		requires( detail::is_iterators_over_literals<String, typename Container::const_iterator> )
 	[[nodiscard]] constexpr String join_string( const Container& strings )
 	{
 		return join_string<String, literal_size_buffer_max>( std::begin( strings ), std::end( strings ) );
 	}
 
-	template <
-		typename String = std::string,
-		typename Container,
-		typename = std::enable_if_t<!detail::is_iterators_over_literals<String, typename Container::const_iterator>>>
+	template <typename String = std::string, typename Container>
+		requires( !detail::is_iterators_over_literals<String, typename Container::const_iterator> )
 	[[nodiscard]] constexpr String join_string( const Container& strings )
 	{
 		return join_string<String>( std::begin( strings ), std::end( strings ) );
