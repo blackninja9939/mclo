@@ -2,6 +2,7 @@
 
 #include "allocate_from_tuple.hpp"
 
+#include <algorithm>
 #include <array>
 #include <bit>
 #include <cassert>
@@ -27,17 +28,10 @@ namespace mclo
 		template <typename T>
 		constexpr bool is_default_zero_initialized()
 		{
-			using bytes = std::array<std::byte, sizeof( T )>;
-			constexpr bytes b = std::bit_cast<bytes>( T() );
-			for ( std::size_t i = 0; i < b.size(); ++i )
-			{
-				if ( b[ i ] != std::byte( 0 ) )
-				{
-					return false;
+			using byte_array = std::array<std::byte, sizeof( T )>;
+			constexpr byte_array bytes = std::bit_cast<byte_array>( T() );
+			return std::all_of( bytes.begin(), bytes.end(), []( const std::byte b ) { return b == std::byte( 0 ); } );
 				}
-			}
-			return true;
-		}
 
 		template <typename T>
 		constexpr bool is_zero_initializeable_v =
@@ -177,25 +171,9 @@ namespace mclo
 		{
 			return lhs.m_bits == rhs.m_bits;
 		}
-		friend bool operator!=( const tagged_ptr& lhs, const tagged_ptr& rhs ) noexcept
-		{
-			return lhs.m_bits != rhs.m_bits;
-		}
 		friend bool operator==( const tagged_ptr& lhs, const const_pointer rhs ) noexcept
 		{
 			return lhs.get() == rhs;
-		}
-		friend bool operator!=( const tagged_ptr& lhs, const const_pointer rhs ) noexcept
-		{
-			return lhs.get() != rhs;
-		}
-		friend bool operator==( const const_pointer lhs, const tagged_ptr& rhs ) noexcept
-		{
-			return lhs == rhs.get();
-		}
-		friend bool operator!=( const const_pointer lhs, const tagged_ptr& rhs ) noexcept
-		{
-			return lhs != rhs.get();
 		}
 
 	private:

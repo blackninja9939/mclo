@@ -262,3 +262,16 @@ TEST_CASE( "tagged_unique_ptr piecewise throw", "[tagged_ptr]" )
 		CHECK( !allocation_active );
 	}
 }
+
+TEMPLATE_LIST_TEST_CASE( "tagged_ptr comparisons", "[tagged_ptr]", test_types )
+{
+	auto owned = std::make_unique<int>( 42 );
+	mclo::tagged_ptr<int, TestType> ptr;
+
+	CHECK( ptr == nullptr );
+	CHECK( nullptr == ptr );
+	CHECK( ptr == ptr );
+	CHECK_FALSE( ptr != nullptr );
+	CHECK_FALSE( nullptr != ptr );
+	CHECK_FALSE( ptr != ptr );
+}
