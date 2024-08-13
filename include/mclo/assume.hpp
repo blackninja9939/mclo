@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "mclo/platform.hpp"
+
 #if __has_cpp_attribute( assume )
 #define MCLO_ASSUME( CONDITION ) [[assume( CONDITION )]]
 #elif defined( _MSC_VER ) && !defined( __clang__ ) // MSVC
