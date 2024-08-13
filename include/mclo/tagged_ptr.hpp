@@ -1,6 +1,7 @@
 #pragma once
 
 #include "allocate_from_tuple.hpp"
+#include "standard_integer_type.hpp"
 
 #include <algorithm>
 #include <array>
@@ -14,17 +15,6 @@ namespace mclo
 {
 	namespace detail
 	{
-		// clang-format off
-		template <std::size_t Bits>
-		using tag_storage_type =
-			std::conditional_t<(Bits<= sizeof(std::uint8_t) * CHAR_BIT), std::uint8_t,
-			std::conditional_t<(Bits<= sizeof(std::uint16_t) * CHAR_BIT), std::uint16_t,
-			std::conditional_t<(Bits<= sizeof(std::uint32_t) * CHAR_BIT), std::uint32_t,
-			std::conditional_t<(Bits<= sizeof(std::uint64_t) * CHAR_BIT), std::uint64_t,
-			void
-		>>>>;
-		// clang-format on
-
 		template <typename T>
 		constexpr bool is_default_zero_initialized()
 		{
@@ -54,7 +44,7 @@ namespace mclo
 
 		static constexpr bool is_integer = std::is_integral_v<Tag> || std::is_enum_v<Tag>;
 
-		using tag_storage_type = detail::tag_storage_type<total_free_bits>;
+		using tag_storage_type = mclo::uint_least_t<total_free_bits>;
 
 		static constexpr std::uintptr_t pack_tag_unchecked( const Tag tag ) noexcept
 		{
