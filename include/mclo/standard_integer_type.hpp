@@ -27,4 +27,7 @@ namespace mclo
 		void
 	>>>>;
 	// clang-format on
+
+	template <std::size_t Bits>
+	using int_least_t = std::make_signed_t<uint_least_t<Bits>>;
 }
