@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest, windows-latest] # ubuntu-latest disabled as it lacks <format> for C++20
     #env:
     #
     # [OPTIONAL] Define the vcpkg's triplet 
