@@ -7,5 +7,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: RafikFarhad/clang-format-github-action@v4
         with:
-          sources: "cpp/**/*.h,cpp/**/*.pp"
+          sources: "**/*.pp"
           style: file
