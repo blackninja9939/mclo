@@ -1,6 +1,5 @@
-#pragma once
-
 #include "mclo/string/ascii_string_utils.hpp"
+
 #include "mclo/math.hpp"
 #include "mclo/string/detail/ascii_string_simd.hpp"
 

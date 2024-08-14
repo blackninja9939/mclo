@@ -438,7 +438,7 @@ namespace mclo
 	// Comparison operators
 
 	template <typename CharT, std::size_t Size, typename String>
-	[[nodiscard]] constexpr auto operator==( const basic_string_buffer<CharT, Size>& lhs, const String& rhs ) noexcept
+	[[nodiscard]] constexpr bool operator==( const basic_string_buffer<CharT, Size>& lhs, const String& rhs ) noexcept
 	{
 		using view_type = typename basic_string_buffer<CharT, Size>::view_type;
 		return view_type( lhs ) == view_type( rhs );

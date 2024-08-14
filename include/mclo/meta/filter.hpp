@@ -3,6 +3,8 @@
 #include "join.hpp"
 #include "type_list.hpp"
 
+#include <type_traits>
+
 namespace mclo::meta
 {
 	namespace detail
