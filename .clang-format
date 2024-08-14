@@ -34,7 +34,6 @@ NamespaceIndentation: All
 PackConstructorInitializers: Never
 PointerAlignment: Left
 QualifierAlignment: Left
-SpaceBeforeJsonColon: true
 SpacesInParens: Custom
 SpacesInParensOptions:
   InConditionalStatements: true
