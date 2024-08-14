@@ -13,6 +13,7 @@ add_executable( tests
 	small_optional_integer_tests.cpp
 	string_table_tests.cpp
 	math_tests.cpp
+	slot_map_tests.cpp
 )
 
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
