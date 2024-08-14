@@ -57,10 +57,10 @@ TEST_CASE( "is_pow2", "[math]" )
 
 TEST_CASE( "pow10", "[math]" )
 {
-	CONSTEVAL_CHECK( mclo::pow10( 0u ) == 1 );
-	CONSTEVAL_CHECK( mclo::pow10( 1u ) == 10 );
-	CONSTEVAL_CHECK( mclo::pow10( 2u ) == 100 );
-	CONSTEVAL_CHECK( mclo::pow10( 8u ) == 100000000 );
-	CONSTEVAL_CHECK( mclo::pow10( 11u ) == 100000000000 );
-	CONSTEVAL_CHECK( mclo::pow10( 19u ) == 10000000000000000000 );
+	CONSTEVAL_CHECK( mclo::pow10( 0u ) == 1ull );
+	CONSTEVAL_CHECK( mclo::pow10( 1u ) == 10ull );
+	CONSTEVAL_CHECK( mclo::pow10( 2u ) == 100ull );
+	CONSTEVAL_CHECK( mclo::pow10( 8u ) == 100000000ull );
+	CONSTEVAL_CHECK( mclo::pow10( 11u ) == 100000000000ull );
+	CONSTEVAL_CHECK( mclo::pow10( 19u ) == 10000000000000000000ull );
 }
