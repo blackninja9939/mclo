@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_ENABLE_PAIR_STRINGMAKER
+
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/generators/catch_generators_adapters.hpp>
@@ -31,6 +33,18 @@ namespace
 	}
 }
 
+template <typename T, std::size_t TotalBits, std::size_t GenerationBits>
+struct Catch::StringMaker<mclo::slot_map_handle<T, TotalBits, GenerationBits>>
+{
+	using handle = mclo::slot_map_handle<T, TotalBits, GenerationBits>;
+	using pair = std::pair<typename handle::representation_type, typename handle::representation_type>;
+
+	static std::string convert( const mclo::slot_map_handle<T, TotalBits, GenerationBits> value )
+	{
+		return Catch::StringMaker<pair>::convert( pair( value.index, value.generation ) );
+	}
+};
+
 #define MAKE_VALUE( NUMBER ) make_value<typename TestType::value_type>( NUMBER )
 
 TEST_CASE( "slot map handle", "[slot_map]" )
@@ -58,6 +72,70 @@ TEST_CASE( "slot map handle set_combined", "[slot_map]" )
 
 	CHECK( handle.index == index );
 	CHECK( handle.generation == generation );
+}
+
+TEST_CASE( "slot map handle comparisons", "[slot_map]" )
+{
+	using handle_type = mclo::slot_map_handle<int, 32, 8>;
+
+	const auto index = GENERATE( take( 5, random( 1u, handle_type::max_index - 1 ) ) );
+	const auto generation = GENERATE( take( 5, random( 1u, handle_type::max_generation - 1 ) ) );
+
+	const handle_type handle{ index, generation };
+
+	SECTION( "Equality" )
+	{
+		CHECK( handle == handle );
+		CHECK_FALSE( handle != handle );
+		CHECK( handle <= handle );
+		CHECK( handle >= handle );
+		CHECK_FALSE( handle < handle );
+		CHECK_FALSE( handle > handle );
+	}
+	SECTION( "Greater index" )
+	{
+		const handle_type handle_greater{ index + 1, generation };
+
+		CHECK_FALSE( handle == handle_greater );
+		CHECK( handle != handle_greater );
+		CHECK( handle <= handle_greater );
+		CHECK_FALSE( handle >= handle_greater );
+		CHECK( handle < handle_greater );
+		CHECK_FALSE( handle > handle_greater );
+	}
+	SECTION( "Greater generation" )
+	{
+		const handle_type handle_greater{ index, generation + 1 };
+
+		CHECK_FALSE( handle == handle_greater );
+		CHECK( handle != handle_greater );
+		CHECK( handle <= handle_greater );
+		CHECK_FALSE( handle >= handle_greater );
+		CHECK( handle < handle_greater );
+		CHECK_FALSE( handle > handle_greater );
+	}
+	SECTION( "Lower index" )
+	{
+		const handle_type handle_smaller{ index - 1, generation };
+
+		CHECK_FALSE( handle == handle_smaller );
+		CHECK( handle != handle_smaller );
+		CHECK_FALSE( handle <= handle_smaller );
+		CHECK( handle >= handle_smaller );
+		CHECK_FALSE( handle < handle_smaller );
+		CHECK( handle > handle_smaller );
+	}
+	SECTION( "Lower generation" )
+	{
+		const handle_type handle_smaller{ index, generation - 1 };
+
+		CHECK_FALSE( handle == handle_smaller );
+		CHECK( handle != handle_smaller );
+		CHECK_FALSE( handle <= handle_smaller );
+		CHECK( handle >= handle_smaller );
+		CHECK_FALSE( handle < handle_smaller );
+		CHECK( handle > handle_smaller );
+	}
 }
 
 TEMPLATE_LIST_TEST_CASE( "dense_slot_map default constructor", "[slot_map]", test_types )

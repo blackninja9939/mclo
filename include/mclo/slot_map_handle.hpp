@@ -38,7 +38,7 @@ namespace mclo
 		/// @brief Get the handle as a single combined value with the generation stored in the upper bits and index in
 		/// the lower
 		/// @return Combined handle value
-		constexpr representation_type get_combined() const noexcept
+		[[nodiscard]] constexpr representation_type get_combined() const noexcept
 		{
 			return ( generation << index_bits ) | index;
 		}
@@ -51,6 +51,8 @@ namespace mclo
 			generation = value >> index_bits;
 			index = value & index_bits_mask;
 		}
+
+		[[nodiscard]] constexpr auto operator<=>( const slot_map_handle& other ) const noexcept = default;
 
 		/// @brief Index of the handle into its slot map
 		representation_type index : index_bits;
