@@ -1,9 +1,8 @@
-#define CATCH_CONFIG_ENABLE_PAIR_STRINGMAKER
-
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/generators/catch_generators_adapters.hpp>
 #include <catch2/generators/catch_generators_random.hpp>
+#include <catch2/matchers/catch_matchers_all.hpp>
 
 #include "consteval_check.h"
 
@@ -14,22 +13,43 @@
 
 namespace
 {
-	using test_types = mclo::meta::type_list<mclo::dense_slot_map<std::int32_t>,
-											 mclo::dense_slot_map<std::string>,
-											 mclo::pmr::dense_slot_map<std::string>>;
-	template <typename Return>
-	Return make_value( const std::int32_t number ) noexcept = delete;
+	using test_map = mclo::dense_slot_map<int>;
+	using test_map = test_map;
 
-	template<>
-	std::int32_t make_value<std::int32_t>( const std::int32_t number ) noexcept
+	struct throwing_tester
 	{
-		return number;
+		throwing_tester() = default;
+		explicit throwing_tester( int val )
+			: i( val )
+		{
+			if ( i == 5 )
+			{
+				throw std::runtime_error( "Error" );
+			}
+		}
+		int i;
+	};
+
+	template <typename T>
+	void check_empty( const T& map )
+	{
+		CHECK( map.size() == 0 );
+		CHECK( map.empty() );
+		CHECK( map.begin() == map.end() );
+		CHECK( map.cbegin() == map.cend() );
+		CHECK( map.rbegin() == map.rend() );
+		CHECK( map.crbegin() == map.crend() );
 	}
 
-	template <>
-	std::string make_value<std::string>( const std::int32_t number ) noexcept
+	template <typename T>
+	void check_not_empty( const T& map )
 	{
-		return std::to_string( number );
+		CHECK_FALSE( map.size() == 0 );
+		CHECK_FALSE( map.empty() );
+		CHECK_FALSE( map.begin() == map.end() );
+		CHECK_FALSE( map.cbegin() == map.cend() );
+		CHECK_FALSE( map.rbegin() == map.rend() );
+		CHECK_FALSE( map.crbegin() == map.crend() );
 	}
 }
 
@@ -44,8 +64,6 @@ struct Catch::StringMaker<mclo::slot_map_handle<T, TotalBits, GenerationBits>>
 		return Catch::StringMaker<pair>::convert( pair( value.index, value.generation ) );
 	}
 };
-
-#define MAKE_VALUE( NUMBER ) make_value<typename TestType::value_type>( NUMBER )
 
 TEST_CASE( "slot map handle", "[slot_map]" )
 {
@@ -138,159 +156,333 @@ TEST_CASE( "slot map handle comparisons", "[slot_map]" )
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "dense_slot_map default constructor", "[slot_map]", test_types )
+TEST_CASE( "dense_slot_map default constructor", "[slot_map]" )
 {
-	const TestType map;
+	const test_map map;
+	check_empty( map );
 	CHECK( map.slot_count() == 0 );
-	CHECK( map.size() == 0 );
-	CHECK( map.empty() );
 	CHECK( map.capacity() == 0 );
-	CHECK( map.begin() == map.end() );
-	CHECK( map.cbegin() == map.cend() );
-	CHECK( map.rbegin() == map.rend() );
-	CHECK( map.crbegin() == map.crend() );
 }
 
-TEMPLATE_LIST_TEST_CASE( "dense_slot_map allocator constructor", "[slot_map]", test_types )
+TEST_CASE( "dense_slot_map allocator constructor", "[slot_map]" )
 {
-	typename TestType::allocator_type allocator;
-	const TestType map( allocator );
+	typename test_map::allocator_type allocator;
+	const test_map map( allocator );
+	check_empty( map );
 	CHECK( map.slot_count() == 0 );
-	CHECK( map.size() == 0 );
-	CHECK( map.empty() );
 	CHECK( map.capacity() == 0 );
-	CHECK( map.begin() == map.end() );
-	CHECK( map.cbegin() == map.cend() );
-	CHECK( map.rbegin() == map.rend() );
-	CHECK( map.crbegin() == map.crend() );
 	CHECK( map.get_allocator() == allocator );
 }
 
-TEMPLATE_LIST_TEST_CASE( "dense_slot_map reserve slots constructor", "[slot_map]", test_types )
+TEST_CASE( "dense_slot_map reserve slots constructor", "[slot_map]" )
 {
-	const TestType map( 5 );
+	const test_map map( 5 );
+	check_empty( map );
 	CHECK( map.slot_count() == 5 );
-	CHECK( map.size() == 0 );
-	CHECK( map.empty() );
-	CHECK( map.capacity() == 0 );
-	CHECK( map.begin() == map.end() );
-	CHECK( map.cbegin() == map.cend() );
-	CHECK( map.rbegin() == map.rend() );
-	CHECK( map.crbegin() == map.crend() );
 }
 
-TEMPLATE_LIST_TEST_CASE( "dense_slot_map insert", "[slot_map]", test_types )
+TEST_CASE( "dense_slot_map insert", "[slot_map]" )
 {
-	TestType map;
+	test_map map;
 
-	const auto value = MAKE_VALUE( 42 );
+	const auto value = 42;
 	const auto handle = map.insert( value );
 
-	CHECK( map.size() == 1 );
-	CHECK_FALSE( map.empty() );
+	check_not_empty( map );
+	CHECK( map.slot_count() == 1 );
 	CHECK( map.capacity() >= 1 );
-	CHECK( map.begin() != map.end() );
-	CHECK( map.cbegin() != map.cend() );
-	CHECK( map.rbegin() != map.rend() );
-	CHECK( map.crbegin() != map.crend() );
 
 	CHECK( handle.index == 0 );
 	CHECK( handle.generation == 0 );
 
 	CHECK( map.is_valid( handle ) );
-	
+
 	auto ptr = map.lookup( handle );
 	REQUIRE( ptr );
 	CHECK( *ptr == value );
 }
 
-TEST_CASE( "Contiguous slot map", "[slot_map]" )
+TEST_CASE( "dense_slot_map emplace", "[slot_map]" )
 {
-	mclo::dense_slot_map<std::int32_t> SlotMap;
-	auto Handle = SlotMap.insert( 5 );
-	const std::int32_t* pValue = SlotMap.lookup( Handle );
-	REQUIRE( pValue );
-	CHECK( *pValue == 5 );
+	test_map map;
 
-	auto Handle2 = SlotMap.insert( 6 );
+	const auto value = 42;
+	const auto handle = map.emplace( value );
 
-	pValue = SlotMap.lookup( Handle );
-	REQUIRE( pValue );
-	CHECK( *pValue == 5 );
+	check_not_empty( map );
+	CHECK( map.slot_count() == 1 );
+	CHECK( map.capacity() >= 1 );
 
-	pValue = SlotMap.lookup( Handle2 );
-	REQUIRE( pValue );
-	CHECK( *pValue == 6 );
+	CHECK( handle.index == 0 );
+	CHECK( handle.generation == 0 );
 
-	SlotMap.erase( Handle );
+	CHECK( map.is_valid( handle ) );
 
-	pValue = SlotMap.lookup( Handle );
-	CHECK( !pValue );
+	auto ptr = map.lookup( handle );
+	REQUIRE( ptr );
+	CHECK( *ptr == value );
+}
 
-	pValue = SlotMap.lookup( Handle2 );
-	REQUIRE( pValue );
-	CHECK( *pValue == 6 );
+TEST_CASE( "dense_slot_map emplace_and_get", "[slot_map]" )
+{
+	test_map map;
 
-	auto Handle3 = SlotMap.insert( 7 );
-	pValue = SlotMap.lookup( Handle3 );
+	const auto value = 42;
+	const auto [ object, handle ] = map.emplace_and_get( value );
 
-	REQUIRE( pValue );
-	CHECK( *pValue == 7 );
+	check_not_empty( map );
+	CHECK( map.slot_count() == 1 );
+	CHECK( map.capacity() >= 1 );
 
-	auto Handle4 = SlotMap.insert( 42 );
-	pValue = SlotMap.lookup( Handle4 );
+	CHECK( handle.index == 0 );
+	CHECK( handle.generation == 0 );
 
-	REQUIRE( pValue );
-	CHECK( *pValue == 42 );
+	CHECK( map.is_valid( handle ) );
 
+	auto ptr = map.lookup( handle );
+	REQUIRE( ptr );
+	CHECK( *ptr == value );
+	CHECK( ptr == &object );
+	CHECK( *ptr == object );
+}
+
+TEST_CASE( "dense_slot_map insert more than max_size", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	using size_type = typename mclo::dense_slot_map<int>::size_type;
+
+	const size_type max_size = map.max_size();
+	map.reserve( max_size );
+
+	for ( size_type i = 0; i < max_size; ++i )
 	{
-		mclo::dense_slot_map<std::int32_t> RandomMap( 5 );
-
-		auto it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
-
-		RandomMap.reserve( 10 );
-
-		it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
-		it = RandomMap.insert( 1 );
+		( void )map.insert( i );
 	}
+
+	CHECK_THROWS_AS( map.insert( 0 ), std::length_error );
+	CHECK_THROWS_AS( map.emplace( 0 ), std::length_error );
+	CHECK_THROWS_AS( map.emplace_and_get( 0 ), std::length_error );
+}
+
+TEST_CASE( "dense_slot_map erase", "[slot_map]" )
+{
+	test_map map;
+
+	const auto value = 42;
+	auto handle = map.insert( value );
+	map.erase( handle );
+
+	check_empty( map );
+	CHECK( map.slot_count() == 1 );
+	CHECK( map.capacity() >= 1 );
+
+	CHECK_FALSE( map.is_valid( handle ) );
+	auto ptr = map.lookup( handle );
+	CHECK_FALSE( ptr );
+
+	handle = map.insert( value );
+
+	check_not_empty( map );
+	CHECK( map.slot_count() == 1 );
+	CHECK( map.capacity() >= 1 );
+
+	CHECK( handle.index == 0 );
+	CHECK( handle.generation == 1 );
+
+	CHECK( map.is_valid( handle ) );
+
+	ptr = map.lookup( handle );
+	REQUIRE( ptr );
+	CHECK( *ptr == value );
+}
+
+TEST_CASE( "dense_slot_map insert throwing", "[slot_map]" )
+{
+	mclo::dense_slot_map<throwing_tester> map;
+	const auto succeess_handle = map.emplace( 0 );
+
+	try
 	{
-		mclo::dense_slot_map<std::int32_t> RandomMap;
+		( void )map.emplace( 5 );
+	}
+	catch ( ... )
+	{
+	}
 
-		RandomMap.reserve( 30 );
+	CHECK( map.size() == 1 );
+	CHECK( map.slot_count() == 1 );
+	CHECK( map.capacity() == 1 );
+	CHECK( map.is_valid( succeess_handle ) );
 
-		std::mt19937 random( 42 );
-		std::uniform_int_distribution<> erase_chance( 0, 100 );
-		std::uniform_int_distribution<> value_distribution;
+	auto ptr = map.lookup( succeess_handle );
+	REQUIRE( ptr );
+	CHECK( ptr->i == 0 );
+}
 
-		std::vector<mclo::dense_slot_map<std::int32_t>::handle_type> Handles;
+TEST_CASE( "dense_slot_map insert throwing free list", "[slot_map]" )
+{
+	mclo::dense_slot_map<throwing_tester> map;
+	const auto succeess_handle = map.emplace( 0 );
+	map.erase( succeess_handle );
 
-		for ( std::size_t Counter = 0; Counter < 1000; ++Counter )
-		{
-			if ( erase_chance( random ) < 25 && !Handles.empty() )
-			{
-				const std::size_t HandleIndex =
-					std::uniform_int_distribution<std::size_t>( 0, Handles.size() - 1 )( random );
-				RandomMap.erase( Handles[ HandleIndex ] );
-				std::swap( Handles[ HandleIndex ], Handles.back() );
-				Handles.pop_back();
-			}
-			else
-			{
-				Handles.push_back( RandomMap.insert( value_distribution( random ) ) );
-			}
+	try
+	{
+		( void )map.emplace( 5 );
+	}
+	catch ( ... )
+	{
+	}
 
-			for ( const auto H : Handles )
-			{
-				CHECK( RandomMap.is_valid( H ) );
-			}
-		}
+	check_empty( map );
+	CHECK( map.slot_count() == 1 );
+	CHECK( map.capacity() == 1 );
+}
+
+TEST_CASE( "dense_slot_map reserve_slots", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	map.reserve_slots( 2 );
+	check_empty( map );
+	CHECK( map.capacity() == 0 );
+	CHECK( map.slot_count() == 2 );
+
+	auto handle = map.insert( 5 );
+	CHECK( map.capacity() == 1 );
+	CHECK( map.slot_count() == 2 );
+
+	handle = map.insert( 5 );
+	CHECK( map.capacity() == 2 );
+	CHECK( map.slot_count() == 2 );
+}
+
+TEST_CASE( "dense_slot_map reserve", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	map.reserve( 2 );
+	check_empty( map );
+	CHECK( map.capacity() >= 2 );
+	CHECK( map.slot_count() == 2 );
+
+	auto handle = map.insert( 5 );
+	CHECK( map.capacity() == 2 );
+	CHECK( map.slot_count() == 2 );
+
+	handle = map.insert( 5 );
+	CHECK( map.capacity() == 2 );
+	CHECK( map.slot_count() == 2 );
+}
+
+TEST_CASE( "dense_slot_map reserve_slots more than max_size", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	CHECK_THROWS_AS( map.reserve_slots( map.max_size() + 1 ), std::length_error );
+}
+
+TEST_CASE( "dense_slot_map reserve more than max_size", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	CHECK_THROWS_AS( map.reserve( map.max_size() + 1 ), std::length_error );
+}
+
+TEST_CASE( "dense_slot_map pop", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	const auto handle = map.insert( 42 );
+
+	const std::optional<int> popped = map.pop( handle );
+	REQUIRE( popped );
+	CHECK( *popped == 42 );
+
+	CHECK_FALSE( map.is_valid( handle ) );
+	CHECK_FALSE( map.lookup( handle ) );
+
+	const std::optional<int> empty_popped = map.pop( handle );
+	CHECK_FALSE( empty_popped );
+}
+
+TEST_CASE( "dense_slot_map clear", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	const std::vector initial_handles{ map.insert( 42 ), map.insert( 16 ), map.insert( 99 ) };
+
+	map.clear();
+	check_empty( map );
+
+	const std::vector new_handles{ map.insert( 1 ), map.insert( 2 ), map.insert( 3 ) };
+
+	for ( const auto handle : initial_handles )
+	{
+		CHECK_FALSE( map.is_valid( handle ) );
+		CHECK_FALSE( map.lookup( handle ) );
+	}
+
+	int val = 1;
+	for ( const auto handle : new_handles )
+	{
+		CHECK( map.is_valid( handle ) );
+		const int* const ptr = map.lookup( handle );
+		REQUIRE( ptr );
+		CHECK( *ptr == val );
+		++val;
 	}
 }
 
-#undef MAKE_VALUE
+TEST_CASE( "dense_slot_map reset", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	const std::vector initial_handles{ map.insert( 42 ), map.insert( 16 ), map.insert( 99 ) };
+
+	map.reset();
+	check_empty( map );
+
+	const std::vector new_handles{ map.insert( 1 ), map.insert( 2 ), map.insert( 3 ) };
+
+	auto check_handles = [ &map ]( const auto& vec ) {
+		int val = 1;
+		for ( const auto handle : vec )
+		{
+			CHECK( map.is_valid( handle ) );
+			const int* const ptr = map.lookup( handle );
+			REQUIRE( ptr );
+			CHECK( *ptr == val );
+			++val;
+		}
+	};
+
+	check_handles( initial_handles );
+	check_handles( new_handles );
+}
+
+TEST_CASE( "dense_slot_map swap", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+	( void )map.insert( 42 );
+
+	mclo::dense_slot_map<int> map2;
+	( void )map2.insert( 99 );
+
+	map.swap( map2 );
+
+	CHECK( map.front() == 99 );
+	CHECK( map2.front() == 42 );
+
+	using std::swap;
+	swap( map, map2 );
+
+	CHECK( map.front() == 42 );
+	CHECK( map2.front() == 99 );
+}
+
+TEST_CASE( "dense_slot_map iterate", "[slot_map]" )
+{
+	mclo::dense_slot_map<int> map;
+
+	std::vector handles{ map.insert( 42 ), map.insert( 16 ), map.insert( 99 ) };
+
+	CHECK_THAT( map, Catch::Matchers::UnorderedRangeEquals( std::array{ 42, 16, 99 } ) );
+
+	map.erase( handles.front() );
+	handles.front() = map.insert( 202 );
+
+	CHECK_THAT( map, Catch::Matchers::UnorderedRangeEquals( std::array{ 202, 16, 99 } ) );
+}

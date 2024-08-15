@@ -146,7 +146,7 @@ namespace mclo
 			}
 			if ( current_size < capacity() )
 			{
-				assert( current_size < slot_count() );
+				assert( current_size <= slot_count() );
 				return emplace_and_get_with_guard<noop_guard>( std::forward<Args>( arguments )... );
 			}
 			return emplace_and_get_with_guard<emplace_guard>( std::forward<Args>( arguments )... );
@@ -242,47 +242,10 @@ namespace mclo
 		/// @param handle The handle to the object to erase
 		void erase( handle_type handle ) noexcept( std::is_nothrow_move_assignable_v<T> )
 		{
-			if ( !is_valid( handle ) )
+			if ( is_valid( handle ) )
 			{
-				return;
+				erase_valid_handle( handle );
 			}
-
-			const size_type handle_index = handle.index;
-
-			// Increment generation, now remaining handles will mismatch on usage
-			++m_slot_indirection[ handle_index ].generation;
-
-			const size_type data_index = m_slot_indirection[ handle_index ].index;
-			const size_type data_last_index = size() - 1;
-
-			// If we are not the tail we overwrite our data with the tail so maintain a contiguous array of data
-			if ( data_index != data_last_index )
-			{
-				// Overwrite our object with tail this maintains contiguous array of data
-				m_data[ data_index ] = std::move( m_data[ data_last_index ] );
-				m_data_reverse_map[ data_index ] = std::move( m_data_reverse_map[ data_last_index ] );
-
-				// Use data we overwrote with to find and update its indirection array link with the data for our new
-				// location
-				m_slot_indirection[ m_data_reverse_map[ data_index ] ].index = data_index;
-			}
-
-			// We pop the tail as that is either us directly or what we moved from to overwrite ourselves
-			m_data.pop_back();
-			m_data_reverse_map.pop_back();
-
-			// Start free list if empty or chain into existing free list
-			if ( m_free_list_head == slot_count() )
-			{
-				m_free_list_head = handle_index;
-			}
-			else
-			{
-				m_slot_indirection[ m_free_list_tail ].index = handle_index;
-			}
-
-			// Is always the new tail of the free list
-			m_free_list_tail = handle_index;
 		}
 
 		/// @brief Erase the element at the handle if it exists returning the data it contained, else return an empty
@@ -299,7 +262,7 @@ namespace mclo
 			}
 
 			T object( std::move( *ptr ) );
-			erase( handle );
+			erase_valid_handle( handle );
 			return std::move( object );
 		}
 
@@ -332,7 +295,7 @@ namespace mclo
 		/// @brief Destroy all active elements and clear all old_num_slots
 		/// @warning This invalidates all existing handles as it resets generation counters, be sure none in use else
 		/// it'll lead to collisions
-		void rest() noexcept
+		void reset() noexcept
 		{
 			m_data.clear();
 			m_slot_indirection.clear();
@@ -412,6 +375,33 @@ namespace mclo
 		[[nodiscard]] allocator_type get_allocator() const noexcept
 		{
 			return m_data.get_allocator();
+		}
+
+		[[nodiscard]] reference front() noexcept
+		{
+			return m_data.front();
+		}
+		[[nodiscard]] reference back() noexcept
+		{
+			return m_data.back();
+		}
+
+		[[nodiscard]] const_reference front() const noexcept
+		{
+			return m_data.front();
+		}
+		[[nodiscard]] const_reference back() const noexcept
+		{
+			return m_data.back();
+		}
+
+		[[nodiscard]] pointer data() noexcept
+		{
+			return m_data.data();
+		}
+		[[nodiscard]] const_pointer data() const noexcept
+		{
+			return m_data.data();
 		}
 
 		[[nodiscard]] iterator begin() noexcept
@@ -547,6 +537,49 @@ namespace mclo
 			return {
 				m_data.back(), {slot_index, handle.generation}
             };
+		}
+
+		/// @brief Erase an entry in the slot map from its handle
+		/// @param handle The handle to the object to erase
+		/// @warning Assumes the handle passes is_valid
+		void erase_valid_handle( handle_type handle ) noexcept( std::is_nothrow_move_assignable_v<T> )
+		{
+			const size_type handle_index = handle.index;
+
+			// Increment generation, now remaining handles will mismatch on usage
+			++m_slot_indirection[ handle_index ].generation;
+
+			const size_type data_index = m_slot_indirection[ handle_index ].index;
+			const size_type data_last_index = size() - 1;
+
+			// If we are not the tail we overwrite our data with the tail so maintain a contiguous array of data
+			if ( data_index != data_last_index )
+			{
+				// Overwrite our object with tail this maintains contiguous array of data
+				m_data[ data_index ] = std::move( m_data[ data_last_index ] );
+				m_data_reverse_map[ data_index ] = std::move( m_data_reverse_map[ data_last_index ] );
+
+				// Use data we overwrote with to find and update its indirection array link with the data for our new
+				// location
+				m_slot_indirection[ m_data_reverse_map[ data_index ] ].index = data_index;
+			}
+
+			// We pop the tail as that is either us directly or what we moved from to overwrite ourselves
+			m_data.pop_back();
+			m_data_reverse_map.pop_back();
+
+			// Start free list if empty or chain into existing free list
+			if ( m_free_list_head == slot_count() )
+			{
+				m_free_list_head = handle_index;
+			}
+			else
+			{
+				m_slot_indirection[ m_free_list_tail ].index = handle_index;
+			}
+
+			// Is always the new tail of the free list
+			m_free_list_tail = handle_index;
 		}
 
 		using alloc_traits = std::allocator_traits<Allocator>;

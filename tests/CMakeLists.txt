@@ -16,6 +16,7 @@ add_executable( tests
 	slot_map_tests.cpp
 )
 
+target_compile_definitions( tests PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS )
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
 
 include(Catch)
