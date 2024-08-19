@@ -28,13 +28,13 @@ namespace mclo
 	template <std::unsigned_integral T>
 	[[nodiscard]] constexpr T log2_floor( const T value ) noexcept
 	{
-		return std::bit_width( value ) - 1;
+		return static_cast<T>( std::bit_width( value ) - 1 );
 	}
 
 	template <std::unsigned_integral T>
 	[[nodiscard]] constexpr T log2_ceil( const T value ) noexcept
 	{
-		return log2_floor( value - 1 ) + 1;
+		return log2_floor<T>( value - 1 ) + 1;
 	}
 
 	template <std::unsigned_integral T>
@@ -47,6 +47,20 @@ namespace mclo
 	[[nodiscard]] constexpr bool is_pow2( const T value ) noexcept
 	{
 		return std::has_single_bit( value );
+	}
+
+	/// @brief Divide a value by 2^exponent
+	template <std::unsigned_integral T>
+	[[nodiscard]] constexpr T divide_pow2( const T value, const T exponent ) noexcept
+	{
+		return value >> exponent;
+	}
+
+	template <std::unsigned_integral T>
+	[[nodiscard]] constexpr T modulo_pow2( const T value, const T mod ) noexcept
+	{
+		assert( is_pow2( mod ) );
+		return value & ( mod - 1 );
 	}
 
 	namespace detail

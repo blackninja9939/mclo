@@ -50,9 +50,13 @@ namespace mclo
 				: ptr( &map )
 			{
 			}
+
+			emplace_guard( const emplace_guard& ) = delete;
+			emplace_guard& operator=( const emplace_guard& ) = delete;
+
 			~emplace_guard()
 			{
-				if ( ptr )
+				if ( ptr ) [[unlikely]]
 				{
 					if ( inserted_to_reverse_map )
 					{
@@ -140,7 +144,7 @@ namespace mclo
 		[[nodiscard]] emplace_result emplace_and_get( Args... arguments )
 		{
 			const size_type current_size = size();
-			if ( current_size == max_size() )
+			if ( current_size == max_size() ) [[unlikely]]
 			{
 				throw_too_big();
 			}
@@ -188,7 +192,7 @@ namespace mclo
 		/// @param amount The number of old_num_slots to reserve for
 		void reserve_slots( const size_type amount )
 		{
-			if ( amount > max_size() )
+			if ( amount > max_size() ) [[unlikely]]
 			{
 				throw_too_big();
 			}
@@ -242,7 +246,7 @@ namespace mclo
 		/// @param handle The handle to the object to erase
 		void erase( handle_type handle ) noexcept( std::is_nothrow_move_assignable_v<T> )
 		{
-			if ( is_valid( handle ) )
+			if ( is_valid( handle ) ) [[likely]]
 			{
 				erase_valid_handle( handle );
 			}
@@ -256,7 +260,7 @@ namespace mclo
 			std::is_nothrow_move_constructible_v<T> )
 		{
 			const pointer ptr = lookup( handle );
-			if ( !ptr )
+			if ( !ptr ) [[unlikely]]
 			{
 				return std::nullopt;
 			}
@@ -319,7 +323,7 @@ namespace mclo
 		/// @return Const pointer to the object the handle refers to, or nullptr if an invalid handle
 		[[nodiscard]] const_pointer lookup( const handle_type handle ) const noexcept
 		{
-			if ( handle.index >= slot_count() )
+			if ( handle.index >= slot_count() ) [[unlikely]]
 			{
 				return nullptr;
 			}
@@ -359,7 +363,7 @@ namespace mclo
 			return m_data.empty();
 		}
 
-		/// @brief Get the number of old_num_slots, guaranteed >= size()
+		/// @brief Get the number of slots, guaranteed >= size()
 		[[nodiscard]] size_type slot_count() const noexcept
 		{
 			return static_cast<size_type>( m_slot_indirection.size() );
@@ -553,7 +557,7 @@ namespace mclo
 			const size_type data_last_index = size() - 1;
 
 			// If we are not the tail we overwrite our data with the tail so maintain a contiguous array of data
-			if ( data_index != data_last_index )
+			if ( data_index != data_last_index ) [[likely]]
 			{
 				// Overwrite our object with tail this maintains contiguous array of data
 				m_data[ data_index ] = std::move( m_data[ data_last_index ] );
@@ -582,7 +586,7 @@ namespace mclo
 			m_free_list_tail = handle_index;
 		}
 
-		using alloc_traits = std::allocator_traits<Allocator>;
+		using alloc_traits = std::allocator_traits<allocator_type>;
 
 		/// @brief Contiguous array of data for fast iteration over all elements
 		/// @details Order will be changed upon erasure
