@@ -10,6 +10,7 @@ add_executable( tests
 	string_buffer_tests.cpp
 	hash_combine.cpp
 	tagged_ptr_tests.cpp
+	fixed_point_tests.cpp
 	small_optional_integer_tests.cpp
 	string_table_tests.cpp
 	math_tests.cpp
