@@ -4,7 +4,6 @@
   "dependencies": [
     "catch2",
     "benchmark",
-    "magic-enum",
     "xsimd"
   ]
 }
