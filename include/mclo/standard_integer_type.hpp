@@ -2,6 +2,9 @@
 
 #include "any_of_type.hpp"
 
+#include <cinttypes>
+#include <climits>
+
 namespace mclo
 {
 	template <typename T>
