@@ -1,24 +1,41 @@
+#include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
 #include "mclo/bitset.hpp"
+#include "mclo/meta/type_list.hpp"
 
 using namespace Catch::Matchers;
 
 namespace
 {
-	using test_bitset = mclo::bitset<34, std::uint32_t>;
+	constexpr std::size_t bitset_size = 34;
+
+	template <std::unsigned_integral UnderlyingType>
+	class dynamic_bitset_wrapper : public mclo::dynamic_bitset<UnderlyingType>
+	{
+	public:
+		dynamic_bitset_wrapper()
+			: mclo::dynamic_bitset<UnderlyingType>( bitset_size )
+		{
+		}
+	};
+
+	using test_types = mclo::meta::type_list<dynamic_bitset_wrapper<std::uint32_t>,
+											 mclo::bitset<bitset_size, std::uint32_t>,
+											 dynamic_bitset_wrapper<std::uint64_t>,
+											 mclo::bitset<bitset_size, std::uint64_t>>;
 }
 
-TEST_CASE( "bitset default constructor", "[bitset]" )
+TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 {
-	const test_bitset set;
-	CHECK( set.size() == 34 );
+	const TestType set;
+	CHECK( set.size() == bitset_size );
 	CHECK_FALSE( set.all() );
 	CHECK_FALSE( set.any() );
 	CHECK( set.none() );
 	CHECK( set.count() == 0 );
-	CHECK( set.find_first_set() == test_bitset::npos );
+	CHECK( set.find_first_set() == TestType::npos );
 	CHECK( set.find_first_unset() == 0 );
 
 	bool any = false;
@@ -30,9 +47,9 @@ TEST_CASE( "bitset default constructor", "[bitset]" )
 	}
 }
 
-TEST_CASE( "bitset set", "[bitset]" )
+TEMPLATE_LIST_TEST_CASE( "bitset set", "[bitset]", test_types )
 {
-	test_bitset set;
+	TestType set;
 
 	set.set( 32 );
 	CHECK( set.test( 32 ) );
@@ -55,25 +72,24 @@ TEST_CASE( "bitset set", "[bitset]" )
 	}
 }
 
-TEST_CASE( "bitset find_first_set loop", "[bitset]" )
+TEMPLATE_LIST_TEST_CASE( "bitset find_first_set loop", "[bitset]", test_types )
 {
-	test_bitset set;
+	TestType set;
 	set.set( 4 ).set( 32 );
 
-	for ( std::size_t index = set.find_first_set(); index != test_bitset::npos;
-		  index = set.find_first_set( index + 1 ) )
+	for ( std::size_t index = set.find_first_set(); index != TestType::npos; index = set.find_first_set( index + 1 ) )
 	{
 		CHECK( ( index == 4 || index == 32 ) );
 	}
 }
 
-TEST_CASE( "bitset find_first_unset loop", "[bitset]" )
+TEMPLATE_LIST_TEST_CASE( "bitset find_first_unset loop", "[bitset]", test_types )
 {
-	test_bitset set;
+	TestType set;
 	set.set().reset( 4 ).reset( 32 ).reset( 33 );
 
 	std::size_t count = 0;
-	for ( std::size_t index = set.find_first_unset(); index != test_bitset::npos;
+	for ( std::size_t index = set.find_first_unset(); index != TestType::npos;
 		  index = set.find_first_unset( index + 1 ) )
 	{
 		CHECK( ( index == 4 || index == 32 || index == 33 ) );
