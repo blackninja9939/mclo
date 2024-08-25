@@ -201,7 +201,7 @@ namespace mclo
 
 			for ( std::size_t page = start_page; page < end; ++page )
 			{
-				const int bit_index = std::countr_zero( m_container[ page ] >> start_index );
+				const int bit_index = std::countr_zero( static_cast<underlying_type>( m_container[ page ] >> start_index ) );
 				if ( bit_index != bits_per_value )
 				{
 					return ( page * bits_per_value ) + start_index + bit_index;

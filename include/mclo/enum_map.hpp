@@ -1,63 +1,17 @@
 #pragma once
 
-#include "mclo/always_false.hpp"
 #include "mclo/array.hpp"
+#include "mclo/detail/enum_container.hpp"
 
 #include <ranges>
 #include <type_traits>
 
 namespace mclo
 {
-	namespace detail
-	{
-		template <typename TEnum>
-		[[nodiscard]] constexpr TEnum enum_size()
-		{
-			if constexpr ( requires { TEnum::Size; } )
-			{
-				return TEnum::Size;
-			}
-			else if constexpr ( requires { TEnum::size; } )
-			{
-				return TEnum::size;
-			}
-			else if constexpr ( requires { TEnum::_Size; } )
-			{
-				return TEnum::_Size;
-			}
-			else if constexpr ( requires { TEnum::_size; } )
-			{
-				return TEnum::_size;
-			}
-			else if constexpr ( requires { TEnum::Count; } )
-			{
-				return TEnum::Count;
-			}
-			else if constexpr ( requires { TEnum::count; } )
-			{
-				return TEnum::count;
-			}
-			else if constexpr ( requires { TEnum::_Count; } )
-			{
-				return TEnum::_Count;
-			}
-			else if constexpr ( requires { TEnum::_count; } )
-			{
-				return TEnum::_count;
-			}
-			else
-			{
-				static_assert( mclo::always_false<TEnum>,
-							   "No enum matching size pattern, add one or specify the size enum manually" );
-			}
-		}
-	}
-
 	template <typename TEnum, typename TValue, TEnum SizeEnum = detail::enum_size<TEnum>()>
 	class enum_map
 	{
-		static_assert( static_cast<std::underlying_type_t<TEnum>>( SizeEnum ) >= 0,
-					   "SizeEnum cannot have a negative value" );
+		static_assert( detail::to_underlying( SizeEnum ) >= 0, "SizeEnum cannot have a negative value" );
 		static constexpr std::size_t max_size = static_cast<std::size_t>( SizeEnum );
 		using container_type = std::array<TValue, max_size>;
 
