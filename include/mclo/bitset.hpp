@@ -156,7 +156,7 @@ namespace mclo
 			return value ? set( pos ) : reset( pos );
 		}
 
-		[[nodiscard]] constexpr Derived& reset() noexcept
+		constexpr Derived& reset() noexcept
 		{
 			if ( std::is_constant_evaluated() )
 			{
@@ -223,7 +223,7 @@ namespace mclo
 
 			for ( std::size_t page = start_page; page < end; ++page )
 			{
-				const int bit_index = std::countr_one( m_container[ page ] | mask );
+				const int bit_index = std::countr_one( static_cast<underlying_type>( m_container[ page ] | mask ) );
 				if ( bit_index != bits_per_value )
 				{
 					return ( page * bits_per_value ) + bit_index;
@@ -233,7 +233,8 @@ namespace mclo
 
 			if ( last_mask != 0 )
 			{
-				const int bit_index = std::countr_one( m_container.back() | mask | ~last_mask );
+				const int bit_index =
+					std::countr_one( static_cast<underlying_type>( m_container.back() | mask | ~last_mask ) );
 				if ( bit_index != bits_per_value )
 				{
 					return ( end * bits_per_value ) + bit_index;

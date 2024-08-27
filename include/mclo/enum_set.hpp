@@ -169,9 +169,9 @@ namespace mclo
 			return m_container.test( static_cast<size_type>( key ) );
 		}
 
-		constexpr void for_each_set( std::invocable<std::size_t> auto func ) const noexcept
+		constexpr void for_each_set( std::invocable<value_type> auto func ) const noexcept
 		{
-			m_container.for_each_set( func );
+			m_container.for_each_set( [ func ]( const size_type index ) { func( static_cast<value_type>( index ) ); } );
 		}
 
 		[[nodiscard]] constexpr iterator begin() noexcept
