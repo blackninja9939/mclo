@@ -63,4 +63,14 @@
     <DisplayString Condition="m_value &gt; 0">{m_value - 1}</DisplayString>
     <DisplayString Condition="m_value &lt; 0">{m_value}</DisplayString>
   </Type>
+
+  <Type Name="mclo::bitset&lt;*,*&gt;">
+    <DisplayString>{{ size={$T1} }}</DisplayString>
+    <Expand>
+      <IndexListItems>
+        <Size>$T1</Size>
+        <ValueNode>(m_container._Elems[$i / bits_per_value] &gt;&gt; ($i % bits_per_value)) &amp; 1,d</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
 </AutoVisualizer>

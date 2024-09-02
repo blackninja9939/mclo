@@ -2,6 +2,9 @@
 
 #include "any_of_type.hpp"
 
+#include <cinttypes>
+#include <climits>
+
 namespace mclo
 {
 	template <typename T>
@@ -23,9 +26,8 @@ namespace mclo
 		std::conditional_t<(Bits<= sizeof(std::uint_least8_t) * CHAR_BIT), std::uint_least8_t,
 		std::conditional_t<(Bits<= sizeof(std::uint_least16_t) * CHAR_BIT), std::uint_least16_t,
 		std::conditional_t<(Bits<= sizeof(std::uint_least32_t) * CHAR_BIT), std::uint_least32_t,
-		std::conditional_t<(Bits<= sizeof(std::uint_least64_t) * CHAR_BIT), std::uint_least64_t,
-		void
-	>>>>;
+		std::uint_least64_t
+	>>>;
 	// clang-format on
 
 	template <std::size_t Bits>
