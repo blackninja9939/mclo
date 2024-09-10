@@ -9,7 +9,7 @@ namespace mclo
 	namespace detail
 	{
 		template <typename TEnum>
-		[[nodiscard]] constexpr TEnum enum_size()
+		[[nodiscard]] constexpr TEnum member_enum_size()
 		{
 			if constexpr ( requires { TEnum::Size; } )
 			{
@@ -46,7 +46,8 @@ namespace mclo
 			else
 			{
 				static_assert( mclo::always_false<TEnum>,
-							   "No enum matching size pattern, add one or specify the size enum manually" );
+							   "No enum matching size pattern, add one, specialize the enum_size variable, or specify "
+							   "the size enum manually at the call site" );
 			}
 		}
 
@@ -56,4 +57,7 @@ namespace mclo
 			return static_cast<std::underlying_type_t<T>>( value );
 		}
 	}
+
+	template <typename TEnum>
+	constexpr TEnum enum_size = detail::member_enum_size<TEnum>();
 }

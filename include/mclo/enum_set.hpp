@@ -8,7 +8,7 @@
 
 namespace mclo
 {
-	template <typename TEnum, TEnum SizeEnum = detail::enum_size<TEnum>()>
+	template <typename TEnum, TEnum SizeEnum = enum_size<TEnum>>
 	class enum_set
 	{
 		static_assert( detail::to_underlying( SizeEnum ) >= 0, "SizeEnum cannot have a negative value" );
@@ -16,6 +16,8 @@ namespace mclo
 		using container_type = mclo::bitset<enum_size>;
 
 	public:
+		static_assert( std::is_enum_v<TEnum>, "TEnum must be an enumeration type" );
+
 		using key_type = TEnum;
 		using value_type = TEnum;
 		using size_type = std::size_t;
