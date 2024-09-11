@@ -73,4 +73,33 @@
       </IndexListItems>
     </Expand>
   </Type>
+
+  <Type Name="mclo::enum_map&lt;*,*,*&gt;">
+    <Intrinsic Name="size" Expression="(size_t)$T3"/>
+    <DisplayString>{{ size={size()} }}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="i" InitialValue="0"/>
+        <Size>size()</Size>
+        <Loop>
+          <Item Name="{($T1)i}">m_container[i]</Item>
+          <Exec>i++</Exec>
+        </Loop>
+      </CustomListItems >
+    </Expand>
+  </Type>
+  
+  <Type Name="mclo::small_vector_base&lt;*&gt;">
+    <Intrinsic Name="get_internal_buffer" Expression="(std::byte*)this + offset"/>
+    <Intrinsic Name="is_internal" Expression="m_data == get_internal_buffer()"/>
+    <DisplayString Condition="is_internal()">{{ size={m_size} (internal) }}</DisplayString>
+    <DisplayString Condition="!is_internal()">{{ size={m_size} (external) }}</DisplayString>
+    <Expand>
+      <Item Name="[capacity]" ExcludeView="simple">m_capacity</Item>
+      <ArrayItems>
+        <Size>m_size</Size>
+        <ValuePointer>($T1*)m_data</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
 </AutoVisualizer>
