@@ -1,5 +1,28 @@
 #pragma once
 
+#include "mclo/preprocessor.hpp"
+
+#ifdef _MSC_VER
+#define MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( ... )                                                                     \
+	_Pragma( "warning( push )" ) _Pragma( MCLO_STRINGIFY( warning( disable : __VA_ARGS__ ) ) )
+
+#define MCLO_MSVC_POP_WARNINGS _Pragma( "warning( pop )" )
+
+#else
+#define MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( ... )
+#define MCLO_MSVC_POP_WARNINGS
+#endif
+
+#ifdef __GNUC__
+#define MCLO_GCC_PUSH_AND_DISABLE_WARNINGS( ... )                                                                      \
+	_Pragma( "GCC diagnostic push" ) _Pragma( MCLO_STRINGIFY( GCC warning ignored##__VA_ARGS__ ) )
+
+#define MCLO_GCC_POP_WARNINGS _Pragma( "GCC warning pop" )
+#else
+#define MCLO_GCC_PUSH_AND_DISABLE_WARNINGS( ... )
+#define MCLO_GCC_POP_WARNINGS
+#endif
+
 #ifdef __has_builtin
 #define MCLO_HAS_BUILTIN( X ) __has_builtin( X )
 #else
