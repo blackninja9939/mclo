@@ -173,7 +173,8 @@ namespace mclo
 
 		constexpr void for_each_set( std::invocable<value_type> auto func ) const noexcept
 		{
-			m_container.for_each_set( [ func ]( const size_type index ) { func( static_cast<value_type>( index ) ); } );
+			m_container.for_each_set(
+				[ func = std::move( func ) ]( const size_type index ) { func( static_cast<value_type>( index ) ); } );
 		}
 
 		[[nodiscard]] constexpr iterator begin() noexcept
@@ -212,6 +213,8 @@ namespace mclo
 		{
 			lhs.swap( rhs );
 		}
+		
+		[[nodiscard]] constexpr bool operator==( const enum_set& other ) const noexcept = default;
 
 	private:
 		container_type m_container;
