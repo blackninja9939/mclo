@@ -24,11 +24,11 @@ namespace mclo
 		static constexpr std::size_t npos = static_cast<std::size_t>( -1 );
 
 	private:
-		[[nodiscard]] constexpr Derived& as_derived() noexcept
+		constexpr Derived& as_derived() noexcept
 		{
 			return static_cast<Derived&>( *this );
 		}
-		[[nodiscard]] constexpr const Derived& as_derived() const noexcept
+		constexpr const Derived& as_derived() const noexcept
 		{
 			return static_cast<const Derived&>( *this );
 		}
