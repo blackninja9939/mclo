@@ -134,7 +134,7 @@ namespace mclo
 				temp -= diff;
 				return temp;
 			}
-			[[nodiscard]] constexpr friend difference_type operator+( const enumerate_iterator& lhs,
+			[[nodiscard]] constexpr friend difference_type operator-( const enumerate_iterator& lhs,
 																	  const enumerate_iterator& rhs ) noexcept
 			{
 				return lhs.m_index - rhs.m_index;

@@ -471,42 +471,6 @@ namespace mclo
 	template <std::size_t Size>
 	using u32string_buffer = basic_string_buffer<char32_t, Size>;
 
-#if __cpp_nontype_template_args > 201911L
-	inline namespace literals
-	{
-		inline namespace string_buffer_literals
-		{
-			template <string_buffer str>
-			[[nodiscard]] constexpr auto operator""_sb() noexcept
-			{
-				return str;
-			}
-			template <wstring_buffer str>
-			[[nodiscard]] constexpr auto operator""_sb() noexcept
-			{
-				return str;
-			}
-#ifdef __cpp_char8_t
-			template <u8string_buffer str>
-			[[nodiscard]] constexpr auto operator""_sb() noexcept
-			{
-				return str;
-			}
-#endif
-			template <u16string_buffer str>
-			[[nodiscard]] constexpr auto operator""_sb() noexcept
-			{
-				return str;
-			}
-			template <u32string_buffer str>
-			[[nodiscard]] constexpr auto operator""_sb() noexcept
-			{
-				return str;
-			}
-		}
-	}
-#endif
-
 	template <typename CharT, std::size_t N>
 	[[nodiscard]] constexpr basic_string_buffer<CharT, N> trandscode_ascii_literal( const char ( &str )[ N ] ) noexcept
 	{

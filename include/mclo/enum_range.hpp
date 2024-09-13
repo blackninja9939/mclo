@@ -101,7 +101,7 @@ namespace mclo
 			temp -= diff;
 			return temp;
 		}
-		[[nodiscard]] constexpr friend difference_type operator+( const enum_iterator& lhs,
+		[[nodiscard]] constexpr friend difference_type operator-( const enum_iterator& lhs,
 																  const enum_iterator& rhs ) noexcept
 		{
 			return static_cast<difference_type>( lhs.m_value ) - static_cast<difference_type>( rhs.m_value );
