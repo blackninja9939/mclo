@@ -108,7 +108,7 @@ namespace
 	{
 		static void small( benchmark::internal::Benchmark* const b )
 		{
-			b->Args( { 3, 2, 7, 8 } );
+			b->Args( { 3, 2, 7, 8, 0, 0 } );
 		}
 		static void large( benchmark::internal::Benchmark* const b )
 		{
