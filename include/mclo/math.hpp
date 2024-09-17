@@ -3,6 +3,7 @@
 #include <bit>
 #include <cassert>
 #include <concepts>
+#include <limits>
 
 namespace mclo
 {
@@ -101,5 +102,21 @@ namespace mclo
 	{
 		assert( exponent < detail::size( detail::pow10s ) );
 		return detail::pow10s[ exponent ];
+	}
+
+	template <std::integral T, std::integral U>
+	[[nodiscard]] constexpr bool is_safe_addition( const T lhs, const U rhs ) noexcept
+	{
+		constexpr T max = std::numeric_limits<T>::max();
+		constexpr T min = std::numeric_limits<T>::min();
+		if ( rhs > 0 && lhs > max - rhs )
+		{
+			return false;
+		}
+		if ( rhs < 0 && lhs < min - rhs )
+		{
+			return false;
+		}
+		return true;
 	}
 }

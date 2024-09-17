@@ -16,6 +16,7 @@ add_executable( tests
 	slot_map_tests.cpp
 	enum_map_tests.cpp
 	bitset_tests.cpp
+	enum_range_tests.cpp
 )
 
 target_compile_definitions( tests PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS )

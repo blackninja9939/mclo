@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/detail/enum_container.hpp"
+#include "mclo/math.hpp"
 
 #include <cassert>
 #include <iterator>
@@ -17,7 +18,7 @@ namespace mclo
 		{
 			using underlying_t = std::underlying_type_t<TEnum>;
 			const auto underlying = static_cast<underlying_t>( value );
-			assert( ( std::numeric_limits<underlying_t>::max() - underlying ) >= amount );
+			assert( mclo::is_safe_addition( underlying, amount ) );
 			return static_cast<TEnum>( underlying + amount );
 		}
 	}
@@ -32,12 +33,14 @@ namespace mclo
 		using value_type = TEnum;
 		using reference = TEnum;
 
+		constexpr enum_iterator() noexcept = default;
+
 		constexpr explicit enum_iterator( const TEnum value ) noexcept
 			: m_value( value )
 		{
 		}
 
-		constexpr reference operator*() const noexcept
+		[[nodiscard]] constexpr reference operator*() const noexcept
 		{
 			return m_value;
 		}
@@ -113,7 +116,7 @@ namespace mclo
 			m_value = detail::enum_add( m_value, amount );
 		}
 
-		TEnum m_value;
+		TEnum m_value{};
 	};
 
 	struct exclusive_enum_range_t
