@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/bitset.hpp"
-#include "mclo/detail/enum_container.hpp"
+#include "mclo/enum_size.hpp"
 
 #include <concepts>
 #include <iterator>
@@ -11,7 +11,8 @@ namespace mclo
 	template <typename TEnum, TEnum SizeEnum = enum_size<TEnum>>
 	class enum_set
 	{
-		static_assert( detail::to_underlying( SizeEnum ) >= 0, "SizeEnum cannot have a negative value" );
+		static_assert( static_cast<std::underlying_type_t<TEnum>>( SizeEnum ) > 0,
+					   "SizeEnum should be a positive value" );
 		static constexpr std::size_t enum_size = static_cast<std::size_t>( SizeEnum );
 		using container_type = mclo::bitset<enum_size>;
 

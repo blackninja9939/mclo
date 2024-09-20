@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/detail/enum_container.hpp"
+#include "mclo/enum_size.hpp"
 #include "mclo/math.hpp"
 
 #include <cassert>
@@ -43,6 +43,11 @@ namespace mclo
 		[[nodiscard]] constexpr reference operator*() const noexcept
 		{
 			return m_value;
+		}
+
+		[[nodiscard]] constexpr reference operator[]( const difference_type diff ) const noexcept
+		{
+			return detail::enum_add( m_value, diff );
 		}
 
 		constexpr enum_iterator& operator++() noexcept
@@ -134,6 +139,7 @@ namespace mclo
 		static_assert( std::is_enum_v<TEnum>, "TEnum must be an enumeration type" );
 
 		constexpr enum_range() noexcept
+			requires mclo::has_enum_size<TEnum>
 			: enum_range( exclusive_enum_range, static_cast<TEnum>( 0 ), enum_size<TEnum> )
 		{
 		}
@@ -141,6 +147,10 @@ namespace mclo
 		constexpr enum_range( const TEnum first, const TEnum last ) noexcept
 			: enum_range( exclusive_enum_range, first, detail::enum_add( last, 1 ) )
 		{
+			if constexpr ( mclo::has_enum_size<TEnum> )
+			{
+				assert( last != mclo::enum_size<TEnum> );
+			}
 		}
 
 		constexpr enum_range( exclusive_enum_range_t, const TEnum first, const TEnum last ) noexcept

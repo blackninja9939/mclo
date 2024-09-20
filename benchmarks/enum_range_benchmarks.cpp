@@ -11,7 +11,7 @@ namespace
 		third,
 		fourth,
 		fifth,
-		count
+		enum_size
 	};
 
 	void BM_EnumRange( benchmark::State& state )
@@ -31,7 +31,7 @@ namespace
 		for ( auto _ : state )
 		{
 			using underlying_t = std::underlying_type_t<test_enum>;
-			for ( underlying_t index = 0; index < static_cast<underlying_t>( test_enum::count ); ++index )
+			for ( underlying_t index = 0; index < static_cast<underlying_t>( test_enum::enum_size ); ++index )
 			{
 				test_enum e = static_cast<test_enum>( index );
 				benchmark::DoNotOptimize( e );

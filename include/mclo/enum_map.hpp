@@ -1,17 +1,144 @@
 #pragma once
 
 #include "mclo/array.hpp"
-#include "mclo/detail/enum_container.hpp"
+#include "mclo/arrow_proxy.hpp"
+#include "mclo/enum_size.hpp"
 
+#include <array>
+#include <compare>
+#include <iterator>
 #include <ranges>
+#include <span>
 #include <type_traits>
+#include <utility>
 
 namespace mclo
 {
+	template <typename TWrappedIterator, typename TEnum>
+	class enum_map_iterator
+	{
+		using wrapped_traits = std::iterator_traits<TWrappedIterator>;
+
+	public:
+		using iterator_category = std::random_access_iterator_tag;
+		using iterator_concept = std::random_access_iterator_tag;
+		using difference_type = typename wrapped_traits::difference_type;
+		using key_type = TEnum;
+		using value_type = std::pair<const key_type, typename wrapped_traits::value_type>;
+		using reference = std::pair<const key_type, typename wrapped_traits::reference>;
+		using pointer = arrow_proxy<reference>;
+
+		constexpr enum_map_iterator() noexcept = default;
+
+		constexpr enum_map_iterator( TWrappedIterator it, const difference_type index ) noexcept
+			: m_it( std::move( it ) )
+			, m_index( index )
+		{
+		}
+
+		constexpr reference operator*() const noexcept
+		{
+			return reference{ static_cast<key_type>( m_index ), *m_it };
+		}
+
+		constexpr pointer operator->() const noexcept
+		{
+			return { operator*() };
+		}
+
+		constexpr reference operator[]( const difference_type diff ) const noexcept
+		{
+			return reference{ static_cast<key_type>( m_index + diff ), m_it[ diff ] };
+		}
+
+		constexpr enum_map_iterator& operator++() noexcept
+		{
+			++m_it;
+			++m_index;
+			return *this;
+		}
+
+		constexpr enum_map_iterator operator++( int ) noexcept
+		{
+			enum_map_iterator copy( *this );
+			++*this;
+			return copy;
+		}
+
+		constexpr enum_map_iterator& operator--() noexcept
+		{
+			--m_it;
+			--m_index;
+			return *this;
+		}
+
+		constexpr enum_map_iterator operator--( int ) noexcept
+		{
+			enum_map_iterator copy( *this );
+			--*this;
+			return copy;
+		}
+
+		constexpr enum_map_iterator& operator+=( const difference_type diff ) noexcept
+		{
+			m_it += diff;
+			m_index += diff;
+			return *this;
+		}
+
+		constexpr enum_map_iterator& operator-=( const difference_type diff ) noexcept
+		{
+			m_it -= diff;
+			m_index -= diff;
+			return *this;
+		}
+
+		[[nodiscard]] constexpr friend std::strong_ordering operator<=>( const enum_map_iterator& lhs,
+																		 const enum_map_iterator& rhs ) noexcept
+		{
+			return lhs.m_index <=> rhs.m_index;
+		}
+		[[nodiscard]] constexpr friend bool operator==( const enum_map_iterator& lhs,
+														const enum_map_iterator& rhs ) noexcept
+		{
+			return lhs.m_index == rhs.m_index;
+		}
+
+		[[nodiscard]] constexpr friend enum_map_iterator operator+( const enum_map_iterator& it,
+																	const difference_type diff ) noexcept
+		{
+			auto temp = it;
+			temp += diff;
+			return temp;
+		}
+		[[nodiscard]] constexpr friend enum_map_iterator operator+( const difference_type diff,
+																	const enum_map_iterator& it ) noexcept
+		{
+			return it + diff;
+		}
+		[[nodiscard]] constexpr friend enum_map_iterator operator-( const enum_map_iterator& it,
+																	const difference_type diff ) noexcept
+		{
+			auto temp = it;
+			temp -= diff;
+			return temp;
+		}
+		[[nodiscard]] constexpr friend difference_type operator-( const enum_map_iterator& lhs,
+																  const enum_map_iterator& rhs ) noexcept
+		{
+			return lhs.m_index - rhs.m_index;
+		}
+
+	private:
+		TWrappedIterator m_it;
+		difference_type m_index;
+	};
+
 	template <typename TEnum, typename TValue, TEnum SizeEnum = enum_size<TEnum>>
 	class enum_map
 	{
-		static_assert( detail::to_underlying( SizeEnum ) >= 0, "SizeEnum cannot have a negative value" );
+		static_assert( static_cast<std::underlying_type_t<TEnum>>( SizeEnum ) > 0,
+					   "SizeEnum should be a positive value" );
 		static constexpr std::size_t max_size = static_cast<std::size_t>( SizeEnum );
 		using container_type = std::array<TValue, max_size>;
 
@@ -26,159 +153,10 @@ namespace mclo
 		using const_reference = typename container_type::const_reference;
 		using pointer = typename container_type::pointer;
 		using const_pointer = typename container_type::const_pointer;
-		using iterator = typename container_type::iterator;
-		using const_iterator = typename container_type::const_iterator;
-		using reverse_iterator = typename container_type::reverse_iterator;
-		using const_reverse_iterator = typename container_type::const_reverse_iterator;
-
-		template <bool IsConst>
-		class enumerate_view;
-
-		template <bool IsConst>
-		class enumerate_iterator
-		{
-		public:
-			friend class enumerate_view<IsConst>;
-
-			using base_iterator = std::conditional_t<IsConst, enum_map::const_iterator, enum_map::iterator>;
-			using base_reference = std::conditional_t<IsConst, enum_map::const_reference, enum_map::reference>;
-			using iterator_category = std::random_access_iterator_tag;
-			using iterator_concept = std::random_access_iterator_tag;
-			using difference_type = enum_map::difference_type;
-			using value_type = std::pair<key_type, value_type>;
-			using reference = std::pair<key_type, base_reference>;
-
-			constexpr enumerate_iterator() noexcept = default;
-
-			constexpr enumerate_iterator( const enumerate_iterator<!IsConst> other ) noexcept
-				requires IsConst
-				: m_it( other.m_it )
-				, m_index( other.m_index )
-			{
-			}
-
-			constexpr reference operator*() const noexcept
-			{
-				return reference{ static_cast<key_type>( m_index ), *m_it };
-			}
-
-			constexpr enumerate_iterator& operator++() noexcept
-			{
-				++m_it;
-				++m_index;
-				return *this;
-			}
-
-			constexpr enumerate_iterator operator++( int ) noexcept
-			{
-				enumerate_iterator copy( *this );
-				++*this;
-				return copy;
-			}
-
-			constexpr enumerate_iterator& operator--() noexcept
-			{
-				--m_it;
-				--m_index;
-				return *this;
-			}
-
-			constexpr enumerate_iterator operator--( int ) noexcept
-			{
-				enumerate_iterator copy( *this );
-				--*this;
-				return copy;
-			}
-
-			constexpr enumerate_iterator& operator+=( const difference_type diff ) noexcept
-			{
-				m_it += diff;
-				m_index += diff;
-				return *this;
-			}
-
-			constexpr enumerate_iterator& operator-=( const difference_type diff ) noexcept
-			{
-				m_it -= diff;
-				m_index -= diff;
-				return *this;
-			}
-
-			[[nodiscard]] constexpr friend std::strong_ordering operator<=>( const enumerate_iterator& lhs,
-																			 const enumerate_iterator& rhs ) noexcept
-			{
-				return lhs.m_index <=> rhs.m_index;
-			}
-			[[nodiscard]] constexpr friend bool operator==( const enumerate_iterator& lhs,
-															const enumerate_iterator& rhs ) noexcept
-			{
-				return lhs.m_index == rhs.m_index;
-			}
-
-			[[nodiscard]] constexpr friend enumerate_iterator operator+( const enumerate_iterator& it,
-																		 const difference_type diff ) noexcept
-			{
-				auto temp = it;
-				temp += diff;
-				return temp;
-			}
-			[[nodiscard]] constexpr friend enumerate_iterator operator+( const difference_type diff,
-																		 const enumerate_iterator& it ) noexcept
-			{
-				return it + diff;
-			}
-			[[nodiscard]] constexpr friend enumerate_iterator operator-( const enumerate_iterator& it,
-																		 const difference_type diff ) noexcept
-			{
-				auto temp = it;
-				temp -= diff;
-				return temp;
-			}
-			[[nodiscard]] constexpr friend difference_type operator-( const enumerate_iterator& lhs,
-																	  const enumerate_iterator& rhs ) noexcept
-			{
-				return lhs.m_index - rhs.m_index;
-			}
-
-		private:
-			constexpr enumerate_iterator( base_iterator it, const difference_type index ) noexcept
-				: m_it( std::move( it ) )
-				, m_index( index )
-			{
-			}
-
-			base_iterator m_it;
-			difference_type m_index;
-		};
-
-		template <bool IsConst>
-		class enumerate_view : public std::ranges::view_interface<enumerate_view<IsConst>>
-		{
-			using parent = std::conditional_t<IsConst, const enum_map, enum_map>;
-			using iterator = enumerate_iterator<IsConst>;
-
-		public:
-			constexpr explicit enumerate_view( parent& parent ) noexcept
-				: m_parent( &parent )
-			{
-			}
-
-			[[nodiscard]] constexpr iterator begin() const noexcept
-			{
-				return iterator( m_parent->begin(), 0 );
-			}
-			[[nodiscard]] constexpr iterator end() const noexcept
-			{
-				return iterator( m_parent->end(), max_size );
-			}
-			[[nodiscard]] constexpr size_type size() const noexcept
-			{
-				return max_size;
-			}
-
-		private:
-			parent* const m_parent = nullptr;
-		};
+		using iterator = enum_map_iterator<typename container_type::iterator, key_type>;
+		using const_iterator = enum_map_iterator<typename container_type::const_iterator, key_type>;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 		constexpr enum_map() noexcept( std::is_nothrow_default_constructible_v<value_type> ) = default;
 
@@ -195,7 +173,22 @@ namespace mclo
 		{
 		}
 
-		// Map like API
+		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
+		constexpr enum_map( It first, Sentinel last )
+		{
+			assert( std::ranges::distance( first, last ) <= max_size &&
+					"Iterator pair is over a range larger than this container's max size" );
+			std::ranges::copy( first, last, m_container.begin() );
+		}
+
+		template <std::ranges::forward_range Range>
+			requires( !std::convertible_to<Range, const_reference> )
+		constexpr explicit enum_map( Range&& range )
+		{
+			assert( std::ranges::distance( range ) <= max_size &&
+					"Range size is larger than this container's max size" );
+			std::ranges::copy( range, m_container.begin() );
+		}
 
 		[[nodiscard]] constexpr reference operator[]( const key_type key ) noexcept
 		{
@@ -215,17 +208,6 @@ namespace mclo
 			return m_container[ index ];
 		}
 
-		[[nodiscard]] constexpr enumerate_view<false> enumerate() noexcept
-		{
-			return enumerate_view<false>{ *this };
-		}
-		[[nodiscard]] constexpr enumerate_view<true> enumerate() const noexcept
-		{
-			return enumerate_view<true>{ *this };
-		}
-
-		// std::array like API
-
 		constexpr void fill( const_reference value ) noexcept( std::is_nothrow_copy_assignable_v<value_type> )
 		{
 			m_container.fill( value );
@@ -242,6 +224,16 @@ namespace mclo
 		}
 
 		[[nodiscard]] constexpr auto operator<=>( const enum_map& other ) const = default;
+
+		[[nodiscard]] constexpr std::span<value_type, max_size> as_span() noexcept
+		{
+			return m_container;
+		}
+
+		[[nodiscard]] constexpr std::span<const value_type, max_size> as_span() const noexcept
+		{
+			return m_container;
+		}
 
 		[[nodiscard]] static constexpr size_type size() noexcept
 		{
@@ -266,65 +258,56 @@ namespace mclo
 			return m_container.back();
 		}
 
-		[[nodiscard]] constexpr pointer data() noexcept
-		{
-			return m_container.data();
-		}
-		[[nodiscard]] constexpr const_pointer data() const noexcept
-		{
-			return m_container.data();
-		}
-
 		[[nodiscard]] constexpr iterator begin() noexcept
 		{
-			return m_container.begin();
+			return { m_container.begin(), 0 };
 		}
 		[[nodiscard]] constexpr const_iterator begin() const noexcept
 		{
-			return m_container.begin();
+			return { m_container.begin(), 0 };
 		}
 		[[nodiscard]] constexpr const_iterator cbegin() const noexcept
 		{
-			return m_container.cbegin();
+			return { m_container.cbegin(), 0 };
 		}
 
 		[[nodiscard]] constexpr iterator end() noexcept
 		{
-			return m_container.end();
+			return { m_container.end(), max_size };
 		}
 		[[nodiscard]] constexpr const_iterator end() const noexcept
 		{
-			return m_container.end();
+			return { m_container.end(), max_size };
 		}
 		[[nodiscard]] constexpr const_iterator cend() const noexcept
 		{
-			return m_container.cend();
+			return { m_container.cend(), max_size };
 		}
 
 		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept
 		{
-			return m_container.rbegin();
+			return std::make_reverse_iterator( end() );
 		}
 		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept
 		{
-			return m_container.rbegin();
+			return std::make_reverse_iterator( end() );
 		}
 		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept
 		{
-			return m_container.crbegin();
+			return std::make_reverse_iterator( cend() );
 		}
 
 		[[nodiscard]] constexpr reverse_iterator rend() noexcept
 		{
-			return m_container.rend();
+			return std::make_reverse_iterator( begin() );
 		}
 		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept
 		{
-			return m_container.rend();
+			return std::make_reverse_iterator( begin() );
 		}
 		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept
 		{
-			return m_container.crend();
+			return std::make_reverse_iterator( cbegin() );
 		}
 
 	private:
