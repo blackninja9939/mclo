@@ -7,6 +7,8 @@
 
 using namespace Catch::Matchers;
 
+#include <functional>
+
 namespace
 {
 	constexpr std::size_t bitset_size = 34;
@@ -15,17 +17,52 @@ namespace
 	class dynamic_bitset_wrapper : public mclo::dynamic_bitset<UnderlyingType>
 	{
 	public:
+		using base = mclo::dynamic_bitset<UnderlyingType>;
+
 		dynamic_bitset_wrapper()
-			: mclo::dynamic_bitset<UnderlyingType>( bitset_size )
+			: base( bitset_size )
 		{
 		}
+		dynamic_bitset_wrapper( base bs )
+			: base( std::move( bs ) )
+		{
+		}
+
+		[[nodiscard]] constexpr bool operator==( const dynamic_bitset_wrapper& other ) const noexcept = default;
 	};
 
 	using test_types = mclo::meta::type_list<dynamic_bitset_wrapper<std::uint32_t>,
 											 mclo::bitset<bitset_size, std::uint32_t>,
 											 dynamic_bitset_wrapper<std::uint64_t>,
 											 mclo::bitset<bitset_size, std::uint64_t>>;
+
+	template <typename Bitset, std::size_t Size>
+	void check_only_these_set( const Bitset& bitset, std::array<std::size_t, Size> indices )
+	{
+		std::ranges::sort( indices );
+		std::size_t indices_index = 0;
+
+		bitset.for_each_set(
+			[ & ]( const std::size_t set_index ) { CHECK( set_index == indices[ indices_index++ ] ); } );
+		CHECK( indices_index == Size );
+	}
+
+	template <std::size_t... indices>
+	constexpr std::array<std::size_t, sizeof...( indices )> index_array()
+	{
+		return { indices... };
+	}
 }
+
+template <std::unsigned_integral UnderlyingType>
+struct std::hash<dynamic_bitset_wrapper<UnderlyingType>>
+{
+	using type = dynamic_bitset_wrapper<UnderlyingType>;
+	[[nodiscard]] std::size_t operator()( const type& wrapper ) const noexcept
+	{
+		return std::hash<typename type::base>()( wrapper );
+	}
+};
 
 TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 {
@@ -97,4 +134,154 @@ TEMPLATE_LIST_TEST_CASE( "bitset find_first_unset loop", "[bitset]", test_types 
 	}
 
 	CHECK( count == 3 );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator&=", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 4 ).set( 33 );
+
+	set &= other;
+	check_only_these_set( set, index_array<4, 33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator&", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 4 ).set( 33 );
+
+	check_only_these_set( set & other, index_array<4, 33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator|=", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 2 ).set( 16 ).set( 32 );
+
+	set |= other;
+	check_only_these_set( set, index_array<2, 4, 16, 32, 33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator|", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 2 ).set( 16 ).set( 32 );
+
+	check_only_these_set( set | other, index_array<2, 4, 16, 32, 33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator^=", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 2 ).set( 16 ).set( 32 );
+
+	set ^= other;
+	check_only_these_set( set, index_array<2, 4, 16, 33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator^", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 2 ).set( 16 ).set( 32 );
+
+	check_only_these_set( set ^ other, index_array<2, 4, 16, 33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator~", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	const TestType flipped( ~set );
+
+	set.flip();
+	CHECK( set == flipped );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator<<=", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 0 ).set( 1 ).set( 4 ).set( 32 ).set( 33 );
+
+	SECTION( "Shift small" )
+	{
+		set <<= 10;
+		check_only_these_set( set, index_array<10, 11, 14>() );
+	}
+	SECTION( "Shift large" )
+	{
+		set <<= 33;
+		check_only_these_set( set, index_array<33>() );
+	}
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator>>=", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 0 ).set( 1 ).set( 4 ).set( 32 ).set( 33 );
+
+	SECTION( "Shift small" )
+	{
+		set >>= 10;
+		check_only_these_set( set, index_array<22, 23>() );
+	}
+	SECTION( "Shift large" )
+	{
+		set >>= 33;
+		check_only_these_set( set, index_array<0>() );
+	}
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator<<", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 0 ).set( 1 ).set( 4 ).set( 32 ).set( 33 );
+
+	check_only_these_set( set << 10, index_array<10, 11, 14>() );
+
+	check_only_these_set( set << 33, index_array<33>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset operator>>", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 0 ).set( 1 ).set( 4 ).set( 32 ).set( 33 );
+
+	check_only_these_set( set >> 10, index_array<22, 23>() );
+
+	check_only_these_set( set >> 33, index_array<0>() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "bitset hash", "[bitset]", test_types )
+{
+	TestType set;
+	set.set( 4 ).set( 32 ).set( 33 );
+
+	TestType other;
+	other.set( 2 ).set( 16 ).set( 32 );
+
+	using hasher = std::hash<TestType>;
+
+	const std::size_t set_hash = hasher{}( set );
+	const std::size_t other_hash = hasher{}( other );
+
+	CHECK( set_hash != other_hash );
 }

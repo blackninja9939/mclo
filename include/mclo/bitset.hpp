@@ -1,12 +1,15 @@
 #pragma once
 
+#include "mclo/hash_combine.hpp"
 #include "mclo/math.hpp"
+#include "mclo/platform.hpp"
 #include "mclo/standard_integer_type.hpp"
 
 #include <array>
 #include <bit>
 #include <concepts>
 #include <iterator>
+#include <ranges>
 #include <span>
 #include <vector>
 
@@ -201,7 +204,8 @@ namespace mclo
 
 			for ( std::size_t page = start_page; page < end; ++page )
 			{
-				const int bit_index = std::countr_zero( static_cast<underlying_type>( m_container[ page ] >> start_index ) );
+				const int bit_index =
+					std::countr_zero( static_cast<underlying_type>( m_container[ page ] >> start_index ) );
 				if ( bit_index != bits_per_value )
 				{
 					return ( page * bits_per_value ) + start_index + bit_index;
@@ -265,6 +269,134 @@ namespace mclo
 		[[nodiscard]] constexpr auto underlying() noexcept
 		{
 			return std::span( m_container );
+		}
+
+		[[nodiscard]] constexpr bool operator==( const bitset_base& other ) const noexcept = default;
+
+		constexpr Derived& operator&=( const Derived& other ) noexcept
+		{
+			for ( std::size_t page = 0, size = num_values(); page < size; ++page )
+			{
+				m_container[ page ] &= other.m_container[ page ];
+			}
+			return as_derived();
+		}
+
+		[[nodiscard]] friend constexpr Derived operator&( const Derived& lhs, const Derived& rhs ) noexcept
+		{
+			Derived result = lhs;
+			result &= rhs;
+			return result;
+		}
+
+		constexpr Derived& operator|=( const Derived& other ) noexcept
+		{
+			for ( std::size_t page = 0, size = num_values(); page < size; ++page )
+			{
+				m_container[ page ] |= other.m_container[ page ];
+			}
+			return as_derived();
+		}
+
+		[[nodiscard]] friend constexpr Derived operator|( const Derived& lhs, const Derived& rhs ) noexcept
+		{
+			Derived result = lhs;
+			result |= rhs;
+			return result;
+		}
+
+		constexpr Derived& operator^=( const Derived& other ) noexcept
+		{
+			for ( std::size_t page = 0, size = num_values(); page < size; ++page )
+			{
+				m_container[ page ] ^= other.m_container[ page ];
+			}
+			return as_derived();
+		}
+
+		[[nodiscard]] friend constexpr Derived operator^( const Derived& lhs, const Derived& rhs ) noexcept
+		{
+			Derived result = lhs;
+			result ^= rhs;
+			return result;
+		}
+
+		[[nodiscard]] constexpr Derived operator~() const noexcept( std::is_nothrow_copy_constructible_v<Derived> )
+		{
+			return Derived( as_derived() ).flip();
+		}
+
+		constexpr Derived& operator<<=( std::size_t pos ) noexcept
+		{
+			const auto size = static_cast<std::ptrdiff_t>( num_values() - 1 );
+			const auto value_shift = static_cast<std::ptrdiff_t>( pos / bits_per_value );
+
+			// Shift whole values
+			if ( value_shift != 0 )
+			{
+				for ( std::ptrdiff_t index = size; 0 <= index; --index )
+				{
+					m_container[ index ] = value_shift <= index ? m_container[ index - value_shift ] : 0;
+				}
+			}
+
+			// Shift by bits
+			if ( ( pos %= bits_per_value ) != 0 )
+			{
+				for ( std::ptrdiff_t index = size; 0 < index; --index )
+				{
+					m_container[ index ] =
+						( m_container[ index ] << pos ) | ( m_container[ index - 1 ] >> ( bits_per_value - pos ) );
+				}
+
+				m_container[ 0 ] <<= pos;
+			}
+
+			trim();
+			return as_derived();
+		}
+
+		constexpr Derived& operator>>=( std::size_t pos ) noexcept
+		{
+			const auto size = static_cast<std::ptrdiff_t>( num_values() - 1 );
+			const auto value_shift = static_cast<std::ptrdiff_t>( pos / bits_per_value );
+
+			// Shift whole values
+			if ( value_shift != 0 )
+			{
+				for ( std::ptrdiff_t index = 0; index <= size; ++index )
+				{
+					m_container[ index ] = value_shift <= size - index ? m_container[ index + value_shift ] : 0;
+				}
+			}
+
+			// Shift by bits
+			if ( ( pos %= bits_per_value ) != 0 )
+			{
+				for ( std::ptrdiff_t index = 0; index < size; ++index )
+				{
+					m_container[ index ] =
+						( m_container[ index ] >> pos ) | ( m_container[ index + 1 ] << ( bits_per_value - pos ) );
+				}
+
+				m_container[ size ] >>= pos;
+			}
+
+			return as_derived();
+		}
+
+		[[nodiscard]] constexpr Derived operator<<( const std::size_t pos ) const noexcept
+		{
+			Derived copy( as_derived() );
+			copy <<= pos;
+			return copy;
+		}
+
+		[[nodiscard]] constexpr Derived operator>>( const std::size_t pos ) const noexcept
+		{
+			Derived copy( as_derived() );
+			copy >>= pos;
+			return copy;
 		}
 
 	private:
@@ -394,7 +526,7 @@ namespace mclo
 
 		constexpr void derived_trim() noexcept
 		{
-			const std::size_t last_bits_used = m_size % base::bits_per_value; 
+			const std::size_t last_bits_used = m_size % base::bits_per_value;
 			if ( last_bits_used != 0 )
 			{
 				const underlying_type last_mask = ( base::one << last_bits_used ) - 1;
@@ -403,5 +535,24 @@ namespace mclo
 		}
 
 		std::size_t m_size = 0;
+	};
+}
+
+namespace std
+{
+	template <std::size_t Bits, std::unsigned_integral UnderlyingType>
+	struct hash<mclo::bitset<Bits, UnderlyingType>>
+	{
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()(
+			const mclo::bitset<Bits, UnderlyingType>& bitset ) MCLO_CONST_CALL_OPERATOR
+			MCLO_NOEXCEPT_AND_BODY( mclo::hash_range( bitset.underlying() ) )
+	};
+
+	template <std::unsigned_integral UnderlyingType, typename Allocator>
+	struct hash<mclo::dynamic_bitset<UnderlyingType, Allocator>>
+	{
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()(
+			const mclo::dynamic_bitset<UnderlyingType, Allocator>& bitset ) MCLO_CONST_CALL_OPERATOR
+			MCLO_NOEXCEPT_AND_BODY( mclo::hash_range( bitset.underlying() ) )
 	};
 }

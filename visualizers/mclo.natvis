@@ -69,7 +69,17 @@
     <Expand>
       <IndexListItems>
         <Size>$T1</Size>
-        <ValueNode>(m_container._Elems[$i / bits_per_value] &gt;&gt; ($i % bits_per_value)) &amp; 1,d</ValueNode>
+        <ValueNode>(m_container[$i / bits_per_value] &gt;&gt; ($i % bits_per_value)) &amp; 1,d</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="mclo::dynamic_bitset&lt;*&gt;">
+    <DisplayString>{{ size={m_size} }}</DisplayString>
+    <Expand>
+      <IndexListItems>
+        <Size>m_size</Size>
+        <ValueNode>(m_container[$i / bits_per_value] &gt;&gt; ($i % bits_per_value)) &amp; 1,d</ValueNode>
       </IndexListItems>
     </Expand>
   </Type>
