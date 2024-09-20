@@ -22,13 +22,6 @@ namespace mclo
 	}
 
 	template <typename T>
-	concept is_hashable = requires( const T& value, const std::hash<T> hasher ) {
-		{
-			hasher( value )
-		} -> std::convertible_to<std::size_t>;
-	};
-
-	template <typename T>
 	concept is_nothrow_hashable = requires( const T& value, const std::hash<T> hasher ) {
 		{
 			hasher( value )
