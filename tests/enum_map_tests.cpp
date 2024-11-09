@@ -130,3 +130,18 @@ TEST_CASE( "enum_map index directly", "[enum_map]" )
 	CHECK( const_map[ test_enum::first ] == 8 );
 	CHECK( const_map[ test_enum::third ] == 42 );
 }
+
+#include <mclo/enum_string_bi_map.hpp>
+TEST_CASE( "BiMap" )
+{
+	mclo::enum_string_bi_map<test_enum> map( {
+		{{ test_enum::first, "first" },
+         { test_enum::second, "second" },
+         { test_enum::third, "third" },
+         { test_enum::fourth, "fourth" }}
+    } );
+
+	const auto result = map.lookup_from_string( "second" );
+	REQUIRE( result );
+	CHECK( *result == test_enum::second );
+}

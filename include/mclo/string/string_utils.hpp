@@ -371,18 +371,19 @@ namespace mclo
 	}
 
 	template <typename String>
-	[[nodiscard]] constexpr std::size_t string_hash( const String& string ) noexcept
+	[[nodiscard]] constexpr std::size_t string_hash( const String& string, const std::size_t salt = 0 ) noexcept
 	{
 		// Necessary so literals do not include null terminator and so char*'s calculate their length
 		const string_view_type_t<String> view{ string };
-		return mclo::fnv1a( view.data(), view.size() );
+		return mclo::fnv1a( view.data(), view.size(), salt );
 	}
 
 	template <typename String>
-	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const String& string ) noexcept
+	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const String& string,
+																 const std::size_t salt = 0 ) noexcept
 	{
 		const string_view_type_t<String> view{ string };
-		return mclo::fnv1a( view.data(), view.size(), static_cast<char ( * )( char ) noexcept>( to_lower ) );
+		return mclo::fnv1a( view.data(), view.size(), salt, static_cast<char ( * )( char ) noexcept>( to_lower ) );
 	}
 
 	struct string_hash_t

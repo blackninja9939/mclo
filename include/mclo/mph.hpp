@@ -2,7 +2,8 @@
 
 #if __cplusplus >= 202002L
 
-#include "platform.hpp"
+#include <mclo/fnva1.hpp>
+#include <mclo/platform.hpp>
 
 #include <algorithm>
 #include <array>
@@ -12,17 +13,6 @@
 
 namespace mclo
 {
-	template <typename T>
-	constexpr std::size_t fnv1a_hash( T first, T last, std::size_t seed ) noexcept
-	{
-		std::size_t d = ( 0x811c9dc5 ^ seed ) * static_cast<std::size_t>( 0x01000193 );
-		while ( first != last )
-		{
-			d = ( d ^ static_cast<std::size_t>( *first++ ) ) * static_cast<std::size_t>( 0x01000193 );
-		}
-		return d >> 8;
-	}
-
 	template <typename T, typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
 	struct mph_hash
 	{
@@ -30,7 +20,7 @@ namespace mclo
 			MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			const auto bytes = std::bit_cast<std::array<std::byte, sizeof( T )>>( value );
-			return fnv1a_hash( bytes.begin(), bytes.end(), seed );
+			return mclo::fnv1a( bytes.data(), bytes.size(), seed );
 		}
 	};
 
@@ -58,7 +48,7 @@ namespace mclo
 		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
 			const std::string_view& value, const std::size_t seed ) MCLO_CONST_CALL_OPERATOR noexcept
 		{
-			return fnv1a_hash( value.begin(), value.end(), seed );
+			return mclo::fnv1a( value.data(), value.size(), seed );
 		}
 	};
 
@@ -68,7 +58,7 @@ namespace mclo
 		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const char* const value, const std::size_t seed )
 			MCLO_CONST_CALL_OPERATOR noexcept
 		{
-			return fnv1a_hash( value, value + std::char_traits<char>::length( value ), seed );
+			return mclo::fnv1a( value, std::char_traits<char>::length( value ), seed );
 		}
 	};
 
@@ -82,17 +72,39 @@ namespace mclo
 	class MCLO_EMPTY_BASES mph_base : private Hash, private KeyEquals, private GetKey
 	{
 	private:
+		/*
+		 * Every entry gets hashed into a bucket using a primary seed, multiple entries can hash to the same bucket
+		 * We distribute them into the actual slots by using a second hash with a value that guarantees the bucket
+		 * puts things into empty slots, we process the largest buckets first. We store this secondary seed for lookup.
+		 *
+		 * Single item buckets just take whatever slots are left and instead of storing the seed they store the index
+		 * in the actual entry storage, they store this as -index - 1. That way we can tell later by the sign how to
+		 * handle.
+		 *
+		 * To look up something we hash the key with the primary seed to find the bucket it would be in, we load the
+		 * secondary seed for that bucket and if it is positive then it is a seed we use to hash again to find the
+		 * object slot. If it is negative we take -index - 1 to get the index of the direct slot it got place in.
+		 *
+		 * This guarantees every object hashes to one single slot with minimal extra data overhead and that we handle
+		 * conflicts in such a way that we find a perfect set of secondary seeds in the minimal number of loops.
+		 */
+
 		template <typename T>
 		using sized_array = std::array<T, Size>;
 
+		// 0 is used as a sentinel value in setup so must be less than max
+		static_assert( Size < std::numeric_limits<std::size_t>::max(), "Too many entries" );
+
 		static constexpr std::size_t primary_seed = 42;
 
+		// Buckets are stored inline in setup in a singly linked list
 		struct primary_bucket_entry
 		{
 			std::size_t m_data_index = 0;
 			primary_bucket_entry* m_next = nullptr;
 		};
 
+		// We store the size so we can sort by it since the linked list does not have O(1) size itself
 		struct primary_bucket
 		{
 			std::size_t m_size = 0;
@@ -117,6 +129,8 @@ namespace mclo
 
 		constexpr mph_base( const storage_type& data )
 		{
+			// Every entry gets hashed into a bucket, the bucket maintains a linked list of everything
+			// hashed into it and we then spread them out later
 			sized_array<primary_bucket_entry> bucket_entries{};
 			sized_array<primary_bucket> buckets{};
 
@@ -133,6 +147,8 @@ namespace mclo
 				bucket.m_head = &entry;
 			}
 
+			// We sort the indices so we process the largest buckets first as they are hardest to find a valid
+			// salt for
 			sized_array<std::size_t> sorted_bucket_indices{};
 			std::iota( sorted_bucket_indices.begin(), sorted_bucket_indices.end(), 0 );
 
@@ -142,54 +158,59 @@ namespace mclo
 						   return buckets[ lhs_index ].m_size > buckets[ rhs_index ].m_size;
 					   } );
 
-			sized_array<bool> used_slots{};
+			// Stores data index + 1, 0 means unused
+			sized_array<std::size_t> slot_data_index{};
 
 			std::size_t sorted_index = 0;
 			for ( ; sorted_index < Size; ++sorted_index )
 			{
 				const std::size_t bucket_index = sorted_bucket_indices[ sorted_index ];
 				const primary_bucket& bucket = buckets[ bucket_index ];
+
+				// Single elements can be handled simply later
 				if ( bucket.m_size <= 1 )
 				{
 					break;
 				}
 
+				// We repeatedly try salts for this bucket to put each entry into an empty slot
 				std::int32_t salt = 0;
 
-				sized_array<bool> potential_used_slots = used_slots;
+				sized_array<std::size_t> potential_slot_data_index = slot_data_index;
 				primary_bucket_entry* next = bucket.m_head;
 
 				while ( next )
 				{
 					const std::size_t data_index = next->m_data_index;
 					const std::size_t slot = hash( get_key( data[ data_index ] ), salt ) % Size;
-					if ( potential_used_slots[ slot ] )
+					if ( potential_slot_data_index[ slot ] != 0 )
 					{
 						// Start over increase the seed we use
 						next = bucket.m_head;
-						potential_used_slots = used_slots;
+						potential_slot_data_index = slot_data_index;
 						++salt;
 					}
 					else
 					{
 						// Keep trying to see if we keep this salt
-						potential_used_slots[ slot ] = true;
-						reference value = m_storage[ slot ];
-						std::destroy_at( &value );
-						std::construct_at( &value, data[ data_index ] );
+						potential_slot_data_index[ slot ] = data_index + 1;
 						next = next->m_next;
 					}
 				}
 
-				used_slots = potential_used_slots;
+				// Found a valid salt for this bucket, we store it and our new slot configuration for next loop
+				slot_data_index = potential_slot_data_index;
 				m_salts[ bucket_index ] = salt;
 			}
 
+			// Single element buckets we just distribute them in order of whatever slot is free
 			std::size_t empty_search_start = 0;
 			for ( ; sorted_index < Size; ++sorted_index )
 			{
 				const std::size_t bucket_index = sorted_bucket_indices[ sorted_index ];
 				const primary_bucket& bucket = buckets[ bucket_index ];
+
+				// Bucket indices are sorted so first zero means we are done
 				if ( bucket.m_size == 0 )
 				{
 					break;
@@ -197,13 +218,24 @@ namespace mclo
 
 				for ( std::size_t index = empty_search_start; index < Size; ++index )
 				{
-					if ( !used_slots[ index ] )
+					if ( slot_data_index[ index ] == 0 )
 					{
 						m_salts[ bucket_index ] = -static_cast<std::int32_t>( index ) - 1;
 						empty_search_start = index + 1;
+						slot_data_index[ index ] = bucket.m_head->m_data_index + 1;
 						break;
 					}
 				}
+			}
+
+			// All slots are used so we now finally construct the real values
+			for ( std::size_t slot = 0; slot < Size; ++slot )
+			{
+				assert( slot_data_index[ slot ] != 0 );
+				const std::size_t data_index = slot_data_index[ slot ] - 1;
+				reference value = m_storage[ slot ];
+				std::destroy_at( &value );
+				std::construct_at( &value, data[ data_index ] );
 			}
 		}
 
