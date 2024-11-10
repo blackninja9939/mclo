@@ -69,7 +69,7 @@ namespace mclo
 		static_assert( detail::is_zero_initializeable_v<tag_type>,
 					   "Tag type must be able to be initialized with all bits zero" );
 
-		static constexpr bool can_store_tag( const tag_type tag ) noexcept
+		[[nodiscard]] static constexpr bool can_store_tag( const tag_type tag ) noexcept
 		{
 			if constexpr ( ( sizeof( tag_type ) * CHAR_BIT ) <= total_free_bits )
 			{
@@ -134,57 +134,57 @@ namespace mclo
 			m_bits = pack_ptr( ptr ) | pack_tag( tag );
 		}
 
-		pointer get() const noexcept
+		[[nodiscard]] pointer get() const noexcept
 		{
 			return unpack_ptr( m_bits );
 		}
-		tag_type tag() const noexcept
+		[[nodiscard]] tag_type tag() const noexcept
 		{
 			return unpack_tag( m_bits );
 		}
 
-		element_type& operator*() const noexcept
+		[[nodiscard]] element_type& operator*() const noexcept
 		{
 			return *get();
 		}
-		pointer operator->() const noexcept
+		[[nodiscard]] pointer operator->() const noexcept
 		{
 			return get();
 		}
 
-		explicit operator bool() const noexcept
+		[[nodiscard]] explicit operator bool() const noexcept
 		{
 			return get() != nullptr;
 		}
 
-		friend bool operator==( const tagged_ptr& lhs, const tagged_ptr& rhs ) noexcept
+		[[nodiscard]] friend bool operator==( const tagged_ptr& lhs, const tagged_ptr& rhs ) noexcept
 		{
 			return lhs.m_bits == rhs.m_bits;
 		}
-		friend bool operator==( const tagged_ptr& lhs, const const_pointer rhs ) noexcept
+		[[nodiscard]] friend bool operator==( const tagged_ptr& lhs, const const_pointer rhs ) noexcept
 		{
 			return lhs.get() == rhs;
 		}
 
 	private:
-		static std::uintptr_t pack_ptr( pointer ptr ) noexcept
+		[[nodiscard]] static std::uintptr_t pack_ptr( pointer ptr ) noexcept
 		{
 			const auto ptr_bits = reinterpret_cast<std::uintptr_t>( ptr );
 			assert( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ) &&
 					"Ptr is too strictly aligned, it must be aligned to at least Alignment" );
 			return ptr_bits << free_upper_bits;
 		}
-		static pointer unpack_ptr( std::uintptr_t ptr ) noexcept
+		[[nodiscard]] static pointer unpack_ptr( std::uintptr_t ptr ) noexcept
 		{
 			return reinterpret_cast<pointer>( ( ptr & ptr_mask ) >> free_upper_bits );
 		}
 
-		static std::uintptr_t pack_tag( const tag_type tag ) noexcept
+		[[nodiscard]] static std::uintptr_t pack_tag( const tag_type tag ) noexcept
 		{
 			assert( can_store_tag( tag ) && "Tag using too many bits" );
 			return pack_tag_unchecked( tag );
 		}
-		static tag_type unpack_tag( std::uintptr_t tag ) noexcept
+		[[nodiscard]] static tag_type unpack_tag( std::uintptr_t tag ) noexcept
 		{
 			if constexpr ( is_integer )
 			{

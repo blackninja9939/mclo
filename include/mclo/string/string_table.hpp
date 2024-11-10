@@ -43,7 +43,7 @@ namespace mclo
 		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );
 		friend class string_table<Domain, IndexType>;
 
-		constexpr bool is_valid() const noexcept
+		[[nodiscard]] constexpr bool is_valid() const noexcept
 		{
 			return base::has_value();
 		}
@@ -63,7 +63,7 @@ namespace mclo
 		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );
 		using handle = string_handle<Domain, IndexType>;
 
-		handle lookup_handle( const std::string_view str ) const noexcept
+		[[nodiscard]] handle lookup_handle( const std::string_view str ) const noexcept
 		{
 			if ( str.empty() )
 			{
@@ -80,7 +80,7 @@ namespace mclo
 			return it->second;
 		}
 
-		std::string_view lookup_string( const handle hdl ) const noexcept
+		[[nodiscard]] std::string_view lookup_string( const handle hdl ) const noexcept
 		{
 			if ( !hdl.is_valid() )
 			{
@@ -120,7 +120,7 @@ namespace mclo
 			return it->second;
 		}
 
-		IndexType size() const noexcept
+		[[nodiscard]] IndexType size() const noexcept
 		{
 			const std::shared_lock lock( m_mutex );
 			return static_cast<IndexType>( m_handle_to_string.size() );

@@ -35,7 +35,7 @@ namespace mclo
 			}
 		}
 
-		constexpr std::optional<TEnum> lookup_from_string( const std::string_view str ) const noexcept
+		[[nodiscard]] constexpr std::optional<TEnum> lookup_from_string( const std::string_view str ) const noexcept
 		{
 			const auto first = m_string_to_enum.begin();
 			const auto last = m_string_to_enum.end();
@@ -49,7 +49,7 @@ namespace mclo
 			return it->first;
 		}
 
-		constexpr std::string_view lookup_from_enum( const TEnum e ) const noexcept
+		[[nodiscard]] constexpr std::string_view lookup_from_enum( const TEnum e ) const noexcept
 		{
 			return m_string_to_enum[ m_enum_to_string_index[ e ] ].second;
 		}
@@ -86,7 +86,7 @@ namespace mclo
 			}
 
 			template <typename It>
-			static It search( It first, It last, std::string_view str )
+			[[nodiscard]] static It search( It first, It last, std::string_view str )
 			{
 				return std::lower_bound(
 					first, last, str, []( const auto& lhs, const auto& rhs ) { return lhs.second < rhs; } );

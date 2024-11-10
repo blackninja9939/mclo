@@ -36,17 +36,17 @@ namespace mclo
 		{
 		}
 
-		constexpr reference operator*() const noexcept
+		[[nodiscard]] constexpr reference operator*() const noexcept
 		{
 			return reference{ static_cast<key_type>( m_index ), *m_it };
 		}
 
-		constexpr pointer operator->() const noexcept
+		[[nodiscard]] constexpr pointer operator->() const noexcept
 		{
 			return { operator*() };
 		}
 
-		constexpr reference operator[]( const difference_type diff ) const noexcept
+		[[nodiscard]] constexpr reference operator[]( const difference_type diff ) const noexcept
 		{
 			return reference{ static_cast<key_type>( m_index + diff ), m_it[ diff ] };
 		}

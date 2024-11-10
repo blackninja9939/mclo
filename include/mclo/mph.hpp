@@ -108,11 +108,11 @@ namespace mclo
 			detail::nontrivial_dummy_type m_dummy{};
 			StoredValue m_value;
 
-			constexpr StoredValue* get() noexcept
+			[[nodiscard]] constexpr StoredValue* get() noexcept
 			{
 				return std::addressof( m_value );
 			}
-			constexpr const StoredValue* get() const noexcept
+			[[nodiscard]] constexpr const StoredValue* get() const noexcept
 			{
 				return std::addressof( m_value );
 			}
@@ -266,107 +266,107 @@ namespace mclo
 			}
 		}
 
-		constexpr const_iterator find( const key_type& key ) const
+		[[nodiscard]] constexpr const_iterator find( const key_type& key ) const
 		{
 			const std::size_t data_index = find_data_index( key );
 			const auto it = begin() + data_index;
 			return equals( get_key( *it ), key ) ? it : end();
 		}
 
-		constexpr bool contains( const key_type& key ) const
+		[[nodiscard]] constexpr bool contains( const key_type& key ) const
 		{
 			const std::size_t data_index = find_data_index( key );
 			return equals( get_key( m_storage[ data_index ].m_value ), key );
 		}
 
-		static constexpr size_type size() noexcept
+		[[nodiscard]] static constexpr size_type size() noexcept
 		{
 			return Size;
 		}
 
-		static constexpr size_type max_size() noexcept
+		[[nodiscard]] static constexpr size_type max_size() noexcept
 		{
 			return Size;
 		}
 
-		constexpr pointer data() noexcept
+		[[nodiscard]] constexpr pointer data() noexcept
 		{
 			return m_storage.front().get();
 		}
-		constexpr const_pointer data() const noexcept
+		[[nodiscard]] constexpr const_pointer data() const noexcept
 		{
 			return m_storage.front().get();
 		}
 
-		constexpr iterator begin() noexcept
+		[[nodiscard]] constexpr iterator begin() noexcept
 		{
 			return data();
 		}
-		constexpr const_iterator begin() const noexcept
+		[[nodiscard]] constexpr const_iterator begin() const noexcept
 		{
 			return data();
 		}
-		constexpr const_iterator cbegin() const noexcept
+		[[nodiscard]] constexpr const_iterator cbegin() const noexcept
 		{
 			return data();
 		}
 
-		constexpr iterator end() noexcept
+		[[nodiscard]] constexpr iterator end() noexcept
 		{
 			return m_storage.data()[ Size ].get();
 		}
-		constexpr const_iterator end() const noexcept
+		[[nodiscard]] constexpr const_iterator end() const noexcept
 		{
 			return m_storage.data()[ Size ].get();
 		}
-		constexpr const_iterator cend() const noexcept
+		[[nodiscard]] constexpr const_iterator cend() const noexcept
 		{
 			return m_storage.data()[ Size ].get();
 		}
 
-		constexpr reverse_iterator rbegin() noexcept
+		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept
 		{
 			return std::make_reverse_iterator( end() );
 		}
-		constexpr const_reverse_iterator rbegin() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept
 		{
 			return std::make_reverse_iterator( end() );
 		}
-		constexpr const_reverse_iterator crbegin() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept
 		{
 			return std::make_reverse_iterator( cend() );
 		}
 
-		constexpr reverse_iterator rend() noexcept
+		[[nodiscard]] constexpr reverse_iterator rend() noexcept
 		{
 			return std::make_reverse_iterator( begin() );
 		}
-		constexpr const_reverse_iterator rend() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept
 		{
 			return std::make_reverse_iterator( begin() );
 		}
-		constexpr const_reverse_iterator crend() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept
 		{
 			return std::make_reverse_iterator( cbegin() );
 		}
 
 	protected:
-		constexpr size_type find_data_index( const key_type& key ) const
+		[[nodiscard]] constexpr size_type find_data_index( const key_type& key ) const
 		{
 			const std::size_t salt_index = hash( key, primary_salt ) % Size;
 			const std::int32_t salt_value = m_salts[ salt_index ];
 			return salt_value < 0 ? ( -salt_value - 1 ) : ( hash( key, salt_value ) % Size );
 		}
 
-		constexpr std::size_t hash( const Key& key, const std::size_t salt ) const noexcept
+		[[nodiscard]] constexpr std::size_t hash( const Key& key, const std::size_t salt ) const noexcept
 		{
 			return static_cast<const Hash&>( *this )( key, salt );
 		}
-		constexpr std::size_t equals( const Key& lhs, const Key& rhs ) const noexcept
+		[[nodiscard]] constexpr std::size_t equals( const Key& lhs, const Key& rhs ) const noexcept
 		{
 			return static_cast<const KeyEquals&>( *this )( lhs, rhs );
 		}
-		constexpr const Key& get_key( const StoredValue& value ) const noexcept
+		[[nodiscard]] constexpr const Key& get_key( const StoredValue& value ) const noexcept
 		{
 			return static_cast<const GetKey&>( *this )( value );
 		}
@@ -417,7 +417,7 @@ namespace mclo
 
 		using base::find;
 
-		constexpr typename base::iterator find( const typename base::key_type& key )
+		[[nodiscard]] constexpr typename base::iterator find( const typename base::key_type& key )
 		{
 			const std::size_t data_index = base::find_data_index( key );
 			const auto it = base::begin() + data_index;

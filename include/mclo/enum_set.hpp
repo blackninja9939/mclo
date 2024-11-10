@@ -41,7 +41,7 @@ namespace mclo
 
 			constexpr iterator() noexcept = default;
 
-			constexpr reference operator*() const noexcept
+			[[nodiscard]] constexpr reference operator*() const noexcept
 			{
 				return reference{ static_cast<key_type>( m_index ) };
 			}

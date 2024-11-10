@@ -100,7 +100,7 @@ namespace mclo
 
 		// Element access
 
-		constexpr reference at( const size_type pos )
+		[[nodiscard]] constexpr reference at( const size_type pos )
 		{
 			if ( pos >= m_length )
 			{
@@ -108,7 +108,7 @@ namespace mclo
 			}
 			return m_data[ pos ];
 		}
-		constexpr const_reference at( const size_type pos ) const
+		[[nodiscard]] constexpr const_reference at( const size_type pos ) const
 		{
 			if ( pos >= m_length )
 			{
@@ -117,134 +117,134 @@ namespace mclo
 			return m_data[ pos ];
 		}
 
-		constexpr reference operator[]( const size_type pos ) noexcept
+		[[nodiscard]] constexpr reference operator[]( const size_type pos ) noexcept
 		{
 			assert( pos < m_length );
 			return m_data[ pos ];
 		}
-		constexpr const_reference operator[]( const size_type pos ) const noexcept
+		[[nodiscard]] constexpr const_reference operator[]( const size_type pos ) const noexcept
 		{
 			assert( pos < m_length );
 			return m_data[ pos ];
 		}
 
-		constexpr reference front() noexcept
+		[[nodiscard]] constexpr reference front() noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.front();
 		}
-		constexpr const_reference front() const noexcept
+		[[nodiscard]] constexpr const_reference front() const noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.front();
 		}
 
-		constexpr reference back() noexcept
+		[[nodiscard]] constexpr reference back() noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.back();
 		}
-		constexpr const_reference back() const noexcept
+		[[nodiscard]] constexpr const_reference back() const noexcept
 		{
 			assert( m_length > 0 );
 			return m_data.back();
 		}
 
-		constexpr pointer data() noexcept
+		[[nodiscard]] constexpr pointer data() noexcept
 		{
 			return m_data.data();
 		}
-		constexpr const_pointer data() const noexcept
-		{
-			return m_data.data();
-		}
-
-		constexpr const_pointer c_str() const noexcept
+		[[nodiscard]] constexpr const_pointer data() const noexcept
 		{
 			return m_data.data();
 		}
 
-		constexpr operator view_type() const noexcept
+		[[nodiscard]] constexpr const_pointer c_str() const noexcept
+		{
+			return m_data.data();
+		}
+
+		[[nodiscard]] constexpr operator view_type() const noexcept
 		{
 			return { m_data.data(), m_length };
 		}
 
 		// Iterators
 
-		constexpr iterator begin() noexcept
+		[[nodiscard]] constexpr iterator begin() noexcept
 		{
 			return m_data.begin();
 		}
-		constexpr const_iterator begin() const noexcept
+		[[nodiscard]] constexpr const_iterator begin() const noexcept
 		{
 			return m_data.begin();
 		}
-		constexpr const_iterator cbegin() const noexcept
+		[[nodiscard]] constexpr const_iterator cbegin() const noexcept
 		{
 			return m_data.cbegin();
 		}
 
-		constexpr iterator end() noexcept
+		[[nodiscard]] constexpr iterator end() noexcept
 		{
 			return begin() + m_length;
 		}
-		constexpr const_iterator end() const noexcept
+		[[nodiscard]] constexpr const_iterator end() const noexcept
 		{
 			return begin() + m_length;
 		}
-		constexpr const_iterator cend() const noexcept
+		[[nodiscard]] constexpr const_iterator cend() const noexcept
 		{
 			return cbegin() + m_length;
 		}
 
-		constexpr reverse_iterator rbegin() noexcept
+		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept
 		{
 			return std::make_reverse_iterator( end() );
 		}
-		constexpr const_reverse_iterator rbegin() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept
 		{
 			return std::make_reverse_iterator( end() );
 		}
-		constexpr const_reverse_iterator crbegin() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept
 		{
 			return std::make_reverse_iterator( cend() );
 		}
 
-		constexpr reverse_iterator rend() noexcept
+		[[nodiscard]] constexpr reverse_iterator rend() noexcept
 		{
 			return std::make_reverse_iterator( begin() );
 		}
-		constexpr const_reverse_iterator rend() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept
 		{
 			return std::make_reverse_iterator( begin() );
 		}
-		constexpr const_reverse_iterator rcend() const noexcept
+		[[nodiscard]] constexpr const_reverse_iterator rcend() const noexcept
 		{
 			return std::make_reverse_iterator( cbegin() );
 		}
 
 		// Size
 
-		constexpr bool empty() const noexcept
+		[[nodiscard]] constexpr bool empty() const noexcept
 		{
 			return m_length == 0;
 		}
 
-		constexpr size_type size() const noexcept
+		[[nodiscard]] constexpr size_type size() const noexcept
 		{
 			return m_length;
 		}
-		constexpr size_type length() const noexcept
+		[[nodiscard]] constexpr size_type length() const noexcept
 		{
 			return m_length;
 		}
 
-		constexpr size_type max_size() const noexcept
+		[[nodiscard]] constexpr size_type max_size() const noexcept
 		{
 			return max_string_size;
 		}
 
-		constexpr size_type capacity() const noexcept
+		[[nodiscard]] constexpr size_type capacity() const noexcept
 		{
 			return max_string_size;
 		}
@@ -351,60 +351,60 @@ namespace mclo
 		// substr
 
 		template <std::size_t OtherSize>
-		constexpr int compare( const basic_string_buffer<CharT, OtherSize>& str ) const noexcept
+		[[nodiscard]] constexpr int compare( const basic_string_buffer<CharT, OtherSize>& str ) const noexcept
 		{
 			return compare( view_type( str ) );
 		}
 
 		template <std::size_t OtherSize>
-		constexpr int compare( const value_type ( &str )[ OtherSize ] ) const noexcept
+		[[nodiscard]] constexpr int compare( const value_type ( &str )[ OtherSize ] ) const noexcept
 		{
 			return compare( view_type( str ) );
 		}
 
-		constexpr int compare( const view_type& str ) const noexcept
+		[[nodiscard]] constexpr int compare( const view_type& str ) const noexcept
 		{
 			return view_type( *this ).compare( str );
 		}
 
 #ifdef __cpp_lib_starts_ends_with
-		constexpr bool starts_with( const view_type str ) const noexcept
+		[[nodiscard]] constexpr bool starts_with( const view_type str ) const noexcept
 		{
 			return view_type( *this ).starts_with( str );
 		}
-		constexpr bool starts_with( const value_type ch ) const noexcept
+		[[nodiscard]] constexpr bool starts_with( const value_type ch ) const noexcept
 		{
 			return view_type( *this ).starts_with( ch );
 		}
-		constexpr bool starts_with( const const_pointer str ) const noexcept
+		[[nodiscard]] constexpr bool starts_with( const const_pointer str ) const noexcept
 		{
 			return view_type( *this ).starts_with( str );
 		}
 
-		constexpr bool ends_with( const view_type str ) const noexcept
+		[[nodiscard]] constexpr bool ends_with( const view_type str ) const noexcept
 		{
 			return view_type( *this ).ends_with( str );
 		}
-		constexpr bool ends_with( const value_type ch ) const noexcept
+		[[nodiscard]] constexpr bool ends_with( const value_type ch ) const noexcept
 		{
 			return view_type( *this ).ends_with( ch );
 		}
-		constexpr bool ends_with( const const_pointer str ) const noexcept
+		[[nodiscard]] constexpr bool ends_with( const const_pointer str ) const noexcept
 		{
 			return view_type( *this ).ends_with( str );
 		}
 #endif
 
 #ifdef __cpp_lib_string_contains
-		constexpr bool contains( const view_type str ) const noexcept
+		[[nodiscard]] constexpr bool contains( const view_type str ) const noexcept
 		{
 			return view_type( *this ).contains( str );
 		}
-		constexpr bool contains( const value_type ch ) const noexcept
+		[[nodiscard]] constexpr bool contains( const value_type ch ) const noexcept
 		{
 			return view_type( *this ).contains( ch );
 		}
-		constexpr bool contains( const const_pointer str ) const noexcept
+		[[nodiscard]] constexpr bool contains( const const_pointer str ) const noexcept
 		{
 			return view_type( *this ).contains( str );
 		}

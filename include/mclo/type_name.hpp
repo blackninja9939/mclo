@@ -7,7 +7,7 @@ namespace mclo
 	namespace detail
 	{
 		template <typename T>
-		constexpr auto extract_type_name()
+		[[nodiscard]] constexpr auto extract_type_name()
 		{
 #if defined( __clang__ )
 			constexpr auto prefix = std::string_view{ "[T = " };
