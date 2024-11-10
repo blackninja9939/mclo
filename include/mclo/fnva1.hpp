@@ -9,6 +9,13 @@ namespace mclo
 {
 	namespace detail
 	{
+		template <typename Transform, typename T>
+		concept fnva1_transform = requires( const T& data, const Transform& transform ) {
+			{
+				transform( data )
+			} -> std::convertible_to<std::size_t>;
+		};
+
 		// To avoid include <functional>
 		struct identity
 		{
@@ -26,14 +33,12 @@ namespace mclo
 		inline constexpr std::size_t fnva1_prime = 14695981039346656037ull;
 	}
 
-	template <typename T, typename Transform = detail::identity>
+	template <typename T, detail::fnva1_transform<T> Transform = detail::identity>
 	[[nodiscard]] constexpr std::size_t fnv1a( const T* data,
 											   const std::size_t size,
 											   const std::size_t salt = 0,
 											   Transform transform = {} ) noexcept
 	{
-		static_assert( std::is_convertible_v<decltype( transform( *data ) ), std::size_t>,
-					   "Transform result of data must be convertible to std::size_t" );
 		std::size_t hash = detail::fnva1_offset_basis;
 		for ( std::size_t index = 0; index < size; ++index )
 		{

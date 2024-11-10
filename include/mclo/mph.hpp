@@ -1,7 +1,6 @@
 #pragma once
 
-#if __cplusplus >= 202002L
-
+#include <mclo/detail/nontrivial_dummy_type.hpp>
 #include <mclo/fnva1.hpp>
 #include <mclo/platform.hpp>
 
@@ -13,24 +12,17 @@
 
 namespace mclo
 {
-	template <typename T, typename = std::enable_if_t<std::is_trivially_copyable_v<T>>>
-	struct mph_hash
-	{
-		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t seed )
-			MCLO_CONST_CALL_OPERATOR noexcept
-		{
-			const auto bytes = std::bit_cast<std::array<std::byte, sizeof( T )>>( value );
-			return mclo::fnv1a( bytes.data(), bytes.size(), seed );
-		}
-	};
+	template <typename T>
+	struct mph_hash;
 
 	template <typename T>
-	struct mph_hash<T, std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>>
+		requires( std::is_integral_v<T> || std::is_enum_v<T> )
+	struct mph_hash<T>
 	{
-		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t seed )
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t salt )
 			MCLO_CONST_CALL_OPERATOR noexcept
 		{
-			std::size_t key = seed ^ static_cast<std::size_t>( value );
+			std::size_t key = salt ^ static_cast<std::size_t>( value );
 			key = ( ~key ) + ( key << 21 );
 			key = key ^ ( key >> 24 );
 			key = ( key + ( key << 3 ) ) + ( key << 8 );
@@ -42,51 +34,51 @@ namespace mclo
 		}
 	};
 
-	template <>
-	struct mph_hash<std::string_view>
+	template <typename T>
+		requires( std::convertible_to<T, std::string_view> )
+	struct mph_hash<T>
 	{
-		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
-			const std::string_view& value, const std::size_t seed ) MCLO_CONST_CALL_OPERATOR noexcept
-		{
-			return mclo::fnv1a( value.data(), value.size(), seed );
-		}
-	};
-
-	template <>
-	struct mph_hash<const char*>
-	{
-		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const char* const value, const std::size_t seed )
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t salt )
 			MCLO_CONST_CALL_OPERATOR noexcept
 		{
-			return mclo::fnv1a( value, std::char_traits<char>::length( value ), seed );
+			const std::string_view view( value );
+			return mclo::fnv1a( view.data(), view.size(), salt );
 		}
 	};
 
-	template <typename Key,
-			  typename MappedType,
-			  typename StoredValue,
-			  typename Hash,
-			  typename KeyEquals,
-			  typename GetKey,
-			  std::size_t Size>
+	template <typename T>
+	struct mph_hash<std::optional<T>>
+	{
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+			const std::optional<T>& value, const std::size_t salt ) MCLO_CONST_CALL_OPERATOR noexcept
+		{
+			if ( value )
+			{
+				return mph_hash<T>()( *value, salt );
+			}
+			return 0;
+		}
+	};
+
+	template <typename Key, typename StoredValue, typename Hash, typename KeyEquals, typename GetKey, std::size_t Size>
 	class MCLO_EMPTY_BASES mph_base : private Hash, private KeyEquals, private GetKey
 	{
 	private:
 		/*
-		 * Every entry gets hashed into a bucket using a primary seed, multiple entries can hash to the same bucket
+		 * Every entry gets hashed into a bucket using a primary salt, multiple entries can hash to the same bucket
 		 * We distribute them into the actual slots by using a second hash with a value that guarantees the bucket
-		 * puts things into empty slots, we process the largest buckets first. We store this secondary seed for lookup.
+		 * puts things into empty slots, we process the largest buckets first. We store this secondary salt for lookup.
 		 *
-		 * Single item buckets just take whatever slots are left and instead of storing the seed they store the index
+		 * Single item buckets just take whatever slots are left and instead of storing the salt they store the index
 		 * in the actual entry storage, they store this as -index - 1. That way we can tell later by the sign how to
 		 * handle.
 		 *
-		 * To look up something we hash the key with the primary seed to find the bucket it would be in, we load the
-		 * secondary seed for that bucket and if it is positive then it is a seed we use to hash again to find the
+		 * To look up something we hash the key with the primary salt to find the bucket it would be in, we load the
+		 * secondary salt for that bucket and if it is positive then it is a salt we use to hash again to find the
 		 * object slot. If it is negative we take -index - 1 to get the index of the direct slot it got place in.
 		 *
 		 * This guarantees every object hashes to one single slot with minimal extra data overhead and that we handle
-		 * conflicts in such a way that we find a perfect set of secondary seeds in the minimal number of loops.
+		 * conflicts in such a way that we find a perfect set of secondary salts in the minimal number of loops.
 		 */
 
 		template <typename T>
@@ -95,7 +87,7 @@ namespace mclo
 		// 0 is used as a sentinel value in setup so must be less than max
 		static_assert( Size < std::numeric_limits<std::size_t>::max(), "Too many entries" );
 
-		static constexpr std::size_t primary_seed = 42;
+		static constexpr std::size_t primary_salt = 42;
 
 		// Buckets are stored inline in setup in a singly linked list
 		struct primary_bucket_entry
@@ -111,23 +103,40 @@ namespace mclo
 			primary_bucket_entry* m_head = nullptr;
 		};
 
+		union internal_storage
+		{
+			detail::nontrivial_dummy_type m_dummy{};
+			StoredValue m_value;
+
+			constexpr StoredValue* get() noexcept
+			{
+				return std::addressof( m_value );
+			}
+			constexpr const StoredValue* get() const noexcept
+			{
+				return std::addressof( m_value );
+			}
+		};
+
+		using storage_array = sized_array<internal_storage>;
+
 	public:
 		using key_type = Key;
-		using mapped_type = MappedType;
 		using value_type = StoredValue;
-		using storage_type = sized_array<value_type>;
-		using size_type = typename storage_type::size_type;
-		using difference_type = typename storage_type::difference_type;
-		using reference = typename storage_type::reference;
-		using const_reference = typename storage_type::const_reference;
-		using pointer = typename storage_type::pointer;
-		using const_pointer = typename storage_type::const_pointer;
-		using iterator = typename storage_type::iterator;
-		using const_iterator = typename storage_type::const_iterator;
-		using reverse_iterator = typename storage_type::reverse_iterator;
-		using const_reverse_iterator = typename storage_type::const_reverse_iterator;
+		using size_type = typename storage_array::size_type;
+		using difference_type = typename storage_array::difference_type;
+		using hasher = Hash;
+		using key_equal = KeyEquals;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using iterator = pointer;
+		using const_iterator = const_pointer;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		constexpr mph_base( const storage_type& data )
+		constexpr mph_base( const sized_array<value_type>& data )
 		{
 			// Every entry gets hashed into a bucket, the bucket maintains a linked list of everything
 			// hashed into it and we then spread them out later
@@ -139,7 +148,7 @@ namespace mclo
 				primary_bucket_entry& entry = bucket_entries[ data_index ];
 				entry.m_data_index = data_index;
 
-				const std::size_t bucket_index = hash( get_key( data[ data_index ] ), primary_seed ) % Size;
+				const std::size_t bucket_index = hash( get_key( data[ data_index ] ), primary_salt ) % Size;
 				primary_bucket& bucket = buckets[ bucket_index ];
 				++bucket.m_size;
 
@@ -185,7 +194,7 @@ namespace mclo
 					const std::size_t slot = hash( get_key( data[ data_index ] ), salt ) % Size;
 					if ( potential_slot_data_index[ slot ] != 0 )
 					{
-						// Start over increase the seed we use
+						// Start over increase the salt we use
 						next = bucket.m_head;
 						potential_slot_data_index = slot_data_index;
 						++salt;
@@ -228,14 +237,32 @@ namespace mclo
 				}
 			}
 
-			// All slots are used so we now finally construct the real values
-			for ( std::size_t slot = 0; slot < Size; ++slot )
+			std::size_t slot = 0;
+			try
 			{
-				assert( slot_data_index[ slot ] != 0 );
-				const std::size_t data_index = slot_data_index[ slot ] - 1;
-				reference value = m_storage[ slot ];
-				std::destroy_at( &value );
-				std::construct_at( &value, data[ data_index ] );
+				// All slots are used so we now finally construct the real values
+				for ( ; slot < Size; ++slot )
+				{
+					assert( slot_data_index[ slot ] != 0 );
+					const std::size_t data_index = slot_data_index[ slot ] - 1;
+					std::construct_at( m_storage[ slot ].get(), data[ data_index ] );
+				}
+			}
+			catch ( ... )
+			{
+				for ( std::size_t index = 0; index < slot; ++index )
+				{
+					std::destroy_at( m_storage[ slot ].get() );
+				}
+			}
+		}
+
+		constexpr ~mph_base() noexcept
+		{
+			// We uncondtionally destroy as we fill all slots so know we can
+			for ( internal_storage& storage : m_storage )
+			{
+				std::destroy_at( storage.get() );
 			}
 		}
 
@@ -249,72 +276,91 @@ namespace mclo
 		constexpr bool contains( const key_type& key ) const
 		{
 			const std::size_t data_index = find_data_index( key );
-			return equals( get_key( m_storage[ data_index ] ), key );
+			return equals( get_key( m_storage[ data_index ].m_value ), key );
+		}
+
+		static constexpr size_type size() noexcept
+		{
+			return Size;
+		}
+
+		static constexpr size_type max_size() noexcept
+		{
+			return Size;
+		}
+
+		constexpr pointer data() noexcept
+		{
+			return m_storage.front().get();
+		}
+		constexpr const_pointer data() const noexcept
+		{
+			return m_storage.front().get();
 		}
 
 		constexpr iterator begin() noexcept
 		{
-			return m_storage.begin();
+			return data();
 		}
 		constexpr const_iterator begin() const noexcept
 		{
-			return m_storage.begin();
+			return data();
 		}
 		constexpr const_iterator cbegin() const noexcept
 		{
-			return m_storage.cbegin();
+			return data();
 		}
 
 		constexpr iterator end() noexcept
 		{
-			return m_storage.end();
+			return m_storage.data()[ Size ].get();
 		}
 		constexpr const_iterator end() const noexcept
 		{
-			return m_storage.end();
+			return m_storage.data()[ Size ].get();
 		}
 		constexpr const_iterator cend() const noexcept
 		{
-			return m_storage.cend();
+			return m_storage.data()[ Size ].get();
 		}
 
 		constexpr reverse_iterator rbegin() noexcept
 		{
-			return m_storage.rbegin();
+			return std::make_reverse_iterator( end() );
 		}
 		constexpr const_reverse_iterator rbegin() const noexcept
 		{
-			return m_storage.rbegin();
+			return std::make_reverse_iterator( end() );
 		}
 		constexpr const_reverse_iterator crbegin() const noexcept
 		{
-			return m_storage.crbegin();
+			return std::make_reverse_iterator( cend() );
 		}
 
 		constexpr reverse_iterator rend() noexcept
 		{
-			return m_storage.rend();
+			return std::make_reverse_iterator( begin() );
 		}
 		constexpr const_reverse_iterator rend() const noexcept
 		{
-			return m_storage.rend();
+			return std::make_reverse_iterator( begin() );
 		}
 		constexpr const_reverse_iterator crend() const noexcept
 		{
-			return m_storage.crend();
+			return std::make_reverse_iterator( cbegin() );
 		}
 
 	protected:
 		constexpr size_type find_data_index( const key_type& key ) const
 		{
-			const std::size_t salt_index = hash( key, primary_seed ) % Size;
+			const std::size_t salt_index = hash( key, primary_salt ) % Size;
 			const std::int32_t salt_value = m_salts[ salt_index ];
 			return salt_value < 0 ? ( -salt_value - 1 ) : ( hash( key, salt_value ) % Size );
 		}
 
-		constexpr std::size_t hash( const Key& key, const std::size_t seed ) const noexcept
+		constexpr std::size_t hash( const Key& key, const std::size_t salt ) const noexcept
 		{
-			return static_cast<const Hash&>( *this )( key, seed );
+			return static_cast<const Hash&>( *this )( key, salt );
 		}
 		constexpr std::size_t equals( const Key& lhs, const Key& rhs ) const noexcept
 		{
@@ -326,7 +372,7 @@ namespace mclo
 		}
 
 	private:
-		storage_type m_storage{};
+		storage_array m_storage{};
 		sized_array<std::int32_t> m_salts{};
 	};
 
@@ -347,9 +393,9 @@ namespace mclo
 			  std::size_t Size,
 			  typename Hash = mph_hash<Value>,
 			  typename KeyEquals = std::equal_to<Value>>
-	class mph_set : public mph_base<Value, Value, Value, Hash, KeyEquals, std::identity, Size>
+	class mph_set : public mph_base<Value, Value, Hash, KeyEquals, std::identity, Size>
 	{
-		using base = mph_base<Value, Value, Value, Hash, KeyEquals, std::identity, Size>;
+		using base = mph_base<Value, Value, Hash, KeyEquals, std::identity, Size>;
 
 	public:
 		using base::base;
@@ -360,22 +406,22 @@ namespace mclo
 			  std::size_t Size,
 			  typename Hash = mph_hash<Key>,
 			  typename KeyEquals = std::equal_to<Key>>
-	class mph_map : public mph_base<Key, Value, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>
+	class mph_map : public mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>
 	{
-		using base = mph_base<Key, Value, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>;
+		using base = mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>;
 
 	public:
+		using mapped_type = Value;
+
 		using base::base;
 
 		using base::find;
 
 		constexpr typename base::iterator find( const typename base::key_type& key )
 		{
-			const std::size_t data_index = find_data_index( key );
+			const std::size_t data_index = base::find_data_index( key );
 			const auto it = base::begin() + data_index;
 			return base::equals( base::get_key( *it ), key ) ? it : base::end();
 		}
 	};
 }
-
-#endif
