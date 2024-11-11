@@ -52,7 +52,14 @@ namespace mclo
 			index = value & index_bits_mask;
 		}
 
-		[[nodiscard]] constexpr auto operator<=>( const slot_map_handle& other ) const noexcept = default;
+		[[nodiscard]] constexpr auto operator<=>( const slot_map_handle& other ) const noexcept
+		{
+			return get_combined() <=> other.get_combined();
+		}
+		[[nodiscard]] constexpr bool operator==( const slot_map_handle& other ) const noexcept
+		{
+			return get_combined() == other.get_combined();
+		}
 
 		/// @brief Index of the handle into its slot map
 		representation_type index : index_bits;
