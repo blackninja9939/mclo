@@ -3,6 +3,7 @@
 #include "mclo/platform.hpp"
 
 #include <cstddef>
+#include <concepts>
 #include <type_traits>
 
 namespace mclo

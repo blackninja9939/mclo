@@ -3,6 +3,7 @@
 #include <catch2/matchers/catch_matchers_all.hpp>
 
 #include "mclo/bitset.hpp"
+#include "mclo/dynamic_bitset.hpp"
 #include "mclo/meta/type_list.hpp"
 
 using namespace Catch::Matchers;

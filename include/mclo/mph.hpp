@@ -1,8 +1,8 @@
 #pragma once
 
-#include <mclo/detail/nontrivial_dummy_type.hpp>
-#include <mclo/fnva1.hpp>
-#include <mclo/platform.hpp>
+#include "mclo/detail/nontrivial_dummy_type.hpp"
+#include "mclo/fnva1.hpp"
+#include "mclo/platform.hpp"
 
 #include <algorithm>
 #include <array>

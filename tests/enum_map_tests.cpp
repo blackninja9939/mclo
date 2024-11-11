@@ -131,7 +131,7 @@ TEST_CASE( "enum_map index directly", "[enum_map]" )
 	CHECK( const_map[ test_enum::third ] == 42 );
 }
 
-#include <mclo/enum_string_bi_map.hpp>
+#include "mclo/enum_string_bi_map.hpp"
 TEST_CASE( "BiMap" )
 {
 	mclo::enum_string_bi_map<test_enum> map( {

@@ -4,7 +4,9 @@
 #include "mclo/enum_size.hpp"
 
 #include <concepts>
+#include <initializer_list>
 #include <iterator>
+#include <type_traits>
 
 namespace mclo
 {
@@ -13,8 +15,8 @@ namespace mclo
 	{
 		static_assert( static_cast<std::underlying_type_t<TEnum>>( SizeEnum ) > 0,
 					   "SizeEnum should be a positive value" );
-		static constexpr std::size_t enum_size = static_cast<std::size_t>( SizeEnum );
-		using container_type = mclo::bitset<enum_size>;
+		static constexpr std::size_t size_max = static_cast<std::size_t>( SizeEnum );
+		using container_type = mclo::bitset<size_max>;
 
 	public:
 		static_assert( std::is_enum_v<TEnum>, "TEnum must be an enumeration type" );
@@ -35,20 +37,21 @@ namespace mclo
 
 			using iterator_category = std::forward_iterator_tag;
 			using iterator_concept = std::forward_iterator_tag;
-			using difference_type = enum_set::difference_type;
-			using value_type = value_type;
-			using reference = value_type;
+			using difference_type = typename enum_set::difference_type;
+			using value_type = TEnum;
+			using reference = TEnum;
+			using pointer = void;
 
 			constexpr iterator() noexcept = default;
 
-			[[nodiscard]] constexpr reference operator*() const noexcept
+			constexpr reference operator*() const noexcept
 			{
 				return reference{ static_cast<key_type>( m_index ) };
 			}
 
 			constexpr iterator& operator++() noexcept
 			{
-				assert( m_set );
+				assert( m_set && "Underlying set is missing" );
 				m_index = m_set->m_container.find_first_set( m_index + 1 );
 				return *this;
 			}
@@ -78,14 +81,20 @@ namespace mclo
 
 		constexpr enum_set() noexcept = default;
 
-		template <std::input_iterator It>
-		constexpr enum_set( It first, It last )
+		template <typename InputIt>
+		constexpr enum_set( InputIt first, InputIt last )
 		{
-			insert( first, last );
+			insert( std::move( first ), std::move( last ) );
 		}
 
-		constexpr enum_set( std::initializer_list<value_type> init_list ) noexcept
-			: enum_set( init_list.begin(), init_list.end() )
+		template <typename Range>
+		constexpr enum_set( Range&& range ) noexcept
+			: enum_set( std::begin( range ), std::end( range ) )
+		{
+		}
+
+		constexpr enum_set( std::initializer_list<value_type> initList ) noexcept
+			: enum_set( std::begin( initList ), std::end( initList ) )
 		{
 		}
 
@@ -99,7 +108,7 @@ namespace mclo
 		}
 		[[nodiscard]] constexpr size_type max_size() const noexcept
 		{
-			return max_size;
+			return size_max;
 		}
 
 		constexpr void clear() noexcept
@@ -110,15 +119,15 @@ namespace mclo
 		constexpr std::pair<iterator, bool> insert( const value_type value ) noexcept
 		{
 			const size_type index = static_cast<size_type>( value );
-			const bool already_set = m_container.test_set( index );
+			const bool alreadySet = m_container.test_set( index );
 			return {
 				iterator{*this, index},
-                already_set
+                !alreadySet
             };
 		}
 
-		template <std::input_iterator It>
-		constexpr void insert( It first, It last )
+		template <typename InputIt>
+		constexpr void insert( InputIt first, InputIt last )
 		{
 			for ( ; first != last; ++first )
 			{
@@ -126,9 +135,16 @@ namespace mclo
 			}
 		}
 
-		constexpr void insert( std::initializer_list<value_type> init_list ) noexcept
+		template <typename Range>
+			requires( !std::convertible_to<Range, value_type> )
+		constexpr void insert( Range&& range ) noexcept
 		{
-			insert( init_list.begin(), init_list.end() );
+			insert( std::begin( range ), std::end( range ) );
+		}
+
+		constexpr void insert( std::initializer_list<value_type> initList ) noexcept
+		{
+			insert( std::begin( initList ), std::end( initList ) );
 		}
 
 		constexpr bool erase( const value_type key ) noexcept
@@ -136,28 +152,19 @@ namespace mclo
 			return m_container.test_set( static_cast<size_type>( key ), false );
 		}
 
-		constexpr iterator erase( const const_iterator pos ) noexcept
+		void merge( const enum_set& other ) noexcept
 		{
-			const size_type next_set = m_container.reset( pos.m_index ).find_first_set( pos.m_index + 1 );
-			return iterator{ *this, next_set };
+			m_container |= other.m_container;
 		}
 
-		constexpr iterator erase( const_iterator first, const const_iterator last ) noexcept
+		constexpr iterator erase( const const_iterator pos ) noexcept
 		{
-			if ( first == last )
+			if ( pos.m_index == container_type::npos )
 			{
-				return last;
+				return pos;
 			}
-
-			size_type last_index = 0;
-			for ( ; first != last; ++first )
-			{
-				last_index = first.m_index;
-				m_container.reset( last_index );
-			}
-
-			const size_type next_set = m_container.find_first_set( last_index + 1 );
-			return iterator{ *this, next_set };
+			const size_type nextSet = m_container.reset( pos.m_index ).find_first_set( pos.m_index + 1 );
+			return iterator{ *this, nextSet };
 		}
 
 		[[nodiscard]] constexpr const_iterator find( const value_type key ) const noexcept
@@ -172,7 +179,7 @@ namespace mclo
 			return m_container.test( static_cast<size_type>( key ) );
 		}
 
-		constexpr void for_each_set( std::invocable<value_type> auto func ) const noexcept
+		constexpr void forEachSet( std::invocable<value_type> auto func ) const noexcept
 		{
 			m_container.for_each_set(
 				[ func = std::move( func ) ]( const size_type index ) { func( static_cast<value_type>( index ) ); } );
@@ -214,7 +221,7 @@ namespace mclo
 		{
 			lhs.swap( rhs );
 		}
-		
+
 		[[nodiscard]] constexpr bool operator==( const enum_set& other ) const noexcept = default;
 
 	private:
