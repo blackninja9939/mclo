@@ -103,22 +103,7 @@ namespace mclo
 			primary_bucket_entry* m_head = nullptr;
 		};
 
-		union internal_storage
-		{
-			detail::nontrivial_dummy_type m_dummy{};
-			StoredValue m_value;
-
-			[[nodiscard]] constexpr StoredValue* get() noexcept
-			{
-				return std::addressof( m_value );
-			}
-			[[nodiscard]] constexpr const StoredValue* get() const noexcept
-			{
-				return std::addressof( m_value );
-			}
-		};
-
-		using storage_array = sized_array<internal_storage>;
+		using storage_array = sized_array<StoredValue>;
 
 	public:
 		using key_type = Key;
@@ -127,14 +112,14 @@ namespace mclo
 		using difference_type = typename storage_array::difference_type;
 		using hasher = Hash;
 		using key_equal = KeyEquals;
-		using reference = value_type&;
-		using const_reference = const value_type&;
-		using pointer = value_type*;
-		using const_pointer = const value_type*;
-		using iterator = pointer;
-		using const_iterator = const_pointer;
-		using reverse_iterator = std::reverse_iterator<iterator>;
-		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+		using reference = typename storage_array::reference;
+		using const_reference = typename storage_array::const_reference;
+		using pointer = typename storage_array::pointer;
+		using const_pointer = typename storage_array::const_pointer;
+		using iterator = typename storage_array::iterator;
+		using const_iterator = typename storage_array::const_iterator;
+		using reverse_iterator = typename storage_array::reverse_iterator;
+		using const_reverse_iterator = typename storage_array::const_reverse_iterator;
 
 		constexpr mph_base( const sized_array<value_type>& data )
 		{
@@ -237,32 +222,14 @@ namespace mclo
 				}
 			}
 
-			std::size_t slot = 0;
-			try
-			{
 				// All slots are used so we now finally construct the real values
-				for ( ; slot < Size; ++slot )
-				{
-					assert( slot_data_index[ slot ] != 0 );
-					const std::size_t data_index = slot_data_index[ slot ] - 1;
-					std::construct_at( m_storage[ slot ].get(), data[ data_index ] );
-				}
-			}
-			catch ( ... )
+			for ( std::size_t slot = 0; slot < Size; ++slot )
 			{
-				for ( std::size_t index = 0; index < slot; ++index )
-				{
-					std::destroy_at( m_storage[ slot ].get() );
-				}
-			}
-		}
-
-		constexpr ~mph_base() noexcept
-		{
-			// We uncondtionally destroy as we fill all slots so know we can
-			for ( internal_storage& storage : m_storage )
-			{
-				std::destroy_at( storage.get() );
+				assert( slot_data_index[ slot ] != 0 );
+				const std::size_t data_index = slot_data_index[ slot ] - 1;
+				const pointer storage = std::addressof( m_storage[ slot ] );
+				std::destroy_at( storage );
+				std::construct_at( storage, data[ data_index ] );
 			}
 		}
 
@@ -276,7 +243,7 @@ namespace mclo
 		[[nodiscard]] constexpr bool contains( const key_type& key ) const
 		{
 			const std::size_t data_index = find_data_index( key );
-			return equals( get_key( m_storage[ data_index ].m_value ), key );
+			return equals( get_key( m_storage[ data_index ] ), key );
 		}
 
 		[[nodiscard]] static constexpr size_type size() noexcept
@@ -291,63 +258,63 @@ namespace mclo
 
 		[[nodiscard]] constexpr pointer data() noexcept
 		{
-			return m_storage.front().get();
+			return m_storage.data();
 		}
 		[[nodiscard]] constexpr const_pointer data() const noexcept
 		{
-			return m_storage.front().get();
+			return m_storage.data();
 		}
 
 		[[nodiscard]] constexpr iterator begin() noexcept
 		{
-			return data();
+			return m_storage.begin();
 		}
 		[[nodiscard]] constexpr const_iterator begin() const noexcept
 		{
-			return data();
+			return m_storage.begin();
 		}
 		[[nodiscard]] constexpr const_iterator cbegin() const noexcept
 		{
-			return data();
+			return m_storage.cbegin();
 		}
 
 		[[nodiscard]] constexpr iterator end() noexcept
 		{
-			return m_storage.data()[ Size ].get();
+			return m_storage.end();
 		}
 		[[nodiscard]] constexpr const_iterator end() const noexcept
 		{
-			return m_storage.data()[ Size ].get();
+			return m_storage.end();
 		}
 		[[nodiscard]] constexpr const_iterator cend() const noexcept
 		{
-			return m_storage.data()[ Size ].get();
+			return m_storage.cend();
 		}
 
 		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept
 		{
-			return std::make_reverse_iterator( end() );
+			return m_storage.rbegin();
 		}
 		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept
 		{
-			return std::make_reverse_iterator( end() );
+			return m_storage.rbegin();
 		}
 		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept
 		{
-			return std::make_reverse_iterator( cend() );
+			return m_storage.crbegin();
 		}
 
 		[[nodiscard]] constexpr reverse_iterator rend() noexcept
 		{
-			return std::make_reverse_iterator( begin() );
+			return m_storage.rend();
 		}
 		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept
 		{
-			return std::make_reverse_iterator( begin() );
+			return m_storage.rend();
 		}
 		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept
 		{
-			return std::make_reverse_iterator( cbegin() );
+			return m_storage.crend();
 		}
 
 	protected:
