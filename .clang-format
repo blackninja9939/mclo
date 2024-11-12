@@ -29,7 +29,7 @@ FixNamespaceComments: false
 IndentCaseLabels: true
 InsertBraces: true
 InsertNewlineAtEOF: true
-KeepEmptyLinesAtEOF: true
+# KeepEmptyLinesAtEOF: true
 NamespaceIndentation: All
 PackConstructorInitializers: Never
 PointerAlignment: Left
