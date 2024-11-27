@@ -153,3 +153,43 @@ TEMPLATE_LIST_TEST_CASE( "small_optional hash", "[small_optional]", mclo::meta::
 	using hash = std::hash<mclo::small_optional<TestType>>;
 	CHECK( hash{}( empty ) != hash{}( opt ) );
 }
+
+TEST_CASE( "small_optional bool", "[small_optional]" )
+{
+	const mclo::small_optional<bool> empty;
+	const mclo::small_optional<bool> set_true{ true };
+	const mclo::small_optional<bool> set_false{ false };
+	CHECK_FALSE( empty );
+}
+
+TEST_CASE( "small_optional pointer", "[small_optional]" )
+{
+	int i = 2;
+	const mclo::small_optional<int*> empty;
+	const mclo::small_optional<int*> set{ &i };
+	CHECK_FALSE( empty );
+}
+
+enum class checker
+{
+	a,
+	b,
+	c,
+	d,
+	e,
+	f
+};
+
+TEST_CASE( "small_optional enum", "[small_optional]" )
+{
+	const mclo::small_optional<checker> empty;
+	const mclo::small_optional<checker> set{ checker::e };
+	CHECK_FALSE( empty );
+}
+
+TEMPLATE_LIST_TEST_CASE( "small_optional float", "[small_optional]", mclo::meta::floating_points )
+{
+	const mclo::small_optional<TestType> empty;
+	const mclo::small_optional<TestType> set{ 2.42f };
+	CHECK_FALSE( empty );
+}

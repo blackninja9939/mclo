@@ -52,7 +52,6 @@ namespace mclo
 
 	private:
 		using base::base;
-		using base::max_value;
 		using base::value;
 	};
 
@@ -112,7 +111,6 @@ namespace mclo
 			if ( inserted )
 			{
 				const std::size_t next_index = m_handle_to_string.size();
-				assert( next_index <= handle::max_value );
 				it->second = handle{ static_cast<IndexType>( next_index ) };
 				m_handle_to_string.push_back( std::move( owned ) );
 			}

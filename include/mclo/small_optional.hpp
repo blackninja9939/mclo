@@ -21,6 +21,11 @@ namespace mclo
 		{
 			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
 
+			[[nodiscard]] constexpr bool has_value() const noexcept
+			{
+				return m_value != 0;
+			}
+
 			[[nodiscard]] constexpr T get() const noexcept
 			{
 				return m_value - 1;
@@ -39,6 +44,11 @@ namespace mclo
 		{
 			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
 
+			[[nodiscard]] constexpr bool has_value() const noexcept
+			{
+				return m_value != 0;
+			}
+
 			[[nodiscard]] constexpr T get() const noexcept
 			{
 				return m_value - static_cast<int>( m_value >= 0 );
@@ -51,6 +61,116 @@ namespace mclo
 
 			T m_value = 0;
 		};
+
+		template <>
+		struct small_optional_storage<bool>
+		{
+			static constexpr bool max_value = std::numeric_limits<bool>::max();
+
+			[[nodiscard]] constexpr bool has_value() const noexcept
+			{
+				return m_value != 0;
+			}
+
+			[[nodiscard]] constexpr bool get() const noexcept
+			{
+				return m_value - 1;
+			}
+			constexpr void set( const bool value ) noexcept
+			{
+				assert( value <= max_value );
+				m_value = value + 1;
+			}
+
+			std::uint8_t m_value = 0;
+		};
+
+		template <std::floating_point Float, std::integral IntRep, IntRep QuietNaN>
+		struct small_optional_float_storage
+		{
+			static_assert( sizeof( Float ) == sizeof( IntRep ) );
+			static_assert( std::numeric_limits<Float>::is_iec559 );
+
+			static constexpr IntRep invalid = QuietNaN;
+
+			[[nodiscard]] constexpr bool has_value() const noexcept
+			{
+				return m_value != invalid;
+			}
+
+			[[nodiscard]] constexpr Float get() const noexcept
+			{
+				return std::bit_cast<Float>( m_value );
+			}
+			constexpr void set( const Float value ) noexcept
+			{
+				m_value = std::bit_cast<IntRep>( value );
+				assert( m_value != invalid );
+			}
+
+			union
+			{
+				IntRep m_value = invalid;
+				Float m_debugger_value;
+			};
+		};
+
+		template <>
+		struct small_optional_storage<float> : small_optional_float_storage<float, std::int32_t, 0x7fedcba9>
+		{
+		};
+
+		template <>
+		struct small_optional_storage<double> : small_optional_float_storage<double, std::int64_t, 0x7ff8fedcba987654>
+		{
+		};
+
+		template <>
+		struct small_optional_storage<long double>
+			: small_optional_float_storage<long double, std::int64_t, 0x7ff8fedcba987654>
+		{
+		};
+
+		template <typename T>
+			requires( std::is_pointer_v<T> )
+		struct small_optional_storage<T>
+		{
+			static constexpr bool is_pointer_type = true; // For natvis
+			static constexpr std::uintptr_t invalid = std::numeric_limits<std::uintptr_t>::max();
+
+			[[nodiscard]] constexpr bool has_value() const noexcept
+			{
+				return m_value != invalid;
+			}
+
+			[[nodiscard]] T get() const noexcept
+			{
+				return reinterpret_cast<T>( m_value );
+			}
+			void set( const T value ) noexcept
+			{
+				m_value = reinterpret_cast<std::uintptr_t>( value );
+			}
+
+			std::uintptr_t m_value = invalid;
+		};
+
+		template <typename T>
+			requires( std::is_enum_v<T> )
+		struct small_optional_storage<T> : small_optional_storage<std::underlying_type_t<T>>
+		{
+			using underlying = std::underlying_type_t<T>;
+			using base = small_optional_storage<underlying>;
+
+			[[nodiscard]] T get() const noexcept
+			{
+				return static_cast<T>( base::get() );
+			}
+			void set( const T value ) noexcept
+			{
+				base::set( static_cast<underlying>( value ) );
+			}
+		};
 	}
 
 	template <typename T>
@@ -59,8 +179,6 @@ namespace mclo
 		using base = detail::small_optional_storage<T>;
 
 	public:
-		static constexpr T max_value = base::max_value;
-
 		constexpr small_optional() noexcept = default;
 
 		constexpr small_optional( const small_optional& other ) noexcept = default;
@@ -95,10 +213,7 @@ namespace mclo
 			return *this;
 		}
 
-		[[nodiscard]] bool has_value() const noexcept
-		{
-			return base::m_value != 0;
-		}
+		using base::has_value;
 		[[nodiscard]] explicit operator bool() const noexcept
 		{
 			return has_value();
