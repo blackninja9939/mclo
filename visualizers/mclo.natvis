@@ -58,9 +58,22 @@
     </Expand>
   </Type>
 
-  <Type Name="mclo::small_optional_integer&lt;*&gt;">
+  <Type Name="mclo::small_optional&lt;unsigned char&gt;">
+    <AlternativeType Name="mclo::small_optional&lt;unsigned short&gt;"/>
+    <AlternativeType Name="mclo::small_optional&lt;unsigned int&gt;"/>
+    <AlternativeType Name="mclo::small_optional&lt;unsigned long&gt;"/>
+    <AlternativeType Name="mclo::small_optional&lt;unsigned __int64&gt;"/>
     <DisplayString Condition="m_value == 0">nullopt</DisplayString>
-    <DisplayString Condition="m_value &gt; 0">{m_value - 1}</DisplayString>
+    <DisplayString Condition="m_value != 0">{m_value - 1}</DisplayString>
+  </Type>
+
+  <Type Name="mclo::small_optional&lt;signed char&gt;">
+    <AlternativeType Name="mclo::small_optional&lt;short&gt;"/>
+    <AlternativeType Name="mclo::small_optional&lt;int&gt;"/>
+    <AlternativeType Name="mclo::small_optional&lt;long&gt;"/>
+    <AlternativeType Name="mclo::small_optional&lt;__int64&gt;"/>
+    <DisplayString Condition="m_value == 0">nullopt</DisplayString>
+    <DisplayString Condition="m_value &gt;= 0">{m_value - 1}</DisplayString>
     <DisplayString Condition="m_value &lt; 0">{m_value}</DisplayString>
   </Type>
 

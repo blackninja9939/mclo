@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/small_optional_integer.hpp"
+#include "mclo/small_optional.hpp"
 
 #include <cinttypes>
 #include <memory>
@@ -35,9 +35,9 @@ namespace mclo
 	class string_table;
 
 	template <typename Domain, typename IndexType>
-	class string_handle : private mclo::small_optional_integer<IndexType>
+	class string_handle : private mclo::small_optional<IndexType>
 	{
-		using base = mclo::small_optional_integer<IndexType>;
+		using base = mclo::small_optional<IndexType>;
 
 	public:
 		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );

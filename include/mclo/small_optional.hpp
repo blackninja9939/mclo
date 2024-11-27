@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <compare>
+#include <concepts>
 #include <functional>
 #include <limits>
 #include <optional>
@@ -13,7 +14,10 @@ namespace mclo
 	namespace detail
 	{
 		template <typename T>
-		struct small_optional_unsigned_storage
+		struct small_optional_storage;
+
+		template <std::unsigned_integral T>
+		struct small_optional_storage<T>
 		{
 			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
 
@@ -30,8 +34,8 @@ namespace mclo
 			T m_value = 0;
 		};
 
-		template <typename T>
-		struct small_optional_signed_storage
+		template <std::signed_integral T>
+		struct small_optional_storage<T>
 		{
 			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
 
@@ -47,49 +51,45 @@ namespace mclo
 
 			T m_value = 0;
 		};
-
-		template <typename T>
-		using small_optional_storage = std::
-			conditional_t<std::is_signed_v<T>, small_optional_signed_storage<T>, small_optional_unsigned_storage<T>>;
 	}
 
 	template <typename T>
-	class small_optional_integer : private detail::small_optional_storage<T>
+	class small_optional : private detail::small_optional_storage<T>
 	{
 		using base = detail::small_optional_storage<T>;
 
 	public:
 		static constexpr T max_value = base::max_value;
 
-		constexpr small_optional_integer() noexcept = default;
+		constexpr small_optional() noexcept = default;
 
-		constexpr small_optional_integer( const small_optional_integer& other ) noexcept = default;
-		constexpr small_optional_integer& operator=( const small_optional_integer& other ) noexcept = default;
+		constexpr small_optional( const small_optional& other ) noexcept = default;
+		constexpr small_optional& operator=( const small_optional& other ) noexcept = default;
 
-		constexpr small_optional_integer( small_optional_integer&& other ) noexcept
+		constexpr small_optional( small_optional&& other ) noexcept
 			: base{ std::exchange( other.m_value, 0 ) }
 		{
 		}
-		constexpr small_optional_integer& operator=( small_optional_integer&& other ) noexcept
+		constexpr small_optional& operator=( small_optional&& other ) noexcept
 		{
 			base::m_value = std::exchange( other.m_value, 0 );
 			return *this;
 		}
 
-		constexpr small_optional_integer( const T value ) noexcept
+		constexpr small_optional( const T value ) noexcept
 		{
 			set( value );
 		}
-		constexpr small_optional_integer& operator=( const T value ) noexcept
+		constexpr small_optional& operator=( const T value ) noexcept
 		{
 			set( value );
 			return *this;
 		}
 
-		constexpr small_optional_integer( const std::nullopt_t ) noexcept
+		constexpr small_optional( const std::nullopt_t ) noexcept
 		{
 		}
-		constexpr small_optional_integer& operator=( const std::nullopt_t ) noexcept
+		constexpr small_optional& operator=( const std::nullopt_t ) noexcept
 		{
 			reset();
 			return *this;
@@ -129,12 +129,12 @@ namespace mclo
 		}
 		using base::set;
 
-		void swap( small_optional_integer& other ) noexcept
+		void swap( small_optional& other ) noexcept
 		{
 			std::swap( base::m_value, other.m_value );
 		}
 
-		friend void swap( small_optional_integer& lhs, small_optional_integer& rhs ) noexcept
+		friend void swap( small_optional& lhs, small_optional& rhs ) noexcept
 		{
 			lhs.swap( rhs );
 		}
@@ -146,15 +146,15 @@ namespace mclo
 	};
 
 	template <typename T, typename U>
-	[[nodiscard]] constexpr bool operator==( const mclo::small_optional_integer<T> lhs,
-											 const mclo::small_optional_integer<U> rhs ) noexcept
+	[[nodiscard]] constexpr bool operator==( const mclo::small_optional<T> lhs,
+											 const mclo::small_optional<U> rhs ) noexcept
 	{
 		return lhs.raw_value() == rhs.raw_value();
 	}
 
 	template <typename T, typename U>
-	[[nodiscard]] constexpr std::strong_ordering operator<=>( const mclo::small_optional_integer<T> lhs,
-															  const mclo::small_optional_integer<U> rhs ) noexcept
+	[[nodiscard]] constexpr std::strong_ordering operator<=>( const mclo::small_optional<T> lhs,
+															  const mclo::small_optional<U> rhs ) noexcept
 	{
 		const bool lhs_has_value = lhs.has_value();
 		const bool rhs_has_value = rhs.has_value();
@@ -168,8 +168,8 @@ namespace mclo
 }
 
 template <typename T>
-struct std::hash<mclo::small_optional_integer<T>>
+struct std::hash<mclo::small_optional<T>>
 {
-	[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()( const mclo::small_optional_integer<T> value )
+	[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()( const mclo::small_optional<T> value )
 		MCLO_CONST_CALL_OPERATOR MCLO_NOEXCEPT_AND_BODY( std::hash<T>()( value.raw_value() ) )
 };
