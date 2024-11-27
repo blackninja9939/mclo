@@ -18,7 +18,6 @@ TEMPLATE_LIST_TEST_CASE( "small_optional default", "[small_optional]", mclo::met
 	const mclo::small_optional<TestType> value;
 	CHECK_FALSE( value.has_value() );
 	CHECK_FALSE( value );
-	CHECK( value.raw_value() == 0 );
 	CHECK( value.value_or( 42 ) == 42 );
 
 	CHECK_THROWS_AS( value.value(), std::bad_optional_access );
@@ -31,7 +30,6 @@ TEMPLATE_LIST_TEST_CASE( "small_optional construct value", "[small_optional]", m
 	CHECK( value );
 	CHECK( value.value() == 16 );
 	CHECK( *value == 16 );
-	CHECK( value.raw_value() == 17 );
 	CHECK( value.value_or( 42 ) == 16 );
 }
 
@@ -42,7 +40,6 @@ TEMPLATE_LIST_TEST_CASE( "small_optional reset", "[small_optional]", mclo::meta:
 
 	CHECK_FALSE( value.has_value() );
 	CHECK_FALSE( value );
-	CHECK( value.raw_value() == 0 );
 	CHECK( value.value_or( 42 ) == 42 );
 }
 
@@ -55,7 +52,6 @@ TEMPLATE_LIST_TEST_CASE( "small_optional set", "[small_optional]", mclo::meta::i
 	CHECK( value );
 	CHECK( value.value() == 8 );
 	CHECK( *value == 8 );
-	CHECK( value.raw_value() == 9 );
 	CHECK( value.value_or( 42 ) == 8 );
 }
 
@@ -66,7 +62,6 @@ TEMPLATE_LIST_TEST_CASE( "small_optional signed", "[small_optional]", mclo::meta
 	CHECK( value );
 	CHECK( value.value() == -16 );
 	CHECK( *value == -16 );
-	CHECK( value.raw_value() == -16 );
 	CHECK( value.value_or( 42 ) == -16 );
 
 	value.set( 16 );
@@ -74,7 +69,6 @@ TEMPLATE_LIST_TEST_CASE( "small_optional signed", "[small_optional]", mclo::meta
 	CHECK( value );
 	CHECK( value.value() == 16 );
 	CHECK( *value == 16 );
-	CHECK( value.raw_value() == 17 );
 	CHECK( value.value_or( 42 ) == 16 );
 }
 

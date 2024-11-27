@@ -16,73 +16,50 @@ namespace mclo
 		template <typename T>
 		struct small_optional_storage;
 
-		template <std::unsigned_integral T>
-		struct small_optional_storage<T>
+		enum class small_optional_natvis_type : std::uint8_t
 		{
-			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
-
-			[[nodiscard]] constexpr bool has_value() const noexcept
-			{
-				return m_value != 0;
-			}
-
-			[[nodiscard]] constexpr T get() const noexcept
-			{
-				return m_value - 1;
-			}
-			constexpr void set( const T value ) noexcept
-			{
-				assert( value <= max_value );
-				m_value = value + 1;
-			}
-
-			T m_value = 0;
+			integer,
+			floating_point,
+			unknown
 		};
 
-		template <std::signed_integral T>
+		template <std::integral T>
 		struct small_optional_storage<T>
 		{
-			static constexpr T max_value = std::numeric_limits<T>::max() - 1;
+			static constexpr small_optional_natvis_type natvis_type = small_optional_natvis_type::integer;
+
+			// If signed just narrow the negative range because two's compliment gives negatives one extra value and the
+			// uniformity makes me happy
+			static constexpr T invalid =
+				std::is_signed_v<T> ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
 
 			[[nodiscard]] constexpr bool has_value() const noexcept
 			{
-				return m_value != 0;
+				return m_value != invalid;
+			}
+			constexpr void reset() noexcept
+			{
+				m_value = invalid;
 			}
 
 			[[nodiscard]] constexpr T get() const noexcept
 			{
-				return m_value - static_cast<int>( m_value >= 0 );
+				return m_value;
 			}
 			constexpr void set( const T value ) noexcept
 			{
-				assert( value <= max_value );
-				m_value = value + static_cast<int>( value >= 0 );
+				assert( value != invalid );
+				m_value = value;
 			}
 
-			T m_value = 0;
+			T m_value = invalid;
 		};
 
 		template <>
-		struct small_optional_storage<bool>
+		struct small_optional_storage<bool> : small_optional_storage<std::uint8_t>
 		{
-			static constexpr bool max_value = std::numeric_limits<bool>::max();
-
-			[[nodiscard]] constexpr bool has_value() const noexcept
-			{
-				return m_value != 0;
-			}
-
-			[[nodiscard]] constexpr bool get() const noexcept
-			{
-				return m_value - 1;
-			}
-			constexpr void set( const bool value ) noexcept
-			{
-				assert( value <= max_value );
-				m_value = value + 1;
-			}
-
-			std::uint8_t m_value = 0;
+			using base = small_optional_storage<std::uint8_t>;
+			using base::natvis_type;
 		};
 
 		template <std::floating_point Float, std::integral IntRep, IntRep QuietNaN>
@@ -91,11 +68,16 @@ namespace mclo
 			static_assert( sizeof( Float ) == sizeof( IntRep ) );
 			static_assert( std::numeric_limits<Float>::is_iec559 );
 
+			static constexpr small_optional_natvis_type natvis_type = small_optional_natvis_type::floating_point;
 			static constexpr IntRep invalid = QuietNaN;
 
 			[[nodiscard]] constexpr bool has_value() const noexcept
 			{
 				return m_value != invalid;
+			}
+			constexpr void reset() noexcept
+			{
+				m_value = invalid;
 			}
 
 			[[nodiscard]] constexpr Float get() const noexcept
@@ -108,13 +90,15 @@ namespace mclo
 				assert( m_value != invalid );
 			}
 
+			// We store as an integer so that we can compare against invalid without the NaNs are never equal kicking in
 			union
 			{
 				IntRep m_value = invalid;
-				Float m_debugger_value;
+				Float m_debugger_value; // Debugger cannot bit_cast so we store but never use this member for it to read
 			};
 		};
 
+		// These are unused NaN bit patterns
 		template <>
 		struct small_optional_storage<float> : small_optional_float_storage<float, std::int32_t, 0x7fedcba9>
 		{
@@ -133,26 +117,19 @@ namespace mclo
 
 		template <typename T>
 			requires( std::is_pointer_v<T> )
-		struct small_optional_storage<T>
+		struct small_optional_storage<T> : small_optional_storage<std::uintptr_t>
 		{
-			static constexpr bool is_pointer_type = true; // For natvis
-			static constexpr std::uintptr_t invalid = std::numeric_limits<std::uintptr_t>::max();
-
-			[[nodiscard]] constexpr bool has_value() const noexcept
-			{
-				return m_value != invalid;
-			}
+			// std::uintptr_t max is not a valid pointer value on any meaningful platform
+			using base = small_optional_storage<std::uintptr_t>;
 
 			[[nodiscard]] T get() const noexcept
 			{
-				return reinterpret_cast<T>( m_value );
+				return reinterpret_cast<T>( base::get() );
 			}
 			void set( const T value ) noexcept
 			{
-				m_value = reinterpret_cast<std::uintptr_t>( value );
+				base::set( reinterpret_cast<std::uintptr_t>( value ) );
 			}
-
-			std::uintptr_t m_value = invalid;
 		};
 
 		template <typename T>
@@ -162,11 +139,11 @@ namespace mclo
 			using underlying = std::underlying_type_t<T>;
 			using base = small_optional_storage<underlying>;
 
-			[[nodiscard]] T get() const noexcept
+			[[nodiscard]] constexpr T get() const noexcept
 			{
 				return static_cast<T>( base::get() );
 			}
-			void set( const T value ) noexcept
+			constexpr void set( const T value ) noexcept
 			{
 				base::set( static_cast<underlying>( value ) );
 			}
@@ -185,12 +162,15 @@ namespace mclo
 		constexpr small_optional& operator=( const small_optional& other ) noexcept = default;
 
 		constexpr small_optional( small_optional&& other ) noexcept
-			: base{ std::exchange( other.m_value, 0 ) }
+			: base{ other.m_value }
 		{
+			other.reset();
 		}
+
 		constexpr small_optional& operator=( small_optional&& other ) noexcept
 		{
-			base::m_value = std::exchange( other.m_value, 0 );
+			base::m_value = other.m_value;
+			other.reset();
 			return *this;
 		}
 
@@ -214,6 +194,7 @@ namespace mclo
 		}
 
 		using base::has_value;
+
 		[[nodiscard]] explicit operator bool() const noexcept
 		{
 			return has_value();
@@ -238,10 +219,7 @@ namespace mclo
 			return has_value() ? value() : default_value;
 		}
 
-		void reset() noexcept
-		{
-			base::m_value = 0;
-		}
+		using base::reset;
 		using base::set;
 
 		void swap( small_optional& other ) noexcept
@@ -264,7 +242,14 @@ namespace mclo
 	[[nodiscard]] constexpr bool operator==( const mclo::small_optional<T> lhs,
 											 const mclo::small_optional<U> rhs ) noexcept
 	{
-		return lhs.raw_value() == rhs.raw_value();
+		const bool lhs_has_value = lhs.has_value();
+		const bool rhs_has_value = rhs.has_value();
+		if ( lhs_has_value && rhs_has_value )
+		{
+			return *lhs == *rhs;
+		}
+
+		return lhs_has_value == rhs_has_value;
 	}
 
 	template <typename T, typename U>

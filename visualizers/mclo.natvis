@@ -58,49 +58,11 @@
     </Expand>
   </Type>
 
-  <Type Name="mclo::small_optional&lt;unsigned char&gt;">
-    <AlternativeType Name="mclo::small_optional&lt;unsigned short&gt;"/>
-    <AlternativeType Name="mclo::small_optional&lt;unsigned int&gt;"/>
-    <AlternativeType Name="mclo::small_optional&lt;unsigned long&gt;"/>
-    <AlternativeType Name="mclo::small_optional&lt;unsigned __int64&gt;"/>
-    <DisplayString Condition="m_value == 0">nullopt</DisplayString>
-    <DisplayString Condition="m_value != 0">{m_value - 1}</DisplayString>
-  </Type>
-
-  <Type Name="mclo::small_optional&lt;signed char&gt;">
-    <AlternativeType Name="mclo::small_optional&lt;short&gt;"/>
-    <AlternativeType Name="mclo::small_optional&lt;int&gt;"/>
-    <AlternativeType Name="mclo::small_optional&lt;long&gt;"/>
-    <AlternativeType Name="mclo::small_optional&lt;__int64&gt;"/>
-    <DisplayString Condition="m_value == 0">nullopt</DisplayString>
-    <DisplayString Condition="m_value &gt;= 0">{m_value - 1}</DisplayString>
-    <DisplayString Condition="m_value &lt; 0">{m_value}</DisplayString>
-  </Type>
-
-  <Type Name="mclo::small_optional&lt;bool&gt;">
-    <DisplayString Condition="m_value == 0">nullopt</DisplayString>
-    <DisplayString Condition="m_value != 0">{(bool)(m_value - 1)}</DisplayString>
-  </Type>
-
-  <Type Name="mclo::small_optional&lt;float&gt;">
-    <DisplayString Condition="m_value == 0x7fedcba9">nullopt</DisplayString>
-    <DisplayString Condition="m_value != 0x7fedcba9">{m_debugger_value}</DisplayString>
-  </Type>
-
-  <Type Name="mclo::small_optional&lt;double&gt;">
-    <AlternativeType Name="mclo::small_optional&lt;long double&gt;"/>
-    <DisplayString Condition="m_value == 0x7ff8fedcba987654">nullopt</DisplayString>
-    <DisplayString Condition="m_value != 0x7ff8fedcba987654">{m_debugger_value}</DisplayString>
-  </Type>
-
   <Type Name="mclo::small_optional&lt;*&gt;">
-    <DisplayString Optional="true" Condition="base::is_pointer_type &amp;&amp; m_value == 18446744073709551615">nullopt</DisplayString>
-    <DisplayString Optional="true" Condition="base::is_pointer_type &amp;&amp; m_value != 18446744073709551615">{($T1)m_value}</DisplayString>
+    <DisplayString Condition="m_value == invalid">nullopt</DisplayString>
+    <DisplayString Condition="base::natvis_type == mclo::detail::small_optional_natvis_type::integer">{($T1)m_value}</DisplayString>
+    <DisplayString Optional="true" Condition="base::natvis_type == mclo::detail::small_optional_natvis_type::floating_point">{m_debugger_value}</DisplayString>
     <DisplayString>{{ raw value={m_value} }}</DisplayString>
-  </Type>
-
-  <Type Name="mclo::small_optional&lt;*&gt;" Priority="Low">
-    <DisplayString>{m_value}</DisplayString>
   </Type>
 
   <Type Name="mclo::bitset&lt;*,*&gt;">
