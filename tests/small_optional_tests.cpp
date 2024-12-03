@@ -187,3 +187,10 @@ TEMPLATE_LIST_TEST_CASE( "small_optional float", "[small_optional]", mclo::meta:
 	const mclo::small_optional<TestType> set{ 2.42f };
 	CHECK_FALSE( empty );
 }
+
+TEST_CASE( "small_optional string_view", "[small_optional]" )
+{
+	const mclo::small_optional<std::string_view> empty;
+	const mclo::small_optional<std::string_view> set{ "hello" };
+	CHECK_FALSE( empty );
+}
