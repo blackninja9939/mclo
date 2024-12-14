@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cinttypes>
 #include <compare>
 #include <concepts>
 #include <cstddef>
@@ -22,21 +23,22 @@ namespace mclo
 		/// @brief Type independent code for the vector
 		class small_vector_header
 		{
-		private:
-			static constexpr std::size_t max_size_v = std::numeric_limits<std::size_t>::max();
-
 		public:
-			small_vector_header( std::byte* const data, std::size_t capacity ) noexcept
+			// Limits max_size but allows for extra default inline capacity, no sane vector would need size_t size
+			// anyway really
+			using size_type = std::uint32_t;
+
+			small_vector_header( std::byte* const data, size_type capacity ) noexcept
 				: m_data( data )
 				, m_capacity( capacity )
 			{
 			}
 
-			[[nodiscard]] std::size_t size() const noexcept
+			[[nodiscard]] size_type size() const noexcept
 			{
 				return m_size;
 			}
-			[[nodiscard]] std::size_t capacity() const noexcept
+			[[nodiscard]] size_type capacity() const noexcept
 			{
 				return m_capacity;
 			}
@@ -48,6 +50,7 @@ namespace mclo
 
 			[[nodiscard]] std::size_t max_size() const noexcept
 			{
+				static constexpr size_type max_size_v = std::numeric_limits<size_type>::max();
 				return max_size_v;
 			}
 
@@ -55,8 +58,8 @@ namespace mclo
 			static constexpr float growth_factor = 1.5f;
 
 			std::byte* m_data = nullptr;
-			std::size_t m_size = 0;
-			std::size_t m_capacity = 0;
+			size_type m_size = 0;
+			size_type m_capacity = 0;
 		};
 
 		/// @brief Size helper mimics a small_vector size 1 to find the variable offset
@@ -130,7 +133,7 @@ namespace mclo
 
 	public:
 		using value_type = T;
-		using size_type = std::size_t;
+		using size_type = typename base::size_type;
 		using difference_type = std::ptrdiff_t;
 		using reference = value_type&;
 		using const_reference = const value_type&;
@@ -609,7 +612,7 @@ namespace mclo
 		}
 
 	protected:
-		explicit small_vector_base( std::size_t capacity ) noexcept
+		explicit small_vector_base( const size_type capacity ) noexcept
 			: base( get_first_element(), capacity )
 		{
 		}
@@ -918,7 +921,7 @@ namespace mclo
 
 		template <typename T>
 			requires( sizeof( T ) <= 256 )
-		constexpr std::size_t default_inline_capacity = default_inline_capacity_bytes<T> / sizeof( T );
+		constexpr std::uint32_t default_inline_capacity = default_inline_capacity_bytes<T> / sizeof( T );
 	}
 
 	/// @brief small_vector stores Capacity elements inline on the stack but can grow and allocate on the heap
@@ -928,7 +931,7 @@ namespace mclo
 	/// @tparam T Type of objects stored
 	/// @tparam Capacity Number of elements to store inline, if not provided defaults to try and keep the overall stack
 	/// size to one cache line (64 bytes)
-	template <typename T, std::size_t Capacity = detail::default_inline_capacity<T>>
+	template <typename T, std::uint32_t Capacity = detail::default_inline_capacity<T>>
 	class small_vector : public small_vector_base<T>
 	{
 		using base = small_vector_base<T>;
