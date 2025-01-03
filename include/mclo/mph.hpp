@@ -1,7 +1,7 @@
 #pragma once
 
+#include "mclo/constexpr_hash.hpp"
 #include "mclo/detail/nontrivial_dummy_type.hpp"
-#include "mclo/fnva1.hpp"
 #include "mclo/platform.hpp"
 
 #include <algorithm>
@@ -42,7 +42,7 @@ namespace mclo
 			MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			const std::string_view view( value );
-			return mclo::fnv1a( view.data(), view.size(), salt );
+			return mclo::constexpr_hash( view.data(), view.size(), salt );
 		}
 	};
 

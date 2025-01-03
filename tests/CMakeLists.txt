@@ -8,7 +8,7 @@ add_executable( tests
 	meta_tests.cpp
 	mph_tests.cpp
 	string_buffer_tests.cpp
-	hash_combine.cpp
+	hash_tests.cpp
 	tagged_ptr_tests.cpp
 	small_optional_tests.cpp
 	string_table_tests.cpp

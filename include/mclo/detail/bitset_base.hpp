@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/hash_combine.hpp"
+#include "mclo/hash/hash.hpp"
 #include "mclo/math.hpp"
 #include "mclo/platform.hpp"
 
@@ -490,6 +490,12 @@ namespace mclo::detail
 			std::basic_string<CharT, Traits, Allocator> result( length, unset_char );
 			for_each_set( [ & ]( const std::size_t index ) { result[ length - 1 - index ] = set_char; } );
 			return result;
+		}
+
+		template <hasher Hasher>
+		friend void hash_append( Hasher& hasher, const Derived& value ) noexcept
+		{
+			hasher.write( std::as_bytes( value.underlying() ) );
 		}
 
 	private:

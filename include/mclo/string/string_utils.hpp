@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/always_false.hpp"
-#include "mclo/fnva1.hpp"
+#include "mclo/constexpr_hash.hpp"
 #include "mclo/platform.hpp"
 
 #include "ascii_string_utils.hpp"
@@ -375,7 +375,7 @@ namespace mclo
 	{
 		// Necessary so literals do not include null terminator and so char*'s calculate their length
 		const string_view_type_t<String> view{ string };
-		return mclo::fnv1a( view.data(), view.size(), salt );
+		return mclo::constexpr_hash( view.data(), view.size(), salt );
 	}
 
 	template <typename String>
@@ -383,7 +383,7 @@ namespace mclo
 																 const std::size_t salt = 0 ) noexcept
 	{
 		const string_view_type_t<String> view{ string };
-		return mclo::fnv1a( view.data(), view.size(), salt, static_cast<char ( * )( char ) noexcept>( to_lower ) );
+		return mclo::constexpr_hash( view.data(), view.size(), salt, static_cast<char ( * )( char ) noexcept>( to_lower ) );
 	}
 
 	struct string_hash_t

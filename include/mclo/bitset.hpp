@@ -120,7 +120,9 @@ namespace std
 	struct hash<mclo::bitset<Bits, UnderlyingType>>
 	{
 		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()(
-			const mclo::bitset<Bits, UnderlyingType>& bitset ) MCLO_CONST_CALL_OPERATOR
-			MCLO_NOEXCEPT_AND_BODY( mclo::hash_range( bitset.underlying() ) )
+			const mclo::bitset<Bits, UnderlyingType>& bitset ) MCLO_CONST_CALL_OPERATOR noexcept
+		{
+			return mclo::hash( bitset );
+		}
 	};
 }

@@ -67,7 +67,7 @@ namespace
 			e = ( test_enum )i;
 
 			str_array& hashStr = strs[ i ];
-			const std::size_t hash = mclo::fnv1a( &i, 1 );
+			const std::size_t hash = mclo::constexpr_hash( &i, 1 );
 			const std::to_chars_result result = std::to_chars( hashStr.data(), hashStr.data() + hashStr.size(), hash );
 			assert( result.ec == std::errc{} );
 
