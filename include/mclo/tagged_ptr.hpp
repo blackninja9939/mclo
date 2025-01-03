@@ -21,20 +21,22 @@ namespace mclo
 			using byte_array = std::array<std::byte, sizeof( T )>;
 			constexpr byte_array bytes = std::bit_cast<byte_array>( T() );
 			return std::all_of( bytes.begin(), bytes.end(), []( const std::byte b ) { return b == std::byte( 0 ); } );
-				}
+		}
 
 		template <typename T>
 		constexpr bool is_zero_initializeable_v =
 			std::is_trivially_default_constructible_v<T> || is_default_zero_initialized<T>();
+
+		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
+		// do we want to even support 32 bit code? I doubt it
+		inline constexpr std::size_t platform_free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - 48;
 	}
 
-	template <typename T, typename Tag, std::size_t Alignment = alignof( T )>
+	template <typename T, typename Tag, std::size_t Alignment = alignof( T ), std::size_t FreeUpperBits = 0>
 	class tagged_ptr
 	{
 	private:
-		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
-		// do we want to even support 32 bit code? I doubt it
-		static constexpr std::size_t free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - 48;
+		static constexpr std::size_t free_upper_bits = FreeUpperBits;
 		static constexpr std::size_t free_lower_bits = std::bit_width( Alignment );
 		static constexpr std::size_t total_free_bits = free_upper_bits + free_lower_bits;
 		static constexpr std::size_t used_ptr_bits = ( sizeof( void* ) * CHAR_BIT ) - total_free_bits;
@@ -44,9 +46,11 @@ namespace mclo
 
 		static constexpr bool is_integer = std::is_integral_v<Tag> || std::is_enum_v<Tag>;
 
-		using tag_storage_type = mclo::uint_least_t<total_free_bits>;
+		using tag_storage_type = mclo::uint_least_t<sizeof( Tag ) * CHAR_BIT>;
+		static_assert( std::is_convertible_v<tag_storage_type, std::uintptr_t>,
+					   "Tag type is too large to fit in a uintptr_t" );
 
-		static constexpr std::uintptr_t pack_tag_unchecked( const Tag tag ) noexcept
+		[[nodiscard]] static constexpr std::uintptr_t pack_tag_unchecked( const Tag tag ) noexcept
 		{
 			if constexpr ( is_integer )
 			{
@@ -203,6 +207,10 @@ namespace mclo
 
 	template <typename T, typename U>
 	tagged_ptr( T*, U ) -> tagged_ptr<T, U>;
+
+	// This is a tagged_ptr that also uses the platform's free upper bits not just the lower alignment bits
+	template <typename T, typename Tag, std::size_t Alignment = alignof( T )>
+	using platform_tagged_ptr = tagged_ptr<T, Tag, Alignment, detail::platform_free_upper_bits>;
 
 	template <typename T, typename Tag>
 	class tagged_unique_ptr : public tagged_ptr<T, Tag, alignof( std::max_align_t )>
