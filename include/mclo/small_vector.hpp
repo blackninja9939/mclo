@@ -373,7 +373,7 @@ namespace mclo
 				return insert_pos;
 			}
 
-			const size_type where_pos = std::distance( begin(), insert_pos );
+			const size_type where_pos = static_cast<size_type>( std::distance( begin(), insert_pos ) );
 			const size_type old_size = m_size;
 			const size_type new_size = old_size + amount;
 
@@ -386,7 +386,7 @@ namespace mclo
 				}
 				else
 				{
-					const size_type existing_modified = std::distance( insert_pos, old_end );
+					const size_type existing_modified = static_cast<size_type>( std::distance( insert_pos, old_end ) );
 
 					value_type temp( value );
 					if ( amount > existing_modified )
@@ -421,7 +421,7 @@ namespace mclo
 		template <std::input_iterator It>
 		iterator insert( const_iterator pos, It first, It last )
 		{
-			const size_type where_pos = std::distance( cbegin(), pos );
+			const size_type where_pos = static_cast<size_type>( std::distance( cbegin(), pos ) );
 
 			if constexpr ( std::forward_iterator<It> )
 			{
@@ -442,7 +442,7 @@ namespace mclo
 
 		iterator insert( const_iterator pos, std::initializer_list<value_type> init_list )
 		{
-			const size_type where_pos = std::distance( cbegin(), pos );
+			const size_type where_pos = static_cast<size_type>( std::distance( cbegin(), pos ) );
 			const std::size_t amount = init_list.size();
 			assert( amount <= max_size() - m_size && "New size would be greater than max_size" );
 			insert_sized( pos, init_list.begin(), static_cast<size_type>( amount ) );
@@ -479,7 +479,7 @@ namespace mclo
 			{
 				const iterator newLast = std::move( last_mut, end(), first_mut );
 				std::destroy( newLast, end() );
-				m_size -= std::distance( newLast, end() );
+				m_size -= static_cast<size_type>( std::distance( newLast, end() ) );
 			}
 
 			return first_mut;
@@ -703,7 +703,7 @@ namespace mclo
 			const size_type new_capacity = calculate_new_capacity( new_size );
 
 			const iterator insert_pos = unwrap_iterator( pos );
-			const size_type where_index = std::distance( begin(), insert_pos );
+			const size_type where_index = static_cast<size_type>( std::distance( begin(), insert_pos ) );
 
 			uninitialized_unique_ptr new_owned_data = allocate_uninitialized( new_capacity );
 			const pointer new_data = new_owned_data.get();
@@ -827,7 +827,7 @@ namespace mclo
 			const iterator insert_pos = unwrap_iterator( pos );
 			const iterator old_end = end();
 
-			const size_type existing_modified = std::distance( insert_pos, old_end );
+			const size_type existing_modified = static_cast<size_type>( std::distance( insert_pos, old_end ) );
 
 			if ( count < existing_modified )
 			{ // Assign over existing elements

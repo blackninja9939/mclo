@@ -18,6 +18,7 @@ add_executable( tests
 	bitset_tests.cpp
 	enum_range_tests.cpp
 	new_type_tests.cpp
+	small_vector_tests.cpp
 )
 
 target_compile_definitions( tests PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS )
