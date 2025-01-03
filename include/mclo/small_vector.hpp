@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/detail/synth_three_way.hpp"
 #include "mclo/platform.hpp"
 
 #include <algorithm>
@@ -24,8 +25,8 @@ namespace mclo
 		class small_vector_header
 		{
 		public:
-			// Limits max_size but allows for extra default inline capacity, no sane vector would need size_t size
-			// anyway really
+			// Limits max_size but allows for extra default inline capacity
+			// no sane vector would need size_t elements size anyway really
 			using size_type = std::uint32_t;
 
 			small_vector_header( std::byte* const data, size_type capacity ) noexcept
@@ -48,7 +49,7 @@ namespace mclo
 				return m_size == 0;
 			}
 
-			[[nodiscard]] std::size_t max_size() const noexcept
+			[[nodiscard]] size_type max_size() const noexcept
 			{
 				static constexpr size_type max_size_v = std::numeric_limits<size_type>::max();
 				return max_size_v;
@@ -72,53 +73,6 @@ namespace mclo
 
 		struct value_initialize_tag
 		{
-		};
-
-		// https://en.cppreference.com/w/cpp/concepts/boolean-testable
-		template <typename T>
-		concept boolean_testable_impl = std::convertible_to<T, bool>;
-
-		template <typename T>
-		concept boolean_testable = boolean_testable_impl<T> && requires( T&& t ) {
-			{
-				!static_cast<T&&>( t )
-			} -> boolean_testable_impl;
-		};
-
-		// https://en.cppreference.com/w/cpp/standard_library/synth-three-way
-		struct synth_three_way
-		{
-			template <class T, class U>
-			[[nodiscard]] constexpr auto operator()( const T& lhs, const U& rhs ) const
-				requires requires {
-					{
-						lhs < rhs
-					} -> boolean_testable;
-					{
-						rhs < lhs
-					} -> boolean_testable;
-				}
-			{
-				if constexpr ( std::three_way_comparable_with<T, U> )
-				{
-					return lhs <=> rhs;
-				}
-				else
-				{
-					if ( lhs < rhs )
-					{
-						return std::weak_ordering::less;
-					}
-					else if ( rhs < lhs )
-					{
-						return std::weak_ordering::greater;
-					}
-					else
-					{
-						return std::weak_ordering::equivalent;
-					}
-				}
-			}
 		};
 	}
 
@@ -171,10 +125,9 @@ namespace mclo
 			}
 			else
 			{
-				std::destroy( begin(), end() );
-				m_data = std::exchange( other.m_data, nullptr );
-				m_size = std::exchange( other.m_size, 0 );
-				m_capacity = std::exchange( other.m_capacity, 0 );
+				set_data( std::exchange( other.m_data, nullptr ),
+						  std::exchange( other.m_capacity, 0 ),
+						  std::exchange( other.m_size, 0 ) );
 			}
 
 			return *this;
@@ -390,8 +343,7 @@ namespace mclo
 				return &emplace_back_no_allocate( std::forward<Args>( args )... );
 			}
 
-			// Cast is safe because we assert the iterator is inside this container which we are modifying
-			const iterator insertPos = const_cast<iterator>( pos );
+			const iterator insertPos = unwrap_iterator( pos );
 
 			value_type temp( std::forward<Args>( args )... );
 			emplace_back_no_allocate( std::move( back() ) );
@@ -414,8 +366,7 @@ namespace mclo
 		{
 			assert( pos >= begin() && pos <= end() && "pos must be an iterator in this container" );
 
-			// Cast is safe because we assert the iterator is inside this container which we are modifying
-			const iterator insert_pos = const_cast<iterator>( pos );
+			const iterator insert_pos = unwrap_iterator( pos );
 
 			if ( amount == 0 )
 			{
@@ -492,7 +443,9 @@ namespace mclo
 		iterator insert( const_iterator pos, std::initializer_list<value_type> init_list )
 		{
 			const size_type where_pos = std::distance( cbegin(), pos );
-			insert_sized( pos, init_list.begin(), init_list.size() );
+			const std::size_t amount = init_list.size();
+			assert( amount <= max_size() - m_size && "New size would be greater than max_size" );
+			insert_sized( pos, init_list.begin(), static_cast<size_type>( amount ) );
 			return begin() + where_pos;
 		}
 
@@ -506,7 +459,7 @@ namespace mclo
 		iterator erase( const_iterator pos ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 		{
 			assert( pos >= begin() && pos <= end() && "pos must be an iterator in this container" );
-			const iterator it = const_cast<iterator>( pos );
+			const iterator it = unwrap_iterator( pos );
 			std::move( it + 1, end(), it );
 			--m_size;
 			return it;
@@ -519,8 +472,8 @@ namespace mclo
 			assert( last >= begin() && last <= end() && "last must be an iterator in this container" );
 			assert( first <= last && "first and last must form a valid range in this container" );
 
-			const iterator first_mut = const_cast<iterator>( first );
-			const iterator last_mut = const_cast<iterator>( last );
+			const iterator first_mut = unwrap_iterator( first );
+			const iterator last_mut = unwrap_iterator( last );
 
 			if ( first_mut != last_mut )
 			{
@@ -576,28 +529,28 @@ namespace mclo
 
 		[[nodiscard]] reverse_iterator rbegin() noexcept
 		{
-			return std::make_reverse_iterator( begin() );
+			return std::make_reverse_iterator( end() );
 		}
 		[[nodiscard]] const_reverse_iterator rbegin() const noexcept
 		{
-			return std::make_reverse_iterator( begin() );
+			return std::make_reverse_iterator( end() );
 		}
 		[[nodiscard]] const_reverse_iterator crbegin() const noexcept
 		{
-			return std::make_reverse_iterator( cbegin() );
+			return std::make_reverse_iterator( cend() );
 		}
 
 		[[nodiscard]] reverse_iterator rend() noexcept
 		{
-			return std::make_reverse_iterator( end() );
+			return std::make_reverse_iterator( begin() );
 		}
 		[[nodiscard]] const_reverse_iterator rend() const noexcept
 		{
-			return std::make_reverse_iterator( end() );
+			return std::make_reverse_iterator( begin() );
 		}
 		[[nodiscard]] const_reverse_iterator crend() const noexcept
 		{
-			return std::make_reverse_iterator( cend() );
+			return std::make_reverse_iterator( cbegin() );
 		}
 
 		[[nodiscard]] friend bool operator==( const small_vector_base& lhs, const small_vector_base& rhs )
@@ -608,7 +561,7 @@ namespace mclo
 		[[nodiscard]] friend auto operator<=>( const small_vector_base& lhs, const small_vector_base& rhs )
 		{
 			return std::lexicographical_compare_three_way(
-				lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), detail::synth_three_way{} );
+				lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), mclo::synth_three_way{} );
 		}
 
 	protected:
@@ -626,34 +579,100 @@ namespace mclo
 		}
 
 	private:
-		pointer allocate_uninitialized( const size_type amount )
+		class [[nodiscard]] uninitialized_range_guard
 		{
-			return static_cast<pointer>( ::operator new( sizeof( value_type ) * amount ) );
+		public:
+			explicit uninitialized_range_guard( const pointer last ) noexcept
+				: m_first( last )
+				, m_last( last )
+			{
+			}
+
+			~uninitialized_range_guard()
+			{
+				std::destroy( m_first, m_last );
+			}
+
+			void set_begin( const pointer new_first ) noexcept
+			{
+				assert( new_first <= m_last && "first and last must form a valid range" );
+				m_first = new_first;
+			}
+			void release() noexcept
+			{
+				m_first = nullptr;
+				m_last = nullptr;
+			}
+
+			[[nodiscard]] pointer begin() const noexcept
+			{
+				return m_first;
+			}
+			[[nodiscard]] pointer end() const noexcept
+			{
+				return m_last;
+			}
+
+		private:
+			pointer m_first = nullptr;
+			pointer m_last = nullptr;
+		};
+
+		class [[nodiscard]] uninitialized_unique_ptr
+		{
+		public:
+			explicit uninitialized_unique_ptr( const pointer ptr ) noexcept
+				: m_ptr( ptr )
+			{
+			}
+			~uninitialized_unique_ptr() noexcept
+			{
+				::operator delete( static_cast<void*>( this->m_ptr ) );
+			}
+
+			uninitialized_unique_ptr( const uninitialized_unique_ptr& ) = delete;
+			uninitialized_unique_ptr& operator=( const uninitialized_unique_ptr& ) = delete;
+
+			[[nodiscard]] pointer get() const noexcept
+			{
+				return m_ptr;
+			}
+
+			[[nodiscard]] pointer release() noexcept
+			{
+				return std::exchange( m_ptr, nullptr );
+			}
+
+		private:
+			pointer m_ptr;
+		};
+
+		[[nodiscard]] static uninitialized_unique_ptr allocate_uninitialized( const size_type amount )
+		{
+			return uninitialized_unique_ptr{ static_cast<pointer>( ::operator new( sizeof( value_type ) * amount ) ) };
+		}
+
+		[[nodiscard]] static iterator unwrap_iterator( const const_iterator it ) noexcept
+		{
+			// Only called with iterators into a specific container being modified, so it is safe to const_cast
+			return const_cast<iterator>( it );
 		}
 
 		void reallocate( const size_type new_capacity )
 		{
-			const pointer new_data = allocate_uninitialized( new_capacity );
+			uninitialized_unique_ptr new_data = allocate_uninitialized( new_capacity );
 
-			try
+			if constexpr ( std::is_nothrow_move_constructible_v<value_type> ||
+						   !std::is_copy_constructible_v<value_type> )
 			{
-				if constexpr ( std::is_nothrow_move_constructible_v<value_type> ||
-							   !std::is_copy_constructible_v<value_type> )
-				{
-					std::uninitialized_move( begin(), end(), new_data );
-				}
-				else
-				{
-					std::uninitialized_copy( begin(), end(), new_data );
-				}
+				std::uninitialized_move( begin(), end(), new_data.get() );
 			}
-			catch ( ... )
+			else
 			{
-				::operator delete( new_data );
-				throw;
+				std::uninitialized_copy( begin(), end(), new_data.get() );
 			}
 
-			set_data( new_data, new_capacity, m_size );
+			set_data( new_data.release(), new_capacity, m_size );
 		}
 
 		[[nodiscard]] size_type calculate_new_capacity( const size_type new_size ) const noexcept
@@ -683,56 +702,47 @@ namespace mclo
 			const size_type new_size = m_size + count;
 			const size_type new_capacity = calculate_new_capacity( new_size );
 
-			// Cast is safe because we assert the iterator is inside this container which we are modifying
-			const iterator insert_pos = const_cast<iterator>( pos );
+			const iterator insert_pos = unwrap_iterator( pos );
 			const size_type where_index = std::distance( begin(), insert_pos );
 
-			const pointer new_data = allocate_uninitialized( new_capacity );
+			uninitialized_unique_ptr new_owned_data = allocate_uninitialized( new_capacity );
+			const pointer new_data = new_owned_data.get();
 			const pointer first_new_element = new_data + where_index;
-			const pointer insert_last = first_new_element + count;
-			pointer insert_first = insert_last;
+			uninitialized_range_guard uninit_range{ first_new_element + count };
 
-			try
+			insert_callback( first_new_element );
+			uninit_range.set_begin( first_new_element );
+
+			if ( insert_pos == end() )
 			{
-				insert_callback( first_new_element );
-				insert_first = first_new_element;
-
-				if ( insert_pos == end() )
+				if constexpr ( std::is_nothrow_move_constructible_v<value_type> ||
+							   !std::is_copy_constructible_v<value_type> )
 				{
-					if constexpr ( std::is_nothrow_move_constructible_v<value_type> ||
-								   !std::is_copy_constructible_v<value_type> )
-					{
-						std::uninitialized_move( begin(), end(), new_data );
-					}
-					else
-					{
-						std::uninitialized_copy( begin(), end(), new_data );
-					}
+					std::uninitialized_move( begin(), end(), new_data );
 				}
 				else
 				{
-					std::uninitialized_move( begin(), insert_pos, new_data );
-					insert_first = new_data;
-					std::uninitialized_move( insert_pos, end(), insert_last );
+					std::uninitialized_copy( begin(), end(), new_data );
 				}
 			}
-			catch ( ... )
+			else
 			{
-				std::destroy( insert_first, insert_last );
-				::operator delete( new_data );
-				throw;
+				std::uninitialized_move( begin(), insert_pos, new_data );
+				uninit_range.set_begin( new_data );
+				std::uninitialized_move( insert_pos, end(), uninit_range.end() );
 			}
 
-			set_data( new_data, new_capacity, new_size );
+			uninit_range.release();
+			set_data( new_owned_data.release(), new_capacity, new_size );
 			return first_new_element;
 		}
 
 		template <typename... Args>
-		iterator emplace_reallocate( const_iterator pos, Args&&... args )
+		[[nodiscard]] iterator emplace_reallocate( const_iterator pos, Args&&... args )
 		{
 			assert( m_size == m_capacity && "No unused capacity" );
 
-			return insert_reallocate( pos, 1, [... args = std::forward<Args>( args ) ]( pointer ptr ) mutable {
+			return insert_reallocate( pos, 1, [... args = std::forward<Args>( args ) ]( const pointer ptr ) mutable {
 				std::construct_at( ptr, std::forward<Args>( args )... );
 			} );
 		}
@@ -741,7 +751,7 @@ namespace mclo
 		void resize_reallocate( const size_type new_size, const U& value )
 		{
 			const size_type amount_to_add = new_size - m_size;
-			insert_reallocate( end(), amount_to_add, [ amount_to_add, &value ]( pointer ptr ) {
+			insert_reallocate( end(), amount_to_add, [ & ]( const pointer ptr ) {
 				if constexpr ( std::is_same_v<U, detail::value_initialize_tag> )
 				{
 					std::uninitialized_value_construct_n( ptr, amount_to_add );
@@ -808,14 +818,13 @@ namespace mclo
 
 			if ( count > free_capacity )
 			{
-				insert_reallocate( pos, count, [ count, first = std::move( first ) ]( pointer ptr ) {
+				insert_reallocate( pos, count, [ count, first = std::move( first ) ]( const pointer ptr ) {
 					std::uninitialized_copy_n( std::move( first ), count, ptr );
 				} );
 				return;
 			}
 
-			// Cast is safe because we assert the iterator is inside this container which we are modifying
-			const iterator insert_pos = const_cast<iterator>( pos );
+			const iterator insert_pos = unwrap_iterator( pos );
 			const iterator old_end = end();
 
 			const size_type existing_modified = std::distance( insert_pos, old_end );
@@ -851,17 +860,9 @@ namespace mclo
 			if ( count > m_capacity )
 			{
 				const size_type new_capacity = calculate_new_capacity( count );
-				const pointer new_data = allocate_uninitialized( new_capacity );
-				try
-				{
-					uninitialized_func( new_data, count );
-				}
-				catch ( ... )
-				{
-					::operator delete( new_data );
-					throw;
-				}
-				set_data( new_data, new_capacity, count );
+				uninitialized_unique_ptr new_data = allocate_uninitialized( new_capacity );
+				uninitialized_func( new_data.get(), count );
+				set_data( new_data.release(), new_capacity, count );
 				return;
 			}
 
@@ -894,17 +895,30 @@ namespace mclo
 
 		void set_data( const pointer new_data, const size_type new_capacity, const size_type new_size ) noexcept
 		{
+			set_data( reinterpret_cast<std::byte*>( new_data ), new_capacity, new_size );
+		}
+
+		void set_data( std::byte* const new_data, const size_type new_capacity, const size_type new_size ) noexcept
+		{
 			std::destroy( begin(), end() );
-			this->m_data = reinterpret_cast<std::byte*>( new_data );
+			if ( !is_internal() )
+			{
+				::operator delete( static_cast<void*>( this->m_data ) );
+			}
+			this->m_data = new_data;
 			this->m_capacity = new_capacity;
 			this->m_size = new_size;
 		}
 
 		static constexpr std::size_t offset = offsetof( detail::small_vector_offset_helper<T>, m_data );
 
-		[[nodiscard]] std::byte* get_first_element() const noexcept
+		[[nodiscard]] std::byte* get_first_element() noexcept
 		{
-			return const_cast<std::byte*>( reinterpret_cast<const std::byte*>( this ) + offset );
+			return reinterpret_cast<std::byte*>( this ) + offset;
+		}
+		[[nodiscard]] const std::byte* get_first_element() const noexcept
+		{
+			return reinterpret_cast<const std::byte*>( this ) + offset;
 		}
 
 		[[nodiscard]] bool is_internal() const noexcept
@@ -920,8 +934,17 @@ namespace mclo
 			std::hardware_destructive_interference_size - sizeof( small_vector_base<T> );
 
 		template <typename T>
-			requires( sizeof( T ) <= 256 )
-		constexpr std::uint32_t default_inline_capacity = default_inline_capacity_bytes<T> / sizeof( T );
+		constexpr std::uint32_t default_inline_capacity = [] {
+			static_assert( sizeof( T ) <= 256,
+						   "You are trying to use a default number of inlined elements for "
+						   "`small_vector<T>` but `sizeof(T)` is really big! Please use an "
+						   "explicit number of inlined elements with `small_vector<T, N>` to make "
+						   "sure you really want that much inline storage." );
+			// Give capacity for at least one element as long as static assert passes
+			// Allows a small_vector<small_vector<T>> to have at least one element which is
+			// not an unreasonable case. Any larger requires manual sizes so you think about it.
+			return std::max<std::uint32_t>( 1, default_inline_capacity_bytes<T> / sizeof( T ) );
+		}();
 	}
 
 	/// @brief small_vector stores Capacity elements inline on the stack but can grow and allocate on the heap
