@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/detail/synth_three_way.hpp"
+#include "mclo/container/detail/synth_three_way.hpp"
 #include "mclo/platform.hpp"
 
 #include <algorithm>

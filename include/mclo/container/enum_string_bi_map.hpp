@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/enum_map.hpp"
+#include "mclo/container/enum_map.hpp"
 #include "mclo/math.hpp"
 #include "mclo/standard_integer_type.hpp"
 #include "mclo/string/string_utils.hpp"

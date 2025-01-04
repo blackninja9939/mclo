@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "mclo/detail/bitset_base.hpp"
+#include "mclo/container/detail/bitset_base.hpp"
 
 #include <vector>
 

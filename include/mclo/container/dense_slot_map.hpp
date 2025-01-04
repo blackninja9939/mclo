@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/slot_map_handle.hpp"
+#include "mclo/container/slot_map_handle.hpp"
 
 #include <cinttypes>
 #include <optional>

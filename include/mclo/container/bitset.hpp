@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/detail/bitset_base.hpp"
+#include "mclo/container/detail/bitset_base.hpp"
 #include "mclo/standard_integer_type.hpp"
 
 #include <array>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/constexpr_hash.hpp"
-#include "mclo/detail/nontrivial_dummy_type.hpp"
+#include "mclo/container/detail/nontrivial_dummy_type.hpp"
 #include "mclo/platform.hpp"
 
 #include <algorithm>
@@ -222,7 +222,7 @@ namespace mclo
 				}
 			}
 
-				// All slots are used so we now finally construct the real values
+			// All slots are used so we now finally construct the real values
 			for ( std::size_t slot = 0; slot < Size; ++slot )
 			{
 				assert( slot_data_index[ slot ] != 0 );
