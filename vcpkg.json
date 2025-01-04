@@ -4,6 +4,7 @@
   "dependencies": [
     "catch2",
     "benchmark",
-    "xsimd"
+    "xsimd",
+    "tl-expected"
   ]
 }
