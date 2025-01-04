@@ -22,7 +22,7 @@ add_executable( tests
 	xoshiro256plusplus_tests.cpp
 	splitmix64_tests.cpp
 	random_generator_tests.cpp
-)
+ "sem_version_tests.cpp")
 
 target_compile_definitions( tests PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS )
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
