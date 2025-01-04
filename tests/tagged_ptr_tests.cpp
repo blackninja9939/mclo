@@ -2,7 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "mclo/meta/type_aliases.hpp"
-#include "mclo/tagged_ptr.hpp"
+#include "mclo/memory/tagged_ptr.hpp"
 
 #include <memory>
 

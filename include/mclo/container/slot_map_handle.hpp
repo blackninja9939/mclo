@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mclo/math.hpp"
-#include "mclo/standard_integer_type.hpp"
+#include "mclo/numeric/math.hpp"
+#include "mclo/numeric/standard_integer_type.hpp"
 
 #include <limits>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/small_optional.hpp"
+#include "mclo/utility/small_optional.hpp"
 
 #include <cinttypes>
 #include <memory>

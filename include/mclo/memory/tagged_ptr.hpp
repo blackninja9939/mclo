@@ -1,7 +1,7 @@
 #pragma once
 
-#include "allocate_from_tuple.hpp"
-#include "standard_integer_type.hpp"
+#include "mclo/memory/allocate_from_tuple.hpp"
+#include "mclo/numeric/standard_integer_type.hpp"
 
 #include <algorithm>
 #include <array>

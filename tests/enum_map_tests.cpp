@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "mclo/container/enum_map.hpp"
+#include "mclo/enum/enum_map.hpp"
 
 namespace
 {
@@ -131,7 +131,7 @@ TEST_CASE( "enum_map index directly", "[enum_map]" )
 	CHECK( const_map[ test_enum::third ] == 42 );
 }
 
-#include "mclo/container/enum_string_bi_map.hpp"
+#include "mclo/enum/enum_string_bi_map.hpp"
 TEST_CASE( "BiMap" )
 {
 	mclo::enum_string_bi_map<test_enum> map( {

@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
-#include "mclo/enum_range.hpp"
+#include "mclo/enum/enum_range.hpp"
 
 #include <array>
 #include <ranges>

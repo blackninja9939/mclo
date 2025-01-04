@@ -2,7 +2,7 @@
 
 #include "mclo/constexpr_hash.hpp"
 #include "mclo/container/detail/nontrivial_dummy_type.hpp"
-#include "mclo/platform.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <algorithm>
 #include <array>
@@ -12,7 +12,8 @@
 
 namespace mclo
 {
-	// These hashes need to be very simple operations for constant evaluation but also give some decent amount of entropy
+	// These hashes need to be very simple operations for constant evaluation but also give some decent amount of
+	// entropy
 	template <typename T>
 	struct mph_hash;
 
@@ -60,7 +61,10 @@ namespace mclo
 			return 0;
 		}
 	};
+}
 
+namespace mclo::detail
+{
 	template <typename Key, typename StoredValue, typename Hash, typename KeyEquals, typename GetKey, std::size_t Size>
 	class MCLO_EMPTY_BASES mph_base : private Hash, private KeyEquals, private GetKey
 	{

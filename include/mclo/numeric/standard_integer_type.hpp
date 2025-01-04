@@ -1,6 +1,6 @@
 #pragma once
 
-#include "any_of_type.hpp"
+#include "mclo/concepts/any_of_type.hpp"
 
 #include <cinttypes>
 #include <climits>
@@ -8,16 +8,16 @@
 namespace mclo
 {
 	template <typename T>
-	constexpr bool is_standard_integer =
-		is_any_of_v<std::remove_cv_t<T>, signed char, signed short, signed int, signed long, signed long long>;
+	concept is_standard_integer =
+		any_of_type<std::remove_cv_t<T>, signed char, signed short, signed int, signed long, signed long long>;
 
 	template <typename T>
-	constexpr bool is_standard_unsigned_integer = is_any_of_v<std::remove_cv_t<T>,
-															  unsigned char,
-															  unsigned short,
-															  unsigned int,
-															  unsigned long,
-															  unsigned long long>;
+	concept is_standard_unsigned_integer = any_of_type<std::remove_cv_t<T>,
+													   unsigned char,
+													   unsigned short,
+													   unsigned int,
+													   unsigned long,
+													   unsigned long long>;
 
 	
 	// clang-format off

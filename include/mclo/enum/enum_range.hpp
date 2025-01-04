@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mclo/enum_size.hpp"
-#include "mclo/math.hpp"
+#include "mclo/enum/enum_size.hpp"
+#include "mclo/numeric/math.hpp"
 
 #include <cassert>
 #include <iterator>

@@ -2,7 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "mclo/meta/type_aliases.hpp"
-#include "mclo/small_optional.hpp"
+#include "mclo/utility/small_optional.hpp"
 
 template <typename T>
 struct Catch::StringMaker<mclo::small_optional<T>>

@@ -8,9 +8,9 @@ namespace mclo
 			  std::size_t Size,
 			  typename Hash = mph_hash<Value>,
 			  typename KeyEquals = std::equal_to<Value>>
-	class mph_set : public mph_base<Value, Value, Hash, KeyEquals, std::identity, Size>
+	class mph_set : public detail::mph_base<Value, Value, Hash, KeyEquals, std::identity, Size>
 	{
-		using base = mph_base<Value, Value, Hash, KeyEquals, std::identity, Size>;
+		using base = detail::mph_base<Value, Value, Hash, KeyEquals, std::identity, Size>;
 
 	public:
 		using base::base;

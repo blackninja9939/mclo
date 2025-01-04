@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/preprocessor.hpp"
+#include "mclo/preprocessor/stringify.hpp"
 
 #ifdef _MSC_VER
 #define MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( ... )                                                                     \

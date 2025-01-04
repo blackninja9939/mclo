@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mclo/container/detail/synth_three_way.hpp"
-#include "mclo/platform.hpp"
+#include "mclo/container/synth_three_way.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <algorithm>
 #include <cassert>

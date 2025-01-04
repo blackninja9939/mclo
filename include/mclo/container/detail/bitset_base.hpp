@@ -1,8 +1,8 @@
 #pragma once
 
 #include "mclo/hash/hash.hpp"
-#include "mclo/math.hpp"
-#include "mclo/platform.hpp"
+#include "mclo/numeric/math.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <bit>
 #include <climits>

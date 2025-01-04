@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 
-#include "mclo/bit.hpp"
+#include "mclo/numeric/bit.hpp"
 
 namespace
 {

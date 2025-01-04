@@ -1,6 +1,6 @@
 #include "mclo/hash/murmur_hash_3.hpp"
 
-#include "mclo/platform.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <cassert>
 #include <limits>

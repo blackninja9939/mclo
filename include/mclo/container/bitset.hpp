@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
-#include "mclo/standard_integer_type.hpp"
+#include "mclo/numeric/standard_integer_type.hpp"
 
 #include <array>
 #include <cinttypes>

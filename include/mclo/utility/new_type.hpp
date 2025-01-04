@@ -1,7 +1,6 @@
 #pragma once
 
-#include "mclo/derived_from.hpp"
-#include "mclo/platform.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <concepts>
 #include <functional>

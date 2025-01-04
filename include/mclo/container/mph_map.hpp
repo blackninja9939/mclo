@@ -22,9 +22,9 @@ namespace mclo
 			  std::size_t Size,
 			  typename Hash = mph_hash<Key>,
 			  typename KeyEquals = std::equal_to<Key>>
-	class mph_map : public mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>
+	class mph_map : public detail::mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>
 	{
-		using base = mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>;
+		using base = detail::mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>;
 
 	public:
 		using mapped_type = Value;
