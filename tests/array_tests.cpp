@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "mclo/array.hpp"
+#include "mclo/utility/array.hpp"
 
 namespace
 {

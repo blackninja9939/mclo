@@ -162,7 +162,7 @@ on big endian machines, or a byte-by-byte read if the endianess is unknown.
 #define DOBYTES( cnt, h1, c, n, ptr, len )                                                                             \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		std::size_t _i = cnt;                                                                                                  \
+		std::size_t _i = cnt;                                                                                          \
 		while ( _i-- )                                                                                                 \
 		{                                                                                                              \
 			c = c >> 8 | *ptr++ << 24;                                                                                 \

@@ -84,9 +84,7 @@ TEMPLATE_LIST_TEST_CASE( "small_optional comparison empty", "[small_optional]", 
 	CHECK_FALSE( lhs != rhs );
 }
 
-TEMPLATE_LIST_TEST_CASE( "small_optional comparison lhs empty",
-						 "[small_optional]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE( "small_optional comparison lhs empty", "[small_optional]", mclo::meta::integers )
 {
 	const mclo::small_optional<TestType> lhs;
 	const mclo::small_optional<TestType> rhs{ 16 };
@@ -98,9 +96,7 @@ TEMPLATE_LIST_TEST_CASE( "small_optional comparison lhs empty",
 	CHECK( lhs != rhs );
 }
 
-TEMPLATE_LIST_TEST_CASE( "small_optional comparison rhs empty",
-						 "[small_optional]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE( "small_optional comparison rhs empty", "[small_optional]", mclo::meta::integers )
 {
 	const mclo::small_optional<TestType> lhs{ 16 };
 	const mclo::small_optional<TestType> rhs;
@@ -112,9 +108,7 @@ TEMPLATE_LIST_TEST_CASE( "small_optional comparison rhs empty",
 	CHECK( lhs != rhs );
 }
 
-TEMPLATE_LIST_TEST_CASE( "small_optional comparison same value",
-						 "[small_optional]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE( "small_optional comparison same value", "[small_optional]", mclo::meta::integers )
 {
 	const mclo::small_optional<TestType> lhs{ 16 };
 	const mclo::small_optional<TestType> rhs{ 16 };
@@ -126,9 +120,7 @@ TEMPLATE_LIST_TEST_CASE( "small_optional comparison same value",
 	CHECK_FALSE( lhs != rhs );
 }
 
-TEMPLATE_LIST_TEST_CASE( "small_optional comparison different values",
-						 "[small_optional]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE( "small_optional comparison different values", "[small_optional]", mclo::meta::integers )
 {
 	const mclo::small_optional<TestType> lhs{ 16 };
 	const mclo::small_optional<TestType> rhs{ 30 };

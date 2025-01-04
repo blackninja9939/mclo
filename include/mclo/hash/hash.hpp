@@ -1,8 +1,8 @@
 #pragma once
 
+#include "mclo/hash/default_hasher.hpp"
 #include "mclo/hash/hash_append.hpp"
 #include "mclo/hash/hash_append_range.hpp"
-#include "mclo/hash/default_hasher.hpp"
 
 namespace mclo
 {

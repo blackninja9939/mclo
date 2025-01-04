@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mclo/constexpr_hash.hpp"
 #include "mclo/container/detail/nontrivial_dummy_type.hpp"
+#include "mclo/hash/constexpr_hash.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <algorithm>

@@ -121,7 +121,7 @@ namespace mclo
 			const size_type index = static_cast<size_type>( value );
 			const bool alreadySet = m_container.test_set( index );
 			return {
-				iterator{*this, index},
+				iterator{ *this, index },
                 !alreadySet
             };
 		}

@@ -1,8 +1,8 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "mclo/meta/type_aliases.hpp"
 #include "mclo/memory/tagged_ptr.hpp"
+#include "mclo/meta/type_aliases.hpp"
 
 #include <memory>
 

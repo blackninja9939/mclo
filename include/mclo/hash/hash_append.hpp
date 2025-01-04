@@ -7,7 +7,7 @@
 
 namespace mclo
 {
-	template<typename T>
+	template <typename T>
 	inline constexpr bool enable_bitwise_hash = std::is_integral_v<T> || std::is_enum_v<T> || std::is_pointer_v<T>;
 
 	template <mclo::hasher Hasher, typename T>

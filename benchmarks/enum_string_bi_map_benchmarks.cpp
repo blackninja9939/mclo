@@ -1,7 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include "mclo/container/enum_string_bi_map.hpp"
-#include "mclo/container/mph.hpp"
+#include "mclo/enum/enum_string_bi_map.hpp"
 
 #include <charconv>
 #include <memory>

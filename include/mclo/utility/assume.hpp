@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-#include "mclo/platform.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #if __has_cpp_attribute( assume )
 #define MCLO_ASSUME( CONDITION ) [[assume( CONDITION )]]

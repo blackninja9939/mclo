@@ -19,7 +19,6 @@ namespace mclo
 													   unsigned long,
 													   unsigned long long>;
 
-	
 	// clang-format off
 	template <std::size_t Bits>
 	using uint_least_t =

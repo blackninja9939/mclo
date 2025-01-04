@@ -539,7 +539,7 @@ namespace mclo
 			// We return the original slot index and the generation, generation will be changed in erasure for
 			// invalidating existing handles
 			return {
-				m_data.back(), {slot_index, handle.generation}
+				m_data.back(), { slot_index, handle.generation }
             };
 		}
 

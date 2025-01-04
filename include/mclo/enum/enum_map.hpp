@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mclo/array.hpp"
 #include "mclo/container/arrow_proxy.hpp"
 #include "mclo/enum/enum_size.hpp"
+#include "mclo/utility/array.hpp"
 
 #include <array>
 #include <compare>
