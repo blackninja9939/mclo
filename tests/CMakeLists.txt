@@ -19,6 +19,8 @@ add_executable( tests
 	enum_range_tests.cpp
 	new_type_tests.cpp
 	small_vector_tests.cpp
+	xoshiro256plusplus_tests.cpp
+	splitmix64_tests.cpp
 )
 
 target_compile_definitions( tests PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS )

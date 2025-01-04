@@ -10,6 +10,8 @@ add_library( ${LIBRARY_TARGET_NAME}
     "string/ascii_string_simd.cpp"
     "string/string_utils.cpp"
     "hash/murmur_hash_3.cpp"
+    "random/xoshiro256plusplus.cpp"
+    "random/splitmix64.cpp"
 )
 
 # Make alias
