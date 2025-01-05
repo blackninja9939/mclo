@@ -5,9 +5,9 @@
 #include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
+#include <fmt/format.h>
 #include <array>
 #include <compare>
-#include <format>
 #include <stdexcept>
 #include <string_view>
 
@@ -451,9 +451,19 @@ namespace mclo
 		return view_type( lhs ) <=> view_type( rhs );
 	}
 
+	// Formatting
+	template <typename CharT, std::size_t Size>
+	auto format_as( const basic_string_buffer<CharT, Size>& str )
+	{
+		using view_type = typename basic_string_buffer<CharT, Size>::view_type;
+		return view_type( str );
+	}
+
+	// Guides
 	template <typename CharT, std::size_t N>
 	basic_string_buffer( const CharT ( & )[ N ] ) -> basic_string_buffer<CharT, N>;
 
+	// Aliases
 	template <std::size_t Size>
 	using string_buffer = basic_string_buffer<char, Size>;
 
@@ -498,11 +508,5 @@ namespace std
 		{
 			return std::hash<view_type>()( view_type( str ) );
 		}
-	};
-
-	template <typename CharT, std::size_t Size>
-	struct formatter<mclo::basic_string_buffer<CharT, Size>>
-		: formatter<typename mclo::basic_string_buffer<CharT, Size>::view_type>
-	{
 	};
 }

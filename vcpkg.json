@@ -7,10 +7,12 @@
   "version": "1.0",
   "builtin-baseline": "65be7019941e1401e02daaba0738cab2c8a4a355",
   "dependencies": [
+    "fmt",
     "catch2",
     "benchmark",
     "xsimd",
     "tl-expected",
-    "libassert"
+    "libassert",
+    "spdlog"
   ]
 }

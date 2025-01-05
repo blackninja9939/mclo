@@ -64,11 +64,11 @@ TEST_CASE( "string_buffer swap", "[string_buffer]" )
 	CHECK( str2 == "goodbye 987" );
 }
 
-TEST_CASE( "string_buffer std::format", "[string_buffer]" )
+TEST_CASE( "string_buffer fmt::format", "[string_buffer]" )
 {
 	mclo::string_buffer<64> str( "hello to the world" );
 
-	const std::string formatted = std::format( "{:-^22}", str );
+	const std::string formatted = fmt::format( "{:-^22}", str );
 
 	CHECK( formatted == "--hello to the world--" );
 }
