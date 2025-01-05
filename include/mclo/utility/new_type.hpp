@@ -53,14 +53,18 @@ namespace mclo
 			swap( lhs.value, rhs.value );
 		}
 
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const new_type& object ) noexcept
-		{
-			hash_append( hasher, object.value );
-		}
-
 		[[nodiscard]] constexpr auto operator<=>( const new_type& rhs ) const noexcept = default;
 	};
+
+	template <typename T, typename Tag>
+	constexpr bool enable_bitwise_hash<new_type<T, Tag>> = enable_bitwise_hash<T>;
+
+	template <hasher Hasher, typename T, typename Tag>
+		requires( !enable_bitwise_hash<T> )
+	void hash_append( Hasher& hasher, const new_type<T, Tag>& object ) noexcept
+	{
+		hash_append( hasher, object.value );
+	}
 }
 
 namespace std

@@ -7,19 +7,11 @@
 
 namespace mclo
 {
-	struct sem_version
+	struct sem_version final
 	{
 		std::uint8_t major;
 		std::uint8_t minor;
 		std::uint8_t patch;
-
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const sem_version& value ) noexcept
-		{
-			hash_append( hasher, value.major );
-			hash_append( hasher, value.minor );
-			hash_append( hasher, value.patch );
-		}
 
 		[[nodiscard]] constexpr bool satisfies( const sem_version& other ) const noexcept
 		{
@@ -40,4 +32,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr std::strong_ordering operator<=>( const sem_version& other ) const noexcept = default;
 	};
+
+	template<>
+	inline constexpr bool enable_bitwise_hash<sem_version> = true;
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
+#include "mclo/hash/hash_append.hpp"
+#include "mclo/hash/std_adapter.hpp"
 #include "mclo/memory/allocate_from_tuple.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
@@ -170,6 +172,13 @@ namespace mclo
 			return lhs.get() == rhs;
 		}
 
+		template <hasher Hasher>
+		friend void hash_append( Hasher& hasher, const tagged_ptr& ptr ) noexcept
+		{
+			hash_append( hasher, ptr.get() );
+			hash_append( hasher, ptr.tag() );
+		}
+
 	private:
 		[[nodiscard]] static std::uintptr_t pack_ptr( pointer ptr ) MCLO_NOEXCEPT_TESTS
 		{
@@ -326,3 +335,8 @@ namespace mclo
 		return tagged;
 	}
 }
+
+template <typename T, typename Tag>
+struct std::hash<mclo::tagged_ptr<T, Tag>> : mclo::std_hash_adapter<mclo::tagged_ptr<T, Tag>>
+{
+};
