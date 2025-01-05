@@ -3,6 +3,7 @@
 #include "assert_macros.hpp"
 
 #include <format>
+#include <string_view>
 
 mclo::assert_exception_matcher::assert_exception_matcher( std::string message )
 	: message( std::move( message ) )
@@ -11,10 +12,11 @@ mclo::assert_exception_matcher::assert_exception_matcher( std::string message )
 
 bool mclo::assert_exception_matcher::match( const test_assert_exception& in ) const
 {
-	return message == in.what();
+	const std::string_view in_message( in.what() );
+	return in_message.find( message ) != std::string_view::npos;
 }
 
 std::string mclo::assert_exception_matcher::describe() const
 {
-	return std::format( "exception message is '{}'", message );
+	return std::format( "assert message contains '{}'", message );
 }

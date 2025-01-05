@@ -4,6 +4,8 @@
 
 #include "mclo/container/small_vector.hpp"
 
+#include "assert_macros.hpp"
+
 #include <array>
 #include <span>
 
@@ -52,6 +54,9 @@ void _expectVectorEmpty( const mclo::small_vector_base<int>& vec )
 	CHECK( 0u == vec.size() );
 	CHECK_THAT( vec, RangeEquals( EmptyArray{} ) );
 	CHECK_THROWS_AS( vec.at( 0 ), std::out_of_range );
+	CHECK_ASSERTS( vec.front(), "Container is empty" );
+	CHECK_ASSERTS( vec.back(), "Container is empty" );
+	CHECK_ASSERTS( vec[ 0 ], "Index out of range" );
 }
 
 static_assert( std::is_convertible_v<mclo::small_vector<int, 40>&, mclo::small_vector_base<int>&> );
@@ -689,6 +694,12 @@ TEST_CASE( "SmallVector_InsertInitializerListAtStartNoAlloc_HasObjects", "[small
 	CHECK( vec.begin() == it );
 }
 
+TEST_CASE( "SmallVector_PopBackEmpty_Asserts", "[small_vector]" )
+{
+	mclo::small_vector<int, 4> vec;
+	CHECK_ASSERTS( vec.pop_back(), "Container is empty" );
+}
+
 TEST_CASE( "SmallVector_PopBackNotEmpty_RemovesLast", "[small_vector]" )
 {
 	mclo::small_vector<int, 4> vec{ 5, 2 };
@@ -797,6 +808,13 @@ TEST_CASE( "SmallVector_AssignRangeOutOfCapacity_ReallocatesObjects", "[small_ve
 	CHECK_THAT( vec, RangeEquals( arr ) );
 }
 
+TEST_CASE( "SmallVector_EraseInvalidIterator_Asserts", "[small_vector]" )
+{
+	mclo::small_vector<int, 4> vec;
+
+	CHECK_ASSERTS( vec.erase( vec.end() + 1 ), "pos must be an iterator in this container" );
+}
+
 TEST_CASE( "SmallVector_EraseIterator_RemovesObjects", "[small_vector]" )
 {
 	mclo::small_vector<int, 4> vec{ 1, 2, 3, 4 };
@@ -806,6 +824,21 @@ TEST_CASE( "SmallVector_EraseIterator_RemovesObjects", "[small_vector]" )
 	CHECK( 3u == vec.size() );
 	CHECK_THAT( vec, RangeEquals( ( std::array{ 1, 2, 4 } ) ) );
 	CHECK( 4 == *it );
+}
+
+TEST_CASE( "SmallVector_EraseInvalidIteratorRange_Asserts", "[small_vector]" )
+{
+	mclo::small_vector<int, 4> vec{ 1, 2, 3, 4 };
+
+	CHECK_ASSERTS( [ & ] { vec.erase( vec.end() + 1, vec.end() + 2 ); }(), "must be an iterator in this container" );
+}
+
+TEST_CASE( "SmallVector_EraseTransposedIteratorRange_Asserts", "[small_vector]" )
+{
+	mclo::small_vector<int, 4> vec{ 1, 2, 3, 4 };
+
+	CHECK_ASSERTS( [ & ] { vec.erase( vec.end(), vec.begin() ); }(),
+				   "first and last must form a valid range in this container" );
 }
 
 TEST_CASE( "SmallVector_EraseIteratorRange_RemovesObjects", "[small_vector]" )

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "mclo/container/synth_three_way.hpp"
+#include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <cinttypes>
 #include <compare>
 #include <concepts>
@@ -182,14 +182,14 @@ namespace mclo
 		using base::max_size;
 		using base::size;
 
-		[[nodiscard]] reference operator[]( const size_type index ) noexcept
+		[[nodiscard]] reference operator[]( const size_type index ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( index < m_size && "Index out of range" );
+			DEBUG_ASSERT( index < m_size, "Index out of range" );
 			return data()[ index ];
 		}
-		[[nodiscard]] const_reference operator[]( const size_type index ) const noexcept
+		[[nodiscard]] const_reference operator[]( const size_type index ) const MCLO_NOEXCEPT_TESTS
 		{
-			assert( index < m_size && "Index out of range" );
+			DEBUG_ASSERT( index < m_size, "Index out of range" );
 			return data()[ index ];
 		}
 
@@ -210,25 +210,25 @@ namespace mclo
 			return data()[ index ];
 		}
 
-		[[nodiscard]] reference front() noexcept
+		[[nodiscard]] reference front() MCLO_NOEXCEPT_TESTS
 		{
-			assert( !empty() && "Container is empty" );
+			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *data();
 		}
-		[[nodiscard]] const_reference front() const noexcept
+		[[nodiscard]] const_reference front() const MCLO_NOEXCEPT_TESTS
 		{
-			assert( !empty() && "Container is empty" );
+			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *data();
 		}
 
-		[[nodiscard]] reference back() noexcept
+		[[nodiscard]] reference back() MCLO_NOEXCEPT_TESTS
 		{
-			assert( !empty() && "Container is empty" );
+			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return data()[ m_size - 1 ];
 		}
-		[[nodiscard]] const_reference back() const noexcept
+		[[nodiscard]] const_reference back() const MCLO_NOEXCEPT_TESTS
 		{
-			assert( !empty() && "Container is empty" );
+			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return data()[ m_size - 1 ];
 		}
 
@@ -330,7 +330,7 @@ namespace mclo
 		template <typename... Args>
 		iterator emplace( const_iterator pos, Args&&... args )
 		{
-			assert( pos >= begin() && pos <= end() && "pos must be an iterator in this container" );
+			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 
 			if ( m_size == m_capacity )
 			{
@@ -364,7 +364,7 @@ namespace mclo
 
 		iterator insert( const_iterator pos, const size_type amount, const_reference value )
 		{
-			assert( pos >= begin() && pos <= end() && "pos must be an iterator in this container" );
+			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 
 			const iterator insert_pos = unwrap_iterator( pos );
 
@@ -444,33 +444,33 @@ namespace mclo
 		{
 			const size_type where_pos = static_cast<size_type>( std::distance( cbegin(), pos ) );
 			const std::size_t amount = init_list.size();
-			assert( amount <= max_size() - m_size && "New size would be greater than max_size" );
+			DEBUG_ASSERT( amount <= max_size() - m_size, "New size would be greater than max_size" );
 			insert_sized( pos, init_list.begin(), static_cast<size_type>( amount ) );
 			return begin() + where_pos;
 		}
 
-		void pop_back() noexcept
+		void pop_back() MCLO_NOEXCEPT_TESTS
 		{
-			assert( !empty() && "Container is empty" );
+			DEBUG_ASSERT( !empty(), "Container is empty" );
 			std::destroy_at( end() - 1 );
 			--m_size;
 		}
 
-		iterator erase( const_iterator pos ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
+		iterator erase( const_iterator pos ) MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_assignable_v<value_type> )
 		{
-			assert( pos >= begin() && pos <= end() && "pos must be an iterator in this container" );
+			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 			const iterator it = unwrap_iterator( pos );
 			std::move( it + 1, end(), it );
 			--m_size;
 			return it;
 		}
 
-		iterator erase( const_iterator first,
-						const_iterator last ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
+		iterator erase( const_iterator first, const_iterator last )
+			MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_assignable_v<value_type> )
 		{
-			assert( first >= begin() && first <= end() && "first must be an iterator in this container" );
-			assert( last >= begin() && last <= end() && "last must be an iterator in this container" );
-			assert( first <= last && "first and last must form a valid range in this container" );
+			DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
+			DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
+			DEBUG_ASSERT( first <= last, "first and last must form a valid range in this container" );
 
 			const iterator first_mut = unwrap_iterator( first );
 			const iterator last_mut = unwrap_iterator( last );
@@ -593,9 +593,9 @@ namespace mclo
 				std::destroy( m_first, m_last );
 			}
 
-			void set_begin( const pointer new_first ) noexcept
+			void set_begin( const pointer new_first ) MCLO_NOEXCEPT_TESTS
 			{
-				assert( new_first <= m_last && "first and last must form a valid range" );
+				DEBUG_ASSERT( new_first <= m_last, "first and last must form a valid range" );
 				m_first = new_first;
 			}
 			void release() noexcept
@@ -740,7 +740,7 @@ namespace mclo
 		template <typename... Args>
 		[[nodiscard]] iterator emplace_reallocate( const_iterator pos, Args&&... args )
 		{
-			assert( m_size == m_capacity && "No unused capacity" );
+			DEBUG_ASSERT( m_size == m_capacity, "No unused capacity" );
 
 			return insert_reallocate( pos, 1, [... args = std::forward<Args>( args ) ]( const pointer ptr ) mutable {
 				std::construct_at( ptr, std::forward<Args>( args )... );
@@ -881,7 +881,7 @@ namespace mclo
 
 		void swap_with_larger( small_vector_base& larger )
 		{
-			assert( m_size < larger.m_size && "larger should actually be larger" );
+			DEBUG_ASSERT( m_size < larger.m_size, "larger should actually be larger" );
 			const size_type overlap_size = m_size;
 			std::swap_ranges( begin(), begin() + overlap_size, larger.begin() );
 
