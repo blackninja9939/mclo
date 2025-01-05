@@ -19,8 +19,16 @@ add_library(${PROJECT_NAME}::${LIBRARY_TARGET_NAME} ALIAS ${LIBRARY_TARGET_NAME}
 
 # Find and link dependencies
 find_package(xsimd CONFIG REQUIRED)
+find_package(libassert CONFIG REQUIRED)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd)
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert)
+
+# Add compile definitions
+target_compile_definitions( 
+    ${LIBRARY_TARGET_NAME}
+    PUBLIC
+        LIBASSERT_USE_MAGIC_ENUM
+)
 
 # Automatically include all public headers from the include folder
 target_include_directories( ${LIBRARY_TARGET_NAME}

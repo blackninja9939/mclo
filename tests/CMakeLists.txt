@@ -2,6 +2,11 @@ find_package( Catch2 3 REQUIRED )
 
 add_executable( tests
 	consteval_check.h
+	assert_exception.hpp
+	assert_macros.hpp
+	assert_macros.cpp
+	assert_listener.cpp
+	assert_macro_tests.cpp
 	array_tests.cpp
 	bit_tests.cpp
 	string_util_tests.cpp
@@ -22,9 +27,14 @@ add_executable( tests
 	xoshiro256plusplus_tests.cpp
 	splitmix64_tests.cpp
 	random_generator_tests.cpp
- "sem_version_tests.cpp")
+ "assert_macro_tests.cpp"	sem_version_tests.cpp
+)
 
-target_compile_definitions( tests PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS )
+target_compile_definitions( 
+	tests 
+	PUBLIC MCLO_CONFIG_ENABLE_TESTING
+	PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+)
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
 
 include(Catch)
