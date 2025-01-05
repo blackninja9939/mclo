@@ -1,7 +1,8 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
+
 #include <bit>
-#include <cassert>
 #include <concepts>
 #include <limits>
 
@@ -58,9 +59,9 @@ namespace mclo
 	}
 
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T modulo_pow2( const T value, const T mod ) noexcept
+	[[nodiscard]] constexpr T modulo_pow2( const T value, const T mod ) MCLO_NOEXCEPT_TESTS
 	{
-		assert( is_pow2( mod ) );
+		DEBUG_ASSERT( is_pow2( mod ), "Mod must be a power of 2" );
 		return value & ( mod - 1 );
 	}
 
@@ -98,9 +99,9 @@ namespace mclo
 		}
 	}
 
-	[[nodiscard]] constexpr std::size_t pow10( const unsigned char exponent ) noexcept
+	[[nodiscard]] constexpr std::size_t pow10( const unsigned char exponent ) MCLO_NOEXCEPT_TESTS
 	{
-		assert( exponent < detail::size( detail::pow10s ) );
+		DEBUG_ASSERT( exponent < detail::size( detail::pow10s ), "Result would overflow std::size_t" );
 		return detail::pow10s[ exponent ];
 	}
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/container/detail/nontrivial_dummy_type.hpp"
+#include "mclo/debug/assert.hpp"
 #include "mclo/hash/constexpr_hash.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
@@ -230,7 +231,7 @@ namespace mclo::detail
 			// All slots are used so we now finally construct the real values
 			for ( std::size_t slot = 0; slot < Size; ++slot )
 			{
-				assert( slot_data_index[ slot ] != 0 );
+				ASSUME( slot_data_index[ slot ] != 0, "Data at slot should be non zero", slot, slot_data_index );
 				const std::size_t data_index = slot_data_index[ slot ] - 1;
 				const pointer storage = std::addressof( m_storage[ slot ] );
 				std::destroy_at( storage );

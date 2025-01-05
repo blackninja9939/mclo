@@ -1,8 +1,8 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
-#include <cassert>
 #include <compare>
 #include <concepts>
 #include <functional>
@@ -32,7 +32,7 @@ namespace mclo
 			{ c_storage.has_value() } noexcept -> std::same_as<bool>;
 			{ storage.reset() } noexcept -> std::same_as<void>;
 			{ c_storage.get() } noexcept -> std::same_as<T>;
-			{ storage.set( value ) } noexcept -> std::same_as<void>;
+			{ storage.set( value ) } MCLO_NOEXCEPT_TESTS -> std::same_as<void>;
 			requires std::copyable<Storage>;
 		};
 	}
@@ -63,9 +63,9 @@ namespace mclo
 		{
 			return m_value;
 		}
-		constexpr void set( const T value ) noexcept
+		constexpr void set( const T value ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( value != invalid );
+			DEBUG_ASSERT( value != invalid, "Value is invalid sentinel" );
 			m_value = value;
 		}
 
@@ -113,7 +113,7 @@ namespace mclo
 		constexpr void set( const Float value ) noexcept
 		{
 			m_value = std::bit_cast<IntRep>( value );
-			assert( m_value != invalid );
+			DEBUG_ASSERT( m_value != invalid, "Value is invalid sentinel" );
 		}
 
 		// We store as an integer so that we can compare against invalid without the NaNs are never equal kicking in
@@ -262,9 +262,9 @@ namespace mclo
 			}
 			return base::get();
 		}
-		[[nodiscard]] T operator*() const noexcept
+		[[nodiscard]] T operator*() const MCLO_NOEXCEPT_TESTS
 		{
-			assert( has_value() );
+			DEBUG_ASSERT( has_value(), "Optional has no value" );
 			return base::get();
 		}
 

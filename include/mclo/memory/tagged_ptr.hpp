@@ -1,12 +1,12 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/memory/allocate_from_tuple.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
 #include <algorithm>
 #include <array>
 #include <bit>
-#include <cassert>
 #include <cinttypes>
 #include <climits>
 #include <cstddef>
@@ -171,11 +171,11 @@ namespace mclo
 		}
 
 	private:
-		[[nodiscard]] static std::uintptr_t pack_ptr( pointer ptr ) noexcept
+		[[nodiscard]] static std::uintptr_t pack_ptr( pointer ptr ) MCLO_NOEXCEPT_TESTS
 		{
 			const auto ptr_bits = reinterpret_cast<std::uintptr_t>( ptr );
-			assert( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ) &&
-					"Ptr is too strictly aligned, it must be aligned to at least Alignment" );
+			DEBUG_ASSERT( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ),
+						  "Ptr is too strictly aligned, it must be aligned to at least Alignment" );
 			return ptr_bits << free_upper_bits;
 		}
 		[[nodiscard]] static pointer unpack_ptr( std::uintptr_t ptr ) noexcept
@@ -183,9 +183,9 @@ namespace mclo
 			return reinterpret_cast<pointer>( ( ptr & ptr_mask ) >> free_upper_bits );
 		}
 
-		[[nodiscard]] static std::uintptr_t pack_tag( const tag_type tag ) noexcept
+		[[nodiscard]] static std::uintptr_t pack_tag( const tag_type tag ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( can_store_tag( tag ) && "Tag using too many bits" );
+			DEBUG_ASSERT( can_store_tag( tag ), "Tag using too many bits" );
 			return pack_tag_unchecked( tag );
 		}
 		[[nodiscard]] static tag_type unpack_tag( std::uintptr_t tag ) noexcept

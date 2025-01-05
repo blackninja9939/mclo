@@ -1,9 +1,9 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
 #include "mclo/numeric/math.hpp"
 
-#include <cassert>
 #include <iterator>
 #include <limits>
 #include <ranges>
@@ -18,7 +18,7 @@ namespace mclo
 		{
 			using underlying_t = std::underlying_type_t<TEnum>;
 			const auto underlying = static_cast<underlying_t>( value );
-			assert( mclo::is_safe_addition( underlying, amount ) );
+			DEBUG_ASSERT( mclo::is_safe_addition( underlying, amount ), "Addition would overflow" );
 			return static_cast<TEnum>( underlying + amount );
 		}
 	}
@@ -138,26 +138,29 @@ namespace mclo
 	public:
 		static_assert( std::is_enum_v<TEnum>, "TEnum must be an enumeration type" );
 
-		constexpr enum_range() noexcept
+		constexpr enum_range() MCLO_NOEXCEPT_TESTS
 			requires mclo::has_enum_size<TEnum>
 			: enum_range( exclusive_enum_range, static_cast<TEnum>( 0 ), enum_size<TEnum> )
 		{
 		}
 
-		constexpr enum_range( const TEnum first, const TEnum last ) noexcept
+		constexpr enum_range( const TEnum first, const TEnum last ) MCLO_NOEXCEPT_TESTS
 			: enum_range( exclusive_enum_range, first, detail::enum_add( last, 1 ) )
 		{
 			if constexpr ( mclo::has_enum_size<TEnum> )
 			{
-				assert( last != mclo::enum_size<TEnum> );
+				DEBUG_ASSERT(
+					last != enum_size<TEnum>,
+					"This constructor is inclusive to its arguments, so passing in EnumSize will include it in the "
+					"range, this is likely an error, either use the default or exclusive_enum_range constructor" );
 			}
 		}
 
-		constexpr enum_range( exclusive_enum_range_t, const TEnum first, const TEnum last ) noexcept
-			: m_begin( first )
-			, m_end( last )
+		constexpr enum_range( exclusive_enum_range_t, const TEnum first, const TEnum last ) MCLO_NOEXCEPT_TESTS
+			: m_begin( first ),
+			  m_end( last )
 		{
-			assert( first <= last );
+			DEBUG_ASSERT( first <= last, "Iterators must form a valid range" );
 		}
 
 		[[nodiscard]] constexpr iterator begin() const noexcept

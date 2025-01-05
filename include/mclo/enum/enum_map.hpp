@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/container/arrow_proxy.hpp"
+#include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
 #include "mclo/utility/array.hpp"
 
@@ -176,8 +177,8 @@ namespace mclo
 		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
 		constexpr enum_map( It first, Sentinel last )
 		{
-			assert( std::ranges::distance( first, last ) <= max_size &&
-					"Iterator pair is over a range larger than this container's max size" );
+			DEBUG_ASSERT( std::ranges::distance( first, last ) <= max_size,
+						  "Iterator pair is over a range larger than this container's max size" );
 			std::ranges::copy( first, last, m_container.begin() );
 		}
 
@@ -185,8 +186,8 @@ namespace mclo
 			requires( !std::convertible_to<Range, const_reference> )
 		constexpr explicit enum_map( Range&& range )
 		{
-			assert( std::ranges::distance( range ) <= max_size &&
-					"Range size is larger than this container's max size" );
+			DEBUG_ASSERT( std::ranges::distance( range ) <= max_size,
+						  "Range size is larger than this container's max size" );
 			std::ranges::copy( range, m_container.begin() );
 		}
 

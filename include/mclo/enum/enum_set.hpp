@@ -49,9 +49,9 @@ namespace mclo
 				return reference{ static_cast<key_type>( m_index ) };
 			}
 
-			constexpr iterator& operator++() noexcept
+			constexpr iterator& operator++() MCLO_NOEXCEPT_TESTS
 			{
-				assert( m_set && "Underlying set is missing" );
+				DEBUG_ASSERT( m_set, "Underlying set is missing" );
 				m_index = m_set->m_container.find_first_set( m_index + 1 );
 				return *this;
 			}

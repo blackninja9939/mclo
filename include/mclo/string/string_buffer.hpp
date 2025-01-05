@@ -2,10 +2,10 @@
 
 #include "ascii_string_utils.hpp"
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <array>
-#include <cassert>
 #include <compare>
 #include <format>
 #include <stdexcept>
@@ -40,11 +40,11 @@ namespace mclo
 
 		constexpr basic_string_buffer() noexcept = default;
 
-		constexpr basic_string_buffer( const size_type count, const value_type ch ) noexcept
+		constexpr basic_string_buffer( const size_type count, const value_type ch ) MCLO_NOEXCEPT_TESTS
 		{
 			resize( count, ch );
 		}
-		constexpr explicit basic_string_buffer( const size_type count ) noexcept
+		constexpr explicit basic_string_buffer( const size_type count ) MCLO_NOEXCEPT_TESTS
 		{
 			resize( count );
 		}
@@ -56,16 +56,16 @@ namespace mclo
 			assign( array );
 		}
 
-		constexpr basic_string_buffer( const view_type& str ) noexcept
+		constexpr basic_string_buffer( const view_type& str ) MCLO_NOEXCEPT_TESTS
 		{
 			assign( str );
 		}
 
 		// Assign
 
-		constexpr void assign( const size_type count, value_type ch ) noexcept
+		constexpr void assign( const size_type count, value_type ch ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( count <= max_string_size );
+			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			traits_assign( m_data.data(), count, ch );
 			m_length = count;
 			null_terminate_end();
@@ -85,15 +85,15 @@ namespace mclo
 			assign_with_null( str, OtherSize - 1 );
 		}
 
-		constexpr void assign( const const_pointer str, const size_type size ) noexcept
+		constexpr void assign( const const_pointer str, const size_type size ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( size <= max_string_size );
+			DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
 			traits_copy( m_data.data(), str, size );
 			m_length = size;
 			null_terminate_end();
 		}
 
-		constexpr void assign( const view_type& str ) noexcept
+		constexpr void assign( const view_type& str ) MCLO_NOEXCEPT_TESTS
 		{
 			assign( str.data(), str.size() );
 		}
@@ -117,36 +117,36 @@ namespace mclo
 			return m_data[ pos ];
 		}
 
-		[[nodiscard]] constexpr reference operator[]( const size_type pos ) noexcept
+		[[nodiscard]] constexpr reference operator[]( const size_type pos ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( pos < m_length );
+			DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
 			return m_data[ pos ];
 		}
-		[[nodiscard]] constexpr const_reference operator[]( const size_type pos ) const noexcept
+		[[nodiscard]] constexpr const_reference operator[]( const size_type pos ) const MCLO_NOEXCEPT_TESTS
 		{
-			assert( pos < m_length );
+			DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
 			return m_data[ pos ];
 		}
 
-		[[nodiscard]] constexpr reference front() noexcept
+		[[nodiscard]] constexpr reference front() MCLO_NOEXCEPT_TESTS
 		{
-			assert( m_length > 0 );
+			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.front();
 		}
-		[[nodiscard]] constexpr const_reference front() const noexcept
+		[[nodiscard]] constexpr const_reference front() const MCLO_NOEXCEPT_TESTS
 		{
-			assert( m_length > 0 );
+			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.front();
 		}
 
-		[[nodiscard]] constexpr reference back() noexcept
+		[[nodiscard]] constexpr reference back() MCLO_NOEXCEPT_TESTS
 		{
-			assert( m_length > 0 );
+			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.back();
 		}
-		[[nodiscard]] constexpr const_reference back() const noexcept
+		[[nodiscard]] constexpr const_reference back() const MCLO_NOEXCEPT_TESTS
 		{
-			assert( m_length > 0 );
+			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.back();
 		}
 
@@ -249,9 +249,9 @@ namespace mclo
 			return max_string_size;
 		}
 
-		constexpr void reserve( [[maybe_unused]] const size_type size ) noexcept
+		constexpr void reserve( [[maybe_unused]] const size_type size ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( size <= max_string_size );
+			DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
 		}
 
 		constexpr void shrink_to_fit() noexcept
@@ -284,9 +284,9 @@ namespace mclo
 			lhs.swap( rhs );
 		}
 
-		constexpr void resize( const size_type count, const value_type ch ) noexcept
+		constexpr void resize( const size_type count, const value_type ch ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( count <= max_string_size );
+			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			if ( count == m_length )
 			{
 				return;
@@ -303,9 +303,9 @@ namespace mclo
 			null_terminate_end();
 		}
 
-		constexpr void resize( const size_type count ) noexcept
+		constexpr void resize( const size_type count ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( count <= max_string_size );
+			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			if ( count > m_length )
 			{
 				// We know we're filling null terminator so do it as part of the fill_n itself so do not call
@@ -320,23 +320,23 @@ namespace mclo
 			}
 		}
 
-		constexpr void push_back( const value_type c ) noexcept
+		constexpr void push_back( const value_type c ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( m_length < max_string_size );
+			DEBUG_ASSERT( m_length < max_string_size, "Count would be larger than max string size" );
 			traits_type::assign( m_data[ m_length++ ], c );
 			null_terminate_end();
 		}
 
-		constexpr void pop_back() noexcept
+		constexpr void pop_back() MCLO_NOEXCEPT_TESTS
 		{
-			assert( m_length > 0 );
+			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			--m_length;
 			null_terminate_end();
 		}
 
-		constexpr void append( const view_type& string ) noexcept
+		constexpr void append( const view_type& string ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( string.size() + m_length <= max_string_size );
+			DEBUG_ASSERT( string.size() + m_length < max_string_size, "Count would be larger than max string size" );
 			traits_copy( m_data.data() + m_length, string.data(), string.size() );
 			m_length += string.size();
 			null_terminate_end();
@@ -478,7 +478,7 @@ namespace mclo
 		for ( std::size_t i = 0; i < N - 1; ++i )
 		{
 			const char ch = str[ i ];
-			assert( mclo::is_ascii( ch ) );
+			DEBUG_ASSERT( mclo::is_ascii( ch ), "Character is not ascii", ch );
 			buffer[ i ] = static_cast<CharT>( ch );
 		}
 		return buffer;

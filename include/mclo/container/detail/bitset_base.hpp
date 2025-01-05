@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/hash/hash.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/preprocessor/platform.hpp"
@@ -128,9 +129,9 @@ namespace mclo::detail
 			return ( m_container[ page ] & bit_value ) != 0;
 		}
 
-		[[nodiscard]] constexpr bool test_set( const std::size_t pos, const bool value = true ) noexcept
+		[[nodiscard]] constexpr bool test_set( const std::size_t pos, const bool value = true ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( pos < size() );
+			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const std::size_t page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			underlying_type& data = m_container[ page ];
@@ -211,7 +212,7 @@ namespace mclo::detail
 			return as_derived();
 		}
 
-		constexpr Derived& set( const std::size_t pos ) noexcept
+		constexpr Derived& set( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
 		{
 			return set_internal<true>( pos );
 		}
@@ -234,7 +235,7 @@ namespace mclo::detail
 			return as_derived();
 		}
 
-		constexpr Derived& reset( const std::size_t pos ) noexcept
+		constexpr Derived& reset( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
 		{
 			return set_internal<false>( pos );
 		}
@@ -249,9 +250,9 @@ namespace mclo::detail
 			return as_derived();
 		}
 
-		constexpr Derived& flip( const std::size_t pos ) noexcept
+		constexpr Derived& flip( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( pos < size() );
+			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const std::size_t page = pos / bits_per_value;
 			const std::size_t index = pos % bits_per_value;
 			m_container[ page ] ^= one << index;
@@ -500,9 +501,9 @@ namespace mclo::detail
 
 	private:
 		template <bool value>
-		[[nodiscard]] constexpr Derived& set_internal( const std::size_t pos ) noexcept
+		[[nodiscard]] constexpr Derived& set_internal( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
 		{
-			assert( pos < size() );
+			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const std::size_t page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			underlying_type& data = m_container[ page ];

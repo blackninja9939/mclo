@@ -1,5 +1,6 @@
 #include <benchmark/benchmark.h>
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_string_bi_map.hpp"
 
 #include <charconv>
@@ -68,7 +69,7 @@ namespace
 			str_array& hashStr = strs[ i ];
 			const std::size_t hash = mclo::constexpr_hash( &i, 1 );
 			const std::to_chars_result result = std::to_chars( hashStr.data(), hashStr.data() + hashStr.size(), hash );
-			assert( result.ec == std::errc{} );
+			DEBUG_ASSERT( result.ec == std::errc{}, "Parsing should succeed" );
 
 			str = { hashStr.data(), result.ptr };
 			++i;

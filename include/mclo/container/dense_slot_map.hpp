@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/container/slot_map_handle.hpp"
+#include "mclo/debug/assert.hpp"
 
 #include <cinttypes>
 #include <optional>
@@ -150,7 +151,7 @@ namespace mclo
 			}
 			if ( current_size < capacity() )
 			{
-				assert( current_size <= slot_count() );
+				DEBUG_ASSERT( current_size <= slot_count(), "Size should be less than or equal to slot_count" );
 				return emplace_and_get_with_guard<noop_guard>( std::forward<Args>( arguments )... );
 			}
 			return emplace_and_get_with_guard<emplace_guard>( std::forward<Args>( arguments )... );
@@ -516,7 +517,7 @@ namespace mclo
 				m_slot_indirection.push_back( handle_type{ new_num_slots, {} } );
 			}
 
-			assert( new_num_slots == slot_count() );
+			DEBUG_ASSERT( new_num_slots == slot_count(), "New num slots should equal slot_count" );
 
 			// Our re-used handle for this object
 			handle_type& handle = m_slot_indirection[ slot_index ];
