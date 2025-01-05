@@ -1,10 +1,16 @@
 {
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "mclo",
+  "maintainers": [
+    "Matthew Clohessy"
+  ],
   "version": "1.0",
+  "builtin-baseline": "65be7019941e1401e02daaba0738cab2c8a4a355",
   "dependencies": [
     "catch2",
     "benchmark",
     "xsimd",
-    "tl-expected"
+    "tl-expected",
+    "libassert"
   ]
 }
