@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mclo/hash/hash_append.hpp"
+#include "mclo/hash/std_adapter.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <concepts>
@@ -51,12 +53,20 @@ namespace mclo
 			swap( lhs.value, rhs.value );
 		}
 
-		constexpr auto operator<=>( const new_type& rhs ) const noexcept = default;
+		template <hasher Hasher>
+		friend void hash_append( Hasher& hasher, const new_type& object ) noexcept
+		{
+			hash_append( hasher, object.value );
+		}
+
+		[[nodiscard]] constexpr auto operator<=>( const new_type& rhs ) const noexcept = default;
 	};
 }
 
 namespace std
 {
+	// Specifically doesn't use hash_append because it's a new type and the value should be hashed directly like its std
+	// counterpart
 	template <typename T, typename Tag>
 	struct hash<mclo::new_type<T, Tag>>
 	{

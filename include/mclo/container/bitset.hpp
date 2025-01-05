@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
+#include "mclo/hash/std_adapter.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
 #include <array>
@@ -117,12 +118,7 @@ namespace mclo
 namespace std
 {
 	template <std::size_t Bits, std::unsigned_integral UnderlyingType>
-	struct hash<mclo::bitset<Bits, UnderlyingType>>
+	struct hash<mclo::bitset<Bits, UnderlyingType>> : mclo::std_hash_adapter<mclo::bitset<Bits, UnderlyingType>>
 	{
-		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()(
-			const mclo::bitset<Bits, UnderlyingType>& bitset ) MCLO_CONST_CALL_OPERATOR noexcept
-		{
-			return mclo::hash( bitset );
-		}
 	};
 }

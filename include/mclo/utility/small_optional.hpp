@@ -1,6 +1,8 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
+#include "mclo/hash/hash_append.hpp"
+#include "mclo/hash/std_adapter.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <compare>
@@ -32,7 +34,8 @@ namespace mclo
 			{ c_storage.has_value() } noexcept -> std::same_as<bool>;
 			{ storage.reset() } noexcept -> std::same_as<void>;
 			{ c_storage.get() } noexcept -> std::same_as<T>;
-			{ storage.set( value ) } MCLO_NOEXCEPT_TESTS -> std::same_as<void>;
+			{ storage.set( value ) }
+			MCLO_NOEXCEPT_TESTS->std::same_as<void>;
 			requires std::copyable<Storage>;
 		};
 	}
@@ -285,6 +288,15 @@ namespace mclo
 		{
 			lhs.swap( rhs );
 		}
+
+		template <hasher Hasher>
+		friend void hash_append( Hasher& hasher, const small_optional& value ) noexcept
+		{
+			if ( value )
+			{
+				hash_append( hasher, *value );
+			}
+		}
 	};
 
 	template <typename T, typename U>
@@ -317,8 +329,6 @@ namespace mclo
 }
 
 template <typename T>
-struct std::hash<mclo::small_optional<T>>
+struct std::hash<mclo::small_optional<T>> : mclo::std_hash_adapter<mclo::small_optional<T>>
 {
-	[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()( const mclo::small_optional<T> value )
-		MCLO_CONST_CALL_OPERATOR MCLO_NOEXCEPT_AND_BODY( value ? std::hash<T>()( *value ) : 0 )
 };

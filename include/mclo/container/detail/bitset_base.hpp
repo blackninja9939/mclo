@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash.hpp"
+#include "mclo/hash/hash_append_range.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
@@ -496,7 +496,7 @@ namespace mclo::detail
 		template <hasher Hasher>
 		friend void hash_append( Hasher& hasher, const Derived& value ) noexcept
 		{
-			hasher.write( std::as_bytes( value.underlying() ) );
+			hash_append_range( hasher, value.underlying() );
 		}
 
 	private:

@@ -29,10 +29,6 @@ namespace mclo
 		{
 			hash_append( hasher, *value );
 		}
-		else
-		{
-			hash_append( hasher, 0 );
-		}
 	}
 
 	template <mclo::hasher Hasher, typename T, typename Deleter>

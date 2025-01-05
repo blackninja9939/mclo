@@ -1,6 +1,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include "mclo/hash/std_types.hpp"
 #include "mclo/meta/type_list.hpp"
 #include "mclo/utility/new_type.hpp"
 

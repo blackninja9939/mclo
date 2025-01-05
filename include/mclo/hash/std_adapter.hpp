@@ -2,14 +2,17 @@
 
 #include "mclo/hash/hash.hpp"
 
+#include "mclo/preprocessor/platform.hpp"
+
 namespace mclo
 {
-	template <hasher Hasher = default_hasher, hashable_with<Hasher> T>
-	struct hasher_for
+	template <hashable_with<default_hasher> T>
+	struct std_hash_adapter
 	{
-		std::size_t operator()( const T& value ) const noexcept
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()( const T& value )
+			MCLO_CONST_CALL_OPERATOR noexcept
 		{
-			return hash<Hasher>( value );
+			return hash<default_hasher>( value );
 		}
 	};
 }

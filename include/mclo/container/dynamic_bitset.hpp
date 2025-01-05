@@ -2,6 +2,7 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
+#include "mclo/hash/std_adapter.hpp"
 
 #include <vector>
 
@@ -75,11 +76,7 @@ namespace std
 {
 	template <std::unsigned_integral UnderlyingType, typename Allocator>
 	struct hash<mclo::dynamic_bitset<UnderlyingType, Allocator>>
+		: mclo::std_hash_adapter<mclo::dynamic_bitset<UnderlyingType, Allocator>>
 	{
-		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()(
-			const mclo::dynamic_bitset<UnderlyingType, Allocator>& bitset ) MCLO_CONST_CALL_OPERATOR noexcept
-		{
-			return mclo::hash( bitset );
-		}
 	};
 }
