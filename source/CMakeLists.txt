@@ -29,7 +29,6 @@ target_compile_definitions(
     ${LIBRARY_TARGET_NAME}
     PUBLIC
         LIBASSERT_USE_FMT
-        LIBASSERT_USE_MAGIC_ENUM
 )
 
 # Automatically include all public headers from the include folder
