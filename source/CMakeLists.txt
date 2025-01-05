@@ -12,6 +12,8 @@ add_library( ${LIBRARY_TARGET_NAME}
     "hash/murmur_hash_3.cpp"
     "random/xoshiro256plusplus.cpp"
     "random/splitmix64.cpp"
+    "threading/mutex.cpp"
+    "threading/condition_variable.cpp"
 )
 
 set_target_properties(

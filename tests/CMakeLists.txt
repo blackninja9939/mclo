@@ -27,7 +27,8 @@ add_executable( tests
 	xoshiro256plusplus_tests.cpp
 	splitmix64_tests.cpp
 	random_generator_tests.cpp
- "assert_macro_tests.cpp"	sem_version_tests.cpp
+	mutex_tests.cpp
+	sem_version_tests.cpp
 )
 
 target_compile_definitions( 
