@@ -29,6 +29,7 @@ add_executable( tests
 	random_generator_tests.cpp
 	mutex_tests.cpp
 	sem_version_tests.cpp
+	try_tests.cpp
 )
 
 target_compile_definitions( 
