@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/concepts/arithmetic.hpp"
 #include "mclo/debug/assert.hpp"
 
 #include <concepts>
@@ -8,9 +9,6 @@
 
 namespace mclo
 {
-	template <typename T>
-	concept arithmetic = std::integral<T> || std::floating_point<T>;
-
 	template <std::uniform_random_bit_generator Engine>
 	class random_generator
 	{

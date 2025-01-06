@@ -30,6 +30,7 @@ add_executable( tests
 	mutex_tests.cpp
 	sem_version_tests.cpp
 	try_tests.cpp
+	string_builder_tests.cpp
 )
 
 target_compile_definitions( 
