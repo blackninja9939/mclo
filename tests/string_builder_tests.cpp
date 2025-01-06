@@ -1,6 +1,8 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
+#include "assert_macros.hpp"
+
 #include "mclo/meta/type_list.hpp"
 #include "mclo/string/string_builder.hpp"
 
@@ -63,4 +65,21 @@ TEMPLATE_LIST_TEST_CASE( "string_builder to_string", "[string_builder]", test_ty
 	builder.append( "def" );
 	CHECK( str == "abc" );
 	CHECK( builder.to_string() == "abcdef" );
+}
+
+TEST_CASE( "string_builder reallocation", "[string_builder]" )
+{
+	mclo::string_builder builder( 3 );
+	builder.append( "ab" );
+	builder.append( 'c' );
+	builder.append( 'd' );
+	CHECK( builder.view() == "abcd" );
+}
+
+TEST_CASE( "fixed_string_builder reallocation asserts", "[string_builder]" )
+{
+	mclo::fixed_string_builder<3> builder;
+	builder.append( "ab" );
+	builder.append( 'c' );
+	CHECK_ASSERTS( builder.append( 'd' ), "Trying to grow fixed string builder buffer" );
 }

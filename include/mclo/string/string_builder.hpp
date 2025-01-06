@@ -182,7 +182,7 @@ namespace mclo
 
 		char* create_buffer( const std::size_t new_capacity )
 		{
-			PANIC( "Trying to grow fixed buffer", new_capacity );
+			PANIC( "Trying to grow fixed string builder buffer", new_capacity );
 		}
 		void destroy_buffer( char* )
 		{
