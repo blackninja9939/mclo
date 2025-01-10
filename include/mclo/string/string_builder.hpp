@@ -10,30 +10,25 @@
 
 namespace mclo
 {
-	template <typename Derived>
+	template <typename Buffer>
 	class string_builder_base
 	{
 	public:
-		explicit string_builder_base( char* const buffer )
-			: m_buffer( buffer )
-		{
-			DEBUG_ASSERT( buffer != nullptr, "Buffer must not be null" );
-		}
+		string_builder_base() noexcept( std::is_nothrow_default_constructible_v<Buffer> )
+			requires std::constructible_from<Buffer>
+		= default;
 
-		~string_builder_base()
+		template <typename... Args>
+		explicit( !std::convertible_to<Buffer, Args...> )
+			string_builder_base( Args&&... args ) noexcept( std::is_nothrow_constructible_v<Buffer, Args...> )
+			: m_buffer( std::forward<Args>( args )... )
 		{
-			static_cast<Derived&>( *this ).destroy_buffer( m_buffer );
 		}
-
-		string_builder_base( const string_builder_base& ) = delete;
-		string_builder_base& operator=( const string_builder_base& ) = delete;
-		string_builder_base( string_builder_base&& ) = delete;
-		string_builder_base& operator=( string_builder_base&& ) = delete;
 
 		void append( const char c )
 		{
 			grow_by_if_needed( 1 );
-			m_buffer[ m_position++ ] = c;
+			buffer()[ m_position++ ] = c;
 		}
 
 		template <std::convertible_to<std::string_view> StringView>
@@ -62,12 +57,12 @@ namespace mclo
 				result = std::to_chars( write_start(), write_end(), value );
 				DEBUG_ASSERT( result.ec == std::errc{}, "This write should definitely succeed" );
 			}
-			m_position = result.ptr - m_buffer;
+			m_position = result.ptr - buffer();
 		}
 
 		std::string_view view() const noexcept
 		{
-			return std::string_view( m_buffer, m_position );
+			return std::string_view( buffer(), m_position );
 		}
 
 		std::string to_string() const
@@ -78,8 +73,9 @@ namespace mclo
 		const char* c_str()
 		{
 			grow_by_if_needed( 1 );
-			m_buffer[ m_position ] = '\0';
-			return m_buffer;
+			char* const buff = buffer();
+			buff[ m_position ] = '\0';
+			return buff;
 		}
 
 		void clear() noexcept
@@ -90,104 +86,104 @@ namespace mclo
 	private:
 		std::size_t capacity() const noexcept
 		{
-			return static_cast<const Derived&>( *this ).capacity();
+			return m_buffer.capacity();
 		}
 
-		char* write_start() const noexcept
+		const char* buffer() const noexcept
 		{
-			return m_buffer + m_position;
+			return m_buffer.get();
 		}
-		char* write_end() const noexcept
+		char* buffer() noexcept
 		{
-			return m_buffer + capacity();
+			return m_buffer.get();
+		}
+
+		char* write_start() noexcept
+		{
+			return buffer() + m_position;
+		}
+		char* write_end() noexcept
+		{
+			return buffer() + capacity();
 		}
 
 		void grow_by_if_needed( const std::size_t amount )
 		{
-			Derived& derived = static_cast<Derived&>( *this );
-
 			const std::size_t new_size = m_position + amount;
-			const std::size_t current_capacity = derived.capacity();
+			const std::size_t current_capacity = capacity();
 			if ( new_size <= current_capacity )
 			{
 				return;
 			}
 
 			const std::size_t new_capacity = std::max( current_capacity * 2, new_size );
-
-			char* const new_buffer = derived.create_buffer( new_capacity );
-			std::memcpy( new_buffer, m_buffer, m_position );
-
-			derived.destroy_buffer( m_buffer );
-			m_buffer = new_buffer;
-			derived.set_capacity( new_capacity );
+			m_buffer.resize( m_position, new_capacity );
 		}
 
-		char* m_buffer = nullptr;
+		Buffer m_buffer;
 		std::size_t m_position = 0;
 	};
 
-	class string_builder : public string_builder_base<string_builder>
+	namespace detail
 	{
-		friend class string_builder_base<string_builder>;
+		struct dynamic_string_buffer
+		{
+			dynamic_string_buffer( const std::size_t capacity = 1024 )
+				: m_buffer( std::make_unique<char[]>( capacity ) )
+				, m_capacity( capacity )
+			{
+			}
 
-	public:
-		string_builder( const std::size_t inital_size = 1024 )
-			: string_builder_base( create_buffer( inital_size ) )
-			, m_capacity( inital_size )
-		{
-		}
+			char* get() const noexcept
+			{
+				return m_buffer.get();
+			}
 
-	private:
-		std::size_t capacity() const noexcept
-		{
-			return m_capacity;
-		}
-		void set_capacity( const std::size_t new_capacity ) noexcept
-		{
-			m_capacity = new_capacity;
-		}
+			std::size_t capacity() const noexcept
+			{
+				return m_capacity;
+			}
 
-		char* create_buffer( const std::size_t new_capacity )
-		{
-			return new char[ new_capacity ];
-		}
-		void destroy_buffer( char* buffer )
-		{
-			delete[] buffer;
-		}
+			void resize( const std::size_t size, const std::size_t new_capacity )
+			{
+				auto new_buffer = std::make_unique<char[]>( new_capacity );
+				std::memcpy( new_buffer.get(), get(), size );
+				m_buffer = std::move( new_buffer );
+				m_capacity = new_capacity;
+			}
 
-		std::size_t m_capacity = 0;
-	};
+			std::unique_ptr<char[]> m_buffer;
+			std::size_t m_capacity;
+		};
 
-	template <std::size_t BufferSize>
-	class fixed_string_builder : public string_builder_base<fixed_string_builder<BufferSize>>
-	{
-		friend class string_builder_base<fixed_string_builder<BufferSize>>;
+		template <std::size_t Capacity>
+		struct fixed_string_buffer
+		{
+			const char* get() const noexcept
+			{
+				return m_buffer;
+			}
+			char* get() noexcept
+			{
+				return m_buffer;
+			}
 
-	public:
-		fixed_string_builder() noexcept
-			: string_builder_base<fixed_string_builder<BufferSize>>( m_buffer )
-		{
-		}
+			static constexpr std::size_t capacity() noexcept
+			{
+				return Capacity;
+			}
 
-	private:
-		std::size_t capacity() const noexcept
-		{
-			return BufferSize;
-		}
-		void set_capacity( const std::size_t ) noexcept
-		{
-		}
+			void resize( const std::size_t, const std::size_t new_capacity )
+			{
+				PANIC( "Trying to grow fixed size string builder buffer", new_capacity, Capacity );
+			}
 
-		char* create_buffer( const std::size_t new_capacity )
-		{
-			PANIC( "Trying to grow fixed string builder buffer", new_capacity );
-		}
-		void destroy_buffer( char* )
-		{
-		}
+			char m_buffer[ Capacity ];
+		};
+	}
 
-		char m_buffer[ BufferSize ];
-	};
+	using string_builder = string_builder_base<detail::dynamic_string_buffer>;
+
+	template <std::size_t Capacity>
+	using fixed_string_builder = string_builder_base<detail::fixed_string_buffer<Capacity>>;
 }

@@ -18,5 +18,5 @@ bool mclo::assert_exception_matcher::match( const test_assert_exception& in ) co
 
 std::string mclo::assert_exception_matcher::describe() const
 {
-	return fmt::format( "assert message contains '{}'", message );
+	return fmt::format( "assert message contains: '{}'", message );
 }

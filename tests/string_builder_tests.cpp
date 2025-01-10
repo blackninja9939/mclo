@@ -81,5 +81,5 @@ TEST_CASE( "fixed_string_builder reallocation asserts", "[string_builder]" )
 	mclo::fixed_string_builder<3> builder;
 	builder.append( "ab" );
 	builder.append( 'c' );
-	CHECK_ASSERTS( builder.append( 'd' ), "Trying to grow fixed string builder buffer" );
+	CHECK_ASSERTS( builder.append( 'd' ), "Trying to grow fixed size string builder buffer" );
 }
