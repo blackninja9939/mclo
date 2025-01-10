@@ -16,9 +16,9 @@ namespace mclo
 		mutex( const mutex& ) = delete;
 		mutex& operator=( const mutex& ) = delete;
 
-		void lock();
-		[[nodiscard]] bool try_lock();
-		void unlock();
+		_Acquires_lock_( m_buffer ) void lock();
+		_When_( return != 0, _Acquires_exclusive_lock_( m_buffer ) ) [[nodiscard]] bool try_lock();
+		_Releases_lock_( m_buffer ) void unlock();
 
 	private:
 		alignas( void* ) std::byte m_buffer[ sizeof( void* ) ] = {};

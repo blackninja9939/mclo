@@ -2,6 +2,7 @@
 
 #include "mclo/concepts/arithmetic.hpp"
 #include "mclo/debug/assert.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <charconv>
 #include <concepts>
@@ -120,7 +121,7 @@ namespace mclo
 			m_buffer.resize( m_position, new_capacity );
 		}
 
-		Buffer m_buffer;
+		Buffer m_buffer{};
 		std::size_t m_position = 0;
 	};
 
@@ -159,6 +160,10 @@ namespace mclo
 		template <std::size_t Capacity>
 		struct fixed_string_buffer
 		{
+			MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 26495 )
+			fixed_string_buffer() = default;
+			MCLO_MSVC_POP_WARNINGS
+
 			const char* get() const noexcept
 			{
 				return m_buffer;
@@ -173,7 +178,7 @@ namespace mclo
 				return Capacity;
 			}
 
-			void resize( const std::size_t, const std::size_t new_capacity )
+			[[noreturn]] void resize( const std::size_t, const std::size_t new_capacity )
 			{
 				PANIC( "Trying to grow fixed size string builder buffer", new_capacity, Capacity );
 			}
