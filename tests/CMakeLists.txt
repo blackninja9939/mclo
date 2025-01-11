@@ -31,7 +31,9 @@ add_executable( tests
 	sem_version_tests.cpp
 	try_tests.cpp
 	string_builder_tests.cpp
- "not_null_tests.cpp")
+	not_null_tests.cpp
+	intrusive_ptr_tests.cpp
+)
 
 target_compile_definitions( 
 	tests 
