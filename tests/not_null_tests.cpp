@@ -36,7 +36,7 @@ namespace
 
 	struct unqiue_pointer_context
 	{
-		using pointer = mclo::not_null < std::unique_ptr<int>;
+		using pointer = mclo::not_null<std::unique_ptr<int>>;
 
 		static pointer null()
 		{
