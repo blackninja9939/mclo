@@ -3,6 +3,7 @@
 #include <catch2/matchers/catch_matchers_all.hpp>
 
 #include "mclo/container/small_vector.hpp"
+#include "mclo/container/static_vector.hpp"
 
 #include "assert_macros.hpp"
 
@@ -919,4 +920,11 @@ TEST_CASE( "SmallVector_ReverseIterate_IsCorrect", "[small_vector]" )
 	const bool result = std::equal( vec.rbegin(), vec.rend(), reversedVec.begin(), reversedVec.end() );
 
 	CHECK( result );
+}
+
+TEST_CASE( "StaticVector_ResizeMore_Asserts", "[small_vector]" )
+{
+	mclo::static_vector<int, 4> vec;
+
+	CHECK_ASSERTS( vec.resize( 8 ), "Attempting to grow fixed capacity inline buffer vector" );
 }
