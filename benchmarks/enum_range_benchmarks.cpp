@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include "mclo/enum_range.hpp"
+#include "mclo/enum/enum_range.hpp"
 
 namespace
 {

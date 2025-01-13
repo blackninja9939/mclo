@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 
-#include "mclo/bitset.hpp"
+#include "mclo/container/bitset.hpp"
+#include "mclo/container/dynamic_bitset.hpp"
 
 #include <bitset>
 

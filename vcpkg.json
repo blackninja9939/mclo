@@ -12,7 +12,6 @@
     "benchmark",
     "xsimd",
     "tl-expected",
-    "libassert",
-    "spdlog"
+    "libassert"
   ]
 }
