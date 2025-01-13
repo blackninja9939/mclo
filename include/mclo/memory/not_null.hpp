@@ -105,4 +105,7 @@ namespace mclo
 	{
 		return lhs.get() == rhs.get();
 	}
+
+	template <typename T, typename Deleter = std::default_delete<T>>
+	using not_null_unique_ptr = not_null<std::unique_ptr<T, Deleter>>;
 }

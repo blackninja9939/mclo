@@ -3,6 +3,9 @@
 #
 cmake_minimum_required( VERSION 3.28 )
 
+option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_BENCHMARKS "Build benchmarks" OFF)
+
 set( CMAKE_COMPILE_WARNING_AS_ERROR ON )
 set( CMAKE_CXX_STANDARD 20 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
@@ -46,6 +49,11 @@ endif()
 # Include sub-projects.
 add_subdirectory("source")
 
-enable_testing()
-add_subdirectory("tests")
-add_subdirectory("benchmarks")
+if(BUILD_BENCHMARKS)
+	add_subdirectory("benchmarks")
+endif()
+
+if(BUILD_TESTS)
+	enable_testing()
+	add_subdirectory("tests")
+endif()
