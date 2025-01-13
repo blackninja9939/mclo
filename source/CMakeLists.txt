@@ -14,6 +14,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "random/splitmix64.cpp"
     "threading/mutex.cpp"
     "threading/condition_variable.cpp"
+    "threading/thread_properties.cpp"
 )
 
 set_target_properties(
