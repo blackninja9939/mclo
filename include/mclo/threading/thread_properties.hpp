@@ -13,17 +13,17 @@ namespace mclo
 	enum class thread_priority : int
 	{
 #ifdef _WIN32
-		High = THREAD_PRIORITY_HIGHEST,
-		Elevated = THREAD_PRIORITY_ABOVE_NORMAL,
-		Normal = THREAD_PRIORITY_NORMAL,
-		Low = THREAD_PRIORITY_BELOW_NORMAL,
-		Lowest = THREAD_PRIORITY_LOWEST,
+		high = THREAD_PRIORITY_HIGHEST,
+		elevated = THREAD_PRIORITY_ABOVE_NORMAL,
+		normal = THREAD_PRIORITY_NORMAL,
+		low = THREAD_PRIORITY_BELOW_NORMAL,
+		lowest = THREAD_PRIORITY_LOWEST,
 #else
-		Normal = 5,
-		High = Normal + 2,
-		Elevated = Normal + 1,
-		Low = Normal - 1,
-		Lowest = Normal - 2,
+		normal = 5,
+		high = normal + 2,
+		elevated = normal + 1,
+		low = normal - 1,
+		lowest = normal - 2,
 #endif
 	};
 
