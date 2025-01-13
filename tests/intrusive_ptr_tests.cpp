@@ -141,16 +141,6 @@ TEST_CASE( "intrusive_ptr with reset clears and decrements reference", "[new_typ
 	CHECK( deleted );
 }
 
-TEST_CASE( "intrusive_ptr reset clears and decrements reference", "[new_type]" )
-{
-	bool deleted = false;
-	const auto raw = new deletion_tracker( deleted );
-	mclo::intrusive_ptr<deletion_tracker> ptr( raw );
-	ptr.reset();
-	CHECK_FALSE( ptr );
-	CHECK( deleted );
-}
-
 TEST_CASE( "intrusive_ptr reset nullptr clears and decrements reference", "[new_type]" )
 {
 	bool deleted = false;
