@@ -121,7 +121,7 @@ namespace mclo
 			const size_type index = static_cast<size_type>( value );
 			const bool alreadySet = m_container.test_set( index );
 			return {
-				iterator{ *this, index },
+				iterator{*this, index},
                 !alreadySet
             };
 		}
@@ -177,6 +177,43 @@ namespace mclo
 		[[nodiscard]] constexpr bool contains( const value_type key ) const noexcept
 		{
 			return m_container.test( static_cast<size_type>( key ) );
+		}
+
+		// Compute the union of the two sets, that is the set of elements that are in either set
+		constexpr void merge( const enum_set& other ) noexcept
+		{
+			m_container |= other.m_container;
+		}
+
+		// Compute the intersection of the two sets, that is the set of elements that are in both sets
+		constexpr void intersect( const enum_set& other ) noexcept
+		{
+			m_container &= other.m_container;
+		}
+
+		// Compute the difference of the two sets, that is the set of elements that are in one of the sets but not in
+		// both
+		constexpr void difference( const enum_set& other ) noexcept
+		{
+			m_container ^= other.m_container;
+		}
+
+		// Check if this set include all elements of the other set
+		[[nodiscard]] constexpr bool includes( const enum_set& other ) const noexcept
+		{
+			return ( m_container & other.m_container ) == other.m_container;
+		}
+
+		// Check if this set include any elements of the other set
+		[[nodiscard]] constexpr bool overlaps( const enum_set& other ) const noexcept
+		{
+			return ( m_container & other.m_container ).any();
+		}
+
+		// Check if this set include no elements of the other set
+		[[nodiscard]] constexpr bool disjoint( const enum_set& other ) const noexcept
+		{
+			return ( m_container & other.m_container ).none();
 		}
 
 		constexpr void forEachSet( std::invocable<value_type> auto func ) const noexcept
