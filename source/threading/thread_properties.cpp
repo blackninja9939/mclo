@@ -4,7 +4,8 @@
 #include "mclo/enum/enum_map.hpp"
 
 template <>
-constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = mclo::thread_priority::high;
+constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = static_cast<mclo::thread_priority>(
+	static_cast<std::underlying_type_t<mclo::thread_priority>>( mclo::thread_priority::high ) + 1 );
 
 #ifdef _WIN32
 
@@ -45,8 +46,8 @@ void mclo::set_thread_priority( std::thread& thread, const thread_priority prior
 
 void mclo::set_thread_affinity( std::thread& thread, const std::uint64_t affinity )
 {
-	const DWORD_PTR result = SetThreadAffinityMask( thread.native_handle(), affinity );
-	DEBUG_ASSERT( result == affinity, "Fauked to set thread affinity", GetLastError() );
+	[[maybe_unused]] const DWORD_PTR result = SetThreadAffinityMask( thread.native_handle(), affinity );
+	DEBUG_ASSERT( result == affinity, "Failed to set thread affinity", GetLastError() );
 }
 
 #else
