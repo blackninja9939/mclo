@@ -15,6 +15,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/mutex.cpp"
     "threading/condition_variable.cpp"
     "threading/thread_properties.cpp"
+    "threading/windows_wrapper.h"
 )
 
 set_target_properties(

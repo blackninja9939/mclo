@@ -1,7 +1,7 @@
 #include "mclo/threading/mutex.hpp"
 
 #ifdef _WIN32
-#include <Windows.h>
+#include "windows_wrapper.h"
 
 namespace mclo
 {

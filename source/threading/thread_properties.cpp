@@ -1,11 +1,17 @@
 #include "mclo/threading/thread_properties.hpp"
 
 #include "mclo/debug/assert.hpp"
+#include "mclo/enum/enum_map.hpp"
+
+template <>
+constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = mclo::thread_priority::high;
 
 #ifdef _WIN32
 
 #include <limits>
 #include <string>
+
+#include "windows_wrapper.h"
 
 void mclo::set_thread_name( std::thread& thread, const std::string_view name )
 {
@@ -25,8 +31,15 @@ void mclo::set_thread_name( std::thread& thread, const std::string_view name )
 
 void mclo::set_thread_priority( std::thread& thread, const thread_priority priority )
 {
+	static constexpr mclo::enum_map<thread_priority, int> prio_map{
+		THREAD_PRIORITY_LOWEST,
+		THREAD_PRIORITY_BELOW_NORMAL,
+		THREAD_PRIORITY_NORMAL,
+		THREAD_PRIORITY_ABOVE_NORMAL,
+		THREAD_PRIORITY_HIGHEST,
+	};
 	[[maybe_unused]] const BOOL result =
-		SetThreadPriority( static_cast<HANDLE>( thread.native_handle() ), static_cast<int>( priority ) );
+		SetThreadPriority( static_cast<HANDLE>( thread.native_handle() ), prio_map[ priority ] );
 	DEBUG_ASSERT( result != 0, "Failed to set thread priority" );
 }
 
@@ -51,6 +64,15 @@ void mclo::set_thread_name( std::thread& thread, const std::string_view name )
 
 void mclo::set_thread_priority( std::thread& thread, const thread_priority priority )
 {
+	static constexpr int normal_prio = 5;
+	static constexpr mclo::enum_map<thread_priority, int> prio_map{
+		normal_prio - 2,
+		normal_prio - 1,
+		normal_prio,
+		normal_prio + 1,
+		normal_prio + 2,
+	};
+
 	sched_param sch;
 	int policy;
 	pthread_getschedparam( thread.native_handle(), &policy, &sch );
