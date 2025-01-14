@@ -33,6 +33,7 @@ void mclo::set_thread_name( std::thread& thread, const std::string_view name )
 void mclo::set_thread_priority( std::thread& thread, const thread_priority priority )
 {
 	static constexpr mclo::enum_map<thread_priority, int> prio_map{
+		mclo::sorted_unique,
 		THREAD_PRIORITY_LOWEST,
 		THREAD_PRIORITY_BELOW_NORMAL,
 		THREAD_PRIORITY_NORMAL,
@@ -67,6 +68,7 @@ void mclo::set_thread_priority( std::thread& thread, const thread_priority prior
 {
 	static constexpr int normal_prio = 5;
 	static constexpr mclo::enum_map<thread_priority, int> prio_map{
+		mclo::sorted_unique,
 		normal_prio - 2,
 		normal_prio - 1,
 		normal_prio,

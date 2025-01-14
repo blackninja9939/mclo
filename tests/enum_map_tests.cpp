@@ -47,7 +47,54 @@ TEST_CASE( "enum_map fill constructor", "[enum_map]" )
 
 TEST_CASE( "enum_map variadic constructor", "[enum_map]" )
 {
-	const mclo::enum_map<test_enum, int> map{ 1, 2, 3, 4 };
+	const mclo::enum_map<test_enum, int> map{ mclo::sorted_unique, 1, 2, 3, 4 };
+	CHECK( map.size() == 4 );
+	CHECK( map.front() == 1 );
+	CHECK( map.back() == 4 );
+
+	int index = 1;
+	for ( const int& value : map.as_span() )
+	{
+		CHECK( value == index );
+		++index;
+	}
+}
+
+TEST_CASE( "enum_map range constructor", "[enum_map]" )
+{
+	constexpr std::array<std::pair<test_enum, int>, 6> data{
+		{
+         { test_enum::first, 8 },
+         { test_enum::fourth, 4 },
+         { test_enum::first, -9 },
+         { test_enum::third, 3 },
+         { test_enum::first, 1 },
+         { test_enum::second, 2 },
+		 }
+    };
+	const mclo::enum_map<test_enum, int> map{ data };
+	CHECK( map.size() == 4 );
+	CHECK( map.front() == 1 );
+	CHECK( map.back() == 4 );
+
+	int index = 1;
+	for ( const int& value : map.as_span() )
+	{
+		CHECK( value == index );
+		++index;
+	}
+}
+
+TEST_CASE( "enum_map init list constructor", "[enum_map]" )
+{
+	const mclo::enum_map<test_enum, int> map{
+		{ test_enum::first,  8},
+		{test_enum::fourth,  4},
+		{ test_enum::first, -9},
+		{ test_enum::third,  3},
+		{ test_enum::first,  1},
+		{test_enum::second,  2},
+	};
 	CHECK( map.size() == 4 );
 	CHECK( map.front() == 1 );
 	CHECK( map.back() == 4 );
@@ -135,10 +182,10 @@ TEST_CASE( "enum_map index directly", "[enum_map]" )
 TEST_CASE( "BiMap" )
 {
 	mclo::enum_string_bi_map<test_enum> map( {
-		{ { test_enum::first, "first" },
+		{{ test_enum::first, "first" },
          { test_enum::second, "second" },
          { test_enum::third, "third" },
-         { test_enum::fourth, "fourth" } }
+         { test_enum::fourth, "fourth" }}
     } );
 
 	const auto result = map.lookup_from_string( "second" );

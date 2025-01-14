@@ -135,6 +135,12 @@ namespace mclo
 		difference_type m_index;
 	};
 
+	struct sorted_unique_t
+	{
+	};
+
+	inline constexpr sorted_unique_t sorted_unique;
+
 	template <typename TEnum, typename TValue, TEnum SizeEnum = enum_size<TEnum>>
 	class enum_map
 	{
@@ -158,6 +164,7 @@ namespace mclo
 		using const_iterator = enum_map_iterator<typename container_type::const_iterator, key_type>;
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+		using pair_type = std::pair<key_type, value_type>;
 
 		constexpr enum_map() noexcept( std::is_nothrow_default_constructible_v<value_type> ) = default;
 
@@ -167,15 +174,43 @@ namespace mclo
 		{
 		}
 
+		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
+			requires( std::convertible_to<std::iter_reference_t<It>, pair_type> )
+		constexpr enum_map( It first, Sentinel last )
+		{
+			while ( first != last )
+			{
+				pair_type pair = *first++;
+				operator[]( pair.first ) = std::move( pair.second );
+			}
+		}
+
+		template <std::ranges::forward_range Range>
+			requires( !std::convertible_to<Range, const_reference> &&
+					  std::convertible_to<std::ranges::range_reference_t<Range>, pair_type> )
+		constexpr explicit enum_map( Range&& range )
+		{
+			for ( const auto& pair : range )
+			{
+				operator[]( pair.first ) = pair.second;
+			}
+		}
+
+		constexpr enum_map( const std::initializer_list<pair_type> init_list )
+			: enum_map( init_list.begin(), init_list.end() )
+		{
+		}
+
 		template <typename... Ts>
 			requires( max_size > 1 && sizeof...( Ts ) == max_size )
-		constexpr enum_map( Ts&&... values ) noexcept( std::is_nothrow_move_constructible_v<value_type> )
+		constexpr enum_map( sorted_unique_t, Ts&&... values ) noexcept( std::is_nothrow_move_constructible_v<value_type> )
 			: m_container{ std::forward<Ts>( values )... }
 		{
 		}
 
 		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
-		constexpr enum_map( It first, Sentinel last )
+			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
+		constexpr enum_map( sorted_unique_t, It first, Sentinel last )
 		{
 			DEBUG_ASSERT( std::ranges::distance( first, last ) <= max_size,
 						  "Iterator pair is over a range larger than this container's max size" );
@@ -183,8 +218,9 @@ namespace mclo
 		}
 
 		template <std::ranges::forward_range Range>
-			requires( !std::convertible_to<Range, const_reference> )
-		constexpr explicit enum_map( Range&& range )
+			requires( !std::convertible_to<Range, const_reference> &&
+					  std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
+		constexpr explicit enum_map( sorted_unique_t, Range&& range )
 		{
 			DEBUG_ASSERT( std::ranges::distance( range ) <= max_size,
 						  "Range size is larger than this container's max size" );
