@@ -21,26 +21,18 @@ namespace mclo
 		using fixed_bitset_storage = std::array<UnderlyingType, num_values_for_bits<UnderlyingType>( Bits )>;
 	}
 
-	/*
-	 * Optimized implementation of bitset that also supports an improved API:
-	 * - Picks smallest integer type for number of bits by default
-	 * - Access to underlying std::array of underlying integer type
-	 * - Usable at compile time
-	 * - Exception safe
-	 * - Supports fast iteration via for_each_set
-	 * - Supports fast iteration via find_first_set/unset including starting offset
-	 * - test_and_set in one function
-	 *
-	 * The following std::bitset functionality is divergent:
-	 * - No mutable operator[], returns a proxy reference which indirectly calls set, less efficient and less safe
-	 * compared to explicitly using set/reset
-	 * - Restricted Implicit constructor from integer, only usable if Bits fits into one underlying type, otherwise must
-	 * use from std::array constructor
-	 * - Restricted to_ulong/ullong, same as above, only usable if number of bits would fit, provides access to the
-	 * underlying container instead
-	 * - All of the string constructor overloads, I've just done a simple one for string_view since it can convert all
-	 * and you can use its substr function for offsets
-	 */
+	/// @brief Optimized implementation of std::bitset with improved API and performance
+	/// @details
+	/// - Picks smallest integer type for number of bits by default
+	/// - Access to underlying std::array of underlying integer type
+	/// @warnings The follow std::bitset functionality is divergent
+	/// - Restricted Implicit constructor from integer, only usable if Bits fits into one underlying type, otherwise
+	/// must use from std::array constructor
+	/// - Restricted to_ulong/ullong, same as above, only usable if number of bits
+	/// would fit, provides access to the underlying container instead
+	/// @tparam Bits Number of bits in the set
+	/// @tparam UnderlyingType Underlying integral type, defaults to smallest integer that represents Bits, if Bits is
+	/// greater than maximum single value then stores an array of UnderlyingTpye
 	template <std::size_t Bits, std::unsigned_integral UnderlyingType = uint_least_t<Bits>>
 	class bitset
 		: public detail::bitset_base<bitset<Bits, UnderlyingType>, detail::fixed_bitset_storage<Bits, UnderlyingType>>
@@ -57,12 +49,14 @@ namespace mclo
 
 		using base::base;
 
+		/// @brief Construct from underlying_type, only enabled if Bits fits into one UnderlyingType
 		constexpr bitset( const underlying_type value )
 			requires( num_values == 1 )
 			: base( std::array{ value } )
 		{
 		}
 
+		/// @brief Construct from a string like type of unset_char and set_char
 		template <typename StringLike, typename CharT = typename StringLike::value_type>
 		constexpr explicit bitset( const StringLike& str,
 								   const CharT unset_char = CharT( '0' ),
@@ -72,21 +66,20 @@ namespace mclo
 			base::init_from_string( view( str ), unset_char, set_char );
 		}
 
+		/// @brief Convert to an unsigned long, only enabled if Bits fits into one unsigned long or smaller
+		/// @return Bitset underlying value as unsigned long
 		[[nodiscard]] constexpr unsigned long to_ulong() const noexcept
 			requires( num_values == 1 && sizeof( underlying_type ) <= sizeof( unsigned long ) )
 		{
 			return static_cast<unsigned long>( base::underlying().front() );
 		}
 
+		/// @brief Convert to an unsigned long long, only enabled if Bits fits into one unsigned long long or smaller
+		/// @return Bitset underlying value as unsigned long long
 		[[nodiscard]] constexpr unsigned long long to_ullong() const noexcept
 			requires( num_values == 1 && sizeof( underlying_type ) <= sizeof( unsigned long long ) )
 		{
 			return static_cast<unsigned long long>( base::underlying().front() );
-		}
-
-		[[nodiscard]] constexpr bool operator[]( const std::size_t index ) const noexcept
-		{
-			return base::test( index );
 		}
 
 		[[nodiscard]] constexpr bool operator==( const bitset& other ) const noexcept = default;

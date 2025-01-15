@@ -8,6 +8,9 @@
 
 namespace mclo
 {
+	/// @brief Bitset with a dynamic size set at run time
+	/// @tparam Allocator Allocator for underlying std::vector
+	/// @tparam UnderlyingType Type of integer to store in the vector for the bitset
 	template <std::unsigned_integral UnderlyingType = std::size_t, typename Allocator = std::allocator<UnderlyingType>>
 	class dynamic_bitset
 		: public detail::bitset_base<dynamic_bitset<UnderlyingType, Allocator>, std::vector<UnderlyingType, Allocator>>
@@ -22,11 +25,14 @@ namespace mclo
 
 		using base::base;
 
+		/// @brief Construct the bitset with capacity for size bits
+		/// @param size Number of bits to allocate space for
 		explicit dynamic_bitset( const std::size_t size )
 		{
 			resize( size );
 		}
 
+		/// @brief Construct from a string like type of unset_char and set_char
 		template <typename StringLike, typename CharT = typename StringLike::value_type>
 		constexpr explicit dynamic_bitset( const StringLike& str,
 										   const CharT unset_char = CharT( '0' ),
@@ -37,11 +43,21 @@ namespace mclo
 			base::init_from_string( view( str ), unset_char, set_char );
 		}
 
+		/// @brief Resize and allocate space for size bits, will grow or shrink size
+		/// @details Resizing to smaller does not free allocated memory
+		/// @param size Number of bits to allocate space for
+		/// @return This set
 		constexpr dynamic_bitset& resize( const std::size_t size )
 		{
 			const std::size_t num_values = ceil_divide( size, base::bits_per_value );
 			base::m_container.resize( num_values );
 			m_size = size;
+			return *this;
+		}
+
+		constexpr dynamic_bitset& shrink_to_fit()
+		{
+			base::m_container.shrink_to_fit();
 			return *this;
 		}
 
