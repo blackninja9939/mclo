@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <functional>
 #include <span>
 
@@ -67,25 +68,6 @@ namespace mclo
 		{
 			return std::span( m_data );
 		}
-
-#define MCLO_VEC_ACCESSOR( NAME, INDEX )                                                                               \
-	T& NAME() noexcept                                                                                                 \
-		requires( N > INDEX )                                                                                          \
-	{                                                                                                                  \
-		return this->operator[]( INDEX );                                                                              \
-	}                                                                                                                  \
-	T NAME() const noexcept                                                                                            \
-		requires( N > INDEX )                                                                                          \
-	{                                                                                                                  \
-		return this->operator[]( INDEX );                                                                              \
-	}
-
-		MCLO_VEC_ACCESSOR( x, 0 )
-		MCLO_VEC_ACCESSOR( y, 1 )
-		MCLO_VEC_ACCESSOR( z, 2 )
-		MCLO_VEC_ACCESSOR( w, 3 )
-
-#undef MCLO_VEC_ACCESSOR
 
 		// Generic element-wise operations
 		template <typename Func>
@@ -406,21 +388,6 @@ namespace mclo
 			return ( *this - other ).norm();
 		}
 
-		[[nodiscard]] constexpr vec_base cross( const vec_base& other ) const noexcept
-			requires( N == 3 )
-		{
-			return { y() * other.z() - z() * other.y(),
-					 z() * other.x() - x() * other.z(),
-					 x() * other.y() - y() * other.x() };
-		}
-
-		[[nodiscard]] constexpr T angle( const vec_base& other ) const noexcept
-			requires( N == 3 )
-		{
-			using std::acos;
-			return acos( dot( other ) / ( norm() * other.norm() ) );
-		}
-
 		[[nodiscard]] constexpr auto operator<=>( const vec_base& other ) const noexcept = default;
 
 	private:
@@ -452,15 +419,84 @@ namespace mclo
 
 		std::array<T, N> m_data{};
 	};
+#define MCLO_VEC_ACCESSOR( NAME, INDEX )                                                                               \
+	T& NAME() noexcept                                                                                                 \
+	{                                                                                                                  \
+		return this->operator[]( INDEX );                                                                              \
+	}                                                                                                                  \
+	T NAME() const noexcept                                                                                            \
+	{                                                                                                                  \
+		return this->operator[]( INDEX );                                                                              \
+	}
 
 	template <typename T>
-	using vec2 = vec_base<T, 2>;
+	class vec2 : public vec_base<T, 2>
+	{
+	private:
+		using base = vec_base<T, 2>;
+
+	public:
+		using base::base;
+		vec2( const base& value ) noexcept
+			: base{ value }
+		{
+		}
+
+		MCLO_VEC_ACCESSOR( x, 0 )
+		MCLO_VEC_ACCESSOR( y, 1 )
+	};
 
 	template <typename T>
-	using vec3 = vec_base<T, 3>;
+	class vec3 : public vec_base<T, 3>
+	{
+	private:
+		using base = vec_base<T, 3>;
+
+	public:
+		using base::base;
+		vec3( const base& value ) noexcept
+			: base{ value }
+		{
+		}
+
+		MCLO_VEC_ACCESSOR( x, 0 )
+		MCLO_VEC_ACCESSOR( y, 1 )
+		MCLO_VEC_ACCESSOR( z, 2 )
+
+		[[nodiscard]] constexpr vec3 cross( const vec3& other ) const noexcept
+		{
+			return { y() * other.z() - z() * other.y(),
+					 z() * other.x() - x() * other.z(),
+					 x() * other.y() - y() * other.x() };
+		}
+
+		[[nodiscard]] constexpr T angle( const vec3& other ) const noexcept
+		{
+			using std::acos;
+			return acos( this->dot( other ) / ( this->norm() * other.norm() ) );
+		}
+	};
 
 	template <typename T>
-	using vec4 = vec_base<T, 4>;
+	class vec4 : public vec_base<T, 4>
+	{
+	private:
+		using base = vec_base<T, 4>;
+
+	public:
+		using base::base;
+		vec4( const base& value ) noexcept
+			: base{ value }
+		{
+		}
+
+		MCLO_VEC_ACCESSOR( x, 0 )
+		MCLO_VEC_ACCESSOR( y, 1 )
+		MCLO_VEC_ACCESSOR( z, 2 )
+		MCLO_VEC_ACCESSOR( w, 3 )
+	};
+
+#undef MCLO_VEC_ACCESSOR
 
 	using vec2i = vec2<int>;
 	using vec3i = vec3<int>;
@@ -473,6 +509,4 @@ namespace mclo
 	using vec2d = vec2<double>;
 	using vec3d = vec3<double>;
 	using vec4d = vec4<double>;
-
-#undef MCLO_VEC_ACCESSOR
 }

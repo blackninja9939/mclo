@@ -117,4 +117,31 @@
       </ArrayItems>
     </Expand>
   </Type>
+
+  <Type Name="mclo::vec2&lt;*&gt;">
+    <DisplayString>{{ x={m_data[0]}, y={m_data[1]} }}</DisplayString>
+    <Expand>
+      <Item Name="[x]">m_data[0]</Item>
+      <Item Name="[y]">m_data[1]</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="mclo::vec3&lt;*&gt;">
+    <DisplayString>{{ x={m_data[0]}, y={m_data[1]}, z={m_data[2]} }}</DisplayString>
+    <Expand>
+      <Item Name="[x]">m_data[0]</Item>
+      <Item Name="[y]">m_data[1]</Item>
+      <Item Name="[z]">m_data[2]</Item>
+    </Expand>
+  </Type>
+  
+  <Type Name="mclo::vec4&lt;*&gt;">
+    <DisplayString>{{ x={m_data[0]}, y={m_data[1]}, z={m_data[2]}, z={m_data[3]} }}</DisplayString>
+    <Expand>
+      <Item Name="[x]">m_data[0]</Item>
+      <Item Name="[y]">m_data[1]</Item>
+      <Item Name="[z]">m_data[2]</Item>
+      <Item Name="[w]">m_data[3]</Item>
+    </Expand>
+  </Type>
 </AutoVisualizer>
