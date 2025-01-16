@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <span>
 #include <type_traits>
 
 namespace mclo
@@ -14,7 +15,6 @@ namespace mclo
 		{
 			return { ( ( void )indices, value )... };
 		}
-
 	}
 
 	template <std::size_t size, typename T>
@@ -53,4 +53,21 @@ namespace mclo
 		}
 	}
 
+	namespace detail
+	{
+		template <typename T, std::size_t size, std::size_t... indices>
+		[[nodiscard]] constexpr std::array<T, size> to_array_internal(
+			const std::span<const T, size> data,
+			std::index_sequence<indices...> ) noexcept( std::is_nothrow_copy_constructible_v<T> )
+		{
+			return { ( data[ indices ] )... };
+		}
+	}
+
+	template <typename T, std::size_t size>
+	[[nodiscard]] constexpr std::array<T, size> to_array( const std::span<const T, size> data ) noexcept(
+		std::is_nothrow_copy_constructible_v<T> )
+	{
+		return detail::to_array_internal( data, std::make_index_sequence<size>{} );
+	}
 }
