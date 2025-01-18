@@ -19,19 +19,19 @@ namespace mclo
 
 		constexpr vec_base() noexcept = default;
 
-		explicit vec_base( const T value ) noexcept
+		constexpr explicit vec_base( const T value ) noexcept
 			: m_data{ broadcast_array<N>( value ) }
 		{
 		}
 
 		template <typename... Ts>
 			requires( sizeof...( Ts ) == N )
-		explicit( ( !std::convertible_to<Ts, T> || ... ) ) vec_base( Ts... values ) noexcept
+		constexpr explicit( ( !std::convertible_to<Ts, T> || ... ) ) vec_base( Ts... values ) noexcept
 			: m_data{ static_cast<T>( values )... }
 		{
 		}
 
-		explicit vec_base( const std::span<const T, N> values ) noexcept
+		constexpr explicit vec_base( const std::span<const T, N> values ) noexcept
 			: m_data{ to_array( values ) }
 		{
 		}
@@ -71,13 +71,14 @@ namespace mclo
 
 		// Generic element-wise operations
 		template <typename Func>
-		[[nodiscard]] constexpr vec_base map( Func func ) const noexcept
+		[[nodiscard]] constexpr vec_base<std::invoke_result_t<Func, T>, N> map( Func func ) const noexcept
 		{
 			return map_internal( func, std::make_index_sequence<N>{} );
 		}
 
 		template <typename Func>
-		[[nodiscard]] constexpr vec_base map_with( Func func, const vec_base& other ) const noexcept
+		[[nodiscard]] constexpr vec_base<std::invoke_result_t<Func, T, T>, N> map_with(
+			Func func, const vec_base& other ) const noexcept
 		{
 			return map_with_internal( func, other, std::make_index_sequence<N>{} );
 		}
@@ -92,6 +93,12 @@ namespace mclo
 		[[nodiscard]] constexpr T fold_right( Func func, T initial = T( 0 ) ) const noexcept
 		{
 			return fold_right_internal( func, initial, std::make_index_sequence<N>{} );
+		}
+
+		template <typename U>
+		[[nodiscard]] constexpr vec_base<U, N> cast() const noexcept
+		{
+			return map( []( const T value ) { return static_cast<U>( value ); } );
 		}
 
 		// Element wise folds
@@ -392,26 +399,32 @@ namespace mclo
 
 	private:
 		template <typename Func, std::size_t... Indices>
-		vec_base map_internal( Func func, std::index_sequence<Indices...> ) const noexcept
+		[[nodiscard]] constexpr vec_base<std::invoke_result_t<Func, T>, N> map_internal(
+			Func func, std::index_sequence<Indices...> ) const noexcept
 		{
 			return { func( m_data[ Indices ] )... };
 		}
 
 		template <typename Func, std::size_t... Indices>
-		vec_base map_with_internal( Func func, const vec_base& other, std::index_sequence<Indices...> ) const noexcept
+		[[nodiscard]] constexpr vec_base<std::invoke_result_t<Func, T, T>, N> map_with_internal(
+			Func func, const vec_base& other, std::index_sequence<Indices...> ) const noexcept
 		{
 			return { func( m_data[ Indices ], other.m_data[ Indices ] )... };
 		}
 
 		template <typename Func, std::size_t... Indices>
-		T fold_left_internal( Func func, T initial, std::index_sequence<Indices...> ) const noexcept
+		[[nodiscard]] constexpr T fold_left_internal( Func func,
+													  T initial,
+													  std::index_sequence<Indices...> ) const noexcept
 		{
 			( ..., ( initial = func( initial, m_data[ Indices ] ) ) );
 			return initial;
 		}
 
 		template <typename Func, std::size_t... Indices>
-		T fold_right_internal( Func func, T initial, std::index_sequence<Indices...> ) const noexcept
+		[[nodiscard]] constexpr T fold_right_internal( Func func,
+													   T initial,
+													   std::index_sequence<Indices...> ) const noexcept
 		{
 			( ( initial = func( initial, m_data[ Indices ] ) ), ... );
 			return initial;
@@ -419,12 +432,13 @@ namespace mclo
 
 		std::array<T, N> m_data{};
 	};
+
 #define MCLO_VEC_ACCESSOR( NAME, INDEX )                                                                               \
-	T& NAME() noexcept                                                                                                 \
+	[[nodiscard]] constexpr typename base::value_type& NAME() noexcept                                                 \
 	{                                                                                                                  \
 		return this->operator[]( INDEX );                                                                              \
 	}                                                                                                                  \
-	T NAME() const noexcept                                                                                            \
+	[[nodiscard]] constexpr typename base::value_type NAME() const noexcept                                            \
 	{                                                                                                                  \
 		return this->operator[]( INDEX );                                                                              \
 	}
@@ -437,7 +451,8 @@ namespace mclo
 
 	public:
 		using base::base;
-		vec2( const base& value ) noexcept
+
+		constexpr vec2( const base& value ) noexcept
 			: base{ value }
 		{
 		}
@@ -454,7 +469,8 @@ namespace mclo
 
 	public:
 		using base::base;
-		vec3( const base& value ) noexcept
+
+		constexpr vec3( const base& value ) noexcept
 			: base{ value }
 		{
 		}
@@ -485,7 +501,8 @@ namespace mclo
 
 	public:
 		using base::base;
-		vec4( const base& value ) noexcept
+
+		constexpr vec4( const base& value ) noexcept
 			: base{ value }
 		{
 		}
@@ -495,8 +512,6 @@ namespace mclo
 		MCLO_VEC_ACCESSOR( z, 2 )
 		MCLO_VEC_ACCESSOR( w, 3 )
 	};
-
-#undef MCLO_VEC_ACCESSOR
 
 	using vec2i = vec2<int>;
 	using vec3i = vec3<int>;
