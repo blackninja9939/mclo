@@ -10,6 +10,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "string/ascii_string_simd.cpp"
     "string/string_utils.cpp"
     "hash/murmur_hash_3.cpp"
+    "hash/rapidhash.cpp"
     "random/xoshiro256plusplus.cpp"
     "random/splitmix64.cpp"
     "threading/mutex.cpp"
@@ -49,3 +50,56 @@ target_include_directories( ${LIBRARY_TARGET_NAME}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+# Export target
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+    TARGETS ${LIBRARY_TARGET_NAME}
+    EXPORT ${PROJECT_NAME}-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/cmake/${LIBRARY_TARGET_NAME}-config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_TARGET_NAME}-config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${LIBRARY_TARGET_NAME}
+)
+
+write_basic_package_version_file(
+    "${LIBRARY_TARGET_NAME}-config-version.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(
+    EXPORT ${LIBRARY_TARGET_NAME}-targets
+    FILE ${LIBRARY_TARGET_NAME}-targets.cmake
+    NAMESPACE ${LIBRARY_TARGET_NAME}::
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${LIBRARY_TARGET_NAME}
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_TARGET_NAME}-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_TARGET_NAME}-config-version.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_TARGET_NAME}
+)
+
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_RESOURCE_FILE_README "${PROJECT_SOURCE_DIR}/README.md")
+list(APPEND CPACK_SOURCE_IGNORE_FILES /.git/ /build/ .gitignore .DS_Store)
+
+include(CPack)

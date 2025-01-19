@@ -4,6 +4,7 @@
 #include "mclo/hash/fnv1a_hasher.hpp"
 #include "mclo/hash/hash.hpp"
 #include "mclo/hash/murmur_hash_3.hpp"
+#include "mclo/hash/rapidhash.hpp"
 #include "mclo/hash/std_types.hpp"
 #include "mclo/meta/all_of.hpp"
 #include "mclo/meta/transform.hpp"
@@ -57,7 +58,7 @@ namespace
 
 	static_assert( mclo::default_hashable<std::string> );
 
-	using hasher_types = mclo::meta::type_list<mclo::fnv1a_hasher, mclo::murmur_hash_3>;
+	using hasher_types = mclo::meta::type_list<mclo::fnv1a_hasher, mclo::murmur_hash_3, mclo::rapidhash>;
 }
 
 template <>
