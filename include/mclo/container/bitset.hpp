@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
-#include "mclo/hash/std_adapter.hpp"
+#include "mclo/hash/hash.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
 #include <array>
@@ -111,7 +111,7 @@ namespace mclo
 namespace std
 {
 	template <std::size_t Bits, std::unsigned_integral UnderlyingType>
-	struct hash<mclo::bitset<Bits, UnderlyingType>> : mclo::std_hash_adapter<mclo::bitset<Bits, UnderlyingType>>
+	struct hash<mclo::bitset<Bits, UnderlyingType>> : mclo::hash<mclo::bitset<Bits, UnderlyingType>>
 	{
 	};
 }

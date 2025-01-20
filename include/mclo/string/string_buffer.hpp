@@ -3,9 +3,7 @@
 #include "ascii_string_utils.hpp"
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash_append.hpp"
-#include "mclo/hash/std_adapter.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/hash/hash.hpp"
 
 #include <array>
 #include <compare>
@@ -506,7 +504,7 @@ namespace mclo
 namespace std
 {
 	template <typename CharT, std::size_t Size>
-	struct hash<mclo::basic_string_buffer<CharT, Size>> : mclo::std_hash_adapter<mclo::basic_string_buffer<CharT, Size>>
+	struct hash<mclo::basic_string_buffer<CharT, Size>> : mclo::hash<mclo::basic_string_buffer<CharT, Size>>
 	{
 	};
 }

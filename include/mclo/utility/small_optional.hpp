@@ -1,8 +1,7 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash_append.hpp"
-#include "mclo/hash/std_adapter.hpp"
+#include "mclo/hash/hash.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <compare>
@@ -31,10 +30,18 @@ namespace mclo
 
 		template <typename Storage, typename T>
 		concept small_optional_storage_type = requires( Storage& storage, const Storage& c_storage, T value ) {
-			{ c_storage.has_value() } noexcept -> std::same_as<bool>;
-			{ storage.reset() } noexcept -> std::same_as<void>;
-			{ c_storage.get() } noexcept -> std::same_as<T>;
-			{ storage.set( value ) }
+			{
+				c_storage.has_value()
+			} noexcept -> std::same_as<bool>;
+			{
+				storage.reset()
+			} noexcept -> std::same_as<void>;
+			{
+				c_storage.get()
+			} noexcept -> std::same_as<T>;
+			{
+				storage.set( value )
+			}
 			MCLO_NOEXCEPT_TESTS->std::same_as<void>;
 			requires std::copyable<Storage>;
 		};
@@ -329,6 +336,6 @@ namespace mclo
 }
 
 template <typename T>
-struct std::hash<mclo::small_optional<T>> : mclo::std_hash_adapter<mclo::small_optional<T>>
+struct std::hash<mclo::small_optional<T>> : mclo::hash<mclo::small_optional<T>>
 {
 };

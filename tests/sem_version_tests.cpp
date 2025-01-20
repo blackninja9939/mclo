@@ -52,7 +52,7 @@ TEST_CASE( "sem_version comparison", "[sem_version]" )
 
 TEST_CASE( "sem_version hash", "[sem_version]" )
 {
-	const std::size_t hash = mclo::hash( test_version );
+	const std::size_t hash = mclo::hash_object( test_version );
 	CHECK( hash != 0 );
 	CHECK( hash != test_version.major );
 	CHECK( hash != test_version.minor );

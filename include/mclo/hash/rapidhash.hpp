@@ -9,7 +9,7 @@ namespace mclo
 	class rapidhash
 	{
 	public:
-		explicit rapidhash( const std::uint64_t seed = 0xbdd89aa982704029 ) noexcept;
+		rapidhash( const std::uint64_t seed = 0xbdd89aa982704029 ) noexcept;
 
 		void write( const std::span<const std::byte> data ) noexcept;
 		[[nodiscard]] std::size_t finish() noexcept;

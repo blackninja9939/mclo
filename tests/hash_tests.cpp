@@ -66,35 +66,35 @@ inline constexpr bool mclo::enable_bitwise_hash<bitwise_hashable_type> = true;
 
 TEMPLATE_LIST_TEST_CASE( "hash built in types", "[hash]", mclo::meta::integers )
 {
-	const std::size_t result = mclo::hash( TestType( 42 ) );
+	const std::size_t result = mclo::hash_object( TestType( 42 ) );
 	CHECK( result != 42 );
 }
 
 TEMPLATE_LIST_TEST_CASE( "hash optional", "[hash]", optional_type_list )
 {
-	const std::size_t result = mclo::hash( TestType( 42 ) );
+	const std::size_t result = mclo::hash_object( TestType( 42 ) );
 	CHECK( result != 42 );
 
-	const std::size_t nullopt_result = mclo::hash( TestType( std::nullopt ) );
+	const std::size_t nullopt_result = mclo::hash_object( TestType( std::nullopt ) );
 
 	CHECK( nullopt_result != result );
 }
 
 TEST_CASE( "hash enum", "[hash]" )
 {
-	const std::size_t result = mclo::hash( test_enum::b );
+	const std::size_t result = mclo::hash_object( test_enum::b );
 	CHECK( result != static_cast<std::size_t>( test_enum::b ) );
 }
 
 TEST_CASE( "hash custom type", "[hash]" )
 {
-	const std::size_t result = mclo::hash( test_type{ 42, 42 } );
+	const std::size_t result = mclo::hash_object( test_type{ 42, 42 } );
 	CHECK( result != 42 );
 }
 
 TEST_CASE( "hash bitwise type", "[hash]" )
 {
-	const std::size_t result = mclo::hash( bitwise_hashable_type{ 42, 42 } );
+	const std::size_t result = mclo::hash_object( bitwise_hashable_type{ 42, 42 } );
 	CHECK( result != 42 );
 }
 

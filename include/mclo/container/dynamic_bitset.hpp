@@ -2,7 +2,7 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
-#include "mclo/hash/std_adapter.hpp"
+#include "mclo/hash/hash.hpp"
 
 #include <vector>
 
@@ -92,7 +92,7 @@ namespace std
 {
 	template <std::unsigned_integral UnderlyingType, typename Allocator>
 	struct hash<mclo::dynamic_bitset<UnderlyingType, Allocator>>
-		: mclo::std_hash_adapter<mclo::dynamic_bitset<UnderlyingType, Allocator>>
+		: mclo::hash<mclo::dynamic_bitset<UnderlyingType, Allocator>>
 	{
 	};
 }

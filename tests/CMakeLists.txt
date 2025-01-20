@@ -33,7 +33,7 @@ add_executable( tests
 	string_builder_tests.cpp
 	not_null_tests.cpp
 	intrusive_ptr_tests.cpp
- "numeric_vector_tests.cpp")
+ "numeric_vector_tests.cpp" "hash_table_tests.cpp")
 
 target_compile_definitions( 
 	tests 

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash_append.hpp"
-#include "mclo/hash/std_adapter.hpp"
+#include "mclo/hash/hash.hpp"
 #include "mclo/memory/allocate_from_tuple.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
@@ -337,6 +336,6 @@ namespace mclo
 }
 
 template <typename T, typename Tag>
-struct std::hash<mclo::tagged_ptr<T, Tag>> : mclo::std_hash_adapter<mclo::tagged_ptr<T, Tag>>
+struct std::hash<mclo::tagged_ptr<T, Tag>> : mclo::hash<mclo::tagged_ptr<T, Tag>>
 {
 };
