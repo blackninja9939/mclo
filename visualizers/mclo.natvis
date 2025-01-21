@@ -144,4 +144,17 @@
       <Item Name="[w]">m_data[3]</Item>
     </Expand>
   </Type>
+
+  <Type Name="mclo::span&lt;*&gt;">
+    <Intrinsic Name="data" Expression="m_data" />
+    <Intrinsic Name="size" Expression="m_size" />
+    <Intrinsic Name="size_bytes" Expression="m_size * sizeof(element_type)" />
+    <DisplayString>{{ size={size()} }}</DisplayString>
+    <Expand>
+      <ArrayItems>
+        <Size>size()</Size>
+        <ValuePointer>data()</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
 </AutoVisualizer>
