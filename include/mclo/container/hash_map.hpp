@@ -4,6 +4,7 @@
 #include "mclo/container/arrow_proxy.hpp"
 #include "mclo/container/detail/common_reference.hpp"
 #include "mclo/hash/hash.hpp"
+#include "mclo/numeric/128_bit_integer.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
@@ -13,6 +14,8 @@
 #include <functional>
 #include <memory>
 #include <utility>
+
+#include <xsimd/xsimd.hpp>
 
 namespace mclo
 {
@@ -83,6 +86,7 @@ namespace mclo
 	struct set_traits
 	{
 		using key_type = Key;
+		using mapped_type = void;
 		using value_type = key_type;
 		using reference = const key_type&;
 		using const_reference = const key_type&;
@@ -120,12 +124,6 @@ namespace mclo
 			std::destroy_at( &node );
 		}
 
-		template <typename Allocator, typename... Args>
-		static void replace( node_type& node, const Allocator& alloc, Args&&... args )
-		{
-			node = std::make_obj_using_allocator<node_type>( alloc, std::forward<Args>( args )... );
-		}
-
 		static void transfer( node_type* out, node_type&& node )
 		{
 			std::construct_at( out, std::move( node ) );
@@ -160,12 +158,6 @@ namespace mclo
 				value_alloc.deallocate( value, 1 );
 			}
 			std::destroy_at( node );
-		}
-
-		template <typename Allocator, typename... Args>
-		static void replace( node_type& node, const Allocator& alloc, Args&&... args )
-		{
-			*node = std::make_obj_using_allocator<value_type>( alloc, std::forward<Args>( args )... );
 		}
 
 		static void transfer( node_type* out, node_type&& node )
@@ -342,16 +334,21 @@ namespace mclo
 			  typename Allocator = std::allocator<typename NodeTraits::node_type>>
 	class hash_table_base : private detail::hash_table_iterator_accessor
 	{
-		// 0 is a valid hash so we have to use one bit for if the slot is used
+		// This is a hash table that uses open addressing with linear probing
+		// We use a single byte for meta data, 1 bit for if the slot is used, 3 bits for the hash and 4 bits for the
+		// offset.
+		// Storing the hash lets us skip a lot of key comparisons, as we can skip anything that does not have
+		// the same hash. The offset is used to know how far we have moved the element from its desired slot, so we can
+		// use the Robin Hood hashing strategy.
+		// We use xsimd to process 16 elements at a time, as that is the max we can
+		// move an element from its desired slot.
+
+		// 0 is a valid hash so we have to use one bit for if the slot is used, this makes 0 our unused value
+		// We mark our sentinel meta data as used so we stop skipping empty slots when iterating over the table
 		static constexpr std::uint8_t META_USED_MASK = 0b00000001;
 		static constexpr std::uint8_t META_HASH_MASK = 0b00001110;
 		static constexpr std::uint8_t META_OFFSET_MASK = 0b11110000;
 		static constexpr std::uint8_t META_SINGLE_OFFSET = 0b00010000;
-
-		[[nodiscard]] static constexpr bool is_max_offset( const std::uint8_t meta ) noexcept
-		{
-			return ( meta & META_OFFSET_MASK ) >= META_OFFSET_MASK;
-		}
 
 		static constexpr bool is_transparent = requires {
 			typename Hash::is_transparent;
@@ -360,10 +357,14 @@ namespace mclo
 
 		using traits = typename NodeTraits;
 		using node_type = typename traits::node_type;
+		using meta_data = xsimd::batch<std::uint8_t, xsimd::sse2>;
+		static_assert( meta_data::size == 16,
+					   "Meta data is expecting to be 16 bytes to process 16 at a time, as that is the max an element "
+					   "can be moved from its desired slot" );
 
 	public:
 		using key_type = typename traits::key_type;
-		// using mapped_type = Value;
+		using mapped_type = typename traits::mapped_type;
 		using value_type = typename traits::value_type;
 		using size_type = std::size_t;
 		using difference_type = std::ptrdiff_t;
@@ -626,11 +627,12 @@ namespace mclo
 			node_type* const old_nodes = m_nodes;
 			std::uint8_t* const old_meta_data = m_meta_data;
 
-			m_nodes = m_allocator.allocate( capacity_to_alloc_size( new_capacity ) );
+			const std::size_t alloc_size = capacity_to_alloc_size( new_capacity );
+			m_nodes = m_allocator.allocate( alloc_size );
 			m_meta_data = reinterpret_cast<std::uint8_t*>( m_nodes + new_capacity );
 
 			std::memset( m_meta_data, 0, new_capacity );
-			m_meta_data[ new_capacity ] = META_USED_MASK; // Non-zero so iterator increment loop terminates
+			std::memset( m_meta_data + new_capacity, META_USED_MASK, alloc_size - new_capacity );
 
 			const std::size_t old_capacity = std::exchange( m_capacity, new_capacity );
 			const std::size_t old_size = std::exchange( m_size, 0 );
@@ -643,13 +645,13 @@ namespace mclo
 					emplace_internal(
 						traits::get_key( *node ),
 						[]( const node_type& ) { UNREACHABLE( "Starting from empty this is impossible" ); },
-						[ node, this ]( node_type* slot ) { traits::transfer( slot, std::move( *node ) ); },
-						[ node ]( node_type& slot ) { slot = std::move( *node ); } );
+						[ node, this ]( node_type* slot ) { traits::transfer( slot, std::move( *node ) ); } );
 					traits::destroy( node, m_allocator );
 				}
 			}
 
 			m_allocator.deallocate( old_nodes, capacity_to_alloc_size( old_capacity ) );
+			m_rehash_on_next_insert = false;
 		}
 
 		template <typename... Args>
@@ -659,8 +661,7 @@ namespace mclo
 			return emplace_internal(
 				traits::get_key( node.node() ),
 				[]( const node_type& ) {},
-				[ &node, this ]( node_type* slot ) { traits::transfer( slot, std::move( node.node() ) ); },
-				[ &node ]( node_type& slot ) { slot = std::move( node.node() ); } );
+				[ &node, this ]( node_type* slot ) { traits::transfer( slot, std::move( node.node() ) ); } );
 		}
 
 		std::pair<iterator, bool> insert( const value_type& value )
@@ -868,6 +869,7 @@ namespace mclo
 			swap( m_capacity, other.m_capacity );
 			swap( m_size, other.m_size );
 			swap( m_max_load_factor, other.m_max_load_factor );
+			swap( m_rehash_on_next_insert, other.m_rehash_on_next_insert );
 			swap( m_hasher, other.m_hasher );
 			swap( m_key_eq, other.m_key_eq );
 			if constexpr ( std::allocator_traits<allocator_type>::propagate_on_container_swap::value )
@@ -910,54 +912,37 @@ namespace mclo
 		}
 
 	private:
-		struct [[nodiscard]] scoped_rehasher
+		template <typename T, std::invocable<node_type&> FoundKey, std::invocable<node_type*> CreateNode>
+		std::pair<iterator, bool> emplace_internal( const T& key, FoundKey&& found, CreateNode&& create )
 		{
-			~scoped_rehasher()
+			if ( m_capacity == 0 || m_rehash_on_next_insert ) [[unlikely]]
 			{
-				if ( m_needs_rehash )
-				{
-					m_table.rehash( m_table.m_size * 2 );
-				}
+				rehash( m_capacity * 2 );
 			}
-
-			hash_table_base& m_table;
-			bool m_needs_rehash = false;
-		};
-
-		template <typename T,
-				  std::invocable<node_type&> FoundKey,
-				  std::invocable<node_type*> CreateNode,
-				  std::invocable<node_type&> ReplaceNode>
-		std::pair<iterator, bool> emplace_internal( const T& key,
-													FoundKey&& found,
-													CreateNode&& create,
-													ReplaceNode&& replace )
-		{
-			if ( m_capacity == 0 ) [[unlikely]]
-			{
-				rehash( 1 );
-			}
-
-			scoped_rehasher rehasher{ *this };
 
 			// If your hash function is beyond stupid this will last forever, but just don't use a stupid hash
 			// function, like seriously even std::hash is fine just don't hash everything to the same slot
 			const std::size_t hash = key_hash( key );
 			for ( ;; )
 			{
-				std::size_t index = GrowthPolicy::calculate_index( hash, m_capacity );
-				std::uint8_t meta = META_USED_MASK | ( hash & META_HASH_MASK );
+				// We package part of our hash into the meta info which means we do not need to check
+				// as many key comparisons, as we only compare things that have a more similar hash
+				// not just anything that goes into the same ideal slot
+				const std::size_t desired_index = GrowthPolicy::calculate_index( hash, m_capacity );
+				const std::uint8_t desired_meta = META_USED_MASK | ( hash & META_HASH_MASK );
 
-				// todo(mc) probe 16 at a time SIMD instead?
-				while ( meta < m_meta_data[ index ] )
-				{
-					unconditional_next( index, meta );
-				}
+				// Find first meta data that could match the hash, since we guarantee we can never be >= 16 away we know
+				// if we do not find it in the first 16 we will not find it at all
+				const meta_data loaded_meta = meta_data::load_unaligned( m_meta_data + desired_index );
+				const meta_data hash_mask = meta_data::broadcast( META_USED_MASK | META_HASH_MASK );
+				const meta_data::batch_bool_type cmp = ( loaded_meta & hash_mask ) == desired_meta;
 
-				// This could be us or a hash collision
-				while ( meta == m_meta_data[ index ] )
+				std::uint16_t matching_hashes = static_cast<std::uint16_t>( cmp.mask() );
+				while ( matching_hashes )
 				{
-					node_type& node = m_nodes[ index ];
+					const int offset = std::countr_zero( matching_hashes );
+					const std::size_t index = desired_index + offset;
+					const node_type& node = m_nodes[ index ];
 					if ( key_is_eq( key, traits::get_key( node ) ) ) [[likely]]
 					{
 						found( node );
@@ -966,55 +951,71 @@ namespace mclo
                             false
                         };
 					}
-					unconditional_next( index, meta );
+					matching_hashes &= matching_hashes - 1; // Clear rightmost set bit
 				}
 
-				if ( is_max_offset( meta ) ) [[unlikely]]
+				// Every slot is full, we'd be offset too far so rehash and try again
+				const auto empty_slots =
+					static_cast<std::uint16_t>( ( loaded_meta == meta_data::broadcast( 0 ) ).mask() );
+				if ( empty_slots == 0 ) [[unlikely]]
 				{
-					rehash( m_size * 2 );
+					rehash( m_capacity * 2 );
 					continue;
 				}
 
-				// We are in the slot we want to be in, see if we are more offset than others
-				const std::size_t desired_index = index;
-				const std::uint8_t desired_meta = meta;
+				// Find the slot we will insert into
+				const std::uint16_t offset = static_cast<std::uint16_t>( std::countr_zero( empty_slots ) );
 
-				// Must insert in an empty slot, 0 is empty by our invariants
-				while ( m_meta_data[ index ] != 0 )
+				const std::size_t insertion_idx = desired_index + offset;
+				std::uint8_t insertion_meta = desired_meta + static_cast<std::uint8_t>( offset * META_SINGLE_OFFSET );
+
+				// Insert the data
+				create( m_nodes + insertion_idx );
+				m_meta_data[ insertion_idx ] = insertion_meta;
+				++m_size;
+
+				// We are exactly where we want to be
+				if ( insertion_idx == desired_index )
 				{
-					unconditional_next( index, meta );
+					return {
+						iterator{m_nodes + insertion_idx, m_meta_data + insertion_idx},
+                        true
+                    };
 				}
 
-				// Someone else was in our slot, so we must offset them all
-				if ( index != desired_index )
-				{
-					// Move separately tail as its unintiialized
-					std::uninitialized_move( m_nodes + index - 1, m_nodes + index, m_nodes + index + 1 );
-					std::move_backward(
-						m_nodes + desired_index, m_nodes + index - 1, m_nodes + index ); // Move assign the rest
-					std::move_backward( m_meta_data + desired_index,
-										m_meta_data + index,
-										m_meta_data + index + 1 ); // Meta info is all movable via memmove
+				std::size_t result_index = insertion_idx;
 
-					// If we offset and are now at max offset, we rehash after setting up this elemtn
-					for ( std::size_t i = desired_index; i < index; ++i )
+				// If we were not in our desired slot see if we must offset others
+				// Aka core robind hood algorithm take from the rich give to the poor
+				for ( std::size_t index = desired_index; index < insertion_idx; ++index )
+				{
+					const std::uint8_t meta = m_meta_data[ index ];
+
+					// Offset more than our new node, aka it is poorer than us
+					if ( ( meta & META_OFFSET_MASK ) >= ( insertion_meta & META_OFFSET_MASK ) )
 					{
-						m_meta_data[ i ] += META_SINGLE_OFFSET;
-						rehasher.m_needs_rehash |= is_max_offset( m_meta_data[ i ] );
+						continue;
 					}
 
-					replace( m_nodes[ desired_index ] );
-				}
-				else
-				{
-					create( m_nodes + desired_index );
-					++m_size;
+					// We are richer than the node at this slot, we must take from it
+
+					std::iter_swap( m_nodes + index, m_nodes + insertion_idx );
+					std::iter_swap( m_meta_data + index, m_meta_data + insertion_idx );
+					insertion_meta = m_meta_data[ insertion_idx ] += META_SINGLE_OFFSET;
+
+					// If this was the thing we inserted we need to update oure return index
+					if ( result_index == insertion_idx )
+					{
+						result_index = index;
+					}
+
+					// If we are now at max offset, we rehash as things are too far away
+					m_rehash_on_next_insert |= ( insertion_meta & META_OFFSET_MASK ) == META_OFFSET_MASK;
 				}
 
-				m_meta_data[ desired_index ] = desired_meta;
 				return {
-					iterator{m_nodes + index, m_meta_data + index},
-                    false
+					iterator{m_nodes + result_index, m_meta_data + result_index},
+                    true
                 };
 			}
 		}
@@ -1031,14 +1032,6 @@ namespace mclo
 									std::piecewise_construct,
 									std::forward<UKey>( key ),
 									std::forward<Args>( args )... );
-				},
-				[ & ]( node_type& slot ) {
-					traits::replace( slot,
-									 m_allocator,
-									 std::piecewise_construct,
-									 std::forward<UKey>( key ),
-									 std::forward<Args>( args )... );
-					;
 				} );
 		}
 
@@ -1050,28 +1043,26 @@ namespace mclo
 			// We package part of our hash into the meta info which means we do not need to check
 			// as many key comparisons, as we only compare things that have a more similar hash
 			// not just anything that goes into the same ideal slot
-			std::size_t index = GrowthPolicy::calculate_index( hash, m_capacity );
-			std::uint8_t meta = META_USED_MASK | ( hash & META_HASH_MASK );
+			const std::size_t desired_index = GrowthPolicy::calculate_index( hash, m_capacity );
+			const std::uint8_t desired_meta = META_USED_MASK | ( hash & META_HASH_MASK );
 
-			// Find first meta data that could match the hash
-			while ( meta < m_meta_data[ index ] )
-			{
-				unconditional_next( index, meta );
-			}
+			// Find first meta data that could match the hash, since we guarantee we can never be >= 16 away we know if
+			// we do not find it in the first 16 we will not find it at all
+			const meta_data loaded_meta = meta_data::load_unaligned( m_meta_data + desired_index );
+			const meta_data hash_mask = meta_data::broadcast( META_USED_MASK | META_HASH_MASK );
+			const meta_data::batch_bool_type cmp = ( loaded_meta & hash_mask ) == desired_meta;
 
-			if ( is_max_offset( meta ) )
+			std::uint16_t matching_hashes = static_cast<std::uint16_t>( cmp.mask() );
+			while ( matching_hashes )
 			{
-				return m_capacity;
-			}
-
-			while ( meta == m_meta_data[ index ] )
-			{
+				const int offset = std::countr_zero( matching_hashes );
+				const std::size_t index = desired_index + offset;
 				const node_type& node = m_nodes[ index ];
 				if ( key_is_eq( key, traits::get_key( node ) ) ) [[likely]]
 				{
 					return index;
 				}
-				unconditional_next( index, meta );
+				matching_hashes &= matching_hashes - 1; // Clear rightmost set bit
 			}
 
 			return m_capacity;
@@ -1097,31 +1088,45 @@ namespace mclo
 			m_capacity = std::exchange( other.m_capacity, 0 );
 			m_size = std::exchange( other.m_size, 0 );
 			m_max_load_factor = std::exchange( other.m_max_load_factor, 0.875f );
+			m_rehash_on_next_insert = std::exchange( other.m_rehash_on_next_insert, false );
 		}
 
 		static constexpr std::size_t capacity_to_alloc_size( const std::size_t capacity ) noexcept
 		{
-			// No nodes also means no sentinel node
+			// No nodes also means no sentinel nodes
 			if ( capacity == 0 )
 			{
 				return 0;
 			}
 
 			// We need capacity nodes + capacity meta data + sentinel meta data
+			// Sentinel capacity must be enough to not cross page boundary when loading SIMD
 			// Our capacity is stored in terms of node types to make our allocator happy
-			return capacity + mclo::ceil_divide( capacity + 1, sizeof( node_type ) );
-		}
-
-		static void unconditional_next( std::size_t& index, std::uint8_t& meta ) noexcept
-		{
-			++index;
-			meta += META_SINGLE_OFFSET;
+			return capacity + mclo::ceil_divide( capacity + 16, sizeof( node_type ) );
 		}
 
 		template <typename T>
 		[[nodiscard]] std::size_t key_hash( const T& key ) const noexcept
 		{
-			return m_hasher( key );
+			std::size_t hash = m_hasher( key );
+
+			// std::hash on some platforms is incredibly shit, so we mix our hash output
+			// using some multiplications against good constants
+			if constexpr ( std::is_same_v<hasher, std::hash<key_type>> )
+			{
+				if constexpr ( sizeof( void* ) == 8 )
+				{
+					const mclo::uint128_t mixed = mclo::uint128_t( hash ) * 0x9E3779B97F4A7C15ull;
+					hash = std::uint64_t( mixed ) ^ std::uint64_t( mixed >> 64 );
+				}
+				else
+				{
+					const mclo::uint64_t mixed = mclo::uint64_t( hash ) * 0xE817FB2Du;
+					hash = std::uint32_t( mixed ) ^ std::uint32_t( mixed >> 64 );
+				}
+			}
+
+			return hash;
 		}
 
 		template <typename T, typename U>
@@ -1131,15 +1136,17 @@ namespace mclo
 		}
 
 		node_type* m_nodes = nullptr;
-		std::uint8_t* m_meta_data = nullptr;
+		meta_data::value_type* m_meta_data = nullptr;
 		size_type m_capacity = 0;
 		size_type m_size = 0;
 		float m_max_load_factor = 0.875;
+		bool m_rehash_on_next_insert = false;
 
 		MCLO_NO_UNIQUE_ADDRESS hasher m_hasher{};
 		MCLO_NO_UNIQUE_ADDRESS key_equal m_key_eq{};
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator{};
 	};
+
 
 	template <typename Key,
 			  typename Value,

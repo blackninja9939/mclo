@@ -4,6 +4,8 @@
 #include "mclo/container/hash_map.hpp"
 #include "mclo/hash/std_types.hpp"
 
+#include "mclo/container/span.hpp"
+
 TEST_CASE( "Hash map" )
 {
 	mclo::hash_map<std::string, int> map;
