@@ -1121,7 +1121,7 @@ namespace mclo
 				}
 				else
 				{
-					const mclo::uint64_t mixed = mclo::uint64_t( hash ) * 0xE817FB2Du;
+					const std::uint64_t mixed = std::uint64_t( hash ) * 0xE817FB2Du;
 					hash = std::uint32_t( mixed ) ^ std::uint32_t( mixed >> 64 );
 				}
 			}

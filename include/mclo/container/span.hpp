@@ -50,7 +50,7 @@ namespace mclo
 		constexpr bool banned_span_conversion<std::array<T, N>> = true;
 
 		template <typename T, std::size_t N>
-		constexpr bool banned_span_conversion<std::span<T, N>> = true;
+		constexpr bool banned_span_conversion<mclo::span<T, N>> = true;
 
 		template <typename From, typename To>
 		constexpr bool valid_pointer_conversion = std::is_convertible_v<From ( * )[], To ( * )[]>;
