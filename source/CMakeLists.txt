@@ -17,6 +17,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/condition_variable.cpp"
     "threading/thread_properties.cpp"
     "threading/windows_wrapper.h"
+    "memory/linear_allocator.cpp"
 )
 
 set_target_properties(
