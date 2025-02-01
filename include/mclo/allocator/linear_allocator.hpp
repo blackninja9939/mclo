@@ -68,6 +68,10 @@ namespace mclo
 			: linear_allocator_resource( m_buffer )
 		{
 		}
+		explicit inline_linear_allocator_resource( upstream_resource upstream ) noexcept
+			: linear_allocator_resource( m_buffer, upstream )
+		{
+		}
 
 	private:
 		alignas( Align ) std::byte m_buffer[ Bytes ];

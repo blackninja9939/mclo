@@ -30,7 +30,7 @@ namespace mclo
 	{
 	public:
 		template <memory_resource T>
-		explicit upstream_resource( T& upstream ) noexcept
+		upstream_resource( T& upstream ) noexcept
 			: m_upstream( &upstream )
 			, m_functions( &detail::resource_funcs<T> )
 		{

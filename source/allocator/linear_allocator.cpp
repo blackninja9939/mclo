@@ -25,7 +25,7 @@ namespace
 	[[nodiscard]] std::size_t scaled_increase( const std::size_t bytes_needed, const std::size_t existing_size )
 	{
 		const auto grown_size = static_cast<std::size_t>( existing_size * 1.5f );
-		return std::max( grown_size, existing_size + bytes_needed );
+		return std::max( grown_size, bytes_needed );
 	}
 }
 
@@ -92,6 +92,10 @@ namespace mclo
 
 	void linear_allocator_resource::reset_consolidate() noexcept
 	{
+		if ( !m_allocated_buffers || !m_allocated_buffers->m_previous )
+		{
+			return;
+		}
 		const std::size_t last_size = m_buffer.size();
 		release();
 		add_buffer_node( last_size );
