@@ -2,15 +2,339 @@
 
 #include "mclo/container/slot_map_handle.hpp"
 #include "mclo/debug/assert.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <cinttypes>
+#include <iterator>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <vector>
 
 namespace mclo
 {
-	/// @brief A slot map which provides stable weak references in the form of handles to data
+	namespace detail
+	{
+		template <class Allocator>
+		class [[nodiscard]] uninitialized_alloc_guard
+		{
+		public:
+			using value_type = typename Allocator::value_type;
+			using traits = std::allocator_traits<Allocator>;
+
+			uninitialized_alloc_guard( Allocator& alloc, const std::size_t count )
+				: m_allocator( alloc )
+				, m_value( traits::allocate( alloc, count ) )
+				, m_count( count )
+			{
+			}
+
+			uninitialized_alloc_guard( const uninitialized_alloc_guard& ) = delete;
+			uninitialized_alloc_guard& operator=( const uninitialized_alloc_guard& ) = delete;
+
+			~uninitialized_alloc_guard()
+			{
+				traits::deallocate( m_allocator, m_value, m_count );
+			}
+
+			[[nodiscard]] value_type* value() const noexcept
+			{
+				return m_value;
+			}
+
+			void release() noexcept
+			{
+				m_value = nullptr;
+				m_count = 0;
+			}
+
+		private:
+			Allocator& m_allocator;
+			value_type* m_value = nullptr;
+			std::size_t m_count = 0;
+		};
+
+		/// @brief Underlying data storage for dense slot map, it allocates the values and reverse map in one allocation
+		/// to reduce allocations
+		template <typename Value, auto MaxSize, typename Allocator>
+		class dense_slot_map_data
+		{
+		public:
+			using value_type = Value;
+			using size_type = decltype( MaxSize );
+
+		private:
+			struct alignas( value_type ) aligned_buffer
+			{
+				std::byte buffer[ alignof( value_type ) ];
+			};
+
+		public:
+			using allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<aligned_buffer>;
+
+			dense_slot_map_data() = default;
+
+			explicit dense_slot_map_data( const allocator_type& allocator ) noexcept
+				: m_allocator( allocator )
+			{
+			}
+
+			dense_slot_map_data( const dense_slot_map_data& other )
+				: m_allocator( alloc_traits::select_on_container_copy_construction( other.m_allocator ) )
+			{
+				copy_from( other );
+			}
+
+			dense_slot_map_data( dense_slot_map_data&& other ) noexcept
+				: m_data( std::exchange( other.m_data, nullptr ) )
+				, m_data_reverse_map( std::exchange( other.m_data_reverse_map, nullptr ) )
+				, m_size( std::exchange( other.m_size, 0 ) )
+				, m_capacity( std::exchange( other.m_capacity, 0 ) )
+				, m_allocator( std::move( other.m_allocator ) )
+			{
+			}
+
+			dense_slot_map_data& operator=( const dense_slot_map_data& other )
+			{
+				if ( this == &other )
+				{
+					return *this;
+				}
+				clear();
+				if constexpr ( alloc_traits::propagate_on_container_copy_assignment::value )
+				{
+					m_allocator = other.m_allocator;
+				}
+				else
+				{
+					DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for copy assignment" );
+				}
+				copy_from( other );
+				return *this;
+			}
+
+			dense_slot_map_data& operator=( dense_slot_map_data&& other ) noexcept
+			{
+				if ( this == &other )
+				{
+					return *this;
+				}
+				clear();
+				if constexpr ( alloc_traits::propagate_on_container_move_assignment::value )
+				{
+					m_allocator = std::move( other.m_allocator );
+				}
+				else
+				{
+					DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for move assignment" );
+				}
+				m_data = std::exchange( other.m_data, nullptr );
+				m_data_reverse_map = std::exchange( other.m_data_reverse_map, nullptr );
+				m_size = std::exchange( other.m_size, 0 );
+				m_capacity = std::exchange( other.m_capacity, 0 );
+				return *this;
+			}
+
+			~dense_slot_map_data()
+			{
+				std::destroy_n( m_data, m_size );
+				std::destroy_n( m_data_reverse_map, m_size );
+				const std::size_t buffer_count = size_in_aligned_buffers( m_capacity );
+				alloc_traits::deallocate( m_allocator, reinterpret_cast<aligned_buffer*>( m_data ), buffer_count );
+			}
+
+			void swap( dense_slot_map_data& other ) noexcept
+			{
+				if ( this == &other )
+				{
+					return;
+				}
+				using std::swap;
+				if constexpr ( alloc_traits::propagate_on_container_swap::value )
+				{
+					swap( m_allocator, other.m_allocator );
+				}
+				else
+				{
+					DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for swap" );
+				}
+				swap( m_data, other.m_data );
+				swap( m_data_reverse_map, other.m_data_reverse_map );
+				swap( m_size, other.m_size );
+				swap( m_capacity, other.m_capacity );
+			}
+
+			friend void swap( dense_slot_map_data& lhs, dense_slot_map_data& rhs ) noexcept
+			{
+				lhs.swap( rhs );
+			}
+
+			[[nodiscard]] size_type capacity() const noexcept
+			{
+				return m_capacity;
+			}
+
+			[[nodiscard]] size_type size() const noexcept
+			{
+				return m_size;
+			}
+
+			[[nodiscard]] size_type max_size() const noexcept
+			{
+				return MaxSize;
+			}
+
+			[[nodiscard]] allocator_type get_allocator() const noexcept
+			{
+				return m_allocator;
+			}
+
+			[[nodiscard]] value_type* values() const noexcept
+			{
+				return m_data;
+			}
+			[[nodiscard]] size_type* data_reverse_map() const noexcept
+			{
+				return m_data_reverse_map;
+			}
+
+			template <typename... Args>
+			void emplace_back( const size_type index, Args&&... args )
+			{
+				reserve( m_size + 1 );
+				DEBUG_ASSERT( m_size < m_capacity, "Size should be less than capacity" );
+				std::construct_at( m_data + m_size, std::forward<Args>( args )... );
+				std::construct_at( m_data_reverse_map + m_size, index );
+				++m_size;
+			}
+
+			void pop_back() MCLO_NOEXCEPT_TESTS
+			{
+				DEBUG_ASSERT( m_size > 0, "Size should be greater than 0" );
+				--m_size;
+				std::destroy_at( m_data + m_size );
+				std::destroy_at( m_data_reverse_map + m_size );
+			}
+
+			bool swap_and_pop_at( const size_type index )
+				MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_assignable_v<value_type> )
+			{
+				DEBUG_ASSERT( index < m_size, "Index should be less than size" );
+				if ( index == m_size - 1 )
+				{
+					pop_back();
+					return false;
+				}
+
+				m_data[ index ] = std::move( m_data[ m_size - 1 ] );
+				m_data_reverse_map[ index ] = m_data_reverse_map[ m_size - 1 ];
+				pop_back();
+				return true;
+			}
+
+			void clear() noexcept
+			{
+				std::destroy_n( m_data, m_size );
+				std::destroy_n( m_data_reverse_map, m_size );
+				m_size = 0;
+			}
+
+			void reserve( const size_type num_objects )
+			{
+				if ( num_objects <= m_capacity )
+				{
+					return;
+				}
+
+				const size_type new_capacity = calculate_new_capacity( num_objects );
+				uninitialized_alloc_guard alloc_guard( m_allocator, size_in_aligned_buffers( new_capacity ) );
+
+				value_type* const new_data = reinterpret_cast<value_type*>( alloc_guard.value() );
+				size_type* const new_data_reverse_map = reinterpret_cast<size_type*>( new_data + new_capacity );
+
+				// The uninitialized_move_n algorithms take care of destroying elements if an exception is thrown part
+				// way through, so we only need to handle deallocation in our guard not destruction here
+				std::uninitialized_move_n( m_data, m_size, new_data );
+
+				static_assert( std::is_nothrow_move_constructible_v<size_type>,
+							   "Moving size does not throw exceptions, if it does we need a guard object for our "
+							   "constructed objects" );
+				std::uninitialized_move_n( m_data_reverse_map, m_size, new_data_reverse_map );
+
+				alloc_traits::deallocate(
+					m_allocator, reinterpret_cast<aligned_buffer*>( m_data ), size_in_aligned_buffers( m_capacity ) );
+
+				alloc_guard.release();
+
+				m_data = new_data;
+				m_data_reverse_map = new_data_reverse_map;
+				m_capacity = new_capacity;
+			}
+
+		private:
+			static constexpr float growth_factor = 1.5f;
+
+			[[nodiscard]] static constexpr std::size_t size_in_aligned_buffers( const size_type num_objects ) noexcept
+			{
+				const std::size_t object_size = sizeof( value_type ) * num_objects;
+				const std::size_t data_reverse_map_size = sizeof( size_type ) * num_objects;
+				const std::size_t data_size = object_size + data_reverse_map_size;
+				const std::size_t aligned_size =
+					( data_size + alignof( aligned_buffer ) - 1 ); // Round up to alignof(aligned_buffer)
+				return aligned_size / alignof( aligned_buffer );
+			}
+
+			[[nodiscard]] size_type calculate_new_capacity( const size_type new_size ) const noexcept
+			{
+				const size_type old_capacity = m_capacity;
+				const size_type max_capacity = max_size();
+
+				// Growing would overflow
+				if ( old_capacity > max_capacity - static_cast<size_type>( old_capacity / growth_factor ) ) [[unlikely]]
+				{
+					return max_capacity;
+				}
+
+				const size_type new_capacity = static_cast<size_type>( old_capacity * growth_factor );
+				return std::max( new_capacity, new_size );
+			}
+
+			void copy_from( const dense_slot_map_data& other )
+			{
+				DEBUG_ASSERT( m_size == 0, "Size should be 0" );
+				reserve( other.m_size );
+				std::uninitialized_copy_n( other.m_data, other.m_size, m_data );
+				static_assert( std::is_nothrow_copy_constructible_v<size_type>,
+							   "Copying size does not throw exceptions, if it does we need a guard object for our "
+							   "constructed objects" );
+				std::uninitialized_copy_n( other.m_data_reverse_map, other.m_size, m_data_reverse_map );
+				m_size = other.m_size;
+			}
+
+			using alloc_traits = std::allocator_traits<allocator_type>;
+
+			/// @brief Contiguous array of data for fast iteration over all elements
+			/// @details Order will be changed upon erasure
+			value_type* m_data = nullptr;
+
+			/// @brief Indirection array, lookup from index in data -> public handles
+			/// @details Array of indexes that let an entry in the data array know what handle in the public handles is
+			/// referring to it.
+			/// Used so that upon erasure we can update the indirection to refer to an object's new location in data
+			size_type* m_data_reverse_map = nullptr;
+
+			/// @brief Number of objects in the slot map
+			size_type m_size = 0;
+
+			/// @brief Number of objects the slot map can hold before reallocation
+			size_type m_capacity = 0;
+
+			/// @brief Allocator used for the backing data
+			MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator{};
+		};
+	} // namespace detail
+
+	/// @brief A slot map storing contiguous data and provides stable weak references in the form of handles
 	/// @details A slot map provides weak references that can be queried if they are valid and upon using return
 	/// nullptrs. The object handles have a customizable amount of data to use for number of objects and object
 	/// generation.
@@ -21,18 +345,20 @@ namespace mclo
 	/// Pros:
 	/// * Can iterate over objects in contiguous memory
 	/// * Backing of a vector means amortized growth costs and low memory overhead
-	/// * All operations perform in a constant time
+	/// * All operations perform in a constant time unless reallocating
 	///
 	/// Cons:
 	/// * Lookup is two indirections, one from public handle to indirection list, then indirection list to object
 	/// * When allocations are needed it can be a slowdown spikes as its moves all objects into the new block
-	///		* This can be somewhat mitigated with up front reserves. todo(mc): Mention paged slot map once made
+	///		* This can be somewhat mitigated with up front reserves
+	///		* This can be somewhat mitigated with a custom allocator
+	///		* For large objects or objects with slow moves they can be wrapped with a smart pointer indirection
 	///
 	/// @tparam T The type of objects to store
 	/// @tparam HandleTotalBits Total number of bits for the handle type to use, smallest integer type to fit these bits
 	/// will be the handle representation type, defaults to a std::uint32_t. More bits = larger max size & generation
-	/// but larget handle.
-	/// @tparam GenerationBits Number of the totaly bits in the handle representation type used for generation checking,
+	/// but larger handle.
+	/// @tparam GenerationBits Number of the total bits in the handle representation type used for generation checking,
 	/// defaults to 1/4 of the total bits. More bits = lower max size but higher generation before wrapping
 	/// @tparam Allocator The allocator used by the backing vectors
 	template <typename T,
@@ -41,13 +367,16 @@ namespace mclo
 			  typename Allocator = std::allocator<T>>
 	class dense_slot_map
 	{
+	public:
+		using handle_type = slot_map_handle<T, HandleTotalBits, GenerationBits>;
+
 	private:
-		using underlying_container = std::vector<T, Allocator>;
+		using underlying_container = detail::dense_slot_map_data<T, handle_type::max_index + 1, Allocator>;
 
 		class [[nodiscard]] emplace_guard
 		{
 		public:
-			explicit emplace_guard( dense_slot_map& map ) noexcept
+			explicit emplace_guard( underlying_container& map ) noexcept
 				: ptr( &map )
 			{
 			}
@@ -59,11 +388,7 @@ namespace mclo
 			{
 				if ( ptr ) [[unlikely]]
 				{
-					if ( inserted_to_reverse_map )
-					{
-						ptr->m_data_reverse_map.pop_back();
-					}
-					ptr->m_data.pop_back();
+					ptr->pop_back();
 				}
 			}
 
@@ -71,56 +396,46 @@ namespace mclo
 			{
 				ptr = nullptr;
 			}
-			void set_inserted_to_reverse_map() noexcept
-			{
-				inserted_to_reverse_map = true;
-			}
 
 		private:
-			dense_slot_map* ptr = nullptr;
-			bool inserted_to_reverse_map = false;
+			underlying_container* ptr = nullptr;
 		};
 
 		struct [[nodiscard]] noop_guard
 		{
-			explicit noop_guard( const dense_slot_map& ) noexcept
+			explicit noop_guard( const underlying_container& ) noexcept
 			{
 			}
 
 			void release() noexcept
 			{
 			}
-			void set_inserted_to_reverse_map() noexcept
-			{
-			}
 		};
 
 	public:
-		using handle_type = slot_map_handle<T, HandleTotalBits, GenerationBits>;
-		using value_type = T;
+		using value_type = typename underlying_container::value_type;
 		using allocator_type = Allocator;
-		using reference = T&;
-		using const_reference = const T&;
-		using pointer = T*;
-		using const_pointer = const T*;
-		using difference_type = typename underlying_container::difference_type;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using difference_type = std::ptrdiff_t;
 		// We can't have more items than our index represents anyway
-		using size_type = typename handle_type::representation_type;
-		using iterator = typename underlying_container::iterator;
-		using const_iterator = typename underlying_container::const_iterator;
-		using reverse_iterator = typename underlying_container::reverse_iterator;
-		using const_reverse_iterator = typename underlying_container::const_reverse_iterator;
+		using size_type = typename underlying_container::size_type;
+		using iterator = pointer;
+		using const_iterator = const_pointer;
+		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		dense_slot_map() noexcept( noexcept( Allocator() ) ) = default;
+		dense_slot_map() noexcept( noexcept( allocator_type() ) ) = default;
 
-		explicit dense_slot_map( const Allocator& allocator ) noexcept
+		explicit dense_slot_map( const allocator_type& allocator ) noexcept
 			: m_data( allocator )
-			, m_data_reverse_map( allocator )
 			, m_slot_indirection( allocator )
 		{
 		}
 
-		explicit dense_slot_map( const size_type slot_count, const Allocator& allocator = Allocator() )
+		explicit dense_slot_map( const size_type slot_count, const allocator_type& allocator = allocator_type() )
 			: dense_slot_map( allocator )
 		{
 			reserve_slots( slot_count );
@@ -142,10 +457,10 @@ namespace mclo
 		/// @param ...arguments Arguments to construct from
 		/// @return Result containing a reference to the created entry and the handle to it
 		template <typename... Args>
-		[[nodiscard]] emplace_result emplace_and_get( Args... arguments )
+		[[nodiscard]] emplace_result emplace_and_get( Args&&... arguments )
 		{
 			const size_type current_size = size();
-			if ( current_size == max_size() ) [[unlikely]]
+			if ( current_size >= max_size() ) [[unlikely]]
 			{
 				throw_too_big();
 			}
@@ -163,7 +478,7 @@ namespace mclo
 		/// @param ...arguments Arguments to construct from
 		/// @return handle to the created entry
 		template <typename... Args>
-		[[nodiscard]] handle_type emplace( Args... arguments )
+		[[nodiscard]] handle_type emplace( Args&&... arguments )
 		{
 			return emplace_and_get( std::forward<Args>( arguments )... ).handle;
 		}
@@ -186,11 +501,11 @@ namespace mclo
 			return emplace( std::move( object ) );
 		}
 
-		/// @brief Reserve space for amount old_num_slots
+		/// @brief Reserve space for amount slots
 		/// @post Provides a basic exception guarantee, if an exception is thrown invariants are held and no leaks occur
-		/// @details Beneficial as allocating more old_num_slots than values causes the generations to increase
-		/// more evenly distributed across the old_num_slots compared to recycling the same old_num_slots forever.
-		/// @param amount The number of old_num_slots to reserve for
+		/// @details Beneficial as allocating more slots than values causes the generations to increase
+		/// more evenly distributed across the slots compared to recycling the same slots forever.
+		/// @param amount The number of slots to reserve for
 		void reserve_slots( const size_type amount )
 		{
 			if ( amount > max_size() ) [[unlikely]]
@@ -202,8 +517,8 @@ namespace mclo
 
 			const size_type old_num_slots = slot_count();
 
-			// If we reserved more old_num_slots then link into the free list
-			// This links the new old_num_slots in reverse order and inserts them as the new head, this is because
+			// If we reserved more slots then link into the free list
+			// This links the new slots in reverse order and inserts them as the new head, this is because
 			// they have fresh generation counters so we want to use them up first instead of ones with
 			// potentially higher and uneven distribution of generations
 			if ( old_num_slots < amount )
@@ -216,13 +531,13 @@ namespace mclo
 					const size_type last_new_slot = amount - 1;
 					size_type newest_slot = old_num_slots;
 
-					// Chain together all the other old_num_slots
+					// Chain together all the other slots
 					while ( newest_slot != last_new_slot )
 					{
 						m_slot_indirection.push_back( handle_type{ newest_slot++, {} } );
 					}
 
-					// Make the end of our new old_num_slots the new head
+					// Make the end of our new slots the new head
 					m_free_list_head = newest_slot;
 				}
 				catch ( ... )
@@ -233,14 +548,13 @@ namespace mclo
 			}
 		}
 
-		/// @brief Reserve capacity for elements and old_num_slots in the slot map
+		/// @brief Reserve capacity for elements and slots in the slot map
 		/// @post Provides a basic exception guarantee, if an exception is thrown invariants are held and no leaks occur
 		/// @param amount Number of elements to reserve size for
 		void reserve( const size_type amount )
 		{
 			reserve_slots( amount );
 			m_data.reserve( amount );
-			m_data_reverse_map.reserve( amount );
 		}
 
 		/// @brief Erase an entry in the slot map from its handle
@@ -251,6 +565,20 @@ namespace mclo
 			{
 				erase_valid_handle( handle );
 			}
+		}
+
+		/// @brief Erase an entry in the slot map from its iterator
+		/// @param pos The iterator to the object to erase
+		/// @return Iterator to the next element after the erased one
+		iterator erase( const const_iterator pos ) noexcept( std::is_nothrow_move_assignable_v<T> )
+		{
+			if ( pos == end() ) [[unlikely]]
+			{
+				return end();
+			}
+			const size_type data_index = static_cast<size_type>( std::distance( cbegin(), pos ) );
+			erase_valid_handle( get_valid_handle_at( data_index ) );
+			return begin() + data_index;
 		}
 
 		/// @brief Erase the element at the handle if it exists returning the data it contained, else return an empty
@@ -271,14 +599,13 @@ namespace mclo
 			return std::move( object );
 		}
 
-		/// @brief Destroy all active elements and put all old_num_slots back into the free list
-		/// @details Increases the generation counter of all old_num_slots, so existing handles are valid to use
-		/// @warning Doing this frequently can cause your old_num_slots to increase in version faster than via normal
+		/// @brief Destroy all active elements and put all slots back into the free list
+		/// @details Increases the generation counter of all slots, so existing handles are valid to use
+		/// @warning Doing this frequently can cause your slots to increase in version faster than via normal
 		/// use, if you want to clear everything out and have no old handles you'll want to use Reset instead
 		void clear() noexcept
 		{
 			m_data.clear();
-			m_data_reverse_map.clear();
 
 			// Start from the first again
 			m_free_list_head = 0;
@@ -297,14 +624,13 @@ namespace mclo
 			m_slot_indirection[ m_free_list_tail ].index = m_free_list_tail;
 		}
 
-		/// @brief Destroy all active elements and clear all old_num_slots
+		/// @brief Destroy all active elements and clear all slots
 		/// @warning This invalidates all existing handles as it resets generation counters, be sure none in use else
 		/// it'll lead to collisions
 		void reset() noexcept
 		{
 			m_data.clear();
 			m_slot_indirection.clear();
-			m_data_reverse_map.clear();
 			m_free_list_head = 0;
 			m_free_list_tail = 0;
 		}
@@ -335,7 +661,7 @@ namespace mclo
 				return nullptr;
 			}
 
-			return &m_data[ indirection_handle.index ];
+			return m_data.values() + indirection_handle.index;
 		}
 
 		/// @brief Lookup an entry in the slot map
@@ -344,6 +670,19 @@ namespace mclo
 		[[nodiscard]] pointer lookup( const handle_type handle ) noexcept
 		{
 			return const_cast<pointer>( std::as_const( *this ).lookup( handle ) );
+		}
+
+		/// @brief Get the handle for the entry the iterator refers to
+		/// @param pos The iterator to get the handle for
+		/// @return The handle to the entry for the iterator, or null handle if end iterator
+		[[nodiscard]] handle_type get_handle( const const_iterator pos ) const noexcept
+		{
+			if ( pos == end() ) [[unlikely]]
+			{
+				return {};
+			}
+			const size_type data_index = static_cast<size_type>( std::distance( cbegin(), pos ) );
+			return get_valid_handle_at( data_index );
 		}
 
 		/// @brief Get the number of active objects
@@ -361,7 +700,7 @@ namespace mclo
 		/// @brief Is the slot map empty
 		[[nodiscard]] bool empty() const noexcept
 		{
-			return m_data.empty();
+			return size() == 0;
 		}
 
 		/// @brief Get the number of slots, guaranteed >= size()
@@ -373,90 +712,96 @@ namespace mclo
 		/// @brief Get the maximum number of objects
 		[[nodiscard]] size_type max_size() const noexcept
 		{
-			return handle_type::max_index + 1;
+			return m_data.max_size();
 		}
 
 		/// @brief Get the allocator used
 		[[nodiscard]] allocator_type get_allocator() const noexcept
 		{
-			return m_data.get_allocator();
+			return allocator_type( m_data.get_allocator() );
 		}
 
-		[[nodiscard]] reference front() noexcept
+		[[nodiscard]] reference front() MCLO_NOEXCEPT_TESTS
 		{
-			return m_data.front();
+			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			return *data();
 		}
-		[[nodiscard]] reference back() noexcept
+		[[nodiscard]] reference back() MCLO_NOEXCEPT_TESTS
 		{
-			return m_data.back();
+			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			return data()[ size() - 1 ];
 		}
 
-		[[nodiscard]] const_reference front() const noexcept
+		[[nodiscard]] const_reference front() const MCLO_NOEXCEPT_TESTS
 		{
-			return m_data.front();
+			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			return *data();
 		}
-		[[nodiscard]] const_reference back() const noexcept
+		[[nodiscard]] const_reference back() const MCLO_NOEXCEPT_TESTS
 		{
-			return m_data.back();
+			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			return data()[ size() - 1 ];
 		}
 
 		[[nodiscard]] pointer data() noexcept
 		{
-			return m_data.data();
+			return m_data.values();
 		}
 		[[nodiscard]] const_pointer data() const noexcept
 		{
-			return m_data.data();
+			return m_data.values();
 		}
 
 		[[nodiscard]] iterator begin() noexcept
 		{
-			return m_data.begin();
-		}
-		[[nodiscard]] iterator end() noexcept
-		{
-			return m_data.end();
+			return data();
 		}
 		[[nodiscard]] const_iterator begin() const noexcept
 		{
-			return m_data.begin();
-		}
-		[[nodiscard]] const_iterator end() const noexcept
-		{
-			return m_data.end();
+			return data();
 		}
 		[[nodiscard]] const_iterator cbegin() const noexcept
 		{
-			return m_data.cbegin();
+			return data();
+		}
+
+		[[nodiscard]] iterator end() noexcept
+		{
+			return data() + size();
+		}
+		[[nodiscard]] const_iterator end() const noexcept
+		{
+			return data() + size();
 		}
 		[[nodiscard]] const_iterator cend() const noexcept
 		{
-			return m_data.cend();
+			return data() + size();
 		}
 
 		[[nodiscard]] reverse_iterator rbegin() noexcept
 		{
-			return m_data.rbegin();
-		}
-		[[nodiscard]] reverse_iterator rend() noexcept
-		{
-			return m_data.rend();
+			return std::make_reverse_iterator( end() );
 		}
 		[[nodiscard]] const_reverse_iterator rbegin() const noexcept
 		{
-			return m_data.rbegin();
-		}
-		[[nodiscard]] const_reverse_iterator rend() const noexcept
-		{
-			return m_data.rend();
+			return std::make_reverse_iterator( end() );
 		}
 		[[nodiscard]] const_reverse_iterator crbegin() const noexcept
 		{
-			return m_data.crbegin();
+			return std::make_reverse_iterator( cend() );
+		}
+
+		[[nodiscard]] reverse_iterator rend() noexcept
+		{
+			return std::make_reverse_iterator( begin() );
+		}
+		[[nodiscard]] const_reverse_iterator rend() const noexcept
+		{
+			return std::make_reverse_iterator( begin() );
 		}
 		[[nodiscard]] const_reverse_iterator crend() const noexcept
 		{
-			return m_data.crend();
+			return std::make_reverse_iterator( cbegin() );
 		}
 
 		/// @brief Swap this with Other
@@ -466,7 +811,6 @@ namespace mclo
 			using std::swap;
 			swap( m_data, other.m_data );
 			swap( m_slot_indirection, other.m_slot_indirection );
-			swap( m_data_reverse_map, other.m_data_reverse_map );
 			swap( m_free_list_head, other.m_free_list_head );
 			swap( m_free_list_tail, other.m_free_list_tail );
 		}
@@ -488,18 +832,15 @@ namespace mclo
 		/// @param ...arguments Arguments to construct from
 		/// @return Result containing a reference to the created entry and the handle to it
 		template <typename GuardType, typename... Args>
-		[[nodiscard]] emplace_result emplace_and_get_with_guard( Args... arguments )
+		[[nodiscard]] emplace_result emplace_and_get_with_guard( Args&&... arguments )
 		{
+			const size_type slot_index = m_free_list_head;
+
 			// Insert our data, if this throws we've no clean up needed so we do it first since it is most possible to
 			// throw due to user constructors
-			m_data.emplace_back( std::forward<Args>( arguments )... );
+			m_data.emplace_back( slot_index, std::forward<Args>( arguments )... );
 
-			GuardType guard( *this );
-
-			// Take the free list head index, it points into our indexes array of what data to use
-			// Push it into the data -> public handle so that we can do O(1) erasures
-			const size_type slot_index = m_data_reverse_map.emplace_back( m_free_list_head );
-			guard.set_inserted_to_reverse_map();
+			GuardType guard( m_data );
 
 			const size_type old_num_slots = slot_count();
 
@@ -532,7 +873,8 @@ namespace mclo
 			}
 
 			// Set handle's index to point to that
-			handle.index = m_data.size() - 1;
+			const size_type data_index = m_data.size() - 1;
+			handle.index = data_index;
 
 			// We're safe now to return without cleanup
 			guard.release();
@@ -540,7 +882,7 @@ namespace mclo
 			// We return the original slot index and the generation, generation will be changed in erasure for
 			// invalidating existing handles
 			return {
-				m_data.back(), { slot_index, handle.generation }
+				m_data.values()[ data_index ], {slot_index, handle.generation}
             };
 		}
 
@@ -560,18 +902,20 @@ namespace mclo
 			// If we are not the tail we overwrite our data with the tail so maintain a contiguous array of data
 			if ( data_index != data_last_index ) [[likely]]
 			{
+				const pointer values = m_data.values();
+				size_type* const data_reverse_map = m_data.data_reverse_map();
+
 				// Overwrite our object with tail this maintains contiguous array of data
-				m_data[ data_index ] = std::move( m_data[ data_last_index ] );
-				m_data_reverse_map[ data_index ] = std::move( m_data_reverse_map[ data_last_index ] );
+				values[ data_index ] = std::move( values[ data_last_index ] );
+				data_reverse_map[ data_index ] = std::move( data_reverse_map[ data_last_index ] );
 
 				// Use data we overwrote with to find and update its indirection array link with the data for our new
 				// location
-				m_slot_indirection[ m_data_reverse_map[ data_index ] ].index = data_index;
+				m_slot_indirection[ data_reverse_map[ data_index ] ].index = data_index;
 			}
 
 			// We pop the tail as that is either us directly or what we moved from to overwrite ourselves
 			m_data.pop_back();
-			m_data_reverse_map.pop_back();
 
 			// Start free list if empty or chain into existing free list
 			if ( m_free_list_head == slot_count() )
@@ -587,10 +931,19 @@ namespace mclo
 			m_free_list_tail = handle_index;
 		}
 
+		/// @brief Get the handle for the entry the iterator refers to
+		/// @param pos The iterator to get the handle for
+		/// @return The handle to the entry for the iterator, or null handle if end iterator
+		[[nodiscard]] handle_type get_valid_handle_at( const size_type data_index ) const noexcept
+		{
+			const size_type indirection_index = m_data.data_reverse_map()[ data_index ];
+			const size_type generation = m_slot_indirection[ indirection_index ].generation;
+			return handle_type{ indirection_index, generation };
+		}
+
 		using alloc_traits = std::allocator_traits<allocator_type>;
 
-		/// @brief Contiguous array of data for fast iteration over all elements
-		/// @details Order will be changed upon erasure
+		/// @brief Underlying container containing the data and reverse map
 		underlying_container m_data;
 
 		/// @brief Indirection array, lookup from handle.index -> m_data
@@ -600,12 +953,6 @@ namespace mclo
 		/// next entry in this array that is part of the free list.
 		/// If the index is itself then it is the end of the free list.
 		std::vector<handle_type, typename alloc_traits::template rebind_alloc<handle_type>> m_slot_indirection;
-
-		/// @brief Indirection array, lookup from index in data -> public handles
-		/// @details Array of indexes that let an entry in the data array know what handle in the public handles is
-		/// referring to it.
-		/// Used so that upon erasure we can update the indirection to refer to an object's new location in data
-		std::vector<size_type, typename alloc_traits::template rebind_alloc<size_type>> m_data_reverse_map;
 
 		/// @brief index into slot array for the start of the free list
 		/// @details Is either equal to m_free_list_tail and slot_count() when empty
@@ -625,5 +972,31 @@ namespace mclo
 				  std::size_t GenerationBits = HandleTotalBits / 4>
 		using dense_slot_map =
 			mclo::dense_slot_map<T, HandleTotalBits, GenerationBits, std::pmr::polymorphic_allocator<T>>;
+	}
+}
+
+namespace std
+{
+	template <typename T,
+			  std::size_t HandleTotalBits,
+			  std::size_t GenerationBits,
+			  typename Allocator,
+			  typename Predicate>
+	auto erase_if( mclo::dense_slot_map<T, HandleTotalBits, GenerationBits, Allocator>& map, Predicate pred )
+	{
+		auto first = map.begin();
+		const auto old_size = map.size();
+		while ( first != map.end() )
+		{
+			if ( pred( *first ) )
+			{
+				first = map.erase( first );
+			}
+			else
+			{
+				++first;
+			}
+		}
+		return old_size - map.size();
 	}
 }
