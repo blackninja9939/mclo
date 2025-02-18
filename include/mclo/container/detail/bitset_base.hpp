@@ -417,9 +417,14 @@ namespace mclo::detail
 		/// @return If all bits are the same
 		[[nodiscard]] constexpr bool operator==( const bitset_base& other ) const noexcept
 		{
+			const std::size_t size = m_container.size();
+			if ( size != other.m_container.size() )
+			{
+				return false;
+			}
 			if ( std::is_constant_evaluated() )
 			{
-				for ( std::size_t page = 0, size = m_container.size(); page < size; ++page )
+				for ( std::size_t page = 0; page < size; ++page )
 				{
 					if ( m_container[ page ] != other.m_container[ page ] )
 					{
@@ -430,9 +435,8 @@ namespace mclo::detail
 			}
 			else
 			{
-				return std::memcmp( m_container.data(),
-									other.m_container.data(),
-									m_container.size() * sizeof( underlying_type ) ) == 0;
+				return std::memcmp( m_container.data(), other.m_container.data(), size * sizeof( underlying_type ) ) ==
+					   0;
 			}
 		}
 

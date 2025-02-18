@@ -286,3 +286,38 @@ TEMPLATE_LIST_TEST_CASE( "bitset hash", "[bitset]", test_types )
 
 	CHECK( set_hash != other_hash );
 }
+
+TEST_CASE( "dynamic bitset equals", "[bitset]" )
+{
+	mclo::dynamic_bitset<std::uint32_t> set( 32 );
+	mclo::dynamic_bitset<std::uint32_t> other( 32 );
+
+	SECTION( "Same size same data" )
+	{
+		set.set( 4 ).set( 16 );
+		other.set( 4 ).set( 16 );
+
+		CHECK( set == other );
+	}
+	SECTION( "Same size different data" )
+	{
+		set.set( 4 ).set( 16 );
+		other.set( 4 ).set( 20 );
+
+		CHECK_FALSE( set == other );
+	}
+	SECTION( "Different size same data" )
+	{
+		set.set( 4 ).set( 16 );
+		other.resize( 29 ).set( 4 ).set( 16 );
+
+		CHECK_FALSE( set == other );
+	}
+	SECTION( "Different size different data" )
+	{
+		set.set( 4 ).set( 16 );
+		other.resize( 29 ).set( 4 ).set( 20 );
+
+		CHECK_FALSE( set == other );
+	}
+}
