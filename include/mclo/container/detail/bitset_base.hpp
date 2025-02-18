@@ -209,7 +209,6 @@ namespace mclo::detail
 			}
 		}
 
-		
 		/// @brief Check if any bits are set
 		/// @return If any are set
 		[[nodiscard]] constexpr bool any() const noexcept
@@ -298,7 +297,6 @@ namespace mclo::detail
 			return set_internal<false>( pos );
 		}
 
-		
 		/// @brief Flip ever bit
 		/// @return Reference to the set
 		constexpr Derived& flip() noexcept
@@ -445,7 +443,8 @@ namespace mclo::detail
 		/// @return This set
 		constexpr Derived& operator&=( const Derived& other ) noexcept
 		{
-			for ( std::size_t page = 0, size = m_container.size(); page < size; ++page )
+			for ( std::size_t page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
+				  ++page )
 			{
 				m_container[ page ] &= other.m_container[ page ];
 			}
@@ -468,7 +467,8 @@ namespace mclo::detail
 		/// @return This set
 		constexpr Derived& operator|=( const Derived& other ) noexcept
 		{
-			for ( std::size_t page = 0, size = m_container.size(); page < size; ++page )
+			for ( std::size_t page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
+				  ++page )
 			{
 				m_container[ page ] |= other.m_container[ page ];
 			}
@@ -491,7 +491,8 @@ namespace mclo::detail
 		/// @return This set
 		constexpr Derived& operator^=( const Derived& other ) noexcept
 		{
-			for ( std::size_t page = 0, size = m_container.size(); page < size; ++page )
+			for ( std::size_t page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
+				  ++page )
 			{
 				m_container[ page ] ^= other.m_container[ page ];
 			}
