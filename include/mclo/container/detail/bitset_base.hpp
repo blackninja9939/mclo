@@ -229,7 +229,7 @@ namespace mclo::detail
 		{
 			return !any();
 		}
-		
+
 		/// @brief Count the number of set bits
 		/// @return The number of set bits
 		[[nodiscard]] constexpr std::size_t count() const noexcept
@@ -659,4 +659,10 @@ namespace mclo::detail
 	protected:
 		underlying_container m_container{};
 	};
+
+	template <typename UnderlyingType>
+	[[nodiscard]] constexpr std::size_t num_values_for_bits( const std::size_t num_bits ) noexcept
+	{
+		return ceil_divide( num_bits, CHAR_BIT * sizeof( UnderlyingType ) );
+	}
 }

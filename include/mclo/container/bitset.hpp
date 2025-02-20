@@ -11,12 +11,6 @@ namespace mclo
 {
 	namespace detail
 	{
-		template <typename UnderlyingType>
-		[[nodiscard]] constexpr std::size_t num_values_for_bits( const std::size_t num_bits ) noexcept
-		{
-			return ceil_divide( num_bits, CHAR_BIT * sizeof( UnderlyingType ) );
-		}
-
 		template <std::size_t Bits, std::unsigned_integral UnderlyingType>
 		using fixed_bitset_storage = std::array<UnderlyingType, num_values_for_bits<UnderlyingType>( Bits )>;
 	}
