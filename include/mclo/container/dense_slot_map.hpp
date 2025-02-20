@@ -2,6 +2,7 @@
 
 #include "mclo/container/slot_map_handle.hpp"
 #include "mclo/debug/assert.hpp"
+#include "mclo/numeric/math.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <cinttypes>
@@ -279,9 +280,7 @@ namespace mclo
 				const std::size_t object_size = sizeof( value_type ) * num_objects;
 				const std::size_t data_reverse_map_size = sizeof( size_type ) * num_objects;
 				const std::size_t data_size = object_size + data_reverse_map_size;
-				const std::size_t aligned_size =
-					( data_size + alignof( aligned_buffer ) - 1 ); // Round up to alignof(aligned_buffer)
-				return aligned_size / alignof( aligned_buffer );
+				return mclo::ceil_divide( data_size, sizeof( aligned_buffer ) );
 			}
 
 			[[nodiscard]] size_type calculate_new_capacity( const size_type new_size ) const noexcept
