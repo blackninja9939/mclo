@@ -157,4 +157,29 @@
       </ArrayItems>
     </Expand>
   </Type>
+
+  <Type Name="mclo::thread_local_key">
+    <DisplayString>{m_key}</DisplayString>
+  </Type>
+  
+  <Type Name="mclo::instanced_thread_local&lt;*&gt;">
+    <DisplayString>{{ key={m_key} }}</DisplayString>
+    <Expand>
+      <LinkedListItems>
+        <HeadPointer>m_data_head._Storage._Value</HeadPointer>
+        <NextPointer>m_next</NextPointer>
+        <ValueNode>m_object</ValueNode>
+      </LinkedListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="mclo::instanced_thread_local&lt;*&gt;::iterator">
+    <DisplayString Condition="m_data == 0">end</DisplayString>
+    <DisplayString Condition="m_data != 0">{**this}</DisplayString>
+  </Type>
+
+
+  <Type Name="mclo::instanced_thread_local_value&lt;*&gt;">
+    <DisplayString>{{ key={m_key} }}</DisplayString>
+  </Type>
 </AutoVisualizer>
