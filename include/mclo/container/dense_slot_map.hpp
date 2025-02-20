@@ -859,6 +859,9 @@ namespace mclo
 
 			DEBUG_ASSERT( new_num_slots == slot_count(), "New num slots should equal slot_count" );
 
+			// We're safe now to return without cleanup, remaining changes are noexcept
+			guard.release();
+
 			// Our re-used handle for this object
 			handle_type& handle = m_slot_indirection[ slot_index ];
 
@@ -874,9 +877,6 @@ namespace mclo
 			// Set handle's index to point to that
 			const size_type data_index = m_data.size() - 1;
 			handle.index = data_index;
-
-			// We're safe now to return without cleanup
-			guard.release();
 
 			// We return the original slot index and the generation, generation will be changed in erasure for
 			// invalidating existing handles
