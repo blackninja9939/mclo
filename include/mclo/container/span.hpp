@@ -106,7 +106,7 @@ namespace mclo
 			}
 		}
 
-		template <detail::span_compatible_iterator<T> It, std::sized_sentinel_for<T> Sentinel>
+		template <detail::span_compatible_iterator<T> It, std::sized_sentinel_for<It> Sentinel>
 		explicit( extent != dynamic_extent ) constexpr span( const It first, const Sentinel last )
 			MCLO_NOEXCEPT_TESTS_IF( noexcept( last - first ) )
 			: base( std::to_address( first ), static_cast<size_type>( last - first ) )

@@ -15,24 +15,7 @@ namespace mclo
 	template <typename Buffer, bool IsConst>
 	class circular_buffer_iterator
 	{
-		using size_type = typename Buffer::size_type;
-
 	public:
-		circular_buffer_iterator() noexcept = default;
-
-		template <bool OtherConst>
-		circular_buffer_iterator( const circular_buffer_iterator<Buffer, OtherConst>& other ) noexcept
-			: m_buffer( other.m_buffer )
-			, m_index( other.m_index )
-		{
-		}
-
-		circular_buffer_iterator( const Buffer* buffer, const size_type index ) noexcept
-			: m_buffer( buffer )
-			, m_index( index )
-		{
-		}
-
 		using iterator_category = std::random_access_iterator_tag;
 		using iterator_concept = std::random_access_iterator_tag;
 		using difference_type = typename Buffer::difference_type;
@@ -40,19 +23,49 @@ namespace mclo
 		using reference = std::conditional_t<IsConst, typename Buffer::const_reference, typename Buffer::reference>;
 		using pointer = std::conditional_t<IsConst, typename Buffer::const_pointer, typename Buffer::pointer>;
 
+		circular_buffer_iterator() noexcept = default;
+
+		template <bool OtherConst>
+		circular_buffer_iterator( const circular_buffer_iterator<Buffer, OtherConst>& other ) noexcept
+			: m_buffer( other.m_buffer )
+			, m_ptr( other.m_ptr )
+		{
+		}
+
+		circular_buffer_iterator( const Buffer* buffer, const pointer index ) noexcept
+			: m_buffer( buffer )
+			, m_ptr( index )
+		{
+		}
+
 		[[nodiscard]] reference operator*() const noexcept
 		{
-			return m_buffer->m_data[ m_index ];
+			DEBUG_ASSERT( m_buffer, "Dereferencing an invalid iterator" );
+			DEBUG_ASSERT( m_ptr, "Dereferencing an invalid iterator" );
+			return *m_ptr;
 		}
 
 		[[nodiscard]] pointer operator->() const noexcept
 		{
-			return m_buffer->m_data + m_index;
+			DEBUG_ASSERT( m_buffer, "Dereferencing an invalid iterator" );
+			DEBUG_ASSERT( m_ptr, "Dereferencing an invalid iterator" );
+			return m_ptr;
+		}
+
+		[[nodiscard]] reference operator[]( const difference_type diff ) const noexcept
+		{
+			return *( *this + diff );
 		}
 
 		circular_buffer_iterator& operator++() noexcept
 		{
-			m_buffer->increment( m_index );
+			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
+			DEBUG_ASSERT( m_ptr, "Incrementing an invalid iterator" );
+			m_buffer->increment( m_ptr );
+			if (m_ptr == m_buffer->m_tail )
+			{
+				m_ptr = nullptr;
+			}
 			return *this;
 		}
 
@@ -65,7 +78,13 @@ namespace mclo
 
 		circular_buffer_iterator& operator--() noexcept
 		{
-			m_buffer->decrement( m_index );
+			DEBUG_ASSERT( m_buffer, "Decrementing an invalid iterator" );
+			DEBUG_ASSERT( m_ptr != m_buffer->m_data, "Decrementing begin iterator" );
+			if ( !m_ptr )
+			{
+				m_ptr = m_buffer->m_tail;
+			}
+			m_buffer->decrement( m_ptr );
 			return *this;
 		}
 
@@ -78,26 +97,36 @@ namespace mclo
 
 		circular_buffer_iterator& operator+=( const difference_type amount ) noexcept
 		{
+			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
 			if ( amount > 0 )
 			{
-				m_buffer->increment( m_index, amount );
+				m_buffer->increment( m_ptr, amount );
+				if (m_ptr == m_buffer->m_tail)
+				{
+					m_ptr = nullptr;
+				}
 			}
 			else if ( amount < 0 )
 			{
-				m_buffer->decrement( m_index, -amount );
+				*this -= -amount;
 			}
 			return *this;
 		}
 
 		circular_buffer_iterator& operator-=( const difference_type amount ) noexcept
 		{
+			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
 			if ( amount > 0 )
 			{
-				m_buffer->decrement( m_index, amount );
+				if ( !m_ptr )
+				{
+					m_ptr = m_buffer->m_tail;
+				}
+				m_buffer->decrement( m_ptr, amount );
 			}
 			else if ( amount < 0 )
 			{
-				m_buffer->increment( m_index, -amount );
+				*this += -amount;
 			}
 			return *this;
 		}
@@ -125,7 +154,7 @@ namespace mclo
 																  const circular_buffer_iterator& rhs ) noexcept
 		{
 			DEBUG_ASSERT( lhs.m_buffer == rhs.m_buffer, "Iterators are not comparable" );
-			return lhs.linear_index() - rhs.linear_index();
+			return lhs.contiguous_ptr() - rhs.contiguous_ptr();
 		}
 
 		template <bool OtherConst>
@@ -133,28 +162,32 @@ namespace mclo
 			MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
-			return m_index == other.m_index;
+			return m_ptr == other.m_ptr;
 		}
 		template <bool OtherConst>
 		[[nodiscard]] auto operator<=>( const circular_buffer_iterator<Buffer, OtherConst>& other ) const
 			MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
-			return linear_index() <=> other.linear_index();
+			return contiguous_ptr() <=> other.contiguous_ptr();
 		}
 
 	private:
-		[[nodiscard]] size_type linear_index() const noexcept
+		[[nodiscard]] pointer contiguous_ptr() const noexcept
 		{
-			if ( m_index < m_buffer->m_head )
+			if ( !m_ptr )
 			{
-				return m_index + ( m_buffer->m_tail - m_buffer->m_head );
+				return m_buffer->m_data + m_buffer->m_size;
 			}
-			return m_index - m_buffer->m_head;
+			if ( m_ptr < m_buffer->m_head )
+			{
+				return m_ptr + ( m_buffer->m_data_end - m_buffer->m_head );
+			}
+			return m_buffer->m_data + ( m_ptr - m_buffer->m_head );
 		}
 
 		const Buffer* m_buffer = nullptr;
-		size_type m_index = 0;
+		pointer m_ptr = nullptr;
 	};
 
 	template <typename T, typename Allocator = std::allocator<T>>
@@ -198,7 +231,7 @@ namespace mclo
 
 		[[nodiscard]] size_type capacity() const noexcept
 		{
-			return m_capacity;
+			return m_data_end - m_data;
 		}
 
 		[[nodiscard]] size_type max_size() const noexcept
@@ -216,35 +249,39 @@ namespace mclo
 		[[nodiscard]] reference front() MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
-			return m_data[ m_head ];
+			return *m_head;
 		}
 		[[nodiscard]] const_reference front() const MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
-			return m_data[ m_head ];
+			return *m_head;
 		}
 
 		[[nodiscard]] reference back() MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
-			return m_data[ m_tail - 1 ];
+			return m_tail[ -1 ];
 		}
 		[[nodiscard]] const_reference back() const MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
-			return m_data[ m_tail - 1 ];
+			return m_tail[ -1 ];
 		}
 
 		[[nodiscard]] reference operator[]( const size_type index ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
-			return m_data[ ( m_head + index ) % capacity ];
+			pointer ptr = m_head;
+			increment( ptr, index );
+			return *ptr;
 		}
 
 		[[nodiscard]] const_reference operator[]( const size_type index ) const MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
-			return m_data[ ( m_head + index ) % capacity ];
+			pointer ptr = m_head;
+			increment( ptr, index );
+			return *ptr;
 		}
 
 		[[nodiscard]] reference at( const size_type index )
@@ -269,16 +306,16 @@ namespace mclo
 		[[nodiscard]] std::pair<span<value_type>, span<value_type>> as_contiguous() noexcept
 		{
 			const bool wraps_around = m_tail <= m_head && !empty();
-			mclo::span<value_type> first_span = { m_data + m_head, ( wraps_around ? m_capacity : m_tail ) - m_head };
-			mclo::span<value_type> second_span = { m_data, wraps_around ? m_tail : 0 };
+			mclo::span<value_type> first_span( m_head, wraps_around ? m_data_end : m_tail );
+			mclo::span<value_type> second_span( m_data, wraps_around ? m_tail : m_data );
 			return { first_span, second_span };
 		}
 
 		[[nodiscard]] std::pair<span<const value_type>, span<const value_type>> as_contiguous() const noexcept
 		{
 			const bool wraps_around = m_tail <= m_head && !empty();
-			mclo::span<const value_type> first_span = { m_data + m_head, ( wraps_around ? m_capacity : m_tail ) - m_head };
-			mclo::span<const value_type> second_span = { m_data, wraps_around ? m_tail : 0 };
+			mclo::span<const value_type> first_span( m_head, wraps_around ? m_data_end : m_tail );
+			mclo::span<const value_type> second_span( m_data, wraps_around ? m_tail : m_data );
 			return { first_span, second_span };
 		}
 
@@ -287,24 +324,24 @@ namespace mclo
 			// todo(mc) this is WIP
 			if ( empty() )
 			{
-				return { m_data, m_size };
+				return {};
 			}
 			if ( full() )
 			{
-				m_head = 0;
-				m_tail = m_size;
+				m_head = m_data;
+				m_tail = m_data + m_size;
 				return { m_data, m_size };
 			}
 			if ( m_head <= m_tail )
 			{
-				return { m_data + m_head, m_size };
+				return { m_head, m_tail };
 			}
 			// todo(mc) this will always move the "first" half to the front, but it could be optimized to move the
 			// smaller half
-			const size_type first_size = m_capacity - m_head;
-			std::uninitialized_move_n( m_data + m_head, first_size, m_data + m_tail );
-			std::destroy_n( m_data + m_head, first_size );
-			m_head = 0;
+			const size_type first_size = m_data_end - m_head;
+			std::uninitialized_move_n( m_head, first_size, m_tail );
+			std::destroy_n( m_head, first_size );
+			m_head = m_data;
 			m_tail += first_size;
 			return { m_data, m_size };
 		}
@@ -333,7 +370,7 @@ namespace mclo
 			}
 			else
 			{
-				reference result = *std::construct_at( m_data + m_tail, std::forward<Args>( args )... );
+				reference result = *std::construct_at( m_tail, std::forward<Args>( args )... );
 				increment( m_tail );
 				++m_size;
 				return result;
@@ -344,7 +381,7 @@ namespace mclo
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			decrement( m_tail );
-			std::destroy_at( m_data + m_tail );
+			std::destroy_at( m_tail );
 			--m_size;
 		}
 
@@ -373,7 +410,7 @@ namespace mclo
 			else
 			{
 				decrement( m_head );
-				reference result = *std::construct_at( m_data + m_head, std::forward<Args>( args )... );
+				reference result = *std::construct_at( m_head, std::forward<Args>( args )... );
 				++m_size;
 				return result;
 			}
@@ -382,7 +419,7 @@ namespace mclo
 		void pop_front()
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
-			std::destroy_at( m_data + m_head );
+			std::destroy_at( m_head );
 			increment( m_head );
 			--m_size;
 		}
@@ -406,15 +443,21 @@ namespace mclo
 			set_data( new_data, new_size, new_capacity );
 		}
 
-		// todo: insert, erase, assign, as contiguous, make contiguous
+		void shrink_to_fit()
+		{
+			resize( m_size );
+		}
+
+		// todo: insert, erase, assign
 
 		void clear() noexcept
 		{
-			// todo(mc) optimize this to leverage contiguous spans
-			std::destroy( begin(), end() );
+			const auto [ first_span, second_span ] = as_contiguous();
+			std::destroy( first_span.begin(), first_span.end() );
+			std::destroy( second_span.begin(), second_span.end() );
 			m_size = 0;
-			m_head = 0;
-			m_tail = 0;
+			m_head = m_data;
+			m_tail = m_data;
 		}
 
 		void swap( circular_buffer& other ) MCLO_NOEXCEPT_TESTS
@@ -433,7 +476,7 @@ namespace mclo
 				DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for swap" );
 			}
 			swap( m_data, other.m_data );
-			swap( m_capacity, other.m_capacity );
+			swap( m_data_end, other.m_data_end );
 			swap( m_size, other.m_size );
 			swap( m_head, other.m_head );
 			swap( m_tail, other.m_tail );
@@ -448,28 +491,28 @@ namespace mclo
 
 		iterator begin() noexcept
 		{
-			return iterator( this, m_head );
+			return iterator( this, empty() ? nullptr : m_head );
 		}
 		const_iterator begin() const noexcept
 		{
-			return const_iterator( this, m_head );
+			return const_iterator( this, empty() ? nullptr : m_head );
 		}
 		const_iterator cbegin() const noexcept
 		{
-			return const_iterator( this, m_head );
+			return const_iterator( this, empty() ? nullptr : m_head );
 		}
 
 		iterator end() noexcept
 		{
-			return iterator( this, m_tail );
+			return iterator( this, nullptr );
 		}
 		const_iterator end() const noexcept
 		{
-			return const_iterator( this, m_tail );
+			return const_iterator( this, nullptr );
 		}
 		const_iterator cend() const noexcept
 		{
-			return const_iterator( this, m_tail );
+			return const_iterator( this, nullptr );
 		}
 
 		reverse_iterator rbegin() noexcept
@@ -501,40 +544,61 @@ namespace mclo
 	private:
 		[[nodiscard]] bool full() const noexcept
 		{
-			return m_size == m_capacity;
+			return m_size == capacity();
 		}
 
-		void increment( size_type& index, size_type count = 1 ) const noexcept
+		template<typename Pointer>
+		void increment( Pointer& ptr ) const noexcept
 		{
-			index = ( index + count ) % m_capacity;
+			++ptr;
+			if ( ptr == m_data_end )
+			{
+				ptr = m_data;
+			}
 		}
-		void decrement( size_type& index, size_type count = 1 ) const noexcept
+		template <typename Pointer>
+		void decrement( Pointer& ptr ) const noexcept
 		{
-			index = ( index - count + m_capacity ) % m_capacity;
+			if ( ptr == m_data )
+			{
+				ptr = m_data_end;
+			}
+			--ptr;
+		}
+
+		template <typename Pointer>
+		void increment( Pointer& ptr, size_type count ) const noexcept
+		{
+			ptr += ( count < ( m_data_end - ptr ) ) ? count : ( count - ( m_data_end - m_data ) );
+		}
+		template <typename Pointer>
+		void decrement( Pointer& ptr, size_type count ) const noexcept
+		{
+			ptr -= ( count > ( ptr - m_data ) ) ? ( count - ( m_data_end - m_data ) ) : count;
 		}
 
 		template <typename... Args>
-		reference replace( const size_type index, Args&&... args )
+		reference replace( pointer ptr, Args&&... args )
 		{
-			return m_data[ index ] = value_type( std::forward<Args>( args )... );
+			return *ptr = value_type( std::forward<Args>( args )... );
 		}
 
-		void set_data( pointer data, const size_type size, const size_type capacity ) noexcept
+		void set_data( const pointer new_data, const size_type new_size, const size_type new_capacity ) noexcept
 		{
-			DEBUG_ASSERT( capacity >= size, "Capacity must be greater than or equal to size" );
-			m_allocator.deallocate( m_data, m_capacity );
-			m_data = data;
-			m_capacity = capacity;
-			m_size = size;
-			m_head = 0;
-			m_tail = m_size;
+			DEBUG_ASSERT( new_capacity >= new_size, "Capacity must be greater than or equal to size" );
+			m_allocator.deallocate( m_data, capacity() );
+			m_data = new_data;
+			m_data_end = m_data + new_capacity;
+			m_head = m_data;
+			m_tail = m_data + new_size;
+			m_size = new_size;
 		}
 
 		pointer m_data = nullptr;
-		size_type m_capacity = 0;
+		pointer m_data_end = 0;
+		pointer m_head = nullptr;
+		pointer m_tail = nullptr;
 		size_type m_size = 0;
-		size_type m_head = 0;
-		size_type m_tail = 0;
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator;
 	};
 }
