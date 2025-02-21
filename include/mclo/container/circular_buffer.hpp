@@ -1,8 +1,8 @@
 #pragma once
 
+#include "mclo/container/span.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
-#include "mclo/container/span.hpp"
 
 #include <compare>
 #include <cstddef>
@@ -62,7 +62,7 @@ namespace mclo
 			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
 			DEBUG_ASSERT( m_ptr, "Incrementing an invalid iterator" );
 			m_buffer->increment( m_ptr );
-			if (m_ptr == m_buffer->m_tail )
+			if ( m_ptr == m_buffer->m_tail )
 			{
 				m_ptr = nullptr;
 			}
@@ -101,7 +101,7 @@ namespace mclo
 			if ( amount > 0 )
 			{
 				m_buffer->increment( m_ptr, amount );
-				if (m_ptr == m_buffer->m_tail)
+				if ( m_ptr == m_buffer->m_tail )
 				{
 					m_ptr = nullptr;
 				}
@@ -210,11 +210,124 @@ namespace mclo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+		// Constructors and assignment
+
 		circular_buffer() noexcept = default;
 
-		explicit circular_buffer( const size_type capacity )
+		~circular_buffer()
+		{
+			destroy_internal();
+			m_allocator.deallocate( m_data, capacity() );
+		}
+
+		explicit circular_buffer( const allocator_type& alloc )
+			: m_allocator( alloc )
+		{
+		}
+
+		explicit circular_buffer( const size_type capacity, const allocator_type& alloc = allocator_type() )
+			: m_allocator( alloc )
 		{
 			resize( capacity );
+		}
+
+		circular_buffer( const circular_buffer& other, const allocator_type& alloc )
+			: m_allocator( alloc )
+		{
+			resize( other.size() );
+			const auto [ first_span, second_span ] = other.as_contiguous();
+			auto it = std::uninitialized_copy( first_span.begin(), first_span.end(), m_data );
+			std::uninitialized_copy( second_span.begin(), second_span.end(), it );
+		}
+
+		circular_buffer( const circular_buffer& other )
+			: circular_buffer( other,
+							   std::allocator_traits<allocator_type>::select_on_container_copy_construction(
+								   other.get_allocator() ) )
+		{
+		}
+
+		circular_buffer( circular_buffer&& other, const allocator_type& alloc )
+			: m_allocator( alloc )
+			, m_data( std::exchange( other.m_data, nullptr ) )
+			, m_data_end( std::exchange( other.m_data_end, nullptr ) )
+			, m_head( std::exchange( other.m_head, nullptr ) )
+			, m_tail( std::exchange( other.m_tail, nullptr ) )
+			, m_size( std::exchange( other.m_size, 0 ) )
+		{
+		}
+
+		circular_buffer( circular_buffer&& other )
+			: m_allocator( std::move( other.m_allocator ) )
+			, m_data( std::exchange( other.m_data, nullptr ) )
+			, m_data_end( std::exchange( other.m_data_end, nullptr ) )
+			, m_head( std::exchange( other.m_head, nullptr ) )
+			, m_tail( std::exchange( other.m_tail, nullptr ) )
+			, m_size( std::exchange( other.m_size, 0 ) )
+		{
+		}
+
+		circular_buffer& operator=( const circular_buffer& other )
+		{
+			if ( this == &other )
+			{
+				return *this;
+			}
+
+			clear();
+
+			if constexpr ( std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment::value )
+			{
+				if ( m_allocator != other.m_allocator )
+				{
+					m_allocator.deallocate( m_data, capacity() );
+					m_data = m_data_end = nullptr;
+				}
+				m_allocator = other.m_allocator;
+			}
+
+			resize( other.size() );
+			const auto [ first_span, second_span ] = other.as_contiguous();
+			auto it = std::uninitialized_copy( first_span.begin(), first_span.end(), m_data );
+			std::uninitialized_copy( second_span.begin(), second_span.end(), it );
+			return *this;
+		}
+
+		circular_buffer& operator=( circular_buffer&& other ) noexcept(
+			std::allocator_traits<allocator_type>::is_always_equal::value )
+		{
+			if ( this == &other )
+			{
+				return *this;
+			}
+
+			clear();
+
+			if constexpr ( std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value )
+			{
+				m_allocator.deallocate( m_data, capacity() );
+				m_data = m_data_end = nullptr;
+				m_allocator = std::move( other.m_allocator );
+			}
+			else if ( m_allocator == other.m_allocator )
+			{
+				m_data = std::exchange( other.m_data, nullptr );
+				m_data_end = std::exchange( other.m_data_end, nullptr );
+				m_head = std::exchange( other.m_head, nullptr );
+				m_tail = std::exchange( other.m_tail, nullptr );
+				m_size = std::exchange( other.m_size, 0 );
+			}
+			else
+			{
+				m_allocator = std::move( other.m_allocator );
+				resize( other.size() );
+				const auto [ first_span, second_span ] = other.as_contiguous();
+				auto it = std::uninitialized_move( first_span.begin(), first_span.end(), m_data );
+				std::uninitialized_move( second_span.begin(), second_span.end(), it );
+				other.clear();
+			}
+
+			return *this;
 		}
 
 		// Size and capacity
@@ -448,13 +561,9 @@ namespace mclo
 			resize( m_size );
 		}
 
-		// todo: insert, erase, assign
-
 		void clear() noexcept
 		{
-			const auto [ first_span, second_span ] = as_contiguous();
-			std::destroy( first_span.begin(), first_span.end() );
-			std::destroy( second_span.begin(), second_span.end() );
+			destroy_internal();
 			m_size = 0;
 			m_head = m_data;
 			m_tail = m_data;
@@ -547,7 +656,7 @@ namespace mclo
 			return m_size == capacity();
 		}
 
-		template<typename Pointer>
+		template <typename Pointer>
 		void increment( Pointer& ptr ) const noexcept
 		{
 			++ptr;
@@ -592,6 +701,16 @@ namespace mclo
 			m_head = m_data;
 			m_tail = m_data + new_size;
 			m_size = new_size;
+		}
+
+		void destroy_internal() noexcept
+		{
+			if constexpr ( !std::is_trivially_destructible_v<value_type> )
+			{
+				const auto [ first_span, second_span ] = as_contiguous();
+				std::destroy( first_span.begin(), first_span.end() );
+				std::destroy( second_span.begin(), second_span.end() );
+			}
 		}
 
 		pointer m_data = nullptr;

@@ -505,7 +505,6 @@ namespace mclo
 				{
 					m_allocator.deallocate( m_nodes, capacity_to_alloc_size( m_capacity ) );
 					m_capacity = 0;
-					m_allocator = other.m_allocator;
 				}
 				m_allocator = other.m_allocator;
 			}
