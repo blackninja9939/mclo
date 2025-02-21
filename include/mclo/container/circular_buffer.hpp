@@ -537,6 +537,38 @@ namespace mclo
 			--m_size;
 		}
 
+		// Position modifiers
+		// todo(mc) emplace, insert, erase
+
+		iterator erase( const_iterator pos )
+		{
+			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
+			const iterator it = pos;
+			std::move( it + 1, end(), it );
+			pop_back();
+		}
+
+		iterator erase( const_iterator first, const_iterator last )
+		{
+			DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
+			DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
+			DEBUG_ASSERT( first <= last, "first and last must form a valid range in this container" );
+
+			const iterator first_mut = first;
+			const iterator last_mut = last;
+
+			if ( first_mut != last_mut )
+			{
+				const iterator new_last = std::move( last_mut, end(), first_mut );
+				std::destroy( new_last, end() );
+				const size_type count = static_cast<size_type>( std::distance( new_last, end() ) );
+				decrement( m_tail, count );
+				m_size -= count;
+			}
+
+			return first_mut;
+		}
+
 		// Full modifiers
 
 		void resize( const size_type new_capacity )
