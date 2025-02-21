@@ -397,8 +397,12 @@ namespace mclo
 			}
 			const pointer new_data = m_allocator.allocate( new_capacity );
 			const size_type new_size = std::min( new_capacity, m_size );
-			// todo(mc) optimize this to leverage contiguous spans
-			std::uninitialized_move_n( begin(), new_size, new_data );
+			if ( !empty() )
+			{
+				const auto [ first_span, second_span ] = as_contiguous();
+				auto it = std::uninitialized_move( first_span.begin(), first_span.end(), new_data );
+				std::uninitialized_move( second_span.begin(), second_span.end(), it );
+			}
 			set_data( new_data, new_size, new_capacity );
 		}
 
