@@ -15,6 +15,9 @@ namespace mclo
 	template <typename Buffer, bool IsConst>
 	class circular_buffer_iterator
 	{
+		template <typename OtherBuffer, bool OtherIsConst>
+		friend class circular_buffer_iterator;
+
 	public:
 		using iterator_category = std::random_access_iterator_tag;
 		using iterator_concept = std::random_access_iterator_tag;
