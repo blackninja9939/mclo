@@ -31,7 +31,7 @@ namespace mclo
 		template <bool OtherConst>
 		circular_buffer_iterator( const circular_buffer_iterator<Buffer, OtherConst>& other ) noexcept
 			: m_buffer( other.m_buffer )
-			, m_ptr( other.m_ptr )
+			, m_ptr( const_cast<pointer>( other.m_ptr ) )
 		{
 		}
 
@@ -549,6 +549,7 @@ namespace mclo
 			const iterator it = pos;
 			std::move( it + 1, end(), it );
 			pop_back();
+			return it;
 		}
 
 		iterator erase( const_iterator first, const_iterator last )
@@ -711,12 +712,12 @@ namespace mclo
 		}
 
 		template <typename Pointer>
-		void increment( Pointer& ptr, size_type count ) const noexcept
+		void increment( Pointer& ptr, difference_type count ) const noexcept
 		{
 			ptr += ( count < ( m_data_end - ptr ) ) ? count : ( count - ( m_data_end - m_data ) );
 		}
 		template <typename Pointer>
-		void decrement( Pointer& ptr, size_type count ) const noexcept
+		void decrement( Pointer& ptr, difference_type count ) const noexcept
 		{
 			ptr -= ( count > ( ptr - m_data ) ) ? ( count - ( m_data_end - m_data ) ) : count;
 		}
