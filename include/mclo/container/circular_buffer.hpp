@@ -419,6 +419,7 @@ namespace mclo
 		}
 
 		// Contiguous views
+
 		[[nodiscard]] std::pair<span<value_type>, span<value_type>> as_contiguous() noexcept
 		{
 			const bool wraps_around = m_tail <= m_head && !empty();
@@ -712,18 +713,18 @@ namespace mclo
 		}
 
 		template <typename Pointer>
-		void increment( Pointer& ptr, difference_type count ) const noexcept
+		void increment( Pointer& ptr, const difference_type count ) const noexcept
 		{
 			ptr += ( count < ( m_data_end - ptr ) ) ? count : ( count - ( m_data_end - m_data ) );
 		}
 		template <typename Pointer>
-		void decrement( Pointer& ptr, difference_type count ) const noexcept
+		void decrement( Pointer& ptr, const difference_type count ) const noexcept
 		{
 			ptr -= ( count > ( ptr - m_data ) ) ? ( count - ( m_data_end - m_data ) ) : count;
 		}
 
 		template <typename... Args>
-		reference replace( pointer ptr, Args&&... args )
+		reference replace( const pointer ptr, Args&&... args )
 		{
 			return *ptr = value_type( std::forward<Args>( args )... );
 		}

@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(fmt)
+find_dependency(xsimd)
+find_dependency(libassert)
+
+include("${CMAKE_CURRENT_LIST_DIR}/mclo-targets.cmake")
+
+check_required_components(mclo)
