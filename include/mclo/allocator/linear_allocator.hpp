@@ -36,7 +36,8 @@ namespace mclo
 		linear_allocator_resource( const linear_allocator_resource& ) = delete;
 		linear_allocator_resource& operator=( const linear_allocator_resource& ) = delete;
 
-		[[nodiscard]] std::byte* allocate( const std::size_t size, const std::size_t alignment ) noexcept;
+		[[nodiscard]] std::byte* allocate( const std::size_t size, const std::size_t alignment );
+
 		void deallocate( std::byte*, const std::size_t, const std::size_t ) noexcept
 		{
 		}

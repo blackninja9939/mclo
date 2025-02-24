@@ -50,7 +50,7 @@ namespace mclo
 			return m_resource.get() == other.m_resource.get();
 		}
 
-		[[nodiscard]] T* allocate( const std::size_t n ) noexcept
+		[[nodiscard]] T* allocate( const std::size_t n )
 		{
 			return reinterpret_cast<T*>( m_resource.get().allocate( sizeof( T ) * n, alignof( T ) ) );
 		}
