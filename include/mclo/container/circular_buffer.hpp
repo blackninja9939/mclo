@@ -215,7 +215,7 @@ namespace mclo
 
 		// Constructors and assignment
 
-		circular_buffer() noexcept = default;
+		circular_buffer() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
 
 		~circular_buffer()
 		{
@@ -223,7 +223,7 @@ namespace mclo
 			m_allocator.deallocate( m_data, capacity() );
 		}
 
-		explicit circular_buffer( const allocator_type& alloc )
+		explicit circular_buffer( const allocator_type& alloc ) noexcept
 			: m_allocator( alloc )
 		{
 		}

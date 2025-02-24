@@ -74,7 +74,7 @@ namespace mclo
 		public:
 			using allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<aligned_buffer>;
 
-			dense_slot_map_data() = default;
+			dense_slot_map_data() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
 
 			explicit dense_slot_map_data( const allocator_type& allocator ) noexcept
 				: m_allocator( allocator )
@@ -427,7 +427,7 @@ namespace mclo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		dense_slot_map() noexcept( noexcept( allocator_type() ) ) = default;
+		dense_slot_map() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
 
 		explicit dense_slot_map( const allocator_type& allocator ) noexcept
 			: m_data( allocator )

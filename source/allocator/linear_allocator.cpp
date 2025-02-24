@@ -60,7 +60,7 @@ namespace mclo
 		release();
 	}
 
-	std::byte* linear_allocator_resource::allocate( const std::size_t size, const std::size_t alignment ) noexcept
+	std::byte* linear_allocator_resource::allocate( const std::size_t size, const std::size_t alignment )
 	{
 		if ( !align( alignment, size, m_current, m_buffer.data() + m_buffer.size() ) )
 		{
