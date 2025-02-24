@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/preprocessor/platform.hpp"
 #include "mclo/threading/thread_local_key.hpp"
 
 #include <atomic>
@@ -8,7 +9,7 @@
 
 namespace mclo
 {
-	template <typename T>
+	template <typename T, typename Allocator = std::allocator<T>>
 	class instanced_thread_local
 	{
 		struct thread_data
@@ -17,8 +18,11 @@ namespace mclo
 			thread_data* m_next = nullptr;
 		};
 
+		using thread_data_allocator = typename std::allocator_traits<Allocator>::template rebind_alloc<thread_data>;
+
 	public:
 		using value_type = T;
+		using allocator_type = Allocator;
 
 		class iterator
 		{
@@ -68,13 +72,24 @@ namespace mclo
 			thread_data* m_data = nullptr;
 		};
 
+		static_assert( std::is_default_constructible_v<value_type>, "T must be default constructible" );
+
+		instanced_thread_local() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
+
+		explicit instanced_thread_local( const allocator_type& allocator ) noexcept
+			: m_allocator( allocator )
+		{
+		}
+
 		~instanced_thread_local()
 		{
+			thread_data_allocator alloc( m_allocator );
 			thread_data* data = m_data_head.load( std::memory_order_relaxed );
 			while ( data )
 			{
 				thread_data* const next = data->m_next;
-				delete data;
+				std::destroy_at( data );
+				alloc.deallocate( data, 1 );
 				data = next;
 			}
 		}
@@ -84,7 +99,7 @@ namespace mclo
 			thread_data* data = static_cast<thread_data*>( m_key.get() );
 			if ( !data )
 			{
-				data = new thread_data();
+				data = create_thread_data();
 				m_key.set( data );
 
 				data->m_next = m_data_head.load( std::memory_order_relaxed );
@@ -116,9 +131,31 @@ namespace mclo
 			return iterator();
 		}
 
+		allocator_type get_allocator() const noexcept
+		{
+			return m_allocator;
+		}
+
 	private:
+		[[nodiscard]] thread_data* create_thread_data()
+		{
+			thread_data_allocator alloc( m_allocator );
+			thread_data* data = alloc.allocate( 1 );
+			try
+			{
+				data = std::construct_at( data );
+			}
+			catch ( ... )
+			{
+				alloc.deallocate( data, 1 );
+				throw;
+			}
+			return data;
+		}
+
 		std::atomic<thread_data*> m_data_head{ nullptr };
 		thread_local_key m_key;
+		MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator;
 	};
 
 	template <typename T>
@@ -131,7 +168,7 @@ namespace mclo
 
 		using value_type = T;
 
-		[[nodiscard]] T get()
+		[[nodiscard]] T get() noexcept
 		{
 			if constexpr ( std::is_pointer_v<T> )
 			{
