@@ -9,19 +9,16 @@
 namespace mclo
 {
 	/// @brief Slot map handle of a given bit size for a given type
-	/// @details By being a template on T we make the handle type safe so you can not look up handles of a mismatching
-	/// type as it will be a compile time error instead of giving you garbage returns
-	/// @tparam T Type this handle refers to
+	/// @details Base type is not templated on T to reduce template instantiations, use slot_map_handle for APIs
 	/// @tparam TotalBits The total number of bits for the handle type to use
 	/// @tparam GenerationBits The number of bits in the handle type to use for generation checking
-	template <typename T, std::size_t TotalBits, std::size_t GenerationBits>
-	struct slot_map_handle
+	template <std::size_t TotalBits, std::size_t GenerationBits>
+	struct slot_map_handle_base
 	{
 	public:
 		static_assert( GenerationBits > 0, "Must have some bits for the generation" );
 
 		using representation_type = uint_least_t<TotalBits>;
-		using value_type = T;
 
 	private:
 		static constexpr std::size_t index_bits = TotalBits - GenerationBits;
@@ -53,15 +50,6 @@ namespace mclo
 			index = value & index_bits_mask;
 		}
 
-		[[nodiscard]] constexpr auto operator<=>( const slot_map_handle& other ) const noexcept
-		{
-			return get_combined() <=> other.get_combined();
-		}
-		[[nodiscard]] constexpr bool operator==( const slot_map_handle& other ) const noexcept
-		{
-			return get_combined() == other.get_combined();
-		}
-
 		/// @brief Check if the handle is null
 		/// @warning This does NOT guarantee the handle refers to a valid object, all it does is a cheap check if the
 		/// handle has the potential to refer to an object
@@ -78,6 +66,28 @@ namespace mclo
 
 		/// @brief Generation of the handle for validating if it refers to a valid object
 		representation_type generation : GenerationBits = max_generation;
+	};
+
+	
+	/// @brief Slot map handle of a given bit size for a given type
+	/// @details By being a template on T we make the handle type safe so you can not look up handles of a mismatching
+	/// type as it will be a compile time error instead of giving you garbage returns
+	/// @tparam T Type this handle refers to
+	/// @tparam TotalBits The total number of bits for the handle type to use
+	/// @tparam GenerationBits The number of bits in the handle type to use for generation checking
+	template <typename T, std::size_t TotalBits, std::size_t GenerationBits>
+	struct slot_map_handle : slot_map_handle_base<TotalBits, GenerationBits>
+	{
+		using value_type = T;
+
+		[[nodiscard]] constexpr auto operator<=>( const slot_map_handle& other ) const noexcept
+		{
+			return this->get_combined() <=> other.get_combined();
+		}
+		[[nodiscard]] constexpr bool operator==( const slot_map_handle& other ) const noexcept
+		{
+			return this->get_combined() == other.get_combined();
+		}
 	};
 }
 
