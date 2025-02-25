@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/preprocessor/platform.hpp"
+#include "mclo/threading/atomic_intrusive_forward_list.hpp"
 #include "mclo/threading/thread_local_key.hpp"
 
 #include <atomic>
@@ -12,64 +13,40 @@ namespace mclo
 	template <typename T, typename Allocator = std::allocator<T>>
 	class instanced_thread_local
 	{
-		struct thread_data
+		struct thread_data : intrusive_forward_list_hook<>
 		{
 			T m_object{};
-			thread_data* m_next = nullptr;
 		};
 
+		using thread_data_list = atomic_intrusive_forward_list<thread_data>;
+		using list_iterator = typename thread_data_list::iterator;
 		using thread_data_allocator = typename std::allocator_traits<Allocator>::template rebind_alloc<thread_data>;
 
 	public:
 		using value_type = T;
 		using allocator_type = Allocator;
 
-		class iterator
+		class iterator : public list_iterator
 		{
 		public:
+			explicit iterator( list_iterator wrapped ) noexcept
+				: list_iterator( wrapped )
+			{
+			}
+
 			using value_type = T;
-			using difference_type = std::ptrdiff_t;
-			using pointer = value_type*;
-			using reference = value_type&;
-			using iterator_category = std::forward_iterator_tag;
-			using iterator_concept = std::forward_iterator_tag;
+			using pointer = T*;
+			using reference = T&;
 
-			iterator() = default;
-
-			[[nodiscard]] T& operator*() const noexcept
+			[[nodiscard]] reference operator*() const noexcept
 			{
-				return m_data->m_object;
+				return static_cast<const list_iterator&>( *this )->m_object;
 			}
 
-			[[nodiscard]] T* operator->() const noexcept
+			[[nodiscard]] pointer operator->() const noexcept
 			{
-				return std::addressof( m_data->m_object );
+				return std::addressof( **this );
 			}
-
-			iterator& operator++() noexcept
-			{
-				m_data = m_data->m_next;
-				return *this;
-			}
-
-			iterator operator++( int ) noexcept
-			{
-				iterator temp( *this );
-				++( *this );
-				return temp;
-			}
-
-			[[nodiscard]] bool operator==( const iterator& other ) const noexcept = default;
-
-		private:
-			friend class instanced_thread_local;
-
-			explicit iterator( thread_data* const data ) noexcept
-				: m_data( data )
-			{
-			}
-
-			thread_data* m_data = nullptr;
 		};
 
 		static_assert( std::is_default_constructible_v<value_type>, "T must be default constructible" );
@@ -84,14 +61,10 @@ namespace mclo
 		~instanced_thread_local()
 		{
 			thread_data_allocator alloc( m_allocator );
-			thread_data* data = m_data_head.load( std::memory_order_relaxed );
-			while ( data )
-			{
-				thread_data* const next = data->m_next;
-				std::destroy_at( data );
-				alloc.deallocate( data, 1 );
-				data = next;
-			}
+			m_list.consume( [ &alloc ]( thread_data* ptr ) {
+				std::destroy_at( ptr );
+				alloc.deallocate( ptr, 1 );
+			} );
 		}
 
 		[[nodiscard]] T& get()
@@ -101,12 +74,7 @@ namespace mclo
 			{
 				data = create_thread_data();
 				m_key.set( data );
-
-				data->m_next = m_data_head.load( std::memory_order_relaxed );
-				while ( !m_data_head.compare_exchange_weak(
-					data->m_next, data, std::memory_order_release, std::memory_order_relaxed ) )
-				{
-				}
+				m_list.push_front( *data );
 			}
 			return data->m_object;
 		}
@@ -123,12 +91,12 @@ namespace mclo
 
 		[[nodiscard]] iterator begin() noexcept
 		{
-			return iterator( m_data_head.load( std::memory_order_acquire ) );
+			return iterator( m_list.begin() );
 		}
 
 		[[nodiscard]] iterator end() noexcept
 		{
-			return iterator();
+			return iterator( m_list.end() );
 		}
 
 		allocator_type get_allocator() const noexcept
@@ -153,7 +121,7 @@ namespace mclo
 			return data;
 		}
 
-		std::atomic<thread_data*> m_data_head{ nullptr };
+		thread_data_list m_list;
 		thread_local_key m_key;
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator;
 	};

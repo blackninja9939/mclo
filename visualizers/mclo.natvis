@@ -158,6 +158,37 @@
 		</Expand>
 	</Type>
 
+  <Type Name="mclo::intrusive_forward_list_iterator&lt;*&gt;">
+    <SmartPointer Usage="Minimal">m_data</SmartPointer>
+    <DisplayString Condition="m_data == 0">end</DisplayString>
+    <DisplayString Condition="m_data != 0">{**this}</DisplayString>
+  </Type>
+
+  <Type Name="mclo::intrusive_forward_list&lt;*,*&gt;">
+    <DisplayString Condition="m_head == 0">empty</DisplayString>
+    <DisplayString Condition="m_head != 0">non-empty</DisplayString>
+    <Expand>
+      <LinkedListItems>
+        <HeadPointer>($T1*)m_head</HeadPointer>
+        <NextPointer>($T1*)m_next</NextPointer>
+        <ValueNode>*($T1*)this</ValueNode>
+      </LinkedListItems>
+    </Expand>
+  </Type>
+
+  <Type Name="mclo::atomic_intrusive_forward_list&lt;*,*&gt;">
+    <Intrinsic Name="head" Expression="m_head._Storage._Value"/>
+    <DisplayString Condition="head() == 0">empty</DisplayString>
+    <DisplayString Condition="head() != 0">non-empty</DisplayString>
+    <Expand>
+      <LinkedListItems>
+        <HeadPointer>($T1*)head()</HeadPointer>
+        <NextPointer>($T1*)m_next</NextPointer>
+        <ValueNode>*($T1*)this</ValueNode>
+      </LinkedListItems>
+    </Expand>
+  </Type>
+
 	<Type Name="mclo::thread_local_key">
 		<DisplayString>{m_key}</DisplayString>
 	</Type>
@@ -165,19 +196,15 @@
 	<Type Name="mclo::instanced_thread_local&lt;*&gt;">
 		<DisplayString>{{ key={m_key} }}</DisplayString>
 		<Expand>
-			<LinkedListItems>
-				<HeadPointer>m_data_head._Storage._Value</HeadPointer>
-				<NextPointer>m_next</NextPointer>
-				<ValueNode>m_object</ValueNode>
-			</LinkedListItems>
+      <ExpandedItem>m_list</ExpandedItem>
 		</Expand>
 	</Type>
 
 	<Type Name="mclo::instanced_thread_local&lt;*&gt;::iterator">
-		<DisplayString Condition="m_data == 0">end</DisplayString>
-		<DisplayString Condition="m_data != 0">{**this}</DisplayString>
+    <SmartPointer Usage="Minimal">m_data</SmartPointer>
+    <DisplayString Condition="m_data == 0">end</DisplayString>
+    <DisplayString Condition="m_data != 0">{(**this).m_object}</DisplayString>
 	</Type>
-
 
 	<Type Name="mclo::instanced_thread_local_value&lt;*&gt;">
 		<DisplayString>{{ key={m_key} }}</DisplayString>
