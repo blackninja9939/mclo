@@ -91,6 +91,8 @@ TEST_CASE( "instanced_thread_local custom allocator throws strong exception guar
 	mclo::instanced_thread_local<int, mclo::linear_allocator<int>> object( resource );
 	{
 		std::jthread a( [ & ] { object.get() = 1; } );
+	}
+	{
 		std::jthread b( [ & ] { object.get() = 2; } );
 	}
 
