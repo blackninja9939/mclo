@@ -123,7 +123,7 @@ namespace mclo
 
 		[[nodiscard]] iterator begin() noexcept
 		{
-			return iterator( m_data_head.load( std::memory_order_relaxed ) );
+			return iterator( m_data_head.load( std::memory_order_acquire ) );
 		}
 
 		[[nodiscard]] iterator end() noexcept
