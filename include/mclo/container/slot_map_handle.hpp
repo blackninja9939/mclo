@@ -68,7 +68,6 @@ namespace mclo
 		representation_type generation : GenerationBits = max_generation;
 	};
 
-	
 	/// @brief Slot map handle of a given bit size for a given type
 	/// @details By being a template on T we make the handle type safe so you can not look up handles of a mismatching
 	/// type as it will be a compile time error instead of giving you garbage returns
