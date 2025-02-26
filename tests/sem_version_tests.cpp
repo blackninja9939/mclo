@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "consteval_check.h"
+#include "consteval_check.hpp"
 
 #include "mclo/hash/hash.hpp"
 #include "mclo/utility/sem_version.hpp"

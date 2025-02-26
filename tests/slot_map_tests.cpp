@@ -4,7 +4,7 @@
 #include <catch2/generators/catch_generators_random.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
-#include "consteval_check.h"
+#include "consteval_check.hpp"
 #include "fancy_pointer.hpp"
 
 #include "mclo/container/dense_slot_map.hpp"
