@@ -97,27 +97,45 @@ namespace mclo
 			return head() == nullptr;
 		}
 
-		void push_front( reference value ) noexcept
+		void push_front( reference value ) MCLO_NOEXCEPT_TESTS
 		{
 			insert_after( before_begin(), value );
 		}
 
-		[[nodiscard]] pointer pop_front() noexcept
+		pointer pop_front() MCLO_NOEXCEPT_TESTS
 		{
 			return cast( unwrap_iterator( erase_after( before_begin() ) ) );
 		}
 
-		iterator insert_after( const_iterator pos, reference value ) noexcept
+		iterator insert_after( const_iterator pos, reference value ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
 			hook_type* const ptr = unwrap_iterator( pos );
-			hook_type* const hook = &value;
+			hook_type* const hook = std::addressof( value );
 			hook->m_next = std::exchange( ptr->m_next, hook );
-			return iterator( &value );
+			return iterator( cast( hook ) );
 		}
 
 		template <std::input_iterator It>
-		iterator insert_after( const_iterator pos, It first, It last ) noexcept;
+			requires( std::same_as<reference, std::iter_reference_t<It>> )
+		iterator insert_after( const_iterator pos, It first, It last ) MCLO_NOEXCEPT_TESTS
+		{
+			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
+			if ( first == last )
+			{
+				return pos;
+			}
+			hook_type* ptr = unwrap_iterator( pos );
+			hook_type* const original_next = ptr->m_next;
+			while ( first != last )
+			{
+				hook_type* ref = std::to_address( first++ );
+				ptr->m_next = ref;
+				ptr = ref;
+			}
+			ptr->m_next = original_next;
+			return iterator( cast( ptr ) );
+		}
 
 		iterator erase_after( const_iterator pos ) MCLO_NOEXCEPT_TESTS
 		{
@@ -151,7 +169,7 @@ namespace mclo
 			}
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list& other ) noexcept
+		void splice_after( const_iterator pos, intrusive_forward_list& other ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( this != &other, "Cannot splice in same container" );
 			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
@@ -166,7 +184,7 @@ namespace mclo
 			}
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list&& other ) noexcept
+		void splice_after( const_iterator pos, intrusive_forward_list&& other ) MCLO_NOEXCEPT_TESTS
 		{
 			splice_after( pos, other );
 		}
@@ -200,9 +218,33 @@ namespace mclo
 			return count;
 		}
 
-		void reverse() noexcept;
+		void reverse() noexcept
+		{
+			hook_type* current = m_head.m_next;
+			if ( !current )
+			{
+				// empty forward_list
+				return;
+			}
+
+			hook_type* prev = nullptr;
+			for ( ;; )
+			{
+				hook_type* const next = current->m_next;
+				current->m_next = prev;
+				if ( !next )
+				{
+					m_head.m_next = current;
+					return;
+				}
+
+				prev = current;
+				current = next;
+			}
+		}
 
 		template <std::invocable<pointer> Func>
+			requires( std::is_nothrow_invocable_v<Func, pointer> )
 		void consume( Func func ) noexcept
 		{
 			hook_type* head = std::exchange( m_head.m_next, nullptr );
@@ -216,38 +258,38 @@ namespace mclo
 
 		void clear() noexcept
 		{
-			consume( []( pointer ) {} );
+			consume( []( pointer ) noexcept {} );
 		}
 
 	private:
-		static pointer cast( hook_type* ptr ) noexcept
+		[[nodiscard]] static pointer cast( hook_type* ptr ) noexcept
 		{
 			return static_cast<pointer>( ptr );
 		}
-		static const_pointer cast( const hook_type* ptr ) noexcept
+		[[nodiscard]] static const_pointer cast( const hook_type* ptr ) noexcept
 		{
 			return static_cast<const pointer>( ptr );
 		}
 
-		pointer head() noexcept
+		[[nodiscard]] pointer head() noexcept
 		{
 			return cast( m_head.m_next );
 		}
-		const_pointer head() const noexcept
+		[[nodiscard]] const_pointer head() const noexcept
 		{
 			return cast( m_head.m_next );
 		}
 
-		pointer before_begin_ptr() noexcept
+		[[nodiscard]] pointer before_begin_ptr() noexcept
 		{
 			return cast( &m_head );
 		}
-		const_pointer before_begin_ptr() const noexcept
+		[[nodiscard]] const_pointer before_begin_ptr() const noexcept
 		{
 			return cast( &m_head );
 		}
 
-		static hook_type* unwrap_iterator( const_iterator it ) noexcept
+		[[nodiscard]] static hook_type* unwrap_iterator( const_iterator it ) noexcept
 		{
 			return const_cast<hook_type*>( static_cast<const hook_type*>( it.m_data ) );
 		}

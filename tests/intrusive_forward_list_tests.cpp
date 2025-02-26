@@ -128,3 +128,47 @@ TEST_CASE( "Non-empty intrusive forward list, insert after begin, contains eleme
 	CHECK( std::ranges::distance( list ) == 2 );
 	CHECK_THAT( list, RangeEquals( std::array{ object, object2 } ) );
 }
+
+TEST_CASE( "Empty intrusive forward list, insert a range after before being, contains elements in order",
+		   "[intrusive][intrusive_forward_list]" )
+{
+	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
+	mclo::intrusive_forward_list<test_type> list;
+
+	list.insert_after( list.before_begin(), objects.begin(), objects.end() );
+
+	CHECK_FALSE( list.empty() );
+	CHECK( std::ranges::distance( list ) == 5 );
+	CHECK_THAT( list, RangeEquals( objects ) );
+}
+
+TEST_CASE( "Non-empty intrusive forward list, insert after range, inserted after pos",
+		   "[intrusive][intrusive_forward_list]" )
+{
+	test_type object{ 10 };
+	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
+	mclo::intrusive_forward_list<test_type> list;
+	list.push_front( object );
+
+	list.insert_after( list.begin(), objects.begin(), objects.end() );
+
+	CHECK_FALSE( list.empty() );
+	CHECK( std::ranges::distance( list ) == 6 );
+	std::vector check{ object };
+	check.insert( check.end(), objects.begin(), objects.end() );
+	CHECK_THAT( list, RangeEquals( check ) );
+}
+
+TEST_CASE( "Non-empty intrusive forward list, reverse, contains reversed elements",
+		   "[intrusive][intrusive_forward_list]" )
+{
+	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
+	mclo::intrusive_forward_list<test_type> list;
+	list.insert_after( list.before_begin(), objects.begin(), objects.end() );
+
+	list.reverse();
+
+	CHECK_FALSE( list.empty() );
+	CHECK( std::ranges::distance( list ) == 5 );
+	CHECK_THAT( list, RangeEquals( objects | std::views::reverse ) );
+}
