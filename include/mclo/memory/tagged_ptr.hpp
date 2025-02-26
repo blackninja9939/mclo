@@ -117,11 +117,11 @@ namespace mclo
 			m_bits &= tag_mask;
 		}
 
-		void set_tag( const tag_type tag ) noexcept
+		constexpr void set_tag( const tag_type tag ) noexcept
 		{
 			m_bits = pack_tag( tag ) | ( m_bits & ptr_mask );
 		}
-		void clear_tag() noexcept
+		constexpr void clear_tag() noexcept
 		{
 			m_bits &= ptr_mask;
 		}
@@ -143,7 +143,7 @@ namespace mclo
 		{
 			return unpack_ptr( m_bits );
 		}
-		[[nodiscard]] tag_type tag() const noexcept
+		[[nodiscard]] constexpr tag_type tag() const noexcept
 		{
 			return unpack_tag( m_bits );
 		}
@@ -196,7 +196,7 @@ namespace mclo
 			DEBUG_ASSERT( can_store_tag( tag ), "Tag using too many bits" );
 			return pack_tag_unchecked( tag );
 		}
-		[[nodiscard]] static tag_type unpack_tag( std::uintptr_t tag ) noexcept
+		[[nodiscard]] static constexpr tag_type unpack_tag( std::uintptr_t tag ) noexcept
 		{
 			if constexpr ( is_integer )
 			{
