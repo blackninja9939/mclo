@@ -2,6 +2,7 @@ find_package( Catch2 3 REQUIRED )
 
 add_executable( tests
 	"consteval_check.h"
+	"fancy_pointer.hpp"
 	"assert_exception.hpp"
 	"assert_macros.hpp"
 	"assert_macros.cpp"
