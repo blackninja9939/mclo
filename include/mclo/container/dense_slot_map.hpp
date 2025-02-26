@@ -454,6 +454,10 @@ namespace mclo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+		static_assert( std::is_object_v<value_type>,
+					   "The C++ Standard forbids containers of non-object types "
+					   "because of [container.requirements]." );
+
 		dense_slot_map() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
 
 		explicit dense_slot_map( const allocator_type& allocator ) noexcept

@@ -378,6 +378,10 @@ namespace mclo
 		using iterator = hash_table_iterator<traits, false>;
 		using const_iterator = hash_table_iterator<traits, true>;
 
+		static_assert( std::is_object_v<value_type>,
+					   "The C++ Standard forbids containers of non-object types "
+					   "because of [container.requirements]." );
+
 		hash_table_base() = default;
 
 		explicit hash_table_base( const size_type capacity,
