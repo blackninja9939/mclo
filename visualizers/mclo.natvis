@@ -165,11 +165,12 @@
   </Type>
 
   <Type Name="mclo::intrusive_forward_list&lt;*,*&gt;">
-    <DisplayString Condition="m_head == 0">empty</DisplayString>
-    <DisplayString Condition="m_head != 0">non-empty</DisplayString>
+    <Intrinsic Name="head" Expression="m_head.m_next"/>
+    <DisplayString Condition="head() == 0">empty</DisplayString>
+    <DisplayString Condition="head() != 0">non-empty</DisplayString>
     <Expand>
       <LinkedListItems>
-        <HeadPointer>($T1*)m_head</HeadPointer>
+        <HeadPointer>($T1*)head()</HeadPointer>
         <NextPointer>($T1*)m_next</NextPointer>
         <ValueNode>*($T1*)this</ValueNode>
       </LinkedListItems>

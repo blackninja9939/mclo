@@ -4,6 +4,7 @@
 #include "mclo/container/intrusive_forward_list_hook.hpp"
 #include "mclo/debug/assert.hpp"
 
+#include <type_traits>
 #include <utility>
 
 namespace mclo
@@ -13,6 +14,10 @@ namespace mclo
 	{
 		using hook_type = intrusive_forward_list_hook<Tag>;
 		static_assert( std::derived_from<T, hook_type>, "T must be derived from the intrusive list hook" );
+
+		static_assert( std::is_object_v<T>,
+					   "The C++ Standard forbids containers of non-object types "
+					   "because of [container.requirements]." );
 
 	public:
 		using value_type = T;
@@ -31,14 +36,14 @@ namespace mclo
 		intrusive_forward_list& operator=( const intrusive_forward_list& other ) = delete;
 
 		intrusive_forward_list( intrusive_forward_list&& other ) noexcept
-			: m_head( std::exchange( other.m_head, nullptr ) )
+			: m_head( std::exchange( other.m_head, hook_type() ) )
 		{
 		}
-		intrusive_forward_list& operator=( const intrusive_forward_list& other ) noexcept
+		intrusive_forward_list& operator=( intrusive_forward_list&& other ) noexcept
 		{
 			if ( this != &other )
 			{
-				m_head = std::exchange( other.m_head, nullptr );
+				m_head = std::exchange( other.m_head, hook_type() );
 			}
 			return *this;
 		}
@@ -89,43 +94,61 @@ namespace mclo
 
 		[[nodiscard]] bool empty() const noexcept
 		{
-			return m_head == nullptr;
+			return head() == nullptr;
 		}
 
 		void push_front( reference value ) noexcept
 		{
-			hook_type& hook = value;
-			hook.m_next = m_head;
-			m_head = &hook;
+			insert_after( before_begin(), value );
 		}
 
 		[[nodiscard]] pointer pop_front() noexcept
 		{
-			if ( !m_head )
-			{
-				return nullptr;
-			}
-			return cast( std::exchange( m_head, m_head->m_next ) );
+			return cast( unwrap_iterator( erase_after( before_begin() ) ) );
 		}
 
 		iterator insert_after( const_iterator pos, reference value ) noexcept
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
-			const pointer ptr = std::to_address( pos );
+			hook_type* const ptr = unwrap_iterator( pos );
 			hook_type* const hook = &value;
 			hook->m_next = std::exchange( ptr->m_next, hook );
 			return iterator( &value );
 		}
 
+		template <std::input_iterator It>
+		iterator insert_after( const_iterator pos, It first, It last ) noexcept;
+
 		iterator erase_after( const_iterator pos ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot erase after end of forward list" );
-			const pointer ptr = std::to_address( pos );
+			hook_type* const ptr = unwrap_iterator( pos );
+			hook_type* const original_next = ptr->m_next;
 			if ( ptr->m_next )
 			{
-				ptr->m_next = ptr->m_next->m_next;
+				ptr->m_next = std::exchange( ptr->m_next->m_next, nullptr );
 			}
-			return iterator( cast( ptr->m_next ) );
+			return iterator( cast( original_next ) );
+		}
+
+		iterator erase_after( const_iterator first, const_iterator last ) MCLO_NOEXCEPT_TESTS
+		{
+			DEBUG_ASSERT( first != end(), "Cannot erase after end of forward list" );
+			DEBUG_ASSERT( last != end(), "Cannot erase after end of forward list" );
+			hook_type* ptr = unwrap_iterator( first );
+			hook_type* const last_ptr = unwrap_iterator( last );
+			if ( ptr != last_ptr )
+			{
+				for ( ;; )
+				{
+					const auto next = ptr->m_next;
+					if ( next == last_ptr )
+					{
+						break;
+					}
+					ptr->m_next = std::exchange( next->m_next, nullptr );
+				}
+			}
 		}
 
 		void splice_after( const_iterator pos, intrusive_forward_list& other ) noexcept
@@ -134,11 +157,11 @@ namespace mclo
 			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
 
 			// exchange empties other
-			hook_type* const hook = std::exchange( other.m_head, nullptr );
+			hook_type* const hook = std::exchange( other.m_head.m_next, nullptr );
 
 			if ( hook )
 			{
-				const pointer ptr = std::to_address( pos );
+				hook_type* const ptr = unwrap_iterator( pos );
 				hook->m_next = std::exchange( ptr->m_next, hook );
 			}
 		}
@@ -148,10 +171,41 @@ namespace mclo
 			splice_after( pos, other );
 		}
 
+		// todo(mc) other splice_after overloads
+
+		size_type remove( const_reference value )
+		{
+			return remove( [ &value ]( const_reference object ) { return object == value; } );
+		}
+
+		template <std::predicate<const_reference> UnaryPredicate>
+		size_type remove_if( UnaryPredicate predicate )
+		{
+			size_type count = 0;
+			hook_type* before_head = before_begin_ptr();
+			hook_type* head = head();
+			while ( head )
+			{
+				if ( predicate( *cast( head ) ) )
+				{
+					head = before_head->m_next = std::exchange( head->m_next, nullptr );
+					++count;
+				}
+				else
+				{
+					before_head = head;
+					head = head->m_next;
+				}
+			}
+			return count;
+		}
+
+		void reverse() noexcept;
+
 		template <std::invocable<pointer> Func>
 		void consume( Func func ) noexcept
 		{
-			hook_type* head = std::exchange( m_head, nullptr );
+			hook_type* head = std::exchange( m_head.m_next, nullptr );
 			while ( head )
 			{
 				hook_type* const next = std::exchange( head->m_next, nullptr );
@@ -170,17 +224,34 @@ namespace mclo
 		{
 			return static_cast<pointer>( ptr );
 		}
-
-		pointer head() const noexcept
+		static const_pointer cast( const hook_type* ptr ) noexcept
 		{
-			return cast( m_head );
+			return static_cast<const pointer>( ptr );
 		}
 
-		pointer before_begin_ptr() const noexcept
+		pointer head() noexcept
 		{
-			return std::addressof( reinterpret_cast<hook_type&>( const_cast<hook_type*&>( m_head ) ) );
+			return cast( m_head.m_next );
+		}
+		const_pointer head() const noexcept
+		{
+			return cast( m_head.m_next );
 		}
 
-		hook_type* m_head{ nullptr };
+		pointer before_begin_ptr() noexcept
+		{
+			return cast( &m_head );
+		}
+		const_pointer before_begin_ptr() const noexcept
+		{
+			return cast( &m_head );
+		}
+
+		static hook_type* unwrap_iterator( const_iterator it ) noexcept
+		{
+			return const_cast<hook_type*>( static_cast<const hook_type*>( it.m_data ) );
+		}
+
+		hook_type m_head;
 	};
 }

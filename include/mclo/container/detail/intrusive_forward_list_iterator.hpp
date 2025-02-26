@@ -14,8 +14,18 @@ namespace mclo
 		using hook_type = intrusive_forward_list_hook<Tag>;
 		static_assert( std::derived_from<T, hook_type>, "T must be derived from the intrusive list hook" );
 
+		static_assert( std::is_object_v<T> );
+
+		template <typename, typename>
+		friend class intrusive_forward_list_iterator;
+
+		friend class intrusive_forward_list<std::remove_const_t<T>, Tag>;
+
+		template <typename U>
+		static constexpr bool same_type = std::same_as<std::remove_const_t<T>, std::remove_const_t<U>>;
+
 	public:
-		using value_type = std::decay_t<T>;
+		using value_type = std::remove_const_t<T>;
 		using difference_type = std::ptrdiff_t;
 		using reference = T&;
 		using pointer = T*;
@@ -26,6 +36,13 @@ namespace mclo
 
 		explicit intrusive_forward_list_iterator( const pointer data ) noexcept
 			: m_data( data )
+		{
+		}
+
+		template <typename U>
+			requires( same_type<U> )
+		intrusive_forward_list_iterator( const intrusive_forward_list_iterator<U, Tag>& other ) noexcept
+			: m_data( const_cast<pointer>( other.m_data ) )
 		{
 		}
 
@@ -52,7 +69,12 @@ namespace mclo
 			return temp;
 		}
 
-		[[nodiscard]] bool operator==( const intrusive_forward_list_iterator& other ) const noexcept = default;
+		template <typename U>
+			requires( same_type<U> )
+		[[nodiscard]] bool operator==( const intrusive_forward_list_iterator<U, Tag>& other ) const noexcept
+		{
+			return m_data == other.m_data;
+		}
 
 	private:
 		[[nodiscard]] static pointer next( const value_type& value ) noexcept

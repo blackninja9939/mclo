@@ -39,6 +39,7 @@ add_executable( tests
 	"thread_local_key_tests.cpp"
 	"instanced_thread_local_tests.cpp"
 	"circular_buffer_tests.cpp"
+	"intrusive_forward_list_tests.cpp"
 )
 
 target_compile_definitions( 
