@@ -62,9 +62,9 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr from ptr", "[tagged_ptr]", test_types )
 TEMPLATE_LIST_TEST_CASE( "tagged_ptr from ptr and tag", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
-	CHECK( ptr.tag() == 4 );
+	CHECK( ptr.tag() == 3 );
 
 	REQUIRE( ptr );
 	REQUIRE( ptr.get() == owned.get() );
@@ -74,17 +74,17 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr from ptr and tag", "[tagged_ptr]", test_typ
 
 	*owned = 99;
 	CHECK( *ptr == 99 );
-	CHECK( ptr.tag() == 4 );
+	CHECK( ptr.tag() == 3 );
 
 	*ptr = 16;
 	CHECK( *owned == 16 );
-	CHECK( ptr.tag() == 4 );
+	CHECK( ptr.tag() == 3 );
 }
 
 TEMPLATE_LIST_TEST_CASE( "tagged_ptr set_tag", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.set_tag( 1 );
 	CHECK( ptr.tag() == 1 );
@@ -98,7 +98,7 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr set_tag", "[tagged_ptr]", test_types )
 TEMPLATE_LIST_TEST_CASE( "tagged_ptr clear_tag", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.clear_tag();
 	CHECK( ptr.tag() == 0 );
@@ -113,10 +113,10 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr set_ptr", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
 	auto other_owned = std::make_unique<int>( 6002 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.set_ptr( other_owned.get() );
-	CHECK( ptr.tag() == 4 );
+	CHECK( ptr.tag() == 3 );
 	REQUIRE( ptr );
 	REQUIRE( ptr.get() == other_owned.get() );
 	REQUIRE( ptr != nullptr );
@@ -128,10 +128,10 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr set_ptr", "[tagged_ptr]", test_types )
 TEMPLATE_LIST_TEST_CASE( "tagged_ptr clear_ptr", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.clear_ptr();
-	CHECK( ptr.tag() == 4 );
+	CHECK( ptr.tag() == 3 );
 	CHECK( !ptr );
 	CHECK( ptr.get() == nullptr );
 	CHECK( ptr == nullptr );
@@ -141,7 +141,7 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr clear_ptr", "[tagged_ptr]", test_types )
 TEMPLATE_LIST_TEST_CASE( "tagged_ptr reset", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.reset();
 	CHECK( ptr.tag() == 0 );
@@ -155,7 +155,7 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr reset ptr", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
 	auto other_owned = std::make_unique<int>( 6002 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.reset( other_owned.get() );
 	CHECK( ptr.tag() == 0 );
@@ -171,7 +171,7 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr reset ptr and value", "[tagged_ptr]", test_
 {
 	auto owned = std::make_unique<int>( 42 );
 	auto other_owned = std::make_unique<int>( 6002 );
-	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 4 );
+	mclo::tagged_ptr<int, TestType> ptr( owned.get(), 3 );
 
 	ptr.reset( other_owned.get(), 1 );
 	CHECK( ptr.tag() == 1 );

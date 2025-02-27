@@ -38,7 +38,7 @@ namespace mclo
 	{
 	private:
 		static constexpr std::size_t free_upper_bits = FreeUpperBits;
-		static constexpr std::size_t free_lower_bits = std::bit_width( Alignment );
+		static constexpr std::size_t free_lower_bits = std::bit_width( Alignment ) - 1;
 		static constexpr std::size_t total_free_bits = free_upper_bits + free_lower_bits;
 		static constexpr std::size_t used_ptr_bits = ( sizeof( void* ) * CHAR_BIT ) - total_free_bits;
 
