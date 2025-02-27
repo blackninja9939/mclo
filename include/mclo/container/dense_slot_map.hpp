@@ -614,7 +614,7 @@ namespace mclo
 
 		/// @brief Erase the element at the handle if it exists returning the data it contained, else return an empty
 		/// optional
-		/// @param handle The handle to move the data from then remove
+		/// @param handle The handle to move the data from then erase
 		/// @return Contains the data at the handle's location, else an empty optional
 		[[nodiscard]] std::optional<value_type> pop( const handle_type handle ) noexcept(
 			std::is_nothrow_move_constructible_v<T> )
@@ -627,6 +627,24 @@ namespace mclo
 
 			T object( std::move( *ptr ) );
 			erase_valid_handle( handle );
+			return std::move( object );
+		}
+
+		/// @brief Erase the element at the handle if it exists returning the data it contained, else return an empty
+		/// optional
+		/// @param pos The iterator to move the data from then erase
+		/// @return Contains the data at the iterator's location, else an empty optional
+		[[nodiscard]] std::optional<value_type> pop( const const_iterator pos ) noexcept(
+			std::is_nothrow_move_constructible_v<T> )
+		{
+			if ( pos == end() ) [[unlikely]]
+			{
+				return std::nullopt;
+			}
+
+			const size_type data_index = static_cast<size_type>( std::distance( cbegin(), pos ) );
+			T object( std::move( m_data.values()[ data_index ] ) );
+			erase_valid_handle( get_valid_handle_at( data_index ) );
 			return std::move( object );
 		}
 

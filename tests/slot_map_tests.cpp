@@ -372,6 +372,25 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Pop Invalid Handle Empty Optional", "[slo
 	CHECK_FALSE( popped.has_value() );
 }
 
+TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Pop Valid Iterator Engaged Optional", "[slot_map]", test_types )
+{
+	TestType map;
+	auto handle = map.insert( "42" );
+	auto popped = map.pop( map.begin() );
+	CHECK_FALSE( map.is_valid( handle ) );
+	CHECK( map.lookup( handle ) == nullptr );
+	REQUIRE( popped.has_value() );
+	CHECK( *popped == "42" );
+}
+
+TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Pop End Iterator Empty Optional", "[slot_map]", test_types )
+{
+	TestType map;
+	auto handle = map.insert( "42" );
+	auto popped = map.pop( map.end() );
+	CHECK_FALSE( popped.has_value() );
+}
+
 TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Clear Destroys Objects", "[slot_map]", test_types )
 {
 	TestType map;
