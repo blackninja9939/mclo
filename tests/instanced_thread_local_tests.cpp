@@ -3,8 +3,8 @@
 
 #include "mclo/threading/instanced_thread_local.hpp"
 
-#include "mclo/allocator/linear_allocator.hpp"
-#include "mclo/allocator/null_resource.hpp"
+#include "mclo/allocator/new_delete_resource.hpp"
+#include "mclo/allocator/resource_allocator.hpp"
 
 #include <thread>
 #include <unordered_set>
@@ -34,6 +34,38 @@ namespace
 
 		static inline std::atomic_int count{ 0 };
 		int i = 0;
+	};
+
+	class limited_use_resource
+	{
+	public:
+		explicit limited_use_resource( const std::size_t use_count ) noexcept
+			: m_use_count( use_count )
+		{
+		}
+
+		[[nodiscard]] std::byte* allocate( const std::size_t size, const std::size_t alignment )
+		{
+			if ( m_use_count == 0 )
+			{
+				throw std::bad_alloc();
+			}
+			--m_use_count;
+			return mclo::new_delete_memory_resource::instance().allocate( size, alignment );
+		}
+
+		void deallocate( std::byte* const ptr, const std::size_t size, const std::size_t alignment ) noexcept
+		{
+			mclo::new_delete_memory_resource::instance().deallocate( ptr, size, alignment );
+		}
+
+		[[nodiscard]] bool operator==( const limited_use_resource& other ) const noexcept
+		{
+			return this == &other;
+		}
+
+	private:
+		std::size_t m_use_count = 0;
 	};
 }
 
@@ -75,10 +107,12 @@ TEST_CASE( "instanced_thread_local iterate over contains all threads", "[instanc
 
 TEST_CASE( "instanced_thread_local custom allocator", "[instanced_thread_local]" )
 {
-	mclo::inline_linear_allocator_resource<16> resource;
-	mclo::instanced_thread_local<int, mclo::linear_allocator<int>> object( resource );
+	limited_use_resource resource( 3 );
+	mclo::instanced_thread_local<int, mclo::resource_allocator<limited_use_resource, int>> object( resource );
 	{
 		std::jthread a( [ & ] { object.get() = 1; } );
+	}
+	{
 		std::jthread b( [ & ] { object.get() = 2; } );
 	}
 	object.get() = 0;
@@ -87,8 +121,8 @@ TEST_CASE( "instanced_thread_local custom allocator", "[instanced_thread_local]"
 
 TEST_CASE( "instanced_thread_local custom allocator throws strong exception guarantee", "[instanced_thread_local]" )
 {
-	mclo::inline_linear_allocator_resource<32> resource( mclo::null_memory_resource::instance() );
-	mclo::instanced_thread_local<int, mclo::linear_allocator<int>> object( resource );
+	limited_use_resource resource( 2 );
+	mclo::instanced_thread_local<int, mclo::resource_allocator<limited_use_resource, int>> object( resource );
 	{
 		std::jthread a( [ & ] { object.get() = 1; } );
 	}
