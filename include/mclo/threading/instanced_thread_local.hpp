@@ -61,7 +61,7 @@ namespace mclo
 		~instanced_thread_local()
 		{
 			thread_data_allocator alloc( m_allocator );
-			m_list.consume( [ &alloc ]( thread_data* ptr ) {
+			m_list.consume( [ &alloc ]( thread_data* ptr ) noexcept {
 				std::destroy_at( ptr );
 				alloc.deallocate( ptr, 1 );
 			} );

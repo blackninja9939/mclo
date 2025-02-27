@@ -84,6 +84,7 @@ namespace mclo
 		}
 
 		template <std::invocable<pointer> Func>
+			requires( std::is_nothrow_invocable_v<Func, pointer> )
 		void consume( Func func ) noexcept
 		{
 			hook_type* head = m_head.exchange( nullptr, std::memory_order_acq_rel );
@@ -97,7 +98,7 @@ namespace mclo
 
 		void clear() noexcept
 		{
-			consume( []( pointer ) {} );
+			consume( []( pointer ) noexcept {} );
 		}
 
 	private:
