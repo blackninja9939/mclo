@@ -152,11 +152,6 @@ namespace mclo
 			return m_container.test_set( static_cast<size_type>( key ), false );
 		}
 
-		void merge( const enum_set& other ) noexcept
-		{
-			m_container |= other.m_container;
-		}
-
 		constexpr iterator erase( const const_iterator pos ) noexcept
 		{
 			if ( pos.m_index == container_type::npos )
