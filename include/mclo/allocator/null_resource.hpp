@@ -15,7 +15,7 @@ namespace mclo
 			throw std::bad_alloc();
 		}
 
-		[[nodiscard]] void deallocate( std::byte* const, const std::size_t, const std::size_t ) noexcept
+		void deallocate( std::byte* const, const std::size_t, const std::size_t ) noexcept
 		{
 		}
 

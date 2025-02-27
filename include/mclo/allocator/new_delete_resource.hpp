@@ -13,9 +13,7 @@ namespace mclo
 			return static_cast<std::byte*>( operator new( size, std::align_val_t{ alignment } ) );
 		}
 
-		[[nodiscard]] void deallocate( std::byte* const ptr,
-									   const std::size_t size,
-									   const std::size_t alignment ) noexcept
+		void deallocate( std::byte* const ptr, const std::size_t size, const std::size_t alignment ) noexcept
 		{
 			operator delete( ptr, size, std::align_val_t{ alignment } );
 		}
