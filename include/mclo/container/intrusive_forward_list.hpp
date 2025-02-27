@@ -48,6 +48,13 @@ namespace mclo
 			return *this;
 		}
 
+		intrusive_forward_list& operator=( std::initializer_list<value_type> init_list ) noexcept
+		{
+			clear();
+			insert_after( before_begin(), init_list );
+			return *this;
+		}
+
 		~intrusive_forward_list()
 		{
 			clear();
@@ -135,6 +142,11 @@ namespace mclo
 			}
 			ptr->m_next = original_next;
 			return iterator( cast( ptr ) );
+		}
+
+		iterator insert_after( const_iterator pos, std::initializer_list<value_type> init_list ) MCLO_NOEXCEPT_TESTS
+		{
+			return insert_after( init_list.begin(), init_list.end() );
 		}
 
 		iterator erase_after( const_iterator pos ) MCLO_NOEXCEPT_TESTS
