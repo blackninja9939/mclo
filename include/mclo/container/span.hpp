@@ -128,7 +128,7 @@ namespace mclo
 		template <typename U, std::size_t N>
 			requires( ( extent == dynamic_extent || N == extent ) && detail::valid_pointer_conversion<U, element_type> )
 		constexpr span( std::array<U, N>& arr ) noexcept
-			: base( arr, N )
+			: base( arr.data(), N )
 		{
 		}
 
@@ -136,7 +136,7 @@ namespace mclo
 			requires( ( extent == dynamic_extent || N == extent ) &&
 					  detail::valid_pointer_conversion<const U, element_type> )
 		constexpr span( const std::array<U, N>& arr ) noexcept
-			: base( arr, N )
+			: base( arr.data(), N )
 		{
 		}
 

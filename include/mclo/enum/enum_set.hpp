@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mclo/bitset.hpp"
-#include "mclo/enum_size.hpp"
+#include "mclo/container/bitset.hpp"
+#include "mclo/enum/enum_size.hpp"
 
 #include <concepts>
 #include <initializer_list>
@@ -121,7 +121,7 @@ namespace mclo
 			const size_type index = static_cast<size_type>( value );
 			const bool alreadySet = m_container.test_set( index );
 			return {
-				iterator{*this, index},
+				iterator{ *this, index },
                 !alreadySet
             };
 		}
