@@ -13,7 +13,8 @@ namespace mclo
 	template <typename T, typename Allocator = std::allocator<T>>
 	class instanced_thread_local
 	{
-		// Aligned to cache line to avoids false sharing of the actual object in case two threads allocated on same cache line
+		// Aligned to cache line to avoids false sharing of the actual object in case two threads allocated on same
+		// cache line
 		struct alignas( std::hardware_destructive_interference_size ) thread_data : intrusive_forward_list_hook<>
 		{
 			T m_object{};

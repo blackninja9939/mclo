@@ -21,7 +21,7 @@ namespace mclo
 		using propagate_on_container_move_assignment = std::true_type;
 		using propagate_on_container_swap = std::true_type;
 
-		template<typename U>
+		template <typename U>
 		struct rebind
 		{
 			using other = resource_allocator<Resource, U>;
