@@ -31,16 +31,15 @@ namespace mclo
 		std::size_t m_size;
 	};
 
-	template <typename Domain, typename IndexType>
+	template <typename Domain, std::unsigned_integral IndexType>
 	class string_table;
 
-	template <typename Domain, typename IndexType>
+	template <typename Domain, std::unsigned_integral IndexType>
 	class string_handle : private mclo::small_optional<IndexType>
 	{
 		using base = mclo::small_optional<IndexType>;
 
 	public:
-		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );
 		friend class string_table<Domain, IndexType>;
 
 		[[nodiscard]] constexpr bool is_valid() const noexcept
@@ -55,12 +54,19 @@ namespace mclo
 		using base::value;
 	};
 
-	template <typename Domain, typename IndexType = std::uint16_t>
+	template <typename Domain, std::unsigned_integral IndexType = std::uint16_t>
 	class string_table
 	{
 	public:
-		static_assert( std::is_unsigned_v<IndexType>, "IndexType must be unsigned" );
 		using handle = string_handle<Domain, IndexType>;
+
+		string_table() = default;
+
+		explicit string_table( const std::size_t reserved )
+		{
+			m_handle_to_string.reserve( reserved );
+			m_string_to_handle.reserve( reserved );
+		}
 
 		[[nodiscard]] handle lookup_handle( const std::string_view str ) const noexcept
 		{
