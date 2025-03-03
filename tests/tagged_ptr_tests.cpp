@@ -283,3 +283,18 @@ TEMPLATE_LIST_TEST_CASE( "tagged_ptr comparisons", "[tagged_ptr]", test_types )
 	CHECK_FALSE( nullptr != ptr );
 	CHECK_FALSE( ptr != ptr );
 }
+
+TEMPLATE_LIST_TEST_CASE( "tagged_ptr swap", "[tagged_ptr]", test_types )
+{
+	auto owned1 = std::make_unique<int>( 42 );
+	mclo::tagged_ptr<int, TestType> ptr1( owned1.get(), 3 );
+	auto owned2 = std::make_unique<int>( -300 );
+	mclo::tagged_ptr<int, TestType> ptr2( owned2.get(), 1 );
+
+	swap( ptr1, ptr2 );
+
+	CHECK( ptr1 == owned2.get() );
+	CHECK( ptr2 == owned1.get() );
+	CHECK( ptr1.tag() == 1 );
+	CHECK( ptr2.tag() == 3 );
+}

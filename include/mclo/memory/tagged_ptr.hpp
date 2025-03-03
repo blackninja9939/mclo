@@ -148,7 +148,7 @@ namespace mclo
 			return unpack_tag( m_bits );
 		}
 
-		[[nodiscard]] element_type& operator*() const noexcept
+		[[nodiscard]] std::add_lvalue_reference_t<element_type> operator*() const noexcept
 		{
 			return *get();
 		}
@@ -157,18 +157,28 @@ namespace mclo
 			return get();
 		}
 
-		[[nodiscard]] explicit operator bool() const noexcept
+		[[nodiscard]] constexpr explicit operator bool() const noexcept
 		{
-			return get() != nullptr;
+			return m_bits != 0;
 		}
 
-		[[nodiscard]] friend bool operator==( const tagged_ptr& lhs, const tagged_ptr& rhs ) noexcept
+		[[nodiscard]] friend constexpr bool operator==( const tagged_ptr& lhs, const tagged_ptr& rhs ) noexcept
 		{
 			return lhs.m_bits == rhs.m_bits;
 		}
-		[[nodiscard]] friend bool operator==( const tagged_ptr& lhs, const const_pointer rhs ) noexcept
+		[[nodiscard]] friend constexpr bool operator==( const tagged_ptr& lhs, const const_pointer rhs ) noexcept
 		{
 			return lhs.get() == rhs;
+		}
+
+		constexpr void swap( tagged_ptr& other ) noexcept
+		{
+			std::swap( m_bits, other.m_bits );
+		}
+
+		friend constexpr void swap( tagged_ptr& lhs, tagged_ptr& rhs ) noexcept
+		{
+			lhs.swap( rhs );
 		}
 
 		template <hasher Hasher>
@@ -191,7 +201,7 @@ namespace mclo
 			return reinterpret_cast<pointer>( ( ptr & ptr_mask ) >> free_upper_bits );
 		}
 
-		[[nodiscard]] static std::uintptr_t pack_tag( const tag_type tag ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] static constexpr std::uintptr_t pack_tag( const tag_type tag ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( can_store_tag( tag ), "Tag using too many bits" );
 			return pack_tag_unchecked( tag );
