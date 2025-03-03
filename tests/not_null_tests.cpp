@@ -66,7 +66,7 @@ namespace
 	using test_types = mclo::meta::type_list<raw_pointer_context, unqiue_pointer_context, shared_pointer_context>;
 }
 
-TEMPLATE_LIST_TEST_CASE( "not_null same as get", "[new_type]", test_types )
+TEMPLATE_LIST_TEST_CASE( "not_null same as get", "[not_null]", test_types )
 {
 	TestType context;
 	const auto ptr = context.ptr();
@@ -81,7 +81,7 @@ TEMPLATE_LIST_TEST_CASE( "not_null same as get", "[new_type]", test_types )
 	CHECK( std::to_address( raw ) == std::to_address( ptr ) );
 }
 
-TEMPLATE_LIST_TEST_CASE( "not_null swap", "[new_type]", test_types )
+TEMPLATE_LIST_TEST_CASE( "not_null swap", "[not_null]", test_types )
 {
 	TestType context1;
 	auto ptr1 = context1.ptr();
@@ -97,7 +97,7 @@ TEMPLATE_LIST_TEST_CASE( "not_null swap", "[new_type]", test_types )
 	CHECK( std::to_address( ptr2 ) == raw1_original );
 }
 
-TEMPLATE_LIST_TEST_CASE( "not_null unsafe_release", "[new_type]", test_types )
+TEMPLATE_LIST_TEST_CASE( "not_null unsafe_release", "[not_null]", test_types )
 {
 	TestType context;
 	auto ptr = context.ptr();
@@ -111,8 +111,20 @@ TEMPLATE_LIST_TEST_CASE( "not_null unsafe_release", "[new_type]", test_types )
 	CHECK_ASSERTS( std::move( ptr ).unsafe_release(), "Releasing from moved from not_null pointer" );
 }
 
-TEMPLATE_LIST_TEST_CASE( "not_null from nullptr asserts", "[new_type]", test_types )
+TEMPLATE_LIST_TEST_CASE( "not_null from nullptr asserts", "[not_null]", test_types )
 {
 	TestType context;
 	CHECK_ASSERTS( context.null(), "Constructing not_null with a null pointer" );
+}
+
+TEST_CASE( "not_null of void*", "[not_null]" )
+{
+	int i = 0;
+	mclo::not_null<void*> ptr( &i );
+
+	mclo::not_null<const void*> c_ptr( ptr );
+
+	CHECK( ptr.get() == &i );
+	CHECK( c_ptr.get() == &i );
+	CHECK( ptr == c_ptr );
 }

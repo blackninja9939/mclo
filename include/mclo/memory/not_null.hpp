@@ -67,7 +67,7 @@ namespace mclo
 		{
 			return get();
 		}
-		constexpr underlying_value& operator*() const noexcept
+		constexpr std::add_lvalue_reference_t<underlying_value> operator*() const noexcept
 		{
 			return *get();
 		}
