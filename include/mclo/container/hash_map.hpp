@@ -1041,6 +1041,11 @@ namespace mclo
 		template <typename UKey>
 		[[nodiscard]] std::size_t find_internal( const UKey& key ) const noexcept
 		{
+			if ( m_size == 0 )
+			{
+				return m_capacity;
+			}
+
 			const std::size_t hash = key_hash( key );
 
 			// We package part of our hash into the meta info which means we do not need to check
