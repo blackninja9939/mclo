@@ -1,7 +1,9 @@
 #include "mclo/meta/apply.hpp"
+#include "mclo/meta/count.hpp"
 #include "mclo/meta/filter.hpp"
 #include "mclo/meta/first.hpp"
 #include "mclo/meta/flatten.hpp"
+#include "mclo/meta/index_of.hpp"
 #include "mclo/meta/join.hpp"
 #include "mclo/meta/last.hpp"
 #include "mclo/meta/nth_type.hpp"
@@ -34,6 +36,15 @@ namespace
 	static_assert( std::is_same_v<nth<0, test_list>, int> );
 	static_assert( std::is_same_v<nth<1, test_list>, float> );
 	static_assert( std::is_same_v<nth<2, test_list>, bool> );
+
+	static_assert( index_of_v<int, test_list> == 0 );
+	static_assert( index_of_v<float, test_list> == 1 );
+	static_assert( index_of_v<bool, test_list> == 2 );
+
+	static_assert( count_v<int, test_list> == 1 );
+	static_assert( count_v<float, test_list> == 1 );
+	static_assert( count_v<bool, test_list> == 1 );
+	static_assert( count_v<int, type_list<int, int, bool, int, char>> == 3 );
 
 	static_assert( std::is_same_v<first<test_list>, int> );
 	static_assert( std::is_same_v<last<test_list>, bool> );
