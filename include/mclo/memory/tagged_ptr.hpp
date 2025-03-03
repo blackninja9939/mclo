@@ -157,9 +157,9 @@ namespace mclo
 			return get();
 		}
 
-		[[nodiscard]] constexpr explicit operator bool() const noexcept
+		[[nodiscard]] explicit operator bool() const noexcept
 		{
-			return m_bits != 0;
+			return get() != nullptr;
 		}
 
 		[[nodiscard]] friend constexpr bool operator==( const tagged_ptr& lhs, const tagged_ptr& rhs ) noexcept
