@@ -589,3 +589,20 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Fuzz Testing Works Correctly", "[slot_map
 		}
 	}
 }
+
+TEMPLATE_LIST_TEST_CASE( "dense_slot_map handle type, hash different handles, different hashes", "[slot_map]", test_types )
+{
+	using handle_type = typename TestType::handle_type;
+	STATIC_CHECK( mclo::default_hashable<handle_type> );
+	TestType map;
+	const handle_type handle = map.insert( "42" );
+	const handle_type handle2 = map.insert( "16" );
+
+	const auto null_handle_hash = mclo::hash_object( handle_type{} );
+	const auto handle1_hash = mclo::hash_object( handle );
+	const auto handle2_hash = mclo::hash_object( handle2 );
+
+	CHECK( null_handle_hash != handle1_hash );
+	CHECK( null_handle_hash != handle2_hash );
+	CHECK( handle1_hash != handle2_hash );
+}

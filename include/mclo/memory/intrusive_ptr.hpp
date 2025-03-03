@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
+#include "mclo/hash/hash.hpp"
 
 #include <concepts>
 
@@ -231,4 +232,7 @@ namespace mclo
 
 		T* m_ptr = nullptr;
 	};
+
+	template <typename T>
+	constexpr bool enable_bitwise_hash<intrusive_ptr<T>> = true;
 }

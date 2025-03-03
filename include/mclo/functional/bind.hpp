@@ -5,8 +5,7 @@
 #include <utility>
 
 namespace mclo
-{ // These are not implemented as constexpr because Android does not support constexpr invoke and Sony does not detect
-  // these as being constexpr safe literal types
+{
 #if defined( __cpp_lib_bind_front ) && ( __cpp_lib_bind_front >= 202306L )
 	using std::bind_front;
 #else

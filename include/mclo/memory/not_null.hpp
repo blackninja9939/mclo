@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
+#include "mclo/hash/hash.hpp"
 
 #include <compare>
 #include <concepts>
@@ -86,6 +87,12 @@ namespace mclo
 		friend constexpr void swap( not_null& lhs, not_null& rhs )
 		{
 			lhs.swap( rhs );
+		}
+
+		template <hasher Hasher>
+		friend void hash_append( Hasher& hasher, const not_null& ptr ) noexcept
+		{
+			hash_append( hasher, ptr.get() );
 		}
 
 	private:
