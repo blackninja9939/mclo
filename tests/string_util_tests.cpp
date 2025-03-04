@@ -6,6 +6,7 @@
 #include "mclo/string//hash.hpp"
 #include "mclo/string/charconv.hpp"
 #include "mclo/string/compare_ignore_case.hpp"
+#include "mclo/string/concatenate.hpp"
 #include "mclo/string/join.hpp"
 #include "mclo/string/replace.hpp"
 #include "mclo/string/string_buffer.hpp"
@@ -254,17 +255,10 @@ TEMPLATE_LIST_TEST_CASE( "replace_all", "[string]", char_types )
 	CHECK( string == result );
 }
 
-TEST_CASE( "join_string variadic", "[string]" )
-{
-	using namespace std::literals;
-	const std::string result = mclo::join_string( "hello"s, " to "sv, "the world" );
-	CHECK( result == "hello to the world" );
-}
-
 TEMPLATE_TEST_CASE( "join_string iterators", "[string]", std::string, std::string_view, const char* )
 {
-	const std::array<TestType, 3> arr{ "hello", " to ", "the world" };
-	const std::string result = mclo::join_string( arr.rbegin(), arr.rend() );
+	const std::array<TestType, 3> arr{ "hello", "to", "the world" };
+	const std::string result = mclo::join_string( arr.rbegin(), arr.rend(), " " );
 	CHECK( result == "the world to hello" );
 }
 
@@ -272,29 +266,29 @@ TEST_CASE( "join_string input iterators", "[string]" )
 {
 	std::istringstream str( "hello to the world" );
 	const std::string result =
-		mclo::join_string( std::istreambuf_iterator<char>( str ), std::istreambuf_iterator<char>() );
+		mclo::join_string( std::istreambuf_iterator<char>( str ), std::istreambuf_iterator<char>(), "" );
 	CHECK( result == "hello to the world" );
 }
 
 TEMPLATE_TEST_CASE( "join_string container", "[string]", std::string, std::string_view, const char* )
 {
-	const std::array<TestType, 3> arr{ "hello", " to ", "the world" };
-	const std::string result = mclo::join_string( arr );
+	const std::array<TestType, 3> arr{ "hello", "to", "the world" };
+	const std::string result = mclo::join_string( arr, " " );
 	CHECK( result == "hello to the world" );
 }
 
 TEMPLATE_TEST_CASE( "join_string container constexpr", "[string]", std::string_view, const char* )
 {
-	constexpr std::array<TestType, 3> arr{ "hello", " to ", "the world" };
-	constexpr auto result = mclo::join_string<mclo::string_buffer<32>>( arr );
+	constexpr std::array<TestType, 3> arr{ "hello", "to", "the world" };
+	constexpr auto result = mclo::join_string<mclo::string_buffer<32>>( arr, " " );
 	STATIC_CHECK( std::string_view( result ) == "hello to the world" );
 }
 
 TEST_CASE( "join_string char* iterators", "[string]" )
 {
-	const std::array<const char*, 3> arr{ "hello", " to ", "the world" };
-	const std::string result_out_buffer = mclo::join_string<std::string, 2>( arr.rbegin(), arr.rend() );
-	const std::string result_in_buffer = mclo::join_string<std::string, 6>( arr.rbegin(), arr.rend() );
+	const std::array<const char*, 3> arr{ "hello", "to", "the world" };
+	const std::string result_out_buffer = mclo::join_string( arr.rbegin(), arr.rend(), " " );
+	const std::string result_in_buffer = mclo::join_string( arr.rbegin(), arr.rend(), " " );
 
 	CHECK( result_out_buffer == "the world to hello" );
 	CHECK( result_in_buffer == result_out_buffer );
@@ -319,4 +313,11 @@ TEST_CASE( "string_hash string types same hash", "[string][hash]" )
 TEST_CASE( "string_hash_ignore_case", "[string][hash]" )
 {
 	CONSTEVAL_CHECK( mclo::string_hash_ignore_case( "hello" ) == mclo::string_hash_ignore_case( "Hello" ) );
+}
+
+TEST_CASE( "concatenate_string variadic", "[string]" )
+{
+	using namespace std::literals;
+	const std::string result = mclo::concat_string( "hello"s, " to "sv, "the world ", 52, ' ', 0.1 );
+	CHECK( result == "hello to the world 52 0.1" );
 }

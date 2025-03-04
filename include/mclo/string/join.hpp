@@ -1,140 +1,46 @@
 #pragma once
 
+#include "mclo/string/concatenate.hpp"
 #include "mclo/string/string_view_type.hpp"
 
-#include <string_view>
-#include <type_traits>
-#include <iterator>
 #include <concepts>
-#include <numeric>
-
-// todo(mc) rework join API, it should be joining with a delimiter
-// concatenating things should be separate
-// both should also handle things convertible to strings like numbers since we can convert in a small buffer to a string
+#include <iterator>
+#include <ranges>
+#include <type_traits>
 
 namespace mclo
 {
-	namespace detail
+	template <typename String = std::string, std::input_iterator It, std::sentinel_for<It> Sentinel>
+	[[nodiscard]] constexpr String join_string( It first, Sentinel last, const std::string_view delimter )
 	{
-		template <typename String, typename... Strings>
-		[[nodiscard]] constexpr String join_string_views( const Strings&... strings )
-		{
-			const std::size_t size = ( std::size( strings ) + ... );
-			String result;
-			result.reserve( size );
-			( result.append( std::data( strings ), std::size( strings ) ), ... );
-			return result;
-		}
+		String result;
 
-		template <typename String, typename It, typename StringLength>
-		[[nodiscard]] constexpr String reserve_string_for( It first, It last, StringLength string_length )
+		// Forward range of things directly convertible to string we can pre-size the result
+		if constexpr ( std::forward_iterator<It> && std::convertible_to<std::string_view, std::iter_reference_t<It>> )
 		{
-			String result;
-
-			using iterator_category = typename std::iterator_traits<It>::iterator_category;
-			if constexpr ( std::is_base_of_v<std::forward_iterator_tag, iterator_category> )
+			auto it = first;
+			using size_type = typename String::size_type;
+			size_type size = 0;
+			while ( it != last )
 			{
-				const std::size_t size = std::accumulate(
-					first, last, std::size_t( 0 ), [ &string_length ]( const std::size_t current, const auto& string ) {
-						return current + string_length( string );
-					} );
-
-				result.reserve( size );
+				size += std::string_view( *it++ ).size();
+				size += delimter.size();
 			}
-
-			return result;
 		}
 
-		template <typename String, typename It, typename StringLength>
-		[[nodiscard]] constexpr String join_string_iterators( It first, It last, StringLength string_length )
+		std::string_view delimiter_to_write;
+		while ( first != last )
 		{
-			using value_type = typename std::iterator_traits<It>::value_type;
-			using string_value_type = typename String::value_type;
-
-			String result = reserve_string_for<String>( first, last, string_length );
-			while ( first != last )
-			{
-				if constexpr ( std::is_same_v<value_type, string_value_type> )
-				{
-					result.push_back( *first++ );
-				}
-				else
-				{
-					result.append( *first++ );
-				}
-			}
-			return result;
+			result.append( delimiter_to_write );
+			append_string( result, *first++ );
+			delimiter_to_write = delimter;
 		}
-
-		template <typename String, typename It>
-		constexpr bool is_iterators_over_literals =
-			std::is_same_v<typename std::iterator_traits<It>::value_type, const string_char_t<String>*>;
-
-		inline constexpr std::size_t default_literal_size_buffer_max = 16;
+		return result;
 	}
 
-	template <typename String = std::string,
-			  std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
-			  typename It>
-		requires( detail::is_iterators_over_literals<String, It> )
-	[[nodiscard]] constexpr String join_string( It first, It last )
+	template <typename String = std::string, std::ranges::input_range Range>
+	[[nodiscard]] constexpr String join_string( Range&& range, const std::string_view delimter )
 	{
-		using string_value_type = typename String::value_type;
-		using traits_type = std::char_traits<string_value_type>;
-		using iterator_category = typename std::iterator_traits<It>::iterator_category;
-
-		if constexpr ( std::is_base_of_v<std::forward_iterator_tag, iterator_category> )
-		{
-			if ( std::distance( first, last ) > literal_size_buffer_max )
-			{
-				return detail::join_string_iterators<String>(
-					first, last, []( const auto& string ) { return traits_type::length( string ); } );
-			}
-
-			std::array<std::basic_string_view<string_value_type>, literal_size_buffer_max> sizes{};
-			auto sizes_it = sizes.begin();
-			while ( first != last )
-			{
-				*sizes_it++ = *first++;
-			}
-
-			return detail::join_string_iterators<String>(
-				sizes.begin(), sizes_it, []( const auto& string ) { return std::size( string ); } );
-		}
-		else
-		{
-			return detail::join_string_iterators<String>(
-				first, last, []( const auto& string ) { return traits_type::length( string ); } );
-		}
-	}
-
-	template <typename String = std::string, typename It>
-		requires( !detail::is_iterators_over_literals<String, It> )
-	[[nodiscard]] constexpr String join_string( It first, It last )
-	{
-		return detail::join_string_iterators<String>(
-			first, last, []( const auto& string ) { return std::size( string ); } );
-	}
-
-	template <typename String = std::string,
-			  std::size_t literal_size_buffer_max = detail::default_literal_size_buffer_max,
-			  typename Container>
-		requires( detail::is_iterators_over_literals<String, typename Container::const_iterator> )
-	[[nodiscard]] constexpr String join_string( const Container& strings )
-	{
-		return join_string<String, literal_size_buffer_max>( std::begin( strings ), std::end( strings ) );
-	}
-
-	template <typename String = std::string, typename Container>
-		requires( !detail::is_iterators_over_literals<String, typename Container::const_iterator> )
-	[[nodiscard]] constexpr String join_string( const Container& strings )
-	{
-		return join_string<String>( std::begin( strings ), std::end( strings ) );
-	}
-
-	template <typename String = std::string, typename... Strings>
-	[[nodiscard]] constexpr String join_string( const Strings&... strings )
-	{
-		return detail::join_string_views<String>( std::string_view( strings )... );
+		return join_string<String>( std::ranges::begin( range ), std::ranges::end( range ), delimter );
 	}
 }
