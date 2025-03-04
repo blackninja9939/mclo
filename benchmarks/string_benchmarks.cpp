@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 
-#include "mclo/string/string_utils.hpp"
+#include "mclo/string/compare_ignore_case.hpp"
 #include "mclo/string/string_builder.hpp"
 
 #include <random>

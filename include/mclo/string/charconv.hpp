@@ -3,7 +3,8 @@
 #include <array>
 #include <charconv>
 #include <optional>
-#include <string_view>>
+#include <ranges>
+#include <string_view>
 #include <utility>
 
 namespace mclo
@@ -37,19 +38,13 @@ namespace mclo
 		return {};
 	}
 
-	template <std::size_t BufferSize, typename T, typename... ToCharArgs>
-	[[nodiscard]] std::string_view to_string( std::array<char, BufferSize>& buffer,
-											  const T value,
-											  ToCharArgs&&... args ) noexcept
+	template <std::ranges::output_range<char> Range, typename T, typename... ToCharArgs>
+		requires( std::ranges::contiguous_range<Range> )
+	[[nodiscard]] std::string_view to_string( Range&& buffer, const T value, ToCharArgs&&... args ) noexcept
 	{
-		return to_string( buffer.data(), buffer.data() + BufferSize, value, std::forward<ToCharArgs>( args )... );
-	}
-
-	template <std::size_t BufferSize, typename T, typename... ToCharArgs>
-	[[nodiscard]] std::string_view to_string( char ( &buffer )[ BufferSize ],
-											  const T value,
-											  ToCharArgs&&... args ) noexcept
-	{
-		return to_string( std::begin( buffer ), std::end( buffer ), value, std::forward<ToCharArgs>( args )... );
+		return to_string( std::ranges::data( buffer ),
+						  std::ranges::data( buffer ) + std::ranges::size( buffer ),
+						  value,
+						  std::forward<ToCharArgs>( args )... );
 	}
 }

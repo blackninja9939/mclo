@@ -44,6 +44,13 @@ TEMPLATE_LIST_TEST_CASE( "to_string c-buffer", "[string]", integers )
 TEMPLATE_LIST_TEST_CASE( "to_string std::string", "[string]", integers )
 {
 	std::string buffer( 64, '\0' );
+	const std::string_view result = mclo::to_string( buffer, TestType( 42 ) );
+	CHECK( result == "42" );
+}
+
+TEMPLATE_LIST_TEST_CASE( "to_string pointers std::string", "[string]", integers )
+{
+	std::string buffer( 64, '\0' );
 	const std::string_view result = mclo::to_string( buffer.data(), buffer.data() + buffer.size(), TestType( 42 ) );
 	CHECK( result == "42" );
 }
