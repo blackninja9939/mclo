@@ -237,7 +237,7 @@ namespace mclo
 	{
 	}
 
-	void rapidhash::write( const std::span<const std::byte> data ) noexcept
+	void rapidhash::write( const mclo::span<const std::byte> data ) noexcept
 	{
 		const std::byte* p = data.data();
 		const std::size_t len = data.size();

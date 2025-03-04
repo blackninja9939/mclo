@@ -24,8 +24,8 @@ TEMPLATE_LIST_TEST_CASE( "Vector shared constructors", "[vector][math]", test_ty
 
 	static_assert( std::is_trivially_copyable_v<TestType> );
 	static_assert( std::is_trivially_destructible_v<TestType> );
-	static_assert( std::convertible_to<TestType, std::span<value_type, TestType::size()>> );
-	static_assert( std::convertible_to<const TestType, std::span<const value_type, TestType::size()>> );
+	static_assert( std::convertible_to<TestType, mclo::span<value_type, TestType::size()>> );
+	static_assert( std::convertible_to<const TestType, mclo::span<const value_type, TestType::size()>> );
 
 	SECTION( "Default constructor" )
 	{

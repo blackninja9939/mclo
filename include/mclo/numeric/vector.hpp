@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/container/span.hpp"
 #include "mclo/functional/bind.hpp"
 #include "mclo/utility/array.hpp"
 
@@ -7,7 +8,6 @@
 #include <cmath>
 #include <concepts>
 #include <functional>
-#include <span>
 
 namespace mclo
 {
@@ -31,7 +31,7 @@ namespace mclo
 		{
 		}
 
-		constexpr explicit vec_base( const std::span<const T, N> values ) noexcept
+		constexpr explicit vec_base( const mclo::span<const T, N> values ) noexcept
 			: m_data{ to_array( values ) }
 		{
 		}
@@ -60,13 +60,13 @@ namespace mclo
 			return N;
 		}
 
-		[[nodiscard]] constexpr operator std::span<T, N>() noexcept
+		[[nodiscard]] constexpr operator mclo::span<T, N>() noexcept
 		{
-			return std::span( m_data );
+			return mclo::span( m_data );
 		}
-		[[nodiscard]] constexpr operator std::span<const T, N>() const noexcept
+		[[nodiscard]] constexpr operator mclo::span<const T, N>() const noexcept
 		{
-			return std::span( m_data );
+			return mclo::span( m_data );
 		}
 
 		// Generic element-wise operations

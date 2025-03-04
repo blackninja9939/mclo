@@ -1,7 +1,8 @@
 #pragma once
 
+#include "mclo/container/span.hpp"
+
 #include <cstddef>
-#include <span>
 
 namespace mclo
 {
@@ -11,7 +12,7 @@ namespace mclo
 		static inline constexpr std::size_t prime = 14695981039346656037ull;
 
 	public:
-		void write( const std::span<const std::byte> data ) noexcept
+		void write( const mclo::span<const std::byte> data ) noexcept
 		{
 			for ( const std::byte byte : data )
 			{

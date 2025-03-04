@@ -13,7 +13,7 @@ namespace mclo
 	{
 		if constexpr ( std::ranges::contiguous_range<Range> && enable_bitwise_hash<std::ranges::range_value_t<Range>> )
 		{
-			hasher.write( std::as_bytes( std::span( std::forward<Range>( range ) ) ) );
+			hasher.write( mclo::as_bytes( mclo::span( std::forward<Range>( range ) ) ) );
 		}
 		else
 		{

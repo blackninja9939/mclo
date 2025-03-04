@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/container/span.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/hash/hash_append_range.hpp"
 #include "mclo/numeric/math.hpp"
@@ -12,7 +13,6 @@
 #include <iosfwd>
 #include <iterator>
 #include <ranges>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -400,14 +400,14 @@ namespace mclo::detail
 		/// @return Const span of the container
 		[[nodiscard]] constexpr auto underlying() const noexcept
 		{
-			return std::span( m_container );
+			return mclo::span( m_container );
 		}
 
 		/// @brief Get a mutable span over the underlying container
 		/// @return Mutable span of the container
 		[[nodiscard]] constexpr auto underlying() noexcept
 		{
-			return std::span( m_container );
+			return mclo::span( m_container );
 		}
 
 		/// @brief Check that all set bits in other are the same as this

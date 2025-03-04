@@ -3,12 +3,12 @@
 #include <catch2/matchers/catch_matchers_all.hpp>
 
 #include "mclo/container/small_vector.hpp"
+#include "mclo/container/span.hpp"
 #include "mclo/container/static_vector.hpp"
 
 #include "assert_macros.hpp"
 
 #include <array>
-#include <span>
 
 using namespace Catch::Matchers;
 
@@ -65,10 +65,10 @@ static_assert( std::is_convertible_v<mclo::small_vector<int, 40>&, const mclo::s
 static_assert( std::is_convertible_v<const mclo::small_vector<int, 40>&, const mclo::small_vector_base<int>&> );
 static_assert( !std::is_convertible_v<const mclo::small_vector<int, 40>&, mclo::small_vector_base<int>&> );
 
-static_assert( std::is_convertible_v<mclo::small_vector<int, 40>&, std::span<int>> );
-static_assert( std::is_convertible_v<mclo::small_vector<int, 40>&, std::span<const int>> );
-static_assert( std::is_convertible_v<const mclo::small_vector<int, 40>&, std::span<const int>> );
-static_assert( !std::is_convertible_v<const mclo::small_vector<int, 40>&, std::span<int>> );
+static_assert( std::is_convertible_v<mclo::small_vector<int, 40>&, mclo::span<int>> );
+static_assert( std::is_convertible_v<mclo::small_vector<int, 40>&, mclo::span<const int>> );
+static_assert( std::is_convertible_v<const mclo::small_vector<int, 40>&, mclo::span<const int>> );
+static_assert( !std::is_convertible_v<const mclo::small_vector<int, 40>&, mclo::span<int>> );
 
 TEST_CASE( "SmallVector_DefaultConstructed_IsEmpty", "[small_vector]" )
 {
@@ -857,7 +857,7 @@ TEST_CASE( "SmallVector_SpanConversion_IsSuccess", "[small_vector]" )
 {
 	const mclo::small_vector<int, 4> vec{ 1, 2, 3, 4 };
 
-	const std::span sp = vec;
+	const mclo::span sp = vec;
 
 	CHECK_THAT( sp, RangeEquals( vec ) );
 }

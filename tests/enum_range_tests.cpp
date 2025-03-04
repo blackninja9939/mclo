@@ -1,11 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
+#include "mclo/container/span.hpp"
 #include "mclo/enum/enum_range.hpp"
 
 #include <array>
 #include <ranges>
-#include <span>
 
 using namespace Catch::Matchers;
 
@@ -70,13 +70,13 @@ TEST_CASE( "enum_range over entire range", "[enum_range]" )
 TEST_CASE( "enum_range over inclusive pair", "[enum_range]" )
 {
 	const mclo::enum_range range( test_enum::second, test_enum::fourth );
-	CHECK_THAT( range, UnorderedRangeEquals( std::span( ALL_VALUES ).subspan<1, 3>() ) );
+	CHECK_THAT( range, UnorderedRangeEquals( mclo::span( ALL_VALUES ).subspan<1, 3>() ) );
 }
 
 TEST_CASE( "enum_range over exclusive range", "[enum_range]" )
 {
 	const mclo::enum_range range( mclo::exclusive_enum_range, test_enum::second, test_enum::fourth );
-	CHECK_THAT( range, UnorderedRangeEquals( std::span( ALL_VALUES ).subspan<1, 2>() ) );
+	CHECK_THAT( range, UnorderedRangeEquals( mclo::span( ALL_VALUES ).subspan<1, 2>() ) );
 }
 
 TEST_CASE( "enum_range over empty range", "[enum_range]" )

@@ -14,13 +14,13 @@ namespace mclo
 	template <mclo::hasher Hasher, typename CharT, typename Traits, typename Alloc>
 	void hash_append( Hasher& hasher, const std::basic_string<CharT, Traits, Alloc>& value ) noexcept
 	{
-		hasher.write( std::as_bytes( std::span( value.data(), value.size() ) ) );
+		hasher.write( mclo::as_bytes( mclo::span( value.data(), value.size() ) ) );
 	}
 
 	template <mclo::hasher Hasher, typename CharT, typename Traits>
 	void hash_append( Hasher& hasher, const std::basic_string_view<CharT, Traits> value ) noexcept
 	{
-		hasher.write( std::as_bytes( std::span( value.data(), value.size() ) ) );
+		hasher.write( mclo::as_bytes( mclo::span( value.data(), value.size() ) ) );
 	}
 
 	template <mclo::hasher Hasher, mclo::hashable_with<Hasher> T>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/container/arrow_proxy.hpp"
+#include "mclo/container/span.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
 #include "mclo/utility/array.hpp"
@@ -9,7 +10,6 @@
 #include <compare>
 #include <iterator>
 #include <ranges>
-#include <span>
 #include <type_traits>
 #include <utility>
 
@@ -203,7 +203,8 @@ namespace mclo
 
 		template <typename... Ts>
 			requires( max_size > 1 && sizeof...( Ts ) == max_size )
-		constexpr enum_map( sorted_unique_t, Ts&&... values ) noexcept( std::is_nothrow_move_constructible_v<value_type> )
+		constexpr enum_map( sorted_unique_t,
+							Ts&&... values ) noexcept( std::is_nothrow_move_constructible_v<value_type> )
 			: m_container{ std::forward<Ts>( values )... }
 		{
 		}
@@ -262,12 +263,12 @@ namespace mclo
 
 		[[nodiscard]] constexpr auto operator<=>( const enum_map& other ) const = default;
 
-		[[nodiscard]] constexpr std::span<value_type, max_size> as_span() noexcept
+		[[nodiscard]] constexpr mclo::span<value_type, max_size> as_span() noexcept
 		{
 			return m_container;
 		}
 
-		[[nodiscard]] constexpr std::span<const value_type, max_size> as_span() const noexcept
+		[[nodiscard]] constexpr mclo::span<const value_type, max_size> as_span() const noexcept
 		{
 			return m_container;
 		}

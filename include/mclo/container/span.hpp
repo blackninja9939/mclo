@@ -66,7 +66,7 @@ namespace mclo
 			&&  std::ranges::sized_range<Range>
 			&& ( std::is_const_v<T> || std::ranges::borrowed_range<Range> )
 			&& (!banned_span_conversion<std::remove_cvref_t<Range>> )
-			&& valid_pointer_conversion<std::ranges::range_reference_t<Range>, T>;
+			&& valid_pointer_conversion<std::remove_reference_t<std::ranges::range_reference_t<Range>>, T>;
 		// clang-format on
 	}
 
@@ -322,17 +322,17 @@ namespace mclo
 	span( Range&& ) -> span<std::remove_reference_t<std::ranges::range_reference_t<Range>>>;
 
 	template <typename T, std::size_t N>
-	span<const std::byte, N == dynamic_extent ? dynamic_extent : N * sizeof( T )> as_bytes(
-		const span<T, N> s ) noexcept
+	auto as_bytes( const span<T, N> s ) noexcept
 	{
-		return { reinterpret_cast<const std::byte*>( s.data() ), s.size_bytes() };
+		using return_type = span<const std::byte, N == dynamic_extent ? dynamic_extent : N * sizeof( T )>;
+		return return_type{ reinterpret_cast<const std::byte*>( s.data() ), s.size_bytes() };
 	}
 
 	template <typename T, std::size_t N>
-	span<std::byte, N == dynamic_extent ? dynamic_extent : N * sizeof( T )> as_writable_bytes(
-		const span<T, N> s ) noexcept
+	auto as_writable_bytes( const span<T, N> s ) noexcept
 	{
-		return { reinterpret_cast<std::byte*>( s.data() ), s.size_bytes() };
+		using return_type = span<std::byte, N == dynamic_extent ? dynamic_extent : N * sizeof( T )>;
+		return return_type{ reinterpret_cast<std::byte*>( s.data() ), s.size_bytes() };
 	}
 }
 

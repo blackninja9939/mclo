@@ -1,8 +1,9 @@
 #pragma once
 
+#include "mclo/container/span.hpp"
+
 #include <algorithm>
 #include <array>
-#include <span>
 #include <type_traits>
 
 namespace mclo
@@ -57,7 +58,7 @@ namespace mclo
 	{
 		template <typename T, std::size_t size, std::size_t... indices>
 		[[nodiscard]] constexpr std::array<T, size> to_array_internal(
-			const std::span<const T, size> data,
+			const mclo::span<const T, size> data,
 			std::index_sequence<indices...> ) noexcept( std::is_nothrow_copy_constructible_v<T> )
 		{
 			return { ( data[ indices ] )... };
@@ -65,7 +66,7 @@ namespace mclo
 	}
 
 	template <typename T, std::size_t size>
-	[[nodiscard]] constexpr std::array<T, size> to_array( const std::span<const T, size> data ) noexcept(
+	[[nodiscard]] constexpr std::array<T, size> to_array( const mclo::span<const T, size> data ) noexcept(
 		std::is_nothrow_copy_constructible_v<T> )
 	{
 		return detail::to_array_internal( data, std::make_index_sequence<size>{} );
