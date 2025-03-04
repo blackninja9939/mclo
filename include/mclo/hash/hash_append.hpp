@@ -12,7 +12,7 @@ namespace mclo
 
 	template <mclo::hasher Hasher, typename T>
 		requires( enable_bitwise_hash<T> )
-	void hash_append( Hasher& hasher, const T value ) noexcept
+	void hash_append( Hasher& hasher, const T& value ) noexcept
 	{
 		hasher.write( { reinterpret_cast<const std::byte*>( &value ), sizeof( T ) } );
 	}
