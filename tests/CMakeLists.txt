@@ -32,7 +32,6 @@ add_executable( tests
 	"mutex_tests.cpp"
 	"sem_version_tests.cpp"
 	"try_tests.cpp"
-	"string_builder_tests.cpp"
 	"not_null_tests.cpp"
 	"intrusive_ptr_tests.cpp"
 	"numeric_vector_tests.cpp"

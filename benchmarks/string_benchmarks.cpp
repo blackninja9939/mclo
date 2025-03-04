@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 
 #include "mclo/string/compare_ignore_case.hpp"
-#include "mclo/string/string_builder.hpp"
+#include "mclo/string/concatenate.hpp"
 
 #include <random>
 #include <string>
@@ -147,20 +147,16 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 	}
 	BENCHMARK( BM_ConcatStringOperatorPlusEquals );
 
-	void BM_ConcatStringBuilder( benchmark::State& state )
+	void BM_ConcatStringConcat( benchmark::State& state )
 	{
 		for ( auto _ : state )
 		{
-			mclo::string_builder builder( 32 );
-			auto ptr = builder.c_str();
+			std::string str;
+			auto ptr = str.data();
 			benchmark::DoNotOptimize( ptr );
-			builder.append( "hello world I am a" );
-			builder.append( "pretty big string" );
-			builder.append( 42 );
-			builder.append("got nums");
-			builder.append("and stuff");
+			mclo::append_string( str, "hello world I am a", "pretty big string", 42, "got nums", "and stuff" );
 			benchmark::ClobberMemory();
 		}
 	}
-	BENCHMARK( BM_ConcatStringBuilder );
+	BENCHMARK( BM_ConcatStringConcat );
 }
