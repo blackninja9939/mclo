@@ -7,10 +7,9 @@
 #include "mclo/string/charconv.hpp"
 #include "mclo/string/compare_ignore_case.hpp"
 #include "mclo/string/join.hpp"
+#include "mclo/string/replace.hpp"
 #include "mclo/string/string_buffer.hpp"
-#include "mclo/string/string_utils.hpp"
 #include "mclo/string/trim.hpp"
-// todo(mc) split up these test files
 
 #include <array>
 #include <iterator>

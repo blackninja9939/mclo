@@ -9,7 +9,6 @@ add_library( ${LIBRARY_TARGET_NAME}
     "string/ascii_string_utils.cpp"
     "string/ascii_string_simd.hpp"
     "string/ascii_string_simd.cpp"
-    "string/string_utils.cpp"
     "string/compare_ignore_case.cpp"
     "hash/murmur_hash_3.cpp"
     "hash/rapidhash.cpp"
