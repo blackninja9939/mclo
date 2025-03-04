@@ -1,4 +1,4 @@
-#include "mclo/string/detail/ascii_string_simd.hpp"
+#include "ascii_string_simd.hpp"
 
 namespace
 {

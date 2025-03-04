@@ -11,6 +11,8 @@
 
 namespace mclo
 {
+	// todo(mc) this API lacks the ability to take variadics which is a bit annoying, additionally it cannot resize in one go by such variadic
+	// probably best to nuke this and make a join_string overload that takes views, chars, bools and numbers and converts to a buffer + resizes in one go
 	template <typename Buffer>
 	class string_builder_base
 	{

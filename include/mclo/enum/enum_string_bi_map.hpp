@@ -3,7 +3,8 @@
 #include "mclo/enum/enum_map.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
-#include "mclo/string/string_utils.hpp"
+// #include "mclo/string/string_utils.hpp"
+#include "mclo/string/hash.hpp"
 
 #include <algorithm>
 #include <array>

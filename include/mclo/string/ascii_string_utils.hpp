@@ -63,18 +63,16 @@ namespace mclo
 	namespace detail
 	{
 		template <typename It>
-		concept is_char_it = std::is_same_v<char, typename std::iterator_traits<It>::value_type>;
+		concept char_iterator = std::convertible_to<std::iter_reference_t<It>, char&>;
 
-		template <typename T>
-		using has_value_type = typename T::value_type;
-
-		template <typename Container>
-		concept is_char_container = std::is_same_v<char, typename Container::value_type>;
+		template <typename Range>
+		concept char_range =
+			std::ranges::input_range<Range> && std::convertible_to<std::ranges::range_reference_t<Range>, char&>;
 
 		void to_upper_simd( char* first, char* const last ) noexcept;
 		void to_lower_simd( char* first, char* const last ) noexcept;
 
-		template <is_char_it It>
+		template <char_iterator It>
 		constexpr void to_upper_scalar( It first, It last ) noexcept
 		{
 			while ( first != last )
@@ -84,7 +82,7 @@ namespace mclo
 			}
 		}
 
-		template <is_char_it It>
+		template <char_iterator It>
 		constexpr void to_lower_scalar( It first, It last ) noexcept
 		{
 			while ( first != last )
@@ -95,7 +93,7 @@ namespace mclo
 		}
 	}
 
-	template <detail::is_char_it It>
+	template <detail::char_iterator It>
 	constexpr void to_upper( It first, It last ) noexcept
 	{
 		if ( std::is_constant_evaluated() )
@@ -108,7 +106,7 @@ namespace mclo
 		}
 	}
 
-	template <detail::is_char_it It>
+	template <detail::char_iterator It>
 	constexpr void to_lower( It first, It last ) noexcept
 	{
 		if ( std::is_constant_evaluated() )
@@ -121,13 +119,13 @@ namespace mclo
 		}
 	}
 
-	template <detail::is_char_container Container>
+	template <detail::char_range Container>
 	constexpr void to_upper( Container& string ) noexcept
 	{
 		to_upper( std::begin( string ), std::end( string ) );
 	}
 
-	template <detail::is_char_container Container>
+	template <detail::char_range Container>
 	constexpr void to_lower( Container& string ) noexcept
 	{
 		to_lower( std::begin( string ), std::end( string ) );

@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 
 #include "mclo/string/string_utils.hpp"
+#include "mclo/string/string_builder.hpp"
 
 #include <random>
 #include <string>
@@ -63,7 +64,8 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
-			benchmark::DoNotOptimize( string.data() );
+			auto ptr = string.data();
+			benchmark::DoNotOptimize( ptr );
 			mclo::detail::to_upper_scalar( string.data(), string.data() + string.size() );
 			benchmark::ClobberMemory();
 		}
@@ -76,7 +78,8 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
-			benchmark::DoNotOptimize( string.data() );
+			auto ptr = string.data();
+			benchmark::DoNotOptimize( ptr );
 			mclo::detail::to_upper_simd( string.data(), string.data() + string.size() );
 			benchmark::ClobberMemory();
 		}
@@ -89,7 +92,8 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
-			benchmark::DoNotOptimize( string.data() );
+			auto ptr = string.data();
+			benchmark::DoNotOptimize( ptr );
 			mclo::detail::to_lower_scalar( string.data(), string.data() + string.size() );
 			benchmark::ClobberMemory();
 		}
@@ -102,10 +106,61 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
-			benchmark::DoNotOptimize( string.data() );
+			auto ptr = string.data();
+			benchmark::DoNotOptimize( ptr );
 			mclo::detail::to_lower_simd( string.data(), string.data() + string.size() );
 			benchmark::ClobberMemory();
 		}
 	}
 	BENCHMARK( BM_ToLowerSimd );
+
+	void BM_ConcatStringOperatorPlus( benchmark::State& state )
+	{
+		for ( auto _ : state )
+		{
+			std::string string;
+			string.reserve( 32 );
+			auto ptr = string.data();
+			benchmark::DoNotOptimize( ptr );
+			string = std::string( "hello world I am a" ) + "pretty big string" + std::to_string( 42 ) + "got nums" +
+					 "and stuff";
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ConcatStringOperatorPlus );
+
+	void BM_ConcatStringOperatorPlusEquals( benchmark::State& state )
+	{
+		for ( auto _ : state )
+		{
+			std::string string;
+			string.reserve( 32 );
+			auto ptr = string.data();
+			benchmark::DoNotOptimize( ptr );
+			string += "hello world I am a";
+			string += "pretty big string";
+			string += std::to_string( 42 );
+			string += "got nums";
+			string += "and stuff";
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ConcatStringOperatorPlusEquals );
+
+	void BM_ConcatStringBuilder( benchmark::State& state )
+	{
+		for ( auto _ : state )
+		{
+			mclo::string_builder builder( 32 );
+			auto ptr = builder.c_str();
+			benchmark::DoNotOptimize( ptr );
+			builder.append( "hello world I am a" );
+			builder.append( "pretty big string" );
+			builder.append( 42 );
+			builder.append("got nums");
+			builder.append("and stuff");
+			benchmark::ClobberMemory();
+		}
+	}
+	BENCHMARK( BM_ConcatStringBuilder );
 }

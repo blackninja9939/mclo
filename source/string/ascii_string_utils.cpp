@@ -1,7 +1,8 @@
 #include "mclo/string/ascii_string_utils.hpp"
 
+#include "ascii_string_simd.hpp"
+
 #include "mclo/numeric/math.hpp"
-#include "mclo/string/detail/ascii_string_simd.hpp"
 
 namespace mclo::detail
 {

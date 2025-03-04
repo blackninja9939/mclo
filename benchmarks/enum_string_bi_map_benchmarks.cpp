@@ -2,6 +2,7 @@
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_string_bi_map.hpp"
+#include "mclo/hash/constexpr_hash.hpp"
 
 #include <charconv>
 #include <memory>
