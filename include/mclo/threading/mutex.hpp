@@ -17,7 +17,7 @@ namespace mclo
 		mutex& operator=( const mutex& ) = delete;
 
 		_Acquires_lock_( m_buffer ) void lock();
-		_When_( return != 0, _Acquires_exclusive_lock_( m_buffer ) ) [[nodiscard]] bool try_lock();
+		_When_( return != 0, _Acquires_lock_( m_buffer ) ) [[nodiscard]] bool try_lock();
 		_Releases_lock_( m_buffer ) void unlock();
 
 	private:

@@ -15,7 +15,7 @@ namespace mclo
 		AcquireSRWLockExclusive( CAST_LOCK );
 	}
 
-	_When_( return != 0, _Acquires_exclusive_lock_( m_buffer ) ) bool mutex::try_lock()
+	_When_( return != 0, _Acquires_lock_( m_buffer ) ) bool mutex::try_lock()
 	{
 		return TryAcquireSRWLockExclusive( CAST_LOCK ) != 0;
 	}
