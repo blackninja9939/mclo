@@ -2,11 +2,6 @@
 
 #include "mclo/threading/mutex.hpp"
 
-namespace
-{
-	constexpr std::chrono::milliseconds test_delay( 50 );
-}
-
 TEST_CASE( "mutex lock", "[mutex]" )
 {
 	mclo::mutex mutex;
