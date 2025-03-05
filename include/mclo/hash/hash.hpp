@@ -12,8 +12,7 @@ namespace mclo
 		requires( hashable_with<T, Hasher> )
 	struct hash
 	{
-		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR std::size_t operator()( const T& value )
-			MCLO_CONST_CALL_OPERATOR noexcept
+		[[nodiscard]] std::size_t operator()( const T& value ) const noexcept
 		{
 			Hasher local = m_hasher;
 			hash_append( local, value );
