@@ -6,6 +6,7 @@
 #include "mclo/hash/hash.hpp"
 #include "mclo/numeric/128_bit_integer.hpp"
 #include "mclo/numeric/math.hpp"
+#include "mclo/numeric/pow2.hpp"
 #include "mclo/preprocessor/platform.hpp"
 
 #include <algorithm>
@@ -1154,7 +1155,6 @@ namespace mclo
 		MCLO_NO_UNIQUE_ADDRESS key_equal m_key_eq{};
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator{};
 	};
-
 
 	template <typename Key,
 			  typename Value,

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/hash/hash.hpp"
-#include "mclo/numeric/math.hpp"
+#include "mclo/numeric/pow2.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
 #include <compare>

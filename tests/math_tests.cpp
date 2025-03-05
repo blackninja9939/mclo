@@ -1,6 +1,9 @@
 #include "consteval_check.hpp"
 
+#include "mclo/numeric/log2.hpp"
 #include "mclo/numeric/math.hpp"
+#include "mclo/numeric/pow10.hpp"
+#include "mclo/numeric/pow2.hpp"
 
 TEST_CASE( "ceil_divide", "[math]" )
 {
