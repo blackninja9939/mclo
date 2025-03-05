@@ -17,7 +17,8 @@ TEST_CASE( "mutex lock", "[mutex]" )
 TEST_CASE( "mutex try_lock", "[mutex]" )
 {
 	mclo::mutex mutex;
-	CHECK( mutex.try_lock() );
+	const bool result = mutex.try_lock();
+	CHECK( result );
 	mutex.unlock();
 }
 
