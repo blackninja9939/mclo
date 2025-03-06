@@ -17,7 +17,7 @@ add_executable( tests
 	"hash_tests.cpp"
 	"tagged_ptr_tests.cpp"
 	"small_optional_tests.cpp"
-	"string_table_tests.cpp"
+	"string_flyweight_tests.cpp"
 	"math_tests.cpp"
 	"slot_map_tests.cpp"
 	"enum_map_tests.cpp"
