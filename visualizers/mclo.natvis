@@ -241,4 +241,26 @@
 			<ExpandedItem>m_data</ExpandedItem>
 		</Expand>
 	</Type>
+  
+  <Type Name="mclo::not_null&lt;*&gt;">
+    <DisplayString>{*m_ptr}</DisplayString>
+    <Expand>
+      <ExpandedItem>m_ptr</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="mclo::string_flyweight&lt;*&gt;">
+    <Intrinsic Name="header" Expression="m_handle.m_string.m_ptr"/>
+    <Intrinsic Name="string" Expression="(char*)header() + sizeof(void*)"/>
+    <Intrinsic Name="size" Expression="header()->m_size"/>
+    <DisplayString>{string(),[size()]s}</DisplayString>
+    <StringView>string(),[size()]s</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size()</Item>
+      <ArrayItems>
+        <Size>size()</Size>
+        <ValuePointer>string()</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
 </AutoVisualizer>
