@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mclo/memory/not_null.hpp"
+
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -12,66 +14,91 @@ namespace mclo
 {
 	namespace detail
 	{
-		struct string_header
+		struct immutable_string_header
 		{
-			constexpr explicit string_header( const std::size_t size ) noexcept
+			constexpr explicit immutable_string_header( const std::size_t size ) noexcept
 				: m_size( size )
 			{
 			}
 
 			std::size_t m_size = 0;
 
-			[[nodiscard]] std::string_view string() const noexcept
+			[[nodiscard]] std::string_view view() const noexcept
 			{
-				return { reinterpret_cast<const char*>( this ) + sizeof( string_header ), m_size };
+				return { reinterpret_cast<const char*>( this ) + sizeof( immutable_string_header ), m_size };
 			}
 		};
 
-		struct string_deleter
+		class immutable_string_view
 		{
-			void operator()( const string_header* const ptr ) const noexcept
+			// Avoids branching in view() allowing us to keep this as a not_null
+			static constexpr immutable_string_header empty_header{ 0 };
+
+		public:
+			constexpr immutable_string_view() noexcept
+				: immutable_string_view( &empty_header )
 			{
-				static_assert( std::is_trivially_destructible_v<string_header> );
-				static_assert( std::is_trivially_destructible_v<char> );
-				::operator delete( const_cast<void*>( static_cast<const void*>( ptr ) ),
-								   std::align_val_t{ alignof( string_header ) } );
 			}
+
+			constexpr explicit immutable_string_view( mclo::not_null<const immutable_string_header*> str ) noexcept
+				: m_string( str )
+			{
+			}
+
+			[[nodiscard]] std::string_view view() const noexcept
+			{
+				return m_string->view();
+			}
+
+			[[nodiscard]] constexpr auto operator<=>( const immutable_string_view& other ) const noexcept = default;
+
+		private:
+			mclo::not_null<const immutable_string_header*> m_string;
 		};
 
-		using fixed_heap_string = std::unique_ptr<const string_header, string_deleter>;
-
-		[[nodiscard]] static fixed_heap_string make_fixed_heap_string( const std::string_view str )
+		class immutable_string
 		{
-			void* ptr =
-				::operator new( str.size() + sizeof( string_header ), std::align_val_t{ alignof( string_header ) } );
-			const string_header* const hdr = std::construct_at( static_cast<string_header*>( ptr ), str.size() );
-			std::memcpy( static_cast<char*>( ptr ) + sizeof( string_header ), str.data(), str.size() );
-			return fixed_heap_string( hdr );
-		}
+		public:
+			explicit immutable_string( const std::string_view str )
+			{
+				void* const ptr = ::operator new( str.size() + sizeof( immutable_string_header ),
+												  std::align_val_t{ alignof( immutable_string_header ) } );
+				static_assert( std::is_nothrow_constructible_v<immutable_string_header, std::string_view::size_type> );
+				const immutable_string_header* const hdr =
+					std::construct_at( static_cast<immutable_string_header*>( ptr ), str.size() );
+				std::memcpy( static_cast<char*>( ptr ) + sizeof( immutable_string_header ), str.data(), str.size() );
+				m_string.reset( hdr );
+			}
+
+			[[nodiscard]] operator immutable_string_view() const noexcept
+			{
+				return immutable_string_view( m_string.get() );
+			}
+
+			[[nodiscard]] std::string_view view() const noexcept
+			{
+				return m_string->view();
+			}
+
+		private:
+			struct deleter
+			{
+				void operator()( const immutable_string_header* const ptr ) const noexcept
+				{
+					// No destructor calls required, just directly delete
+					static_assert( std::is_trivially_destructible_v<immutable_string_header> );
+					static_assert( std::is_trivially_destructible_v<char> );
+					::operator delete( const_cast<void*>( static_cast<const void*>( ptr ) ),
+									   std::align_val_t{ alignof( immutable_string_header ) } );
+				}
+			};
+			std::unique_ptr<const immutable_string_header, deleter> m_string;
+		};
 
 		class string_flyweight_factory
 		{
-			// Avoids branching in get
-			static constexpr string_header null_header{ 0 };
-
 		public:
-			class handle
-			{
-			public:
-				friend string_flyweight_factory;
-
-				constexpr handle() noexcept = default;
-
-				[[nodiscard]] constexpr auto operator<=>( const handle& other ) const noexcept = default;
-
-			private:
-				constexpr handle( const string_header* ptr ) noexcept
-					: m_ptr( ptr )
-				{
-				}
-
-				const string_header* m_ptr = &null_header;
-			};
+			using handle = immutable_string_view;
 
 			handle insert( const std::string_view str )
 			{
@@ -85,29 +112,29 @@ namespace mclo
 					const auto it = m_strings.find( str );
 					if ( it != m_strings.end() )
 					{
-						return handle{ it->get() };
+						return handle{ *it };
 					}
 				}
 
-				auto owned = make_fixed_heap_string( str );
+				immutable_string owned( str );
 
 				const std::scoped_lock lock( m_mutex );
 
-				return handle{ m_strings.insert( std::move( owned ) ).first->get() };
+				return handle{ *m_strings.insert( std::move( owned ) ).first };
 			}
 
 			[[nodiscard]] static std::string_view get( const handle hdl ) noexcept
 			{
-				return hdl.m_ptr->string();
+				return hdl.view();
 			}
 
 		private:
 			struct hasher
 			{
 				using is_transparent = void;
-				[[nodiscard]] std::size_t operator()( const fixed_heap_string& hdr ) const noexcept
+				[[nodiscard]] std::size_t operator()( const immutable_string& hdr ) const noexcept
 				{
-					return operator()( hdr->string() );
+					return operator()( hdr.view() );
 				}
 				[[nodiscard]] std::size_t operator()( const std::string_view str ) const noexcept
 				{
@@ -117,20 +144,20 @@ namespace mclo
 			struct equal_to
 			{
 				using is_transparent = void;
-				[[nodiscard]] std::size_t operator()( const fixed_heap_string& lhs,
-													  const fixed_heap_string& rhs ) const noexcept
+				[[nodiscard]] std::size_t operator()( const immutable_string& lhs,
+													  const immutable_string& rhs ) const noexcept
 				{
-					return operator()( lhs->string(), rhs->string() );
+					return operator()( lhs.view(), rhs.view() );
 				}
-				[[nodiscard]] std::size_t operator()( const fixed_heap_string& lhs,
+				[[nodiscard]] std::size_t operator()( const immutable_string& lhs,
 													  const std::string_view rhs ) const noexcept
 				{
-					return operator()( lhs->string(), rhs );
+					return operator()( lhs.view(), rhs );
 				}
 				[[nodiscard]] std::size_t operator()( const std::string_view lhs,
-													  const fixed_heap_string& rhs ) const noexcept
+													  const immutable_string& rhs ) const noexcept
 				{
-					return operator()( lhs, rhs->string() );
+					return operator()( lhs, rhs.view() );
 				}
 				[[nodiscard]] std::size_t operator()( const std::string_view lhs,
 													  const std::string_view rhs ) const noexcept
@@ -140,7 +167,7 @@ namespace mclo
 			};
 
 			mutable std::shared_mutex m_mutex;
-			std::unordered_set<fixed_heap_string, hasher, equal_to> m_strings;
+			std::unordered_set<immutable_string, hasher, equal_to> m_strings;
 		};
 	}
 
@@ -180,6 +207,6 @@ namespace mclo
 			return instance;
 		}
 
-		detail::string_flyweight_factory::handle m_handle{};
+		detail::string_flyweight_factory::handle m_handle;
 	};
 }
