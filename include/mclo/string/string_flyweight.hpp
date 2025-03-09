@@ -14,6 +14,12 @@ namespace mclo
 {
 	namespace detail
 	{
+		/*
+		* We want to provide a stable address, a single allocation, and know the size and char* from it
+		* As such we use combine the allocation of a fixed size and align header, with a flexible size of chars
+		* This is effectively C's flexible array members but well done manually cause C++ does not have that feature
+		* Layout is: m_size, char0, char1, ..., char m_size - 1
+		*/
 		struct immutable_string_header
 		{
 			constexpr explicit immutable_string_header( const std::size_t size ) noexcept
