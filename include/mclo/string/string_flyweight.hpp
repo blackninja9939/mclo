@@ -58,6 +58,17 @@ namespace mclo
 
 			[[nodiscard]] constexpr auto operator<=>( const immutable_string_view& other ) const noexcept = default;
 
+			void swap( immutable_string_view& other ) noexcept
+			{
+				using std::swap;
+				swap( m_string, other.m_string );
+			}
+
+			friend void swap( immutable_string_view& lhs, immutable_string_view& rhs ) noexcept
+			{
+				lhs.swap( rhs );
+			}
+
 		private:
 			mclo::not_null<const immutable_string_header*> m_string;
 		};
@@ -84,6 +95,17 @@ namespace mclo
 			[[nodiscard]] std::string_view view() const noexcept
 			{
 				return m_string->view();
+			}
+
+			void swap( immutable_string& other ) noexcept
+			{
+				using std::swap;
+				swap( m_string, other.m_string );
+			}
+
+			friend void swap( immutable_string& lhs, immutable_string& rhs ) noexcept
+			{
+				lhs.swap( rhs );
 			}
 
 		private:
@@ -205,6 +227,17 @@ namespace mclo
 		}
 
 		[[nodiscard]] constexpr auto operator<=>( const string_flyweight& other ) const noexcept = default;
+
+		void swap( string_flyweight& other ) noexcept
+		{
+			using std::swap;
+			swap( m_handle, other.m_handle );
+		}
+
+		friend void swap( string_flyweight& lhs, string_flyweight& rhs ) noexcept
+		{
+			lhs.swap( rhs );
+		}
 
 	private:
 		static detail::string_flyweight_factory& factory() noexcept
