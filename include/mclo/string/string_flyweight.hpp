@@ -199,6 +199,13 @@ namespace mclo
 		};
 	}
 
+	/// @brief A flyweight string that stores a single copy of each unique string in a shared pool.
+	/// @details This class is useful when you have a large number of strings that are mostly the same, and you want to
+	/// reduce memory usage by only allocating a single copy of each unique string. This class is thread-safe using a
+	/// shared mutex for insertion. Reading the string requires no locking as its a unique allocation, it is a single
+	/// pointer dereference.
+	/// @tparam Domain The domain of the flyweight, used to separate different shared string pools. Different domains
+	/// have different mutexes so will not block each other.
 	template <typename Domain = void>
 	class string_flyweight
 	{
