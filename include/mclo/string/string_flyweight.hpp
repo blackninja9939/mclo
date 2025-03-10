@@ -210,6 +210,8 @@ namespace mclo
 	/// pointer dereference.
 	/// @tparam Domain The domain of the flyweight, used to separate different shared string pools. Different domains
 	/// have different mutexes so will not block each other.
+	/// @tparam CharT The type of character for the underlying strings
+	/// @tparam Traits The traits for the underlying strings
 	template <typename Domain, typename CharT, typename Traits = std::char_traits<CharT>>
 	class basic_string_flyweight
 	{
