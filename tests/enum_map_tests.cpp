@@ -181,12 +181,13 @@ TEST_CASE( "enum_map index directly", "[enum_map]" )
 #include "mclo/enum/enum_string_bi_map.hpp"
 TEST_CASE( "BiMap" )
 {
-	mclo::enum_string_bi_map<test_enum> map( {
-		{{ test_enum::first, "first" },
+	std::array<std::pair<test_enum, std::string_view>, 4> arr{
+		{ { test_enum::first, "first" },
          { test_enum::second, "second" },
          { test_enum::third, "third" },
-         { test_enum::fourth, "fourth" }}
-    } );
+         { test_enum::fourth, "fourth" } }
+    };
+	mclo::enum_string_bi_map<test_enum> map( arr );
 
 	const auto result = map.lookup_from_string( "second" );
 	REQUIRE( result );

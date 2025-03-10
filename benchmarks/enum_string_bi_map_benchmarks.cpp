@@ -23,9 +23,11 @@ namespace
 		static constexpr std::size_t max_size = static_cast<std::size_t>( SizeEnum );
 		using data_pair = std::pair<TEnum, std::string_view>;
 
-		constexpr enum_string_bi_map_unordered_map(
-			const std::array<std::pair<TEnum, std::string_view>, max_size>& init_data )
+		template <std::ranges::input_range Range>
+		constexpr enum_string_bi_map_unordered_map( Range&& init_data )
 		{
+			DEBUG_ASSERT( std::ranges::size( init_data ) == max_size,
+						  "Invalid size for enum_string_bi_map_unordered_map" );
 			mStringToEnum.reserve( max_size );
 			mEnumToString.reserve( max_size );
 			for ( const auto& [ e, str ] : init_data )
@@ -59,8 +61,8 @@ namespace
 	auto make_map_init()
 	{
 		using str_array = std::array<char, 20>;
-		std::array<str_array, size> strs{};
-		std::array<std::pair<test_enum, std::string_view>, size> arr{};
+		std::vector<str_array> strs( size );
+		std::vector<std::pair<test_enum, std::string_view>> arr( size );
 
 		int i = 0;
 		for ( auto& [ e, str ] : arr )
