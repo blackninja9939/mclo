@@ -61,6 +61,17 @@ namespace mclo
 
 			[[nodiscard]] constexpr auto operator<=>( const immutable_string_view& other ) const noexcept = default;
 
+			void swap( immutable_string_view& other ) noexcept
+			{
+				using std::swap;
+				swap( m_string, other.m_string );
+			}
+
+			friend void swap( immutable_string_view& lhs, immutable_string_view& rhs ) noexcept
+			{
+				lhs.swap( rhs );
+			}
+
 		private:
 			mclo::not_null<const immutable_string_header*> m_string;
 		};
@@ -93,6 +104,17 @@ namespace mclo
 			[[nodiscard]] view_type view() const noexcept
 			{
 				return m_string->view<CharT, Traits>();
+			}
+
+			void swap( immutable_string& other ) noexcept
+			{
+				using std::swap;
+				swap( m_string, other.m_string );
+			}
+
+			friend void swap( immutable_string& lhs, immutable_string& rhs ) noexcept
+			{
+				lhs.swap( rhs );
 			}
 
 		private:
@@ -181,6 +203,13 @@ namespace mclo
 		};
 	}
 
+	/// @brief A flyweight string that stores a single copy of each unique string in a shared pool.
+	/// @details This class is useful when you have a large number of strings that are mostly the same, and you want to
+	/// reduce memory usage by only allocating a single copy of each unique string. This class is thread-safe using a
+	/// shared mutex for insertion. Reading the string requires no locking as its a unique allocation, it is a single
+	/// pointer dereference.
+	/// @tparam Domain The domain of the flyweight, used to separate different shared string pools. Different domains
+	/// have different mutexes so will not block each other.
 	template <typename Domain, typename CharT, typename Traits = std::char_traits<CharT>>
 	class basic_string_flyweight
 	{
@@ -213,6 +242,17 @@ namespace mclo
 		}
 
 		[[nodiscard]] constexpr auto operator<=>( const basic_string_flyweight& other ) const noexcept = default;
+
+		void swap( basic_string_flyweight& other ) noexcept
+		{
+			using std::swap;
+			swap( m_handle, other.m_handle );
+		}
+
+		friend void swap( basic_string_flyweight& lhs, basic_string_flyweight& rhs ) noexcept
+		{
+			lhs.swap( rhs );
+		}
 
 	private:
 		static factory_t& factory() noexcept

@@ -78,13 +78,13 @@ namespace mclo
 			return std::exchange( m_ptr, Ptr{} );
 		}
 
-		constexpr void swap( not_null& other )
+		constexpr void swap( not_null& other ) noexcept( std::is_nothrow_swappable_v<Ptr> )
 		{
 			using std::swap;
 			swap( m_ptr, other.m_ptr );
 		}
 
-		friend constexpr void swap( not_null& lhs, not_null& rhs )
+		friend constexpr void swap( not_null& lhs, not_null& rhs ) noexcept( std::is_nothrow_swappable_v<Ptr> )
 		{
 			lhs.swap( rhs );
 		}

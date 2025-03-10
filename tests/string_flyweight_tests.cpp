@@ -17,7 +17,7 @@ namespace
 	constexpr auto cool_string = mclo::trandscode_ascii_literal<CharT>( "new cool string" );
 }
 
-TEMPLATE_LIST_TEST_CASE( "string_flyweight default", "[string_table]", mclo::meta::char_types )
+TEMPLATE_LIST_TEST_CASE( "string_flyweight default", "[string_flyweight]", mclo::meta::char_types )
 {
 	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
@@ -25,7 +25,7 @@ TEMPLATE_LIST_TEST_CASE( "string_flyweight default", "[string_table]", mclo::met
 	CHECK( default_handle == view() );
 }
 
-TEMPLATE_LIST_TEST_CASE( "string_flyweight with value", "[string_table]", mclo::meta::char_types )
+TEMPLATE_LIST_TEST_CASE( "string_flyweight with value", "[string_flyweight]", mclo::meta::char_types )
 {
 	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
@@ -48,7 +48,7 @@ TEMPLATE_LIST_TEST_CASE( "string_flyweight with value", "[string_table]", mclo::
 	CHECK( handle3 == view( bye_world<TestType> ) );
 }
 
-TEMPLATE_LIST_TEST_CASE( "string_flyweight assign value", "[string_table]", mclo::meta::char_types )
+TEMPLATE_LIST_TEST_CASE( "string_flyweight assign value", "[string_flyweight]", mclo::meta::char_types )
 {
 	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
@@ -64,4 +64,27 @@ TEMPLATE_LIST_TEST_CASE( "string_flyweight assign value", "[string_table]", mclo
 	CHECK( handle != handle2 );
 	CHECK( handle == view( cool_string<TestType> ) );
 	CHECK( handle2 == view( hello_world<TestType> ) );
+}
+
+TEMPLATE_LIST_TEST_CASE( "string_flyweight swap", "[string_flyweight]", mclo::meta::char_types )
+{
+	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
+	using view = typename test_string::view;
+
+	test_string handle( hello_world<TestType> );
+	test_string handle2( bye_world<TestType> );
+	CHECK( handle != handle2 );
+
+	SECTION( "Member swap" )
+	{
+		handle.swap( handle2 );
+		CHECK( handle == bye_world<TestType> );
+		CHECK( handle2 == hello_world<TestType> );
+	}
+	SECTION( "Free swap" )
+	{
+		swap( handle, handle2 );
+		CHECK( handle == bye_world<TestType> );
+		CHECK( handle2 == hello_world<TestType> );
+	}
 }

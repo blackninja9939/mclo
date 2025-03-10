@@ -3,7 +3,6 @@
 #include "mclo/enum/enum_map.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
-// #include "mclo/string/string_utils.hpp"
 #include "mclo/string/hash.hpp"
 
 #include <algorithm>
@@ -24,14 +23,16 @@ namespace mclo
 		static constexpr index_type max_size = static_cast<index_type>( SizeEnum );
 		using data_pair = std::pair<TEnum, std::string_view>;
 
-		constexpr enum_string_bi_map_generic( std::array<data_pair, max_size> init_data )
+		template <std::ranges::input_range Range>
+		constexpr enum_string_bi_map_generic( Range&& init_data )
 		{
-			Traits::setup( init_data.begin(), init_data.end() );
-			m_string_to_enum = std::move( init_data );
+			DEBUG_ASSERT( std::ranges::size( init_data ) == max_size, "Invalid size for enum_string_bi_map" );
+			std::ranges::move( std::forward<Range>( init_data ), m_string_to_enum.begin() );
+			Traits::setup( m_string_to_enum.begin(), m_string_to_enum.end() );
 
 			for ( index_type index = 0; index < max_size; ++index )
 			{
-				const auto& [ e, str ] = init_data[ index ];
+				const auto& [ e, str ] = m_string_to_enum[ index ];
 				m_enum_to_string_index[ e ] = index;
 			}
 		}
