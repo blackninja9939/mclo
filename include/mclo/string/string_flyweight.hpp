@@ -15,11 +15,11 @@ namespace mclo
 	namespace detail
 	{
 		/*
-		* We want to provide a stable address, a single allocation, and know the size and char* from it
-		* As such we use combine the allocation of a fixed size and align header, with a flexible size of chars
-		* This is effectively C's flexible array members but well done manually cause C++ does not have that feature
-		* Layout is: m_size, char0, char1, ..., char m_size - 1
-		*/
+		 * We want to provide a stable address, a single allocation, and know the size and char* from it
+		 * As such we use combine the allocation of a fixed size and align header, with a flexible size of chars
+		 * This is effectively C's flexible array members but well done manually cause C++ does not have that feature
+		 * Layout is: m_size, char0, char1, ..., char m_size - 1
+		 */
 		struct immutable_string_header
 		{
 			constexpr explicit immutable_string_header( const std::size_t size ) noexcept
@@ -29,12 +29,15 @@ namespace mclo
 
 			std::size_t m_size = 0;
 
-			[[nodiscard]] std::string_view view() const noexcept
+			template <typename CharT, typename Traits>
+			[[nodiscard]] std::basic_string_view<CharT, Traits> view() const noexcept
 			{
-				return { reinterpret_cast<const char*>( this ) + sizeof( immutable_string_header ), m_size };
+				const auto str_start = reinterpret_cast<const std::byte*>( this ) + sizeof( immutable_string_header );
+				return { reinterpret_cast<const CharT*>( str_start ), m_size };
 			}
 		};
 
+		template <typename CharT, typename Traits = std::char_traits<CharT>>
 		class immutable_string_view
 		{
 			// Avoids branching in view() allowing us to keep this as a not_null
@@ -51,9 +54,9 @@ namespace mclo
 			{
 			}
 
-			[[nodiscard]] std::string_view view() const noexcept
+			[[nodiscard]] std::basic_string_view<CharT, Traits> view() const noexcept
 			{
-				return m_string->view();
+				return m_string->view<CharT, Traits>();
 			}
 
 			[[nodiscard]] constexpr auto operator<=>( const immutable_string_view& other ) const noexcept = default;
@@ -62,28 +65,34 @@ namespace mclo
 			mclo::not_null<const immutable_string_header*> m_string;
 		};
 
+		template <typename CharT, typename Traits = std::char_traits<CharT>>
 		class immutable_string
 		{
+			using view_type = std::basic_string_view<CharT, Traits>;
+			static constexpr std::align_val_t alloc_align{
+				std::max( alignof( immutable_string_header ), alignof( CharT ) ) };
+
 		public:
-			explicit immutable_string( const std::string_view str )
+			explicit immutable_string( const view_type str )
 			{
-				void* const ptr = ::operator new( str.size() + sizeof( immutable_string_header ),
-												  std::align_val_t{ alignof( immutable_string_header ) } );
-				static_assert( std::is_nothrow_constructible_v<immutable_string_header, std::string_view::size_type> );
+				const std::size_t bytes = sizeof( immutable_string_header ) + ( str.size() * sizeof( CharT ) );
+				void* const ptr = ::operator new( bytes, alloc_align );
+				static_assert( std::is_nothrow_constructible_v<immutable_string_header, view_type::size_type> );
 				const immutable_string_header* const hdr =
 					std::construct_at( static_cast<immutable_string_header*>( ptr ), str.size() );
-				std::memcpy( static_cast<char*>( ptr ) + sizeof( immutable_string_header ), str.data(), str.size() );
+				const auto str_start = static_cast<std::byte*>( ptr ) + sizeof( immutable_string_header );
+				std::memcpy( str_start, str.data(), str.size() * sizeof( CharT ) );
 				m_string.reset( hdr );
 			}
 
-			[[nodiscard]] operator immutable_string_view() const noexcept
+			[[nodiscard]] operator immutable_string_view<CharT, Traits>() const noexcept
 			{
-				return immutable_string_view( m_string.get() );
+				return immutable_string_view<CharT, Traits>( m_string.get() );
 			}
 
-			[[nodiscard]] std::string_view view() const noexcept
+			[[nodiscard]] view_type view() const noexcept
 			{
-				return m_string->view();
+				return m_string->view<CharT, Traits>();
 			}
 
 		private:
@@ -94,19 +103,22 @@ namespace mclo
 					// No destructor calls required, just directly delete
 					static_assert( std::is_trivially_destructible_v<immutable_string_header> );
 					static_assert( std::is_trivially_destructible_v<char> );
-					::operator delete( const_cast<void*>( static_cast<const void*>( ptr ) ),
-									   std::align_val_t{ alignof( immutable_string_header ) } );
+					::operator delete( const_cast<void*>( static_cast<const void*>( ptr ) ), alloc_align );
 				}
 			};
 			std::unique_ptr<const immutable_string_header, deleter> m_string;
 		};
 
+		template <typename CharT, typename Traits = std::char_traits<CharT>>
 		class string_flyweight_factory
 		{
-		public:
-			using handle = immutable_string_view;
+			using string = immutable_string<CharT, Traits>;
+			using view = std::basic_string_view<CharT, Traits>;
 
-			handle insert( const std::string_view str )
+		public:
+			using handle = immutable_string_view<CharT, Traits>;
+
+			handle insert( const view str )
 			{
 				if ( str.empty() )
 				{
@@ -122,97 +134,110 @@ namespace mclo
 					}
 				}
 
-				immutable_string owned( str );
+				string owned( str );
 
 				const std::scoped_lock lock( m_mutex );
 
 				return handle{ *m_strings.insert( std::move( owned ) ).first };
 			}
 
-			[[nodiscard]] static std::string_view get( const handle hdl ) noexcept
-			{
-				return hdl.view();
-			}
-
 		private:
 			struct hasher
 			{
 				using is_transparent = void;
-				[[nodiscard]] std::size_t operator()( const immutable_string& hdr ) const noexcept
+				[[nodiscard]] std::size_t operator()( const string& hdr ) const noexcept
 				{
 					return operator()( hdr.view() );
 				}
-				[[nodiscard]] std::size_t operator()( const std::string_view str ) const noexcept
+				[[nodiscard]] std::size_t operator()( const view str ) const noexcept
 				{
-					return std::hash<std::string_view>()( str );
+					return std::hash<view>()( str );
 				}
 			};
+
 			struct equal_to
 			{
 				using is_transparent = void;
-				[[nodiscard]] std::size_t operator()( const immutable_string& lhs,
-													  const immutable_string& rhs ) const noexcept
+				[[nodiscard]] std::size_t operator()( const string& lhs, const string& rhs ) const noexcept
 				{
 					return operator()( lhs.view(), rhs.view() );
 				}
-				[[nodiscard]] std::size_t operator()( const immutable_string& lhs,
-													  const std::string_view rhs ) const noexcept
+				[[nodiscard]] std::size_t operator()( const string& lhs, const view rhs ) const noexcept
 				{
 					return operator()( lhs.view(), rhs );
 				}
-				[[nodiscard]] std::size_t operator()( const std::string_view lhs,
-													  const immutable_string& rhs ) const noexcept
+				[[nodiscard]] std::size_t operator()( const view lhs, const string& rhs ) const noexcept
 				{
 					return operator()( lhs, rhs.view() );
 				}
-				[[nodiscard]] std::size_t operator()( const std::string_view lhs,
-													  const std::string_view rhs ) const noexcept
+				[[nodiscard]] std::size_t operator()( const view lhs, const view rhs ) const noexcept
 				{
 					return lhs == rhs;
 				}
 			};
 
 			mutable std::shared_mutex m_mutex;
-			std::unordered_set<immutable_string, hasher, equal_to> m_strings;
+			std::unordered_set<string, hasher, equal_to> m_strings;
 		};
 	}
 
-	template <typename Domain = void>
-	class string_flyweight
+	template <typename Domain, typename CharT, typename Traits = std::char_traits<CharT>>
+	class basic_string_flyweight
 	{
-	public:
-		constexpr string_flyweight() noexcept = default;
+		using factory_t = detail::string_flyweight_factory<CharT, Traits>;
 
-		explicit string_flyweight( const std::string_view str )
+	public:
+		using view = std::basic_string_view<CharT, Traits>;
+
+		constexpr basic_string_flyweight() noexcept = default;
+
+		explicit basic_string_flyweight( const view str )
 			: m_handle( factory().insert( str ) )
 		{
 		}
 
-		string_flyweight& operator=( const std::string_view str )
+		basic_string_flyweight& operator=( const view str )
 		{
 			m_handle = factory().insert( str );
 			return *this;
 		}
 
-		[[nodiscard]] std::string_view get() const noexcept
+		[[nodiscard]] view get() const noexcept
 		{
-			return factory().get( m_handle );
+			return m_handle.view();
 		}
 
-		[[nodiscard]] operator std::string_view() const noexcept
+		[[nodiscard]] operator view() const noexcept
 		{
 			return get();
 		}
 
-		[[nodiscard]] constexpr auto operator<=>( const string_flyweight& other ) const noexcept = default;
+		[[nodiscard]] constexpr auto operator<=>( const basic_string_flyweight& other ) const noexcept = default;
 
 	private:
-		static detail::string_flyweight_factory& factory() noexcept
+		static factory_t& factory() noexcept
 		{
-			static detail::string_flyweight_factory instance;
+			static factory_t instance;
 			return instance;
 		}
 
-		detail::string_flyweight_factory::handle m_handle;
+		factory_t::handle m_handle;
 	};
+
+	template <typename Domain = void>
+	using string_flyweight = basic_string_flyweight<Domain, char>;
+
+	template <typename Domain = void>
+	using wstring_flyweight = basic_string_flyweight<Domain, wchar_t>;
+
+#ifdef __cpp_lib_char8_t
+	template <typename Domain = void>
+	using u8string_flyweight = basic_string_flyweight<Domain, char8_t>;
+#endif
+
+	template <typename Domain = void>
+	using u16string_flyweight = basic_string_flyweight<Domain, char16_t>;
+
+	template <typename Domain = void>
+	using u32string_flyweight = basic_string_flyweight<Domain, char32_t>;
 }
