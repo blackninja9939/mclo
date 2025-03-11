@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/memory/not_null.hpp"
+#include "mclo/numeric/math.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -22,26 +23,21 @@ namespace mclo
 		 */
 		struct immutable_string_header
 		{
-			constexpr explicit immutable_string_header( const std::size_t size ) noexcept
-				: m_size( size )
-			{
-			}
-
 			std::size_t m_size = 0;
-
-			template <typename CharT, typename Traits>
-			[[nodiscard]] std::basic_string_view<CharT, Traits> view() const noexcept
-			{
-				const auto str_start = reinterpret_cast<const std::byte*>( this ) + sizeof( immutable_string_header );
-				return { reinterpret_cast<const CharT*>( str_start ), m_size };
-			}
 		};
 
-		template <typename CharT, typename Traits = std::char_traits<CharT>>
+		template <typename CharT, typename Traits, std::derived_from<immutable_string_header> Header>
+		[[nodiscard]] std::basic_string_view<CharT, Traits> view_header( const Header& header ) noexcept
+		{
+			const auto str_start = reinterpret_cast<const std::byte*>( &header ) + sizeof( Header );
+			return { reinterpret_cast<const CharT*>( str_start ), header.m_size };
+		}
+
+		template <typename Header, typename CharT, typename Traits = std::char_traits<CharT>>
 		class immutable_string_view
 		{
 			// Avoids branching in view() allowing us to keep this as a not_null
-			static constexpr immutable_string_header empty_header{ 0 };
+			static constexpr Header empty_header{ 0 };
 
 		public:
 			constexpr immutable_string_view() noexcept
@@ -49,14 +45,14 @@ namespace mclo
 			{
 			}
 
-			constexpr explicit immutable_string_view( mclo::not_null<const immutable_string_header*> str ) noexcept
+			constexpr explicit immutable_string_view( mclo::not_null<const Header*> str ) noexcept
 				: m_string( str )
 			{
 			}
 
 			[[nodiscard]] std::basic_string_view<CharT, Traits> view() const noexcept
 			{
-				return m_string->view<CharT, Traits>();
+				return view_header<CharT, Traits>( *m_string );
 			}
 
 			[[nodiscard]] constexpr auto operator<=>( const immutable_string_view& other ) const noexcept = default;
@@ -73,37 +69,66 @@ namespace mclo
 			}
 
 		private:
-			mclo::not_null<const immutable_string_header*> m_string;
+			mclo::not_null<const Header*> m_string;
 		};
 
-		template <typename CharT, typename Traits = std::char_traits<CharT>>
+		template <typename Header,
+				  typename CharT,
+				  typename Traits = std::char_traits<CharT>,
+				  typename Allocator = std::allocator<CharT>>
 		class immutable_string
 		{
 			using view_type = std::basic_string_view<CharT, Traits>;
-			static constexpr std::align_val_t alloc_align{
-				std::max( alignof( immutable_string_header ), alignof( CharT ) ) };
+			using immutable_view_type = immutable_string_view<Header, CharT, Traits>;
+			using allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<Header>;
 
-		public:
-			explicit immutable_string( const view_type str )
+			[[nodiscard]] static constexpr std::size_t calc_num_allocs( const std::size_t size ) noexcept
 			{
-				const std::size_t bytes = sizeof( immutable_string_header ) + ( str.size() * sizeof( CharT ) );
-				void* const ptr = ::operator new( bytes, alloc_align );
-				static_assert( std::is_nothrow_constructible_v<immutable_string_header, view_type::size_type> );
-				const immutable_string_header* const hdr =
-					std::construct_at( static_cast<immutable_string_header*>( ptr ), str.size() );
-				const auto str_start = static_cast<std::byte*>( ptr ) + sizeof( immutable_string_header );
-				std::memcpy( str_start, str.data(), str.size() * sizeof( CharT ) );
-				m_string.reset( hdr );
+				const std::size_t bytes = sizeof( Header ) + ( size * sizeof( CharT ) );
+				return mclo::ceil_divide( bytes, sizeof( Header ) );
 			}
 
-			[[nodiscard]] operator immutable_string_view<CharT, Traits>() const noexcept
+			struct deleter : allocator_type
 			{
-				return immutable_string_view<CharT, Traits>( m_string.get() );
+				void operator()( const Header* const ptr ) noexcept
+				{
+					// No destructor calls required, just directly deallocate
+					static_assert( std::is_trivially_destructible_v<Header> );
+					static_assert( std::is_trivially_destructible_v<char> );
+					static_cast<allocator_type&>( *this ).deallocate( const_cast<Header*>( ptr ),
+																	  calc_num_allocs( ptr->m_size ) );
+				}
+			};
+
+			using allocated_string = std::unique_ptr<const Header, deleter>;
+
+			[[nodiscard]] static allocated_string allocate_string( const view_type str, const Allocator& allocator )
+			{
+				allocator_type internal_allocator( allocator );
+				Header* header = internal_allocator.allocate( calc_num_allocs( str.size() ) );
+
+				static_assert( std::is_nothrow_constructible_v<Header, view_type::size_type> );
+				header = std::construct_at( header, str.size() );
+				const auto str_start = reinterpret_cast<std::byte*>( header ) + sizeof( Header );
+				std::memcpy( str_start, str.data(), str.size() * sizeof( CharT ) );
+
+				return allocated_string( header, deleter{ std::move( internal_allocator ) } );
+			}
+
+		public:
+			explicit immutable_string( const view_type str, const Allocator& allocator )
+				: m_string( allocate_string( str, allocator ) )
+			{
+			}
+
+			[[nodiscard]] operator immutable_view_type() const noexcept
+			{
+				return immutable_view_type( m_string.get() );
 			}
 
 			[[nodiscard]] view_type view() const noexcept
 			{
-				return m_string->view<CharT, Traits>();
+				return view_header<CharT, Traits>( *m_string );
 			}
 
 			void swap( immutable_string& other ) noexcept
@@ -118,27 +143,24 @@ namespace mclo
 			}
 
 		private:
-			struct deleter
-			{
-				void operator()( const immutable_string_header* const ptr ) const noexcept
-				{
-					// No destructor calls required, just directly delete
-					static_assert( std::is_trivially_destructible_v<immutable_string_header> );
-					static_assert( std::is_trivially_destructible_v<char> );
-					::operator delete( const_cast<void*>( static_cast<const void*>( ptr ) ), alloc_align );
-				}
-			};
-			std::unique_ptr<const immutable_string_header, deleter> m_string;
+			allocated_string m_string;
 		};
 
-		template <typename CharT, typename Traits = std::char_traits<CharT>>
+		template <typename CharT, typename Traits = std::char_traits<CharT>, typename Allocator = std::allocator<CharT>>
 		class string_flyweight_factory
 		{
-			using string = immutable_string<CharT, Traits>;
+			using string = immutable_string<immutable_string_header, CharT, Traits>;
 			using view = std::basic_string_view<CharT, Traits>;
 
 		public:
-			using handle = immutable_string_view<CharT, Traits>;
+			using handle = immutable_string_view<immutable_string_header, CharT, Traits>;
+
+			string_flyweight_factory() = default;
+
+			explicit string_flyweight_factory( const Allocator& allocator )
+				: m_allocator( allocator )
+			{
+			}
 
 			handle insert( const view str )
 			{
@@ -156,7 +178,7 @@ namespace mclo
 					}
 				}
 
-				string owned( str );
+				string owned( str, m_allocator );
 
 				const std::scoped_lock lock( m_mutex );
 
@@ -199,7 +221,9 @@ namespace mclo
 			};
 
 			mutable std::shared_mutex m_mutex;
-			std::unordered_set<string, hasher, equal_to> m_strings;
+			MCLO_NO_UNIQUE_ADDRESS Allocator m_allocator;
+			std::unordered_set<string, hasher, equal_to> m_strings{
+				static_cast<typename std::allocator_traits<Allocator>::template rebind_alloc<string>>( m_allocator ) };
 		};
 	}
 
@@ -212,10 +236,13 @@ namespace mclo
 	/// have different mutexes so will not block each other.
 	/// @tparam CharT The type of character for the underlying strings
 	/// @tparam Traits The traits for the underlying strings
-	template <typename Domain, typename CharT, typename Traits = std::char_traits<CharT>>
+	template <typename Domain,
+			  typename CharT,
+			  typename Traits = std::char_traits<CharT>,
+			  typename Allocator = std::allocator<CharT>>
 	class basic_string_flyweight
 	{
-		using factory_t = detail::string_flyweight_factory<CharT, Traits>;
+		using factory_t = detail::string_flyweight_factory<CharT, Traits, Allocator>;
 
 	public:
 		using view = std::basic_string_view<CharT, Traits>;

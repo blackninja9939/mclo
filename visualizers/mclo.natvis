@@ -249,7 +249,7 @@
     </Expand>
   </Type>
 
-  <Type Name="mclo::string_flyweight&lt;*&gt;">
+  <Type Name="mclo::basic_string_flyweight&lt;*&gt;">
     <Intrinsic Name="header" Expression="m_handle.m_string.m_ptr"/>
     <Intrinsic Name="string" Expression="(char*)header() + sizeof(void*)"/>
     <Intrinsic Name="size" Expression="header()->m_size"/>
