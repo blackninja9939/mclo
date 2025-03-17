@@ -48,11 +48,16 @@ namespace mclo
 			return *this;
 		}
 
-		intrusive_forward_list& operator=( std::initializer_list<value_type> init_list ) noexcept
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
+		intrusive_forward_list( It first, Sentinel last ) MCLO_NOEXCEPT_TESTS
 		{
-			clear();
-			insert_after( before_begin(), init_list );
-			return *this;
+			insert_after( before_begin(), std::move( first ), std::move( last ) );
+		}
+
+		template <std::ranges::input_range Range>
+		intrusive_forward_list( Range&& range ) MCLO_NOEXCEPT_TESTS
+		{
+			insert_after( before_begin(), std::forward<Range>( range ) );
 		}
 
 		~intrusive_forward_list()
@@ -104,6 +109,21 @@ namespace mclo
 			return head() == nullptr;
 		}
 
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
+			requires( std::same_as<reference, std::iter_reference_t<It>> )
+		void assign( It first, Sentinel last )
+		{
+			clear();
+			insert_after( before_begin(), std::move( first ), std::move( last ) );
+		}
+
+		template <std::ranges::input_range Range>
+			requires( std::same_as<reference, std::ranges::range_reference_t<Range>> )
+		void assign( Range&& range ) MCLO_NOEXCEPT_TESTS
+		{
+			return assign( std::ranges::begin( range ), std::ranges::end( range ) );
+		}
+
 		void push_front( reference value ) MCLO_NOEXCEPT_TESTS
 		{
 			insert_after( before_begin(), value );
@@ -123,9 +143,9 @@ namespace mclo
 			return iterator( cast( hook ) );
 		}
 
-		template <std::input_iterator It>
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
 			requires( std::same_as<reference, std::iter_reference_t<It>> )
-		iterator insert_after( const_iterator pos, It first, It last ) MCLO_NOEXCEPT_TESTS
+		iterator insert_after( const_iterator pos, It first, Sentinel last ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
 			if ( first == last )
@@ -144,9 +164,11 @@ namespace mclo
 			return iterator( cast( ptr ) );
 		}
 
-		iterator insert_after( const_iterator pos, std::initializer_list<value_type> init_list ) MCLO_NOEXCEPT_TESTS
+		template <std::ranges::input_range Range>
+			requires( std::same_as<reference, std::ranges::range_reference_t<Range>> )
+		iterator insert_after( const_iterator pos, Range&& range ) MCLO_NOEXCEPT_TESTS
 		{
-			return insert_after( init_list.begin(), init_list.end() );
+			return insert_after( pos, std::ranges::begin( range ), std::ranges::end( range ) );
 		}
 
 		iterator erase_after( const_iterator pos ) MCLO_NOEXCEPT_TESTS
@@ -185,15 +207,7 @@ namespace mclo
 		{
 			DEBUG_ASSERT( this != &other, "Cannot splice in same container" );
 			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
-
-			// exchange empties other
-			hook_type* const hook = std::exchange( other.m_head.m_next, nullptr );
-
-			if ( hook )
-			{
-				hook_type* const ptr = unwrap_iterator( pos );
-				hook->m_next = std::exchange( ptr->m_next, hook );
-			}
+			splice_after( pos, other, other.before_begin(), other.end() );
 		}
 
 		void splice_after( const_iterator pos, intrusive_forward_list&& other ) MCLO_NOEXCEPT_TESTS
@@ -201,14 +215,80 @@ namespace mclo
 			splice_after( pos, other );
 		}
 
-		// todo(mc) other splice_after overloads
+		void splice_after( const_iterator pos, intrusive_forward_list&, const_iterator it ) MCLO_NOEXCEPT_TESTS
+		{
+			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
 
-		size_type remove( const_reference value )
+			hook_type* const insert = unwrap_iterator( pos );
+			hook_type* const prev = unwrap_iterator( it );
+
+			if ( insert != prev )
+			{
+				hook_type* const first = prev->m_next;
+				if ( insert != first )
+				{
+					prev->m_next = first->m_next;
+					first->m_next = insert->m_next;
+					insert->m_next = first;
+				}
+			}
+		}
+
+		void splice_after( const_iterator pos, intrusive_forward_list&& other, const_iterator it ) MCLO_NOEXCEPT_TESTS
+		{
+			splice_after( pos, other, it );
+		}
+
+		void splice_after( const_iterator pos, intrusive_forward_list&, const_iterator first, const_iterator last )
+			MCLO_NOEXCEPT_TESTS
+		{
+			if ( first == last )
+			{
+				return;
+			}
+
+			const_iterator after = first;
+			++after;
+			if ( after == last )
+			{
+				return;
+			}
+
+			const_iterator prev_last = first;
+			do
+			{
+				prev_last = after;
+				++after;
+			}
+			while ( after != last );
+
+			hook_type* const unwrapped_first = unwrap_iterator( first );
+			hook_type* const unwrapped_after = unwrap_iterator( after );
+			hook_type* const unwrapped_prev_last = unwrap_iterator( prev_last );
+			hook_type* const unwrapped_pos = unwrap_iterator( pos );
+
+			hook_type* const extracted_head = unwrapped_first->m_next;
+
+			unwrapped_first->m_next = unwrapped_after;
+			unwrapped_prev_last->m_next = unwrapped_pos->m_next;
+			unwrapped_pos->m_next = extracted_head;
+		}
+
+		void splice_after( const_iterator pos,
+						   intrusive_forward_list&& other,
+						   const_iterator first,
+						   const_iterator last ) MCLO_NOEXCEPT_TESTS
+		{
+			splice_after( pos, other, first, last );
+		}
+
+		template <typename U>
+		size_type remove( const U& value )
 		{
 			return remove( [ &value ]( const_reference object ) { return object == value; } );
 		}
 
-		template <std::predicate<const_reference> UnaryPredicate>
+		template <typename UnaryPredicate>
 		size_type remove_if( UnaryPredicate predicate )
 		{
 			size_type count = 0;
@@ -255,6 +335,99 @@ namespace mclo
 			}
 		}
 
+		size_type unique()
+		{
+			return unique( std::equal_to<>{} );
+		}
+
+		template <typename BinaryPredicate>
+		size_type unique( BinaryPredicate predicate )
+		{
+			hook_type* head = this->head();
+			size_type count = 0;
+
+			if ( head )
+			{
+				hook_type* next = head->m_next;
+				while ( next )
+				{
+					if ( predicate( *cast( head ), *cast( next ) ) )
+					{
+						next = head->m_next = std::exchange( next->m_next, nullptr );
+						++count;
+					}
+					else
+					{
+						head = next;
+						next = next->m_next;
+					}
+				}
+			}
+
+			return count;
+		}
+
+		void sort()
+		{
+			sort( std::less<>{} );
+		}
+
+		template <typename Compare>
+		void sort();
+
+		template <typename Compare>
+		void merge( intrusive_forward_list& other, Compare comp )
+		{
+			const const_iterator last( this->cend() );
+			const const_iterator other_last( other.cend() );
+
+			const_iterator bb( this->cbefore_begin() );
+			const_iterator bb_next;
+
+			while ( !other.empty() )
+			{
+				const_iterator ibx_next( other.cbefore_begin() );
+				const_iterator ibx( ibx_next++ );
+				while ( ++( bb_next = bb ) != last && !comp( *ibx_next, *bb_next ) )
+				{
+					bb = bb_next;
+				}
+				if ( bb_next == last )
+				{
+					// Now transfer the rest to the end of the container
+					this->splice_after( bb, other );
+					break;
+				}
+				else
+				{
+					size_type n = 0;
+					do
+					{
+						ibx = ibx_next;
+						++n;
+					}
+					while ( ++( ibx_next = ibx ) != other_last && comp( *ibx_next, *bb_next ) );
+					this->splice_after( bb, other, other.before_begin(), ibx, n );
+				}
+			}
+		}
+
+		template <typename Compare>
+		void merge( intrusive_forward_list&& other, Compare comp )
+		{
+			merge( other, comp );
+		}
+
+		void merge( intrusive_forward_list& other )
+		{
+			merge( other, std::less<>{} );
+		}
+
+		void merge( intrusive_forward_list&& other )
+		{
+			merge( other );
+		}
+
 		template <std::invocable<pointer> Func>
 			requires( std::is_nothrow_invocable_v<Func, pointer> )
 		void consume( Func func ) noexcept
@@ -271,6 +444,17 @@ namespace mclo
 		void clear() noexcept
 		{
 			consume( []( pointer ) noexcept {} );
+		}
+
+		void swap( intrusive_forward_list& other ) noexcept
+		{
+			using std::swap;
+			swap( m_head, other.m_head );
+		}
+
+		friend void swap( intrusive_forward_list& lhs, intrusive_forward_list& rhs ) noexcept
+		{
+			lhs.swap( rhs );
 		}
 
 	private:
@@ -308,4 +492,19 @@ namespace mclo
 
 		hook_type m_head;
 	};
+}
+
+namespace std
+{
+	template <typename T, typename Tag, typename U = T>
+	mclo::intrusive_forward_list<T, Tag>::size_type erase( mclo::intrusive_forward_list<T, Tag>& list, const U& value )
+	{
+		return list.remove( value );
+	}
+
+	template <typename T, typename Tag, typename Pred>
+	mclo::intrusive_forward_list<T, Tag>::size_type erase_if( mclo::intrusive_forward_list<T, Tag>& list, Pred pred )
+	{
+		return list.remove_if( pred );
+	}
 }
