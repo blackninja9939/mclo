@@ -64,7 +64,7 @@ namespace mclo
 		{
 			thread_data_allocator alloc( m_allocator );
 			m_list.consume( [ &alloc ]( thread_data* ptr ) noexcept {
-				std::destroy_at( ptr );
+				std::allocator_traits<thread_data_allocator>::destroy( alloc, ptr );
 				alloc.deallocate( ptr, 1 );
 			} );
 		}
@@ -113,7 +113,7 @@ namespace mclo
 			thread_data* data = alloc.allocate( 1 );
 			try
 			{
-				data = std::construct_at( data );
+				std::allocator_traits<thread_data_allocator>::construct( alloc, data );
 			}
 			catch ( ... )
 			{

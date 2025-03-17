@@ -198,6 +198,7 @@ namespace mclo
 	{
 		friend circular_buffer_iterator<circular_buffer, true>;
 		friend circular_buffer_iterator<circular_buffer, false>;
+		using alloc_traits = std::allocator_traits<Allocator>;
 
 	public:
 		using value_type = T;
@@ -244,8 +245,7 @@ namespace mclo
 		}
 
 		circular_buffer( const circular_buffer& other )
-			: circular_buffer( other,
-							   std::allocator_traits<allocator_type>::select_on_container_copy_construction(
+			: circular_buffer( other, alloc_traits::select_on_container_copy_construction(
 								   other.get_allocator() ) )
 		{
 		}
@@ -279,7 +279,7 @@ namespace mclo
 
 			clear();
 
-			if constexpr ( std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment::value )
+			if constexpr ( alloc_traits::propagate_on_container_copy_assignment::value )
 			{
 				if ( m_allocator != other.m_allocator )
 				{
@@ -296,8 +296,7 @@ namespace mclo
 			return *this;
 		}
 
-		circular_buffer& operator=( circular_buffer&& other ) noexcept(
-			std::allocator_traits<allocator_type>::is_always_equal::value )
+		circular_buffer& operator=( circular_buffer&& other ) noexcept( alloc_traits::is_always_equal::value )
 		{
 			if ( this == &other )
 			{
@@ -306,7 +305,7 @@ namespace mclo
 
 			clear();
 
-			if constexpr ( std::allocator_traits<allocator_type>::propagate_on_container_move_assignment::value )
+			if constexpr ( alloc_traits::propagate_on_container_move_assignment::value )
 			{
 				m_allocator.deallocate( m_data, capacity() );
 				m_data = m_data_end = nullptr;
@@ -487,7 +486,8 @@ namespace mclo
 			}
 			else
 			{
-				reference result = *std::construct_at( m_tail, std::forward<Args>( args )... );
+				alloc_traits::construct( m_allocator, m_tail, std::forward<Args>( args )... );
+				reference result = *m_tail;
 				increment( m_tail );
 				++m_size;
 				return result;
@@ -498,7 +498,7 @@ namespace mclo
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			decrement( m_tail );
-			std::destroy_at( m_tail );
+			alloc_traits::destroy( m_allocator, m_tail );
 			--m_size;
 		}
 
@@ -527,7 +527,8 @@ namespace mclo
 			else
 			{
 				decrement( m_head );
-				reference result = *std::construct_at( m_head, std::forward<Args>( args )... );
+				alloc_traits::construct( m_allocator, m_head, std::forward<Args>( args )... );
+				reference result = *m_head;
 				++m_size;
 				return result;
 			}
@@ -536,7 +537,7 @@ namespace mclo
 		void pop_front()
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
-			std::destroy_at( m_head );
+			alloc_traits::destroy( m_allocator, m_head );
 			increment( m_head );
 			--m_size;
 		}
@@ -613,7 +614,7 @@ namespace mclo
 				return;
 			}
 			using std::swap;
-			if constexpr ( std::allocator_traits<allocator_type>::propagate_on_container_swap::value )
+			if constexpr ( alloc_traits::propagate_on_container_swap::value )
 			{
 				swap( m_allocator, other.m_allocator );
 			}

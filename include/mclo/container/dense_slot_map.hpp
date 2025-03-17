@@ -89,7 +89,8 @@ namespace mclo
 			using buffer_alloc_traits = std::allocator_traits<buffer_allocator_type>;
 			using buffer_pointer = typename buffer_alloc_traits::pointer;
 
-			using size_alloc_traits = typename alloc_traits::template rebind_traits<size_type>;
+			using size_allocator_type = typename alloc_traits::template rebind_alloc<size_type>;
+			using size_alloc_traits = std::allocator_traits<size_allocator_type>;
 			using size_pointer = typename size_alloc_traits::pointer;
 
 		public:
@@ -227,8 +228,10 @@ namespace mclo
 			{
 				reserve( m_size + 1 );
 				DEBUG_ASSERT( m_size < m_capacity, "Size should be less than capacity" );
-				std::construct_at( std::addressof( m_data[ m_size ] ), std::forward<Args>( args )... );
-				std::construct_at( std::addressof( m_data_reverse_map[ m_size ] ), index );
+				alloc_traits::construct(
+					m_allocator, std::addressof( m_data[ m_size ] ), std::forward<Args>( args )... );
+				size_allocator_type size_allocator( m_allocator );
+				size_alloc_traits::construct( size_allocator, std::addressof( m_data_reverse_map[ m_size ] ), index );
 				++m_size;
 			}
 
@@ -236,8 +239,9 @@ namespace mclo
 			{
 				DEBUG_ASSERT( m_size > size_type( 0 ), "Size should be greater than 0" );
 				--m_size;
-				std::destroy_at( std::addressof( m_data[ m_size ] ) );
-				std::destroy_at( std::addressof( m_data_reverse_map[ m_size ] ) );
+				alloc_traits::destroy( m_allocator, std::addressof( m_data[ m_size ] ) );
+				size_allocator_type size_allocator( m_allocator );
+				size_alloc_traits::destroy( size_allocator, std::addressof( m_data_reverse_map[ m_size ] ) );
 			}
 
 			bool swap_and_pop_at( const size_type index )
@@ -942,7 +946,7 @@ namespace mclo
 			// We return the original slot index and the generation, generation will be changed in erasure for
 			// invalidating existing handles
 			return {
-				m_data.values()[ data_index ], { slot_index, handle.generation }
+				m_data.values()[ data_index ], {slot_index, handle.generation}
             };
 		}
 

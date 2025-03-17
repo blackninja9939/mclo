@@ -89,7 +89,7 @@ namespace mclo
 			Header* header = allocator.allocate( calc_num_header_allocs<Header, char_type>( str.size() ) );
 
 			static_assert( std::is_nothrow_constructible_v<Header, size_type> );
-			header = std::construct_at( header, str.size() );
+			std::allocator_traits<Allocator>::construct( allocator, header, str.size() );
 			const auto str_start = reinterpret_cast<std::byte*>( header ) + sizeof( Header );
 			std::memcpy( str_start, str.data(), str.size() * sizeof( char_type ) );
 
