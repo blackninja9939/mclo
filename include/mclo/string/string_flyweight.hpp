@@ -24,136 +24,91 @@ namespace mclo
 		struct immutable_string_header
 		{
 			std::size_t m_size = 0;
+
+			static constexpr void acquire() noexcept
+			{
+			}
+			[[nodiscard]] static constexpr bool release() noexcept
+			{
+				return false;
+			}
 		};
 
-		template <typename CharT, typename Traits, std::derived_from<immutable_string_header> Header>
+		struct ref_counted_immutable_string_header
+		{
+			std::size_t m_size = 0;
+			std::atomic_size_t m_references{ 1 };
+
+			void acquire() noexcept
+			{
+				m_references.fetch_add( 1, std::memory_order_relaxed );
+			}
+			[[nodiscard]] bool release() noexcept
+			{
+				const std::size_t last_count = m_references.fetch_sub( 1, std::memory_order_acq_rel );
+				return last_count == 1; // We were last owner so caller should delete
+			}
+		};
+
+		template <typename CharT, typename Traits, typename Header>
 		[[nodiscard]] std::basic_string_view<CharT, Traits> view_header( const Header& header ) noexcept
 		{
 			const auto str_start = reinterpret_cast<const std::byte*>( &header ) + sizeof( Header );
 			return { reinterpret_cast<const CharT*>( str_start ), header.m_size };
 		}
 
-		template <typename Header, typename CharT, typename Traits = std::char_traits<CharT>>
-		class immutable_string_view
+		template <typename Header, typename CharT>
+		[[nodiscard]] constexpr std::size_t calc_num_header_allocs( const std::size_t size ) noexcept
 		{
-			// Avoids branching in view() allowing us to keep this as a not_null
-			static constexpr Header empty_header{ 0 };
+			const std::size_t bytes = sizeof( Header ) + ( size * sizeof( CharT ) );
+			return mclo::ceil_divide( bytes, sizeof( Header ) );
+		}
 
-		public:
-			constexpr immutable_string_view() noexcept
-				: immutable_string_view( &empty_header )
+		template <typename Header, typename CharT, typename Allocator>
+		struct string_deleter : Allocator
+		{
+			void operator()( const Header* const ptr ) noexcept
 			{
+				// No destructor calls required, just directly deallocate
+				static_assert( std::is_trivially_destructible_v<Header> );
+				static_assert( std::is_trivially_destructible_v<char> );
+				static_cast<Allocator&>( *this ).deallocate( const_cast<Header*>( ptr ),
+															 calc_num_header_allocs<Header, CharT>( ptr->m_size ) );
 			}
-
-			constexpr explicit immutable_string_view( mclo::not_null<const Header*> str ) noexcept
-				: m_string( str )
-			{
-			}
-
-			[[nodiscard]] std::basic_string_view<CharT, Traits> view() const noexcept
-			{
-				return view_header<CharT, Traits>( *m_string );
-			}
-
-			[[nodiscard]] constexpr auto operator<=>( const immutable_string_view& other ) const noexcept = default;
-
-			void swap( immutable_string_view& other ) noexcept
-			{
-				using std::swap;
-				swap( m_string, other.m_string );
-			}
-
-			friend void swap( immutable_string_view& lhs, immutable_string_view& rhs ) noexcept
-			{
-				lhs.swap( rhs );
-			}
-
-		private:
-			mclo::not_null<const Header*> m_string;
 		};
+
+		template <typename Header, typename CharT, typename Allocator>
+		using allocated_string = std::unique_ptr<Header, string_deleter<Header, CharT, Allocator>>;
+
+		template <typename ViewType, typename Header, typename Allocator>
+		[[nodiscard]] auto allocate_string( const ViewType str, Allocator allocator )
+		{
+			using char_type = typename ViewType::value_type;
+			using size_type = typename ViewType::size_type;
+
+			Header* header = allocator.allocate( calc_num_header_allocs<Header, char_type>( str.size() ) );
+
+			static_assert( std::is_nothrow_constructible_v<Header, size_type> );
+			header = std::construct_at( header, str.size() );
+			const auto str_start = reinterpret_cast<std::byte*>( header ) + sizeof( Header );
+			std::memcpy( str_start, str.data(), str.size() * sizeof( char_type ) );
+
+			using return_type = allocated_string<Header, char_type, Allocator>;
+			return return_type( header, typename return_type::deleter_type{ std::move( allocator ) } );
+		}
 
 		template <typename Header,
 				  typename CharT,
 				  typename Traits = std::char_traits<CharT>,
 				  typename Allocator = std::allocator<CharT>>
-		class immutable_string
-		{
-			using view_type = std::basic_string_view<CharT, Traits>;
-			using immutable_view_type = immutable_string_view<Header, CharT, Traits>;
-			using allocator_type = typename std::allocator_traits<Allocator>::template rebind_alloc<Header>;
-
-			[[nodiscard]] static constexpr std::size_t calc_num_allocs( const std::size_t size ) noexcept
-			{
-				const std::size_t bytes = sizeof( Header ) + ( size * sizeof( CharT ) );
-				return mclo::ceil_divide( bytes, sizeof( Header ) );
-			}
-
-			struct deleter : allocator_type
-			{
-				void operator()( const Header* const ptr ) noexcept
-				{
-					// No destructor calls required, just directly deallocate
-					static_assert( std::is_trivially_destructible_v<Header> );
-					static_assert( std::is_trivially_destructible_v<char> );
-					static_cast<allocator_type&>( *this ).deallocate( const_cast<Header*>( ptr ),
-																	  calc_num_allocs( ptr->m_size ) );
-				}
-			};
-
-			using allocated_string = std::unique_ptr<const Header, deleter>;
-
-			[[nodiscard]] static allocated_string allocate_string( const view_type str, const Allocator& allocator )
-			{
-				allocator_type internal_allocator( allocator );
-				Header* header = internal_allocator.allocate( calc_num_allocs( str.size() ) );
-
-				static_assert( std::is_nothrow_constructible_v<Header, view_type::size_type> );
-				header = std::construct_at( header, str.size() );
-				const auto str_start = reinterpret_cast<std::byte*>( header ) + sizeof( Header );
-				std::memcpy( str_start, str.data(), str.size() * sizeof( CharT ) );
-
-				return allocated_string( header, deleter{ std::move( internal_allocator ) } );
-			}
-
-		public:
-			explicit immutable_string( const view_type str, const Allocator& allocator )
-				: m_string( allocate_string( str, allocator ) )
-			{
-			}
-
-			[[nodiscard]] operator immutable_view_type() const noexcept
-			{
-				return immutable_view_type( m_string.get() );
-			}
-
-			[[nodiscard]] view_type view() const noexcept
-			{
-				return view_header<CharT, Traits>( *m_string );
-			}
-
-			void swap( immutable_string& other ) noexcept
-			{
-				using std::swap;
-				swap( m_string, other.m_string );
-			}
-
-			friend void swap( immutable_string& lhs, immutable_string& rhs ) noexcept
-			{
-				lhs.swap( rhs );
-			}
-
-		private:
-			allocated_string m_string;
-		};
-
-		template <typename CharT, typename Traits = std::char_traits<CharT>, typename Allocator = std::allocator<CharT>>
 		class string_flyweight_factory
 		{
-			using string = immutable_string<immutable_string_header, CharT, Traits>;
 			using view = std::basic_string_view<CharT, Traits>;
+			using header_allocator = typename std::allocator_traits<Allocator>::template rebind_alloc<Header>;
+			using string = allocated_string<Header, CharT, header_allocator>;
 
 		public:
-			using handle = immutable_string_view<immutable_string_header, CharT, Traits>;
+			using handle = const Header*;
 
 			string_flyweight_factory() = default;
 
@@ -164,34 +119,62 @@ namespace mclo
 
 			handle insert( const view str )
 			{
-				if ( str.empty() )
+				if ( str.empty() ) [[unlikely]]
 				{
-					return handle{};
+					return nullptr;
 				}
 
 				{
 					const std::shared_lock lock( m_mutex );
-					const auto it = m_strings.find( str );
-					if ( it != m_strings.end() )
+					auto it = m_strings.find( str );
+					if ( it != m_strings.end() ) [[likely]]
 					{
-						return handle{ *it };
+						handle hdl = it->get();
+						hdl->acquire();
+						return hdl;
 					}
 				}
 
-				string owned( str, m_allocator );
+				string owned = allocate_string<view, Header, header_allocator>( str, header_allocator( m_allocator ) );
 
 				const std::scoped_lock lock( m_mutex );
 
-				return handle{ *m_strings.insert( std::move( owned ) ).first };
+				return m_strings.insert( std::move( owned ) ).first->get();
+			}
+
+			void release( const handle hdl )
+			{
+				if ( !hdl )
+				{
+					return;
+				}
+				const bool should_erase = const_cast<Header*>( hdl )->release();
+				if ( should_erase ) [[unlikely]]
+				{
+					// todo(mc) is this thread safe?
+					const std::scoped_lock lock( m_mutex );
+					m_strings.erase( m_strings.find( get( *hdl ) ) );
+				}
+			}
+
+			[[nodiscard]] static view get( const handle hdl ) noexcept
+			{
+				return hdl ? get( *hdl ) : view();
 			}
 
 		private:
+			[[nodiscard]] static view get( const Header& hdr ) noexcept
+			{
+				return view_header<CharT, Traits>( hdr );
+			}
+
 			struct hasher
 			{
 				using is_transparent = void;
+
 				[[nodiscard]] std::size_t operator()( const string& hdr ) const noexcept
 				{
-					return operator()( hdr.view() );
+					return operator()( get( *hdr ) );
 				}
 				[[nodiscard]] std::size_t operator()( const view str ) const noexcept
 				{
@@ -204,15 +187,15 @@ namespace mclo
 				using is_transparent = void;
 				[[nodiscard]] std::size_t operator()( const string& lhs, const string& rhs ) const noexcept
 				{
-					return operator()( lhs.view(), rhs.view() );
+					return operator()( get( *lhs ), get( *rhs ) );
 				}
 				[[nodiscard]] std::size_t operator()( const string& lhs, const view rhs ) const noexcept
 				{
-					return operator()( lhs.view(), rhs );
+					return operator()( get( *lhs ), rhs );
 				}
 				[[nodiscard]] std::size_t operator()( const view lhs, const string& rhs ) const noexcept
 				{
-					return operator()( lhs, rhs.view() );
+					return operator()( lhs, get( *rhs ) );
 				}
 				[[nodiscard]] std::size_t operator()( const view lhs, const view rhs ) const noexcept
 				{
@@ -237,12 +220,13 @@ namespace mclo
 	/// @tparam CharT The type of character for the underlying strings
 	/// @tparam Traits The traits for the underlying strings
 	template <typename Domain,
+			  typename Header,
 			  typename CharT,
 			  typename Traits = std::char_traits<CharT>,
 			  typename Allocator = std::allocator<CharT>>
 	class basic_string_flyweight
 	{
-		using factory_t = detail::string_flyweight_factory<CharT, Traits, Allocator>;
+		using factory_t = detail::string_flyweight_factory<Header, CharT, Traits, Allocator>;
 
 	public:
 		using view = std::basic_string_view<CharT, Traits>;
@@ -254,15 +238,22 @@ namespace mclo
 		{
 		}
 
+		~basic_string_flyweight()
+		{
+			factory().release( m_handle );
+		}
+
 		basic_string_flyweight& operator=( const view str )
 		{
-			m_handle = factory().insert( str );
+			factory_t& fac = factory();
+			fac.release( m_handle );
+			m_handle = fac.insert( str );
 			return *this;
 		}
 
 		[[nodiscard]] view get() const noexcept
 		{
-			return m_handle.view();
+			return factory_t::get( m_handle );
 		}
 
 		[[nodiscard]] operator view() const noexcept
@@ -290,23 +281,37 @@ namespace mclo
 			return instance;
 		}
 
-		factory_t::handle m_handle;
+		factory_t::handle m_handle{};
 	};
 
-	template <typename Domain = void>
-	using string_flyweight = basic_string_flyweight<Domain, char>;
+	template <typename Domain,
+			  typename CharT,
+			  typename Traits = std::char_traits<CharT>,
+			  typename Allocator = std::allocator<CharT>>
+	using immutable_string_flyweight =
+		basic_string_flyweight<Domain, detail::immutable_string_header, CharT, Traits, Allocator>;
+
+	template <typename Domain,
+			  typename CharT,
+			  typename Traits = std::char_traits<CharT>,
+			  typename Allocator = std::allocator<CharT>>
+	using ref_counted_string_flyweight =
+		basic_string_flyweight<Domain, detail::ref_counted_immutable_string_header, CharT, Traits, Allocator>;
 
 	template <typename Domain = void>
-	using wstring_flyweight = basic_string_flyweight<Domain, wchar_t>;
+	using string_flyweight = immutable_string_flyweight<Domain, char>;
+
+	template <typename Domain = void>
+	using wstring_flyweight = immutable_string_flyweight<Domain, wchar_t>;
 
 #ifdef __cpp_lib_char8_t
 	template <typename Domain = void>
-	using u8string_flyweight = basic_string_flyweight<Domain, char8_t>;
+	using u8string_flyweight = immutable_string_flyweight<Domain, char8_t>;
 #endif
 
 	template <typename Domain = void>
-	using u16string_flyweight = basic_string_flyweight<Domain, char16_t>;
+	using u16string_flyweight = immutable_string_flyweight<Domain, char16_t>;
 
 	template <typename Domain = void>
-	using u32string_flyweight = basic_string_flyweight<Domain, char32_t>;
+	using u32string_flyweight = immutable_string_flyweight<Domain, char32_t>;
 }

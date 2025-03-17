@@ -19,15 +19,15 @@ namespace
 
 TEMPLATE_LIST_TEST_CASE( "string_flyweight default", "[string_flyweight]", mclo::meta::char_types )
 {
-	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
+	using test_string = mclo::immutable_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
-	constexpr test_string default_handle;
+	const test_string default_handle;
 	CHECK( default_handle == view() );
 }
 
 TEMPLATE_LIST_TEST_CASE( "string_flyweight with value", "[string_flyweight]", mclo::meta::char_types )
 {
-	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
+	using test_string = mclo::immutable_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
 
 	const test_string handle( hello_world<TestType> );
@@ -50,7 +50,7 @@ TEMPLATE_LIST_TEST_CASE( "string_flyweight with value", "[string_flyweight]", mc
 
 TEMPLATE_LIST_TEST_CASE( "string_flyweight assign value", "[string_flyweight]", mclo::meta::char_types )
 {
-	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
+	using test_string = mclo::immutable_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
 
 	test_string handle( hello_world<TestType> );
@@ -68,7 +68,7 @@ TEMPLATE_LIST_TEST_CASE( "string_flyweight assign value", "[string_flyweight]", 
 
 TEMPLATE_LIST_TEST_CASE( "string_flyweight swap", "[string_flyweight]", mclo::meta::char_types )
 {
-	using test_string = mclo::basic_string_flyweight<struct test_domain, TestType>;
+	using test_string = mclo::immutable_string_flyweight<struct test_domain, TestType>;
 	using view = typename test_string::view;
 
 	test_string handle( hello_world<TestType> );
