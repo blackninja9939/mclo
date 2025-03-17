@@ -32,7 +32,4 @@ namespace mclo
 
 		[[nodiscard]] constexpr std::strong_ordering operator<=>( const sem_version& other ) const noexcept = default;
 	};
-
-	template<>
-	inline constexpr bool enable_bitwise_hash<sem_version> = true;
 }

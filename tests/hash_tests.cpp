@@ -49,20 +49,12 @@ namespace
 
 	using optional_type_list = mclo::meta::transform<add_optional, mclo::meta::integers>;
 
-	template <typename T>
-	struct is_bit_hashable
-	{
-		static constexpr bool value = mclo::enable_bitwise_hash<T>;
-	};
-	static_assert( mclo::meta::all_of_v<is_bit_hashable, mclo::meta::integers> );
+	static_assert( mclo::meta::all_of_v<std::has_unique_object_representations, mclo::meta::integers> );
 
 	static_assert( mclo::default_hashable<std::string> );
 
 	using hasher_types = mclo::meta::type_list<mclo::fnv1a_hasher, mclo::murmur_hash_3, mclo::rapidhash>;
 }
-
-template <>
-inline constexpr bool mclo::enable_bitwise_hash<bitwise_hashable_type> = true;
 
 TEMPLATE_LIST_TEST_CASE( "hash built in types", "[hash]", mclo::meta::integers )
 {

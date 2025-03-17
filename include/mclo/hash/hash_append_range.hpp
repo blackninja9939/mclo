@@ -11,7 +11,8 @@ namespace mclo
 		requires( hashable_with<std::ranges::range_value_t<Range>, Hasher> )
 	void hash_append_range( Hasher& hasher, Range&& range ) noexcept
 	{
-		if constexpr ( std::ranges::contiguous_range<Range> && enable_bitwise_hash<std::ranges::range_value_t<Range>> )
+		if constexpr ( std::ranges::contiguous_range<Range> &&
+					   std::has_unique_object_representations_v<std::ranges::range_value_t<Range>> )
 		{
 			hasher.write( mclo::as_bytes( mclo::span( std::forward<Range>( range ) ) ) );
 		}

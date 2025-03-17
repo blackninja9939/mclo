@@ -232,7 +232,4 @@ namespace mclo
 
 		T* m_ptr = nullptr;
 	};
-
-	template <typename T>
-	constexpr bool enable_bitwise_hash<intrusive_ptr<T>> = true;
 }

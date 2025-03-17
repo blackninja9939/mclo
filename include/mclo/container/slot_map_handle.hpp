@@ -89,9 +89,6 @@ namespace mclo
 			return this->get_combined() == other.get_combined();
 		}
 	};
-
-	template <typename T, std::size_t TotalBits, std::size_t GenerationBits>
-	constexpr bool enable_bitwise_hash<slot_map_handle<T, TotalBits, GenerationBits>> = true;
 }
 
 namespace std

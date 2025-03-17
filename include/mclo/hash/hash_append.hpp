@@ -7,11 +7,8 @@
 
 namespace mclo
 {
-	template <typename T>
-	inline constexpr bool enable_bitwise_hash = std::is_integral_v<T> || std::is_enum_v<T> || std::is_pointer_v<T>;
-
 	template <mclo::hasher Hasher, typename T>
-		requires( enable_bitwise_hash<T> )
+		requires( std::has_unique_object_representations_v<T> )
 	void hash_append( Hasher& hasher, const T& value ) noexcept
 	{
 		hasher.write( { reinterpret_cast<const std::byte*>( &value ), sizeof( T ) } );
