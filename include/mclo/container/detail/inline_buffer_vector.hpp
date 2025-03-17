@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mclo/container/synth_three_way.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
+#include "mclo/utility/synth_three_way.hpp"
 
 #include <algorithm>
 #include <cinttypes>
