@@ -21,6 +21,8 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/windows_wrapper.h"
     "allocator/default_resource.cpp"
     "allocator/linear_allocator.cpp"
+    "debug/breakpoint.cpp"
+    "debug/debugger_attached.cpp"
 )
 
 set_target_properties(
