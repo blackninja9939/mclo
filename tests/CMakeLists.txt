@@ -44,6 +44,7 @@ add_executable( tests
 	"saturated_math_tests.cpp"
 	"null_mutex_tests.cpp"
 	"indirect_tests.cpp"
+	"polymorphic_tests.cpp"
 )
 
 target_compile_definitions( 
