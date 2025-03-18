@@ -43,6 +43,7 @@ add_executable( tests
 	"pointer_variant_tests.cpp"
 	"saturated_math_tests.cpp"
 	"null_mutex_tests.cpp"
+	"indirect_tests.cpp"
 )
 
 target_compile_definitions( 

@@ -263,4 +263,13 @@
       </ArrayItems>
     </Expand>
   </Type>
+
+  <Type Name="mclo::indirect&lt;*&gt;">
+    <SmartPointer Usage="Minimal">m_ptr</SmartPointer>
+    <DisplayString Condition="!m_ptr">{{ valueless after move }}</DisplayString>
+    <DisplayString Condition="m_ptr">{ *m_ptr }</DisplayString>
+    <Expand>
+      <ExpandedItem>m_ptr</ExpandedItem>
+    </Expand>
+  </Type>
 </AutoVisualizer>
