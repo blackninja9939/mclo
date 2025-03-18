@@ -222,10 +222,10 @@ TEMPLATE_LIST_TEST_CASE( "tagged_unique_ptr piecewise", "[tagged_ptr]", test_typ
 	CHECK( address != reinterpret_cast<std::uintptr_t>( ptr.get() ) );
 }
 
-TEMPLATE_LIST_TEST_CASE( "platform_tagged_ptr from ptr and tag", "[tagged_ptr]", test_types )
+TEMPLATE_LIST_TEST_CASE( "tagged_ptr from ptr and tag larger type", "[tagged_ptr]", test_types )
 {
 	auto owned = std::make_unique<int>( 42 );
-	mclo::platform_tagged_ptr ptr( owned.get(), TestType( 16 ) );
+	mclo::tagged_ptr ptr( owned.get(), TestType( 16 ) );
 
 	CHECK( ptr.tag() == 16 );
 }
