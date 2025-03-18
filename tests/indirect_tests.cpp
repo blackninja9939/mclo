@@ -2,6 +2,8 @@
 
 #include "mclo/memory/indirect.hpp"
 
+#include "mclo/allocator/linear_allocator.hpp"
+
 namespace
 {
 	struct destroy_tracker
@@ -22,11 +24,29 @@ TEST_CASE( "mclo::indirect default construction", "[indirect]" )
 	CHECK_FALSE( object.valueless_after_move() );
 }
 
+TEST_CASE( "mclo::indirect allocator construct", "[indirect]" )
+{
+	mclo::typed_inline_linear_allocator_resource<int, 1> resource;
+	const mclo::indirect<int, mclo::linear_allocator<int>> object( std::allocator_arg, resource );
+
+	CHECK( *object == 0 ); // Default constructed int is 0
+	CHECK( object.get_allocator() == resource );
+}
+
 TEST_CASE( "mclo::indirect value construction", "[indirect]" )
 {
 	const mclo::indirect<int> object( 42 );
 	CHECK( *object == 42 );
 	CHECK_FALSE( object.valueless_after_move() );
+}
+
+TEST_CASE( "mclo::indirect allocator value construct", "[indirect]" )
+{
+	mclo::linear_allocator_resource resource( 1 );
+	const mclo::indirect<int, mclo::linear_allocator<int>> object( std::allocator_arg, resource, 42 );
+
+	CHECK( *object == 42 );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect deduction guide", "[indirect]" )
@@ -37,6 +57,15 @@ TEST_CASE( "mclo::indirect deduction guide", "[indirect]" )
 	static_assert( std::same_as<decltype( object ), mclo::indirect<int>> );
 }
 
+TEST_CASE( "mclo::indirect allocator deduction guide", "[indirect]" )
+{
+	mclo::linear_allocator_resource resource( 1 );
+	const mclo::indirect object( std::allocator_arg, mclo::linear_allocator<int>( resource ), 42 );
+
+	CHECK( *object == 42 );
+	CHECK( object.get_allocator() == resource );
+}
+
 TEST_CASE( "mclo::indirect in place construction", "[indirect]" )
 {
 	const mclo::indirect<std::string> object( std::in_place, 5, 'a' );
@@ -44,11 +73,31 @@ TEST_CASE( "mclo::indirect in place construction", "[indirect]" )
 	CHECK_FALSE( object.valueless_after_move() );
 }
 
+TEST_CASE( "mclo::indirect in place construction with allocator", "[indirect]" )
+{
+	mclo::linear_allocator_resource resource( 1 );
+	const mclo::indirect<std::string, mclo::linear_allocator<std::string>> object(
+		std::allocator_arg, resource, std::in_place, 5, 'a' );
+	CHECK( *object == "aaaaa" );
+	CHECK_FALSE( object.valueless_after_move() );
+	CHECK( object.get_allocator() == resource );
+}
+
 TEST_CASE( "mclo::indirect in place construction with initializer list", "[indirect]" )
 {
 	const mclo::indirect<std::string> object( std::in_place, { 'a', 'b', 'c', 'd', 'e' } );
 	CHECK( *object == "abcde" );
 	CHECK_FALSE( object.valueless_after_move() );
+}
+
+TEST_CASE( "mclo::indirect in place construction with initializer list and allocator", "[indirect]" )
+{
+	mclo::linear_allocator_resource resource( 1 );
+	const mclo::indirect<std::string, mclo::linear_allocator<std::string>> object(
+		std::allocator_arg, resource, std::in_place, { 'a', 'b', 'c', 'd', 'e' } );
+	CHECK( *object == "abcde" );
+	CHECK_FALSE( object.valueless_after_move() );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect copy construction", "[indirect]" )
@@ -159,13 +208,6 @@ TEST_CASE( "mclo::indirect destruction", "[indirect]" )
 	}
 
 	CHECK( was_destroyed );
-}
-
-TEST_CASE( "mclo::indirect get_allocator", "[indirect]" )
-{
-	mclo::indirect<int> object{ 42 };
-
-	CHECK( object.get_allocator() == std::allocator<int>{} );
 }
 
 TEST_CASE( "mclo::indirect equality and comparison", "[indirect]" )
