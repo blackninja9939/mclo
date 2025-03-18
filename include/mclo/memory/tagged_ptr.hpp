@@ -28,34 +28,39 @@ namespace mclo
 		constexpr bool is_zero_initializeable_v =
 			std::is_trivially_default_constructible_v<T> || is_default_zero_initialized<T>();
 
-		// todo(mc): these upper bits depend on x86-64 vs ARM and 32 vs 64 bit
-		// do we want to even support 32 bit code? I doubt it
 		inline constexpr std::size_t platform_free_upper_bits = ( sizeof( void* ) * CHAR_BIT ) - 48;
 	}
 
-	template <typename T, typename Tag, std::size_t Alignment = alignof( T ), std::size_t FreeUpperBits = 0>
+	template <typename T, typename Tag, std::size_t Alignment = alignof( T )>
 	class tagged_ptr
 	{
+	public:
+		using element_type = T;
+		using pointer = T*;
+		using const_pointer = const T*;
+		using tag_type = Tag;
+		using packed_type = std::uintptr_t;
+
 	private:
-		static constexpr std::size_t free_upper_bits = FreeUpperBits;
+		static constexpr std::size_t free_upper_bits = detail::platform_free_upper_bits;
 		static constexpr std::size_t free_lower_bits = std::bit_width( Alignment ) - 1;
 		static constexpr std::size_t total_free_bits = free_upper_bits + free_lower_bits;
 		static constexpr std::size_t used_ptr_bits = ( sizeof( void* ) * CHAR_BIT ) - total_free_bits;
 
-		static constexpr std::size_t tag_mask = ( std::uintptr_t( 1 ) << total_free_bits ) - 1;
+		static constexpr std::size_t tag_mask = ( packed_type( 1 ) << total_free_bits ) - 1;
 		static constexpr std::size_t ptr_mask = ~tag_mask;
 
 		static constexpr bool is_integer = std::is_integral_v<Tag> || std::is_enum_v<Tag>;
 
 		using tag_storage_type = mclo::uint_least_t<sizeof( Tag ) * CHAR_BIT>;
-		static_assert( std::is_convertible_v<tag_storage_type, std::uintptr_t>,
+		static_assert( std::is_convertible_v<tag_storage_type, packed_type>,
 					   "Tag type is too large to fit in a uintptr_t" );
 
-		[[nodiscard]] static constexpr std::uintptr_t pack_tag_unchecked( const Tag tag ) noexcept
+		[[nodiscard]] static constexpr packed_type pack_tag_unchecked( const Tag tag ) noexcept
 		{
 			if constexpr ( is_integer )
 			{
-				return static_cast<std::uintptr_t>( tag );
+				return static_cast<packed_type>( tag );
 			}
 			else
 			{
@@ -64,11 +69,6 @@ namespace mclo
 		}
 
 	public:
-		using element_type = T;
-		using pointer = T*;
-		using const_pointer = const T*;
-		using tag_type = Tag;
-
 		static_assert( std::is_trivially_destructible_v<tag_type>, "Tag type must be trivially destructible" );
 		static_assert( std::is_trivially_copyable_v<tag_type>, "Tag type must be trivially copyable" );
 		static_assert( detail::is_zero_initializeable_v<tag_type>,
@@ -92,6 +92,11 @@ namespace mclo
 		{
 		}
 
+		constexpr explicit tagged_ptr( packed_type packed ) noexcept
+			: m_bits( packed )
+		{
+		}
+
 		explicit tagged_ptr( pointer ptr ) noexcept
 			: m_bits( pack_ptr( ptr ) )
 		{
@@ -106,6 +111,11 @@ namespace mclo
 		{
 			set_ptr( ptr );
 			return *this;
+		}
+
+		[[nodiscard]] constexpr packed_type packed() const noexcept
+		{
+			return m_bits;
 		}
 
 		void set_ptr( pointer ptr ) noexcept
@@ -189,24 +199,24 @@ namespace mclo
 		}
 
 	private:
-		[[nodiscard]] static std::uintptr_t pack_ptr( pointer ptr ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] static packed_type pack_ptr( pointer ptr ) MCLO_NOEXCEPT_TESTS
 		{
-			const auto ptr_bits = reinterpret_cast<std::uintptr_t>( ptr );
+			const auto ptr_bits = reinterpret_cast<packed_type>( ptr );
 			DEBUG_ASSERT( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ),
 						  "Ptr is too strictly aligned, it must be aligned to at least Alignment" );
 			return ptr_bits << free_upper_bits;
 		}
-		[[nodiscard]] static pointer unpack_ptr( std::uintptr_t ptr ) noexcept
+		[[nodiscard]] static pointer unpack_ptr( packed_type ptr ) noexcept
 		{
 			return reinterpret_cast<pointer>( ( ptr & ptr_mask ) >> free_upper_bits );
 		}
 
-		[[nodiscard]] static constexpr std::uintptr_t pack_tag( const tag_type tag ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] static constexpr packed_type pack_tag( const tag_type tag ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( can_store_tag( tag ), "Tag using too many bits" );
 			return pack_tag_unchecked( tag );
 		}
-		[[nodiscard]] static constexpr tag_type unpack_tag( std::uintptr_t tag ) noexcept
+		[[nodiscard]] static constexpr tag_type unpack_tag( packed_type tag ) noexcept
 		{
 			if constexpr ( is_integer )
 			{
@@ -220,15 +230,11 @@ namespace mclo
 
 		// Layout is a T* shifted left by free_upper_bits, the lower free_lower_bits will
 		// always be zero and implicitly written over as part of the data as well
-		std::uintptr_t m_bits = 0;
+		packed_type m_bits = 0;
 	};
 
 	template <typename T, typename U>
 	tagged_ptr( T*, U ) -> tagged_ptr<T, U>;
-
-	// This is a tagged_ptr that also uses the platform's free upper bits not just the lower alignment bits
-	template <typename T, typename Tag, std::size_t Alignment = alignof( T )>
-	using platform_tagged_ptr = tagged_ptr<T, Tag, Alignment, detail::platform_free_upper_bits>;
 
 	template <typename T, typename Tag>
 	class tagged_unique_ptr : public tagged_ptr<T, Tag, alignof( std::max_align_t )>
