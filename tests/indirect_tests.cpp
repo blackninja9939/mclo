@@ -80,8 +80,8 @@ TEST_CASE( "mclo::indirect copy assignment", "[indirect]" )
 	mclo::indirect<int> object2;
 
 	object2 = object1;
-
 	*object1 = 50;
+
 	CHECK( *object1 == 50 );
 	CHECK( *object2 == 25 );
 	CHECK_FALSE( object1.valueless_after_move() );

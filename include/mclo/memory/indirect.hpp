@@ -1,28 +1,43 @@
 #pragma once
 
+#include <memory>
+
+#ifdef __cpp_lib_indirect
+
+namespace mclo
+{
+	using std::indirect;
+}
+
+#else
+
+#include "mclo/concepts/specialization_of.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/preprocessor/platform.hpp"
 #include "mclo/utility/synth_three_way.hpp"
 
 #include <compare>
 #include <concepts>
-#include <memory>
 #include <type_traits>
 
 namespace mclo
 {
-#ifdef __cpp_lib_indirect
-	using std::indirect;
-#else
 	template <typename T, typename Allocator = std::allocator<T>>
 	class indirect
 	{
 		using alloc_traits = std::allocator_traits<Allocator>;
 		static_assert( std::is_same_v<T, typename alloc_traits::value_type>, "Allocator::value_type must be T" );
 		static_assert( std::is_object_v<T>, "T must be an object type" );
+		static_assert( !std::is_array_v<T>, "T must not be an array type" );
 		static_assert( !std::is_same_v<T, std::in_place_t>, "T cannot be std::in_place_t" );
-		static_assert( !std::is_same_v<T, std::in_place_type_t<T>>, "T cannot be std::in_place_type_t<T>" );
+		static_assert( !mclo::specialization_of<T, std::in_place_type_t>,
+					   "T cannot be a specialization of std::in_place_type_t" );
 		static_assert( std::is_same_v<T, std::remove_cv_t<T>>, "T cannot be cv qualified" );
+
+		template <typename U>
+		static constexpr bool is_convertible_from =
+			!std::is_same_v<std::remove_cvref_t<U>, indirect> &&
+			!std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U>;
 
 	public:
 		using value_type = T;
@@ -92,17 +107,14 @@ namespace mclo
 
 		template <typename U = T>
 		explicit constexpr indirect( U&& value )
-			requires( !std::is_same_v<std::remove_cvref_t<U>, indirect> &&
-					  !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U> &&
-					  std::is_default_constructible_v<allocator_type> )
+			requires( is_convertible_from<U> && std::is_default_constructible_v<allocator_type> )
 			: indirect( std::allocator_arg, allocator_type{}, std::forward<U>( value ) )
 		{
 		}
 
 		template <typename U = T>
 		explicit constexpr indirect( std::allocator_arg_t, const Allocator& alloc, U&& value )
-			requires( !std::is_same_v<std::remove_cvref_t<U>, indirect> &&
-					  !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U> )
+			requires( is_convertible_from<U> )
 			: m_alloc( alloc )
 		{
 			m_ptr = create( m_alloc, std::forward<U>( value ) );
@@ -243,37 +255,43 @@ namespace mclo
 			return *this;
 		}
 
-		[[nodiscard]] constexpr const T& operator*() const& noexcept
+		[[nodiscard]] constexpr const T& operator*() const& MCLO_NOEXCEPT_TESTS
 		{
+			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return *m_ptr;
 		}
 
-		[[nodiscard]] constexpr T& operator*() & noexcept
+		[[nodiscard]] constexpr T& operator*() & MCLO_NOEXCEPT_TESTS
 		{
+			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return *m_ptr;
 		}
 
-		[[nodiscard]] constexpr const T&& operator*() const&& noexcept
+		[[nodiscard]] constexpr const T&& operator*() const&& MCLO_NOEXCEPT_TESTS
 		{
+			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return std::move( **this );
 		}
 
-		[[nodiscard]] constexpr T&& operator*() && noexcept
+		[[nodiscard]] constexpr T&& operator*() && MCLO_NOEXCEPT_TESTS
 		{
+			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return std::move( **this );
 		}
 
-		[[nodiscard]] constexpr const_pointer operator->() const noexcept
+		[[nodiscard]] constexpr const_pointer operator->() const MCLO_NOEXCEPT_TESTS
 		{
+			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
 			return m_ptr;
 		}
 
-		[[nodiscard]] constexpr pointer operator->() noexcept
+		[[nodiscard]] constexpr pointer operator->() MCLO_NOEXCEPT_TESTS
 		{
+			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
 			return m_ptr;
 		}
 
-		constexpr bool valueless_after_move() const noexcept
+		[[nodiscard]] constexpr bool valueless_after_move() const noexcept
 		{
 			return m_ptr == nullptr;
 		}
@@ -374,7 +392,7 @@ namespace mclo
 		}
 
 	private:
-		constexpr void destroy()
+		constexpr void destroy() noexcept
 		{
 			if ( m_ptr )
 			{
@@ -426,10 +444,8 @@ namespace mclo
 	template <typename T, typename Allocator>
 	indirect( std::allocator_arg_t, Allocator, T )
 		-> indirect<T, typename std::allocator_traits<Allocator>::template rebind_alloc<T>>;
-#endif
 }
 
-#ifndef __cpp_lib_indirect
 template <typename T, typename Allocator>
 struct std::hash<mclo::indirect<T, Allocator>>
 {
@@ -442,4 +458,5 @@ struct std::hash<mclo::indirect<T, Allocator>>
 		return std::hash<T>{}( *value );
 	}
 };
+
 #endif
