@@ -33,6 +33,10 @@ namespace mclo
 					   "T cannot be a specialization of std::in_place_type_t" );
 		static_assert( std::is_same_v<T, std::remove_cv_t<T>>, "T cannot be cv qualified" );
 
+		// todo(mc) the specification allows for using an inline buffer of memory like std::any, maybe I should do that?
+		// can we implement the abstract functions as a manual function pointer vtable instead? Is that dispatch faster than the virtual calls?
+		// rolling it manually would involve an allocation and virtual calls anyway for a unique_ptr like type wrapping to do clone etc
+
 		struct control_block
 		{
 			typename alloc_traits::pointer m_ptr = nullptr;
@@ -44,7 +48,7 @@ namespace mclo
 		};
 
 		template <typename U>
-		struct object_control_block : control_block
+		struct object_control_block final : control_block
 		{
 			using value_alloc = typename alloc_traits::template rebind_alloc<U>;
 			using value_traits = std::allocator_traits<value_alloc>;
