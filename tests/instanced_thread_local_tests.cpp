@@ -3,9 +3,6 @@
 
 #include "mclo/threading/instanced_thread_local.hpp"
 
-#include "mclo/allocator/new_delete_resource.hpp"
-#include "mclo/allocator/resource_allocator.hpp"
-
 #include <thread>
 #include <unordered_set>
 #include <vector>
@@ -36,7 +33,7 @@ namespace
 		int i = 0;
 	};
 
-	class limited_use_resource
+	class limited_use_resource final : public std::pmr::memory_resource
 	{
 	public:
 		explicit limited_use_resource( const std::size_t use_count ) noexcept
@@ -44,22 +41,23 @@ namespace
 		{
 		}
 
-		[[nodiscard]] std::byte* allocate( const std::size_t size, const std::size_t alignment )
+	protected:
+		[[nodiscard]] void* do_allocate( const std::size_t size, const std::size_t alignment ) override
 		{
 			if ( m_use_count == 0 )
 			{
 				throw std::bad_alloc();
 			}
 			--m_use_count;
-			return mclo::new_delete_memory_resource::instance().allocate( size, alignment );
+			return std::pmr::new_delete_resource()->allocate( size, alignment );
 		}
 
-		void deallocate( std::byte* const ptr, const std::size_t size, const std::size_t alignment ) noexcept
+		void do_deallocate( void* const ptr, const std::size_t size, const std::size_t alignment ) override
 		{
-			mclo::new_delete_memory_resource::instance().deallocate( ptr, size, alignment );
+			std::pmr::new_delete_resource()->deallocate( ptr, size, alignment );
 		}
 
-		[[nodiscard]] bool operator==( const limited_use_resource& other ) const noexcept
+		[[nodiscard]] bool do_is_equal( const std::pmr::memory_resource& other ) const noexcept override
 		{
 			return this == &other;
 		}
@@ -108,7 +106,7 @@ TEST_CASE( "instanced_thread_local iterate over contains all threads", "[instanc
 TEST_CASE( "instanced_thread_local custom allocator", "[instanced_thread_local]" )
 {
 	limited_use_resource resource( 3 );
-	mclo::instanced_thread_local<int, mclo::resource_allocator<limited_use_resource, int>> object( resource );
+	mclo::pmr::instanced_thread_local<int> object( &resource );
 	{
 		std::jthread a( [ & ] { object.get() = 1; } );
 	}
@@ -116,13 +114,13 @@ TEST_CASE( "instanced_thread_local custom allocator", "[instanced_thread_local]"
 		std::jthread b( [ & ] { object.get() = 2; } );
 	}
 	object.get() = 0;
-	CHECK( object.get_allocator() == resource );
+	CHECK( object.get_allocator() == &resource );
 }
 
 TEST_CASE( "instanced_thread_local custom allocator throws strong exception guarantee", "[instanced_thread_local]" )
 {
 	limited_use_resource resource( 2 );
-	mclo::instanced_thread_local<int, mclo::resource_allocator<limited_use_resource, int>> object( resource );
+	mclo::pmr::instanced_thread_local<int> object( &resource );
 	{
 		std::jthread a( [ & ] { object.get() = 1; } );
 	}

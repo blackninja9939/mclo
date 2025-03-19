@@ -18,6 +18,7 @@ namespace mclo
 
 #include <compare>
 #include <concepts>
+#include <memory_resource>
 #include <type_traits>
 
 namespace mclo
@@ -444,6 +445,12 @@ namespace mclo
 	template <typename T, typename Allocator>
 	indirect( std::allocator_arg_t, Allocator, T )
 		-> indirect<T, typename std::allocator_traits<Allocator>::template rebind_alloc<T>>;
+
+	namespace pmr
+	{
+		template <typename T>
+		using indirect = mclo::indirect<T, std::pmr::polymorphic_allocator<T>>;
+	}
 }
 
 template <typename T, typename Allocator>

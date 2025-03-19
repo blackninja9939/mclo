@@ -6,6 +6,7 @@
 
 #include <atomic>
 #include <memory>
+#include <memory_resource>
 #include <type_traits>
 
 namespace mclo
@@ -165,4 +166,10 @@ namespace mclo
 	private:
 		thread_local_key m_key;
 	};
+
+	namespace pmr
+	{
+		template <typename T>
+		using instanced_thread_local = mclo::instanced_thread_local<T, std::pmr::polymorphic_allocator<T>>;
+	}
 }

@@ -1,15 +1,14 @@
 #pragma once
 
+#include <memory_resource>
 #include <memory>
 
-#include "mclo/allocator/resource_allocator.hpp"
-#include "mclo/allocator/upstream_resource.hpp"
 #include "mclo/container/span.hpp"
 #include "mclo/memory/alloca.hpp"
 
 namespace mclo
 {
-	class linear_allocator_resource
+	class linear_allocator_resource : public std::pmr::memory_resource
 	{
 	private:
 		struct buffer_header
@@ -26,32 +25,39 @@ namespace mclo
 
 	public:
 		explicit linear_allocator_resource( const std::size_t initial_size );
-		linear_allocator_resource( const std::size_t initial_size, upstream_resource upstream );
+		linear_allocator_resource( const std::size_t initial_size, std::pmr::memory_resource& upstream );
 
 		explicit linear_allocator_resource( const mclo::span<std::byte> buffer ) noexcept;
-		linear_allocator_resource( const mclo::span<std::byte> buffer, upstream_resource upstream ) noexcept;
+		linear_allocator_resource( const mclo::span<std::byte> buffer, std::pmr::memory_resource& upstream ) noexcept;
 
 		~linear_allocator_resource();
 
 		linear_allocator_resource( const linear_allocator_resource& ) = delete;
 		linear_allocator_resource& operator=( const linear_allocator_resource& ) = delete;
 
-		[[nodiscard]] std::byte* allocate( const std::size_t size, const std::size_t alignment );
+		void release();
 
-		void deallocate( std::byte*, const std::size_t, const std::size_t ) noexcept
+		void reset() noexcept;
+		void reset_consolidate();
+		
+		[[nodiscard]] std::pmr::memory_resource* upstream_resource() const noexcept
+		{
+			return m_upstream;
+		}
+
+	protected:
+		[[nodiscard]] void* do_allocate( const std::size_t size, const std::size_t alignment ) override;
+
+		void do_deallocate( void*, const std::size_t, const std::size_t ) override
 		{
 		}
 
-		void reset() noexcept;
-		void reset_consolidate() noexcept;
-
-		[[nodiscard]] bool operator==( const linear_allocator_resource& other ) const noexcept;
+		[[nodiscard]] bool do_is_equal( const std::pmr::memory_resource& other ) const noexcept override;
 
 	private:
-		void release();
 		void add_buffer_node( const std::size_t size );
 
-		upstream_resource m_upstream;
+		std::pmr::memory_resource* m_upstream = nullptr;
 		mclo::span<std::byte> m_buffer;
 		std::byte* m_current = nullptr;
 		buffer_header* m_allocated_buffers = nullptr;
@@ -69,7 +75,7 @@ namespace mclo
 			: linear_allocator_resource( m_buffer )
 		{
 		}
-		explicit inline_linear_allocator_resource( upstream_resource upstream ) noexcept
+		explicit inline_linear_allocator_resource( std::pmr::memory_resource& upstream ) noexcept
 			: linear_allocator_resource( m_buffer, upstream )
 		{
 		}
@@ -80,7 +86,4 @@ namespace mclo
 
 	template <typename T, std::size_t Num>
 	using typed_inline_linear_allocator_resource = inline_linear_allocator_resource<sizeof( T ) * Num, alignof( T )>;
-
-	template <typename T>
-	using linear_allocator = resource_allocator<linear_allocator_resource, T>;
 }

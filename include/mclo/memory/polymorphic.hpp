@@ -17,6 +17,7 @@ namespace mclo
 
 #include <compare>
 #include <concepts>
+#include <memory_resource>
 #include <type_traits>
 
 namespace mclo
@@ -34,8 +35,9 @@ namespace mclo
 		static_assert( std::is_same_v<T, std::remove_cv_t<T>>, "T cannot be cv qualified" );
 
 		// todo(mc) the specification allows for using an inline buffer of memory like std::any, maybe I should do that?
-		// can we implement the abstract functions as a manual function pointer vtable instead? Is that dispatch faster than the virtual calls?
-		// rolling it manually would involve an allocation and virtual calls anyway for a unique_ptr like type wrapping to do clone etc
+		// can we implement the abstract functions as a manual function pointer vtable instead? Is that dispatch faster
+		// than the virtual calls? rolling it manually would involve an allocation and virtual calls anyway for a
+		// unique_ptr like type wrapping to do clone etc
 
 		struct MCLO_NO_VTABLE control_block
 		{
@@ -425,6 +427,12 @@ namespace mclo
 		control_block* m_control_block = nullptr;
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_alloc;
 	};
+
+	namespace pmr
+	{
+		template <typename T>
+		using polymorphic = polymorphic<T, std::pmr::polymorphic_allocator<T>>;
+	}
 }
 
 #endif
