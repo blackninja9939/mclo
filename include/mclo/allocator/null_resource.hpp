@@ -1,7 +1,5 @@
 #pragma once
 
-#include "mclo/debug/assert.hpp"
-
 #include <cstddef>
 #include <new>
 
@@ -26,7 +24,7 @@ namespace mclo
 
 		static null_memory_resource& instance() noexcept
 		{
-			static null_memory_resource obj;
+			static constinit null_memory_resource obj;
 			return obj;
 		}
 	};

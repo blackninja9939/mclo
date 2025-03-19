@@ -37,7 +37,7 @@ namespace mclo
 		// can we implement the abstract functions as a manual function pointer vtable instead? Is that dispatch faster than the virtual calls?
 		// rolling it manually would involve an allocation and virtual calls anyway for a unique_ptr like type wrapping to do clone etc
 
-		struct control_block
+		struct MCLO_NO_VTABLE control_block
 		{
 			typename alloc_traits::pointer m_ptr = nullptr;
 

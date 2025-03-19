@@ -62,3 +62,9 @@
 	}
 
 #define MCLO_NO_UNIQUE_ADDRESS [[no_unique_address]] [[msvc::no_unique_address]]
+
+#ifdef _MSC_VER
+#define MCLO_NO_VTABLE __declspec( novtable )
+#else
+#define MCLO_NO_VTABLE
+#endif

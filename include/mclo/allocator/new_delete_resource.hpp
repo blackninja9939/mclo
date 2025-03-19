@@ -25,7 +25,7 @@ namespace mclo
 
 		static new_delete_memory_resource& instance() noexcept
 		{
-			static new_delete_memory_resource obj;
+			static constinit new_delete_memory_resource obj;
 			return obj;
 		}
 	};
