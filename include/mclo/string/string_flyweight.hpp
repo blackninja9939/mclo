@@ -50,13 +50,6 @@ namespace mclo
 			}
 		};
 
-		template <typename CharT, typename Traits, typename Header>
-		[[nodiscard]] std::basic_string_view<CharT, Traits> view_header( const Header& header ) noexcept
-		{
-			const auto str_start = reinterpret_cast<const std::byte*>( &header ) + sizeof( Header );
-			return { reinterpret_cast<const CharT*>( str_start ), header.m_size };
-		}
-
 		template <typename Header, typename CharT>
 		[[nodiscard]] constexpr std::size_t calc_num_header_allocs( const std::size_t size ) noexcept
 		{
@@ -165,7 +158,8 @@ namespace mclo
 		private:
 			[[nodiscard]] static view get( const Header& hdr ) noexcept
 			{
-				return view_header<CharT, Traits>( hdr );
+				const auto str_start = reinterpret_cast<const std::byte*>( &hdr ) + sizeof( Header );
+				return { reinterpret_cast<const CharT*>( str_start ), hdr.m_size };
 			}
 
 			struct hasher
