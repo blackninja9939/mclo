@@ -45,6 +45,7 @@ add_executable( tests
 	"null_mutex_tests.cpp"
 	"indirect_tests.cpp"
 	"polymorphic_tests.cpp"
+	"atomic_shared_ptr_tests.cpp"
 )
 
 target_compile_definitions( 
