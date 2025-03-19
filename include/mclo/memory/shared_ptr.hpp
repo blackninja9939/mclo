@@ -19,10 +19,6 @@ namespace mclo
 			virtual void destroy_object() noexcept = 0;
 			virtual void deallocate_this() noexcept = 0;
 
-			// todo(mc) this should not exist, its used for weak_ptr only, move it so that weak_ptr knows its actual pointer like shared_ptr
-			// and constructs from that
-			[[nodiscard]] virtual void* get_ptr() const noexcept = 0;
-
 			[[nodiscard]] virtual void* get_deleter(
 				[[maybe_unused]] const std::type_info& deleter_type ) const noexcept
 			{
@@ -58,19 +54,19 @@ namespace mclo
 				owner_counter.fetch_add( 1, std::memory_order_relaxed );
 			}
 
-			[[nodiscard]] void* try_add_owner() noexcept
+			[[nodiscard]] bool try_add_owner() noexcept
 			{
 				counter_t expected = owner_counter.load( std::memory_order_relaxed );
 
 				while ( expected != 0 )
 				{
-					if ( owner_counter.compare_exchange_weak( expected, expected + 1 ) )
+					if ( owner_counter.compare_exchange_weak( expected, expected + 1, std::memory_order_relaxed ) )
 					{
-						return get_ptr();
+						return true;
 					}
 				}
 
-				return nullptr;
+				return false;
 			}
 
 			[[nodiscard]] long get_owner_count() const noexcept
@@ -81,7 +77,7 @@ namespace mclo
 		private:
 			using counter_t = long;
 			using atomic_counter_t = std::atomic<counter_t>;
-			
+
 			atomic_counter_t owner_counter{ 1 };
 
 			// weak is always 1 if there is any active so as to avoid race conditions with the active counter
@@ -106,11 +102,6 @@ namespace mclo
 				delete this;
 			}
 
-			[[nodiscard]] void* get_ptr() const noexcept override
-			{
-				return ptr;
-			}
-
 		private:
 			T* ptr;
 		};
@@ -131,11 +122,6 @@ namespace mclo
 			void deallocate_this() noexcept override
 			{
 				delete this;
-			}
-
-			[[nodiscard]] void* get_ptr() const noexcept override
-			{
-				return ptr;
 			}
 
 		private:
@@ -159,11 +145,6 @@ namespace mclo
 			void deallocate_this() noexcept override
 			{
 				delete this;
-			}
-
-			[[nodiscard]] void* get_ptr() const noexcept override
-			{
-				return get_object();
 			}
 
 			[[nodiscard]] MCLO_FORCE_INLINE T* get_object() const noexcept
@@ -192,11 +173,6 @@ namespace mclo
 			void deallocate_this() noexcept override
 			{
 				delete this;
-			}
-
-			[[nodiscard]] void* get_ptr() const noexcept override
-			{
-				return ptr;
 			}
 
 			[[nodiscard]] void* get_deleter( const std::type_info& deleter_type ) const noexcept override
@@ -236,11 +212,6 @@ namespace mclo
 			{
 				this_alloc_traits::destroy( allocator, this );
 				this_alloc_traits::deallocate( allocator, this, 1 );
-			}
-
-			[[nodiscard]] void* get_ptr() const noexcept override
-			{
-				return ptr;
 			}
 
 			[[nodiscard]] void* get_deleter( const std::type_info& deleter_type ) const noexcept override
@@ -441,14 +412,16 @@ namespace mclo
 		constexpr weak_ptr() noexcept = default;
 
 		weak_ptr( weak_ptr&& other ) noexcept
-			: control_block( std::exchange( other.control_block, nullptr ) )
+			: ptr( std::exchange( other.ptr, nullptr ) )
+			, control_block( std::exchange( other.control_block, nullptr ) )
 		{
 		}
 
 		template <typename U>
 			requires detail::is_compatible_shared_ptr<U, T>
 		weak_ptr( weak_ptr<U>&& other ) noexcept
-			: control_block( std::exchange( other.control_block, nullptr ) )
+			: ptr( std::exchange( other.ptr, nullptr ) )
+			, control_block( std::exchange( other.control_block, nullptr ) )
 		{
 		}
 
@@ -458,6 +431,7 @@ namespace mclo
 			{
 				other.control_block->add_weak();
 				control_block = other.control_block;
+				ptr = other.ptr;
 			}
 		}
 
@@ -469,6 +443,7 @@ namespace mclo
 			{
 				other.control_block->add_weak();
 				control_block = other.control_block;
+				ptr = other.ptr;
 			}
 		}
 
@@ -480,6 +455,7 @@ namespace mclo
 			{
 				other.control_block->add_weak();
 				control_block = other.control_block;
+				ptr = other.ptr;
 			}
 		}
 
@@ -530,6 +506,7 @@ namespace mclo
 		void swap( weak_ptr& other ) noexcept
 		{
 			std::swap( control_block, other.control_block );
+			std::swap( ptr, other.ptr );
 		}
 
 		void reset() noexcept
@@ -554,8 +531,8 @@ namespace mclo
 				return {};
 			}
 
-			T* ptr = static_cast<T*>( control_block->try_add_owner() );
-			if ( !ptr )
+			const bool success = control_block->try_add_owner();
+			if ( !success )
 			{
 				return {};
 			}
@@ -577,6 +554,7 @@ namespace mclo
 		}
 
 	private:
+		T* ptr = nullptr;
 		detail::control_block_base* control_block = nullptr;
 	};
 
@@ -758,13 +736,13 @@ namespace mclo
 				throw bad_weak_ptr();
 			}
 
-			T* owned_ptr = static_cast<T*>( other.control_block->try_add_owner() );
-			if ( !owned_ptr )
+			const bool success = other.control_block->try_add_owner();
+			if ( !success )
 			{
 				throw bad_weak_ptr();
 			}
 
-			set_data_no_shared_from_this( owned_ptr, other.control_block );
+			set_data_no_shared_from_this( other.ptr, other.control_block );
 		}
 
 		template <typename U, typename TDeleter>
