@@ -73,15 +73,12 @@ namespace mclo
 
 	void linear_allocator_resource::release()
 	{
-		while ( m_allocated_buffers )
-		{
-			const auto [ size, next ] = *m_allocated_buffers;
-			std::destroy_at( m_allocated_buffers );
-			m_upstream->deallocate( reinterpret_cast<std::byte*>( m_allocated_buffers ),
-									size + sizeof( buffer_header ),
+		m_allocated_buffers.consume( [ this ]( buffer_header* node ) noexcept {
+			std::destroy_at( node );
+			m_upstream->deallocate( reinterpret_cast<std::byte*>( node ),
+									node->m_size + sizeof( buffer_header ),
 									alignof( buffer_header ) );
-			m_allocated_buffers = next;
-		}
+		} );
 	}
 
 	void linear_allocator_resource::reset() noexcept
@@ -89,9 +86,9 @@ namespace mclo
 		m_current = m_buffer.data();
 	}
 
-	void linear_allocator_resource::reset_consolidate() noexcept
+	void linear_allocator_resource::reset_consolidate()
 	{
-		if ( !m_allocated_buffers || !m_allocated_buffers->m_previous )
+		if ( m_allocated_buffers.empty() )
 		{
 			return;
 		}
@@ -100,16 +97,21 @@ namespace mclo
 		add_buffer_node( last_size );
 	}
 
+	std::pmr::memory_resource* linear_allocator_resource::upstream_resource() const noexcept
+	{
+		return m_upstream;
+	}
+
 	void linear_allocator_resource::add_buffer_node( const std::size_t size )
 	{
 		auto ptr =
 			static_cast<std::byte*>( m_upstream->allocate( size + sizeof( buffer_header ), alignof( buffer_header ) ) );
-		m_allocated_buffers = std::construct_at( reinterpret_cast<buffer_header*>( ptr ), size, m_allocated_buffers );
+		m_allocated_buffers.push_front( *std::construct_at( reinterpret_cast<buffer_header*>( ptr ), size ) );
 		m_buffer = { ptr + sizeof( buffer_header ), size };
 		m_current = m_buffer.data();
 	}
 
-	[[nodiscard]] bool linear_allocator_resource::do_is_equal( const std::pmr::memory_resource& other ) const noexcept
+	bool linear_allocator_resource::do_is_equal( const std::pmr::memory_resource& other ) const noexcept
 	{
 		return this == &other;
 	}

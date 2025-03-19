@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory_resource>
 #include <memory>
+#include <memory_resource>
 
+#include "mclo/container/intrusive_forward_list.hpp"
 #include "mclo/container/span.hpp"
 #include "mclo/memory/alloca.hpp"
 
@@ -11,16 +12,14 @@ namespace mclo
 	class linear_allocator_resource : public std::pmr::memory_resource
 	{
 	private:
-		struct buffer_header
+		struct buffer_header : intrusive_forward_list_hook<>
 		{
-			buffer_header( const std::size_t size, buffer_header* const previous ) noexcept
+			buffer_header( const std::size_t size ) noexcept
 				: m_size( size )
-				, m_previous( previous )
 			{
 			}
 
 			std::size_t m_size = 0;
-			buffer_header* m_previous = nullptr;
 		};
 
 	public:
@@ -39,11 +38,8 @@ namespace mclo
 
 		void reset() noexcept;
 		void reset_consolidate();
-		
-		[[nodiscard]] std::pmr::memory_resource* upstream_resource() const noexcept
-		{
-			return m_upstream;
-		}
+
+		[[nodiscard]] std::pmr::memory_resource* upstream_resource() const noexcept;
 
 	protected:
 		[[nodiscard]] void* do_allocate( const std::size_t size, const std::size_t alignment ) override;
@@ -60,7 +56,7 @@ namespace mclo
 		std::pmr::memory_resource* m_upstream = nullptr;
 		mclo::span<std::byte> m_buffer;
 		std::byte* m_current = nullptr;
-		buffer_header* m_allocated_buffers = nullptr;
+		intrusive_forward_list<buffer_header> m_allocated_buffers;
 	};
 
 #define MCLO_ALLOCA_LINEAR_ALLOCATOR( NAME, TYPE, AMOUNT )                                                             \
