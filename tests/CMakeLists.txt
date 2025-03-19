@@ -41,10 +41,12 @@ add_executable( tests
 	"circular_buffer_tests.cpp"
 	"intrusive_forward_list_tests.cpp"
 	"pointer_variant_tests.cpp"
-	"saturated_math_tests.cpp"
 	"null_mutex_tests.cpp"
 	"indirect_tests.cpp"
 	"polymorphic_tests.cpp"
+	"checked_math_tests.cpp"
+	"overflowing_math_tests.cpp"
+	"saturated_math_tests.cpp"
 )
 
 target_compile_definitions( 
