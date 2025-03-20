@@ -9,6 +9,7 @@ namespace mclo
 {
 	struct maintain_refs_t
 	{
+		explicit maintain_refs_t() = default;	
 	};
 	inline constexpr maintain_refs_t maintain_refs;
 

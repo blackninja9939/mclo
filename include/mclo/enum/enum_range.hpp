@@ -126,6 +126,7 @@ namespace mclo
 
 	struct exclusive_enum_range_t
 	{
+		explicit exclusive_enum_range_t() = default;
 	};
 
 	inline constexpr exclusive_enum_range_t exclusive_enum_range;

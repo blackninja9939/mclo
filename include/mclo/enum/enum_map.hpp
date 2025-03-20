@@ -137,6 +137,7 @@ namespace mclo
 
 	struct sorted_unique_t
 	{
+		explicit sorted_unique_t() = default;
 	};
 
 	inline constexpr sorted_unique_t sorted_unique;
