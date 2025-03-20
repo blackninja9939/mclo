@@ -272,4 +272,8 @@
       <ExpandedItem>m_ptr</ExpandedItem>
     </Expand>
   </Type>
+
+  <Type Name="mclo::normalized_float&lt;*&gt;">
+    <DisplayString>{ float( m_value ) / scale }</DisplayString>
+  </Type>
 </AutoVisualizer>

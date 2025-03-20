@@ -47,6 +47,7 @@ add_executable( tests
 	"checked_math_tests.cpp"
 	"overflowing_math_tests.cpp"
 	"saturated_math_tests.cpp"
+	"normalized_float_tests.cpp"
 )
 
 target_compile_definitions( 
