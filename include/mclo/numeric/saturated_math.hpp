@@ -103,13 +103,56 @@ namespace mclo
 	template <standard_integral T, standard_integral U>
 	[[nodiscard]] constexpr T saturate_cast( const U x ) noexcept
 	{
-		if ( std::cmp_less( x, std::numeric_limits<T>::min() ) )
+		/*
+		* Unwrapped version of effectively:
+		* if ( std::cmp_less( x, std::numeric_limits<T>::min() ) )
+		* {
+		* 	return std::numeric_limits<T>::min();
+		* }
+		* if ( std::cmp_greater( x, std::numeric_limits<T>::max() ) )
+		* {
+		* 	return std::numeric_limits<T>::max();
+		* }
+		* 
+		* Unwrapping lets us eliminate the branches entirely at compile time
+		*/
+		constexpr int digits_result = std::numeric_limits<T>::digits;
+		constexpr int digits_in = std::numeric_limits<U>::digits;
+		constexpr T max_result = std::numeric_limits<T>::max();
+
+		if constexpr ( std::is_signed_v<T> == std::is_signed_v<U> )
 		{
-			return std::numeric_limits<T>::min();
+			if constexpr ( digits_result < digits_in )
+			{
+				constexpr T min_result = std::numeric_limits<T>::lowest();
+
+				if ( x < static_cast<U>( min_result ) )
+				{
+					return min_result;
+				}
+				else if ( x > static_cast<U>( max_result ) )
+				{
+					return max_result;
+				}
+			}
 		}
-		if ( std::cmp_greater( x, std::numeric_limits<T>::max() ) )
+		else if constexpr ( std::is_signed_v<U> )
 		{
-			return std::numeric_limits<T>::max();
+			if ( x < 0 )
+			{
+				return 0;
+			}
+			else if ( std::make_unsigned_t<U>( x ) > max_result )
+			{
+				return max_result;
+			}
+		}
+		else
+		{
+			if ( x > std::make_unsigned_t<T>( max_result ) )
+			{
+				return max_result;
+			}
 		}
 		return static_cast<T>( x );
 	}
