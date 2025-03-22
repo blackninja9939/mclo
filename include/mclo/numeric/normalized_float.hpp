@@ -145,7 +145,19 @@ namespace mclo
 			return *this;
 		}
 
+		[[nodiscard]] constexpr normalized_float& operator*=( const Underlying other ) noexcept
+		{
+			*this = *this * other;
+			return *this;
+		}
+
 		[[nodiscard]] constexpr normalized_float& operator/=( const normalized_float other ) noexcept
+		{
+			*this = *this / other;
+			return *this;
+		}
+
+		[[nodiscard]] constexpr normalized_float& operator/=( const Underlying other ) noexcept
 		{
 			*this = *this / other;
 			return *this;
