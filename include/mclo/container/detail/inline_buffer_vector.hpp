@@ -551,19 +551,6 @@ namespace mclo::detail
 			return std::make_reverse_iterator( cbegin() );
 		}
 
-		[[nodiscard]] friend bool operator==( const inline_buffer_vector_base& lhs,
-											  const inline_buffer_vector_base& rhs )
-		{
-			return lhs.m_size == rhs.m_size && std::equal( lhs.begin(), lhs.end(), rhs.begin() );
-		}
-
-		[[nodiscard]] friend auto operator<=>( const inline_buffer_vector_base& lhs,
-											   const inline_buffer_vector_base& rhs )
-		{
-			return std::lexicographical_compare_three_way(
-				lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), mclo::synth_three_way{} );
-		}
-
 	protected:
 		explicit inline_buffer_vector_base( const size_type capacity ) noexcept
 			: base( get_first_element(), capacity )
@@ -934,6 +921,21 @@ namespace mclo::detail
 			return get_first_element() == this->m_data;
 		}
 	};
+
+	template <typename T, bool CanGrow>
+	[[nodiscard]] friend bool operator==( const inline_buffer_vector_base<T, CanGrow>& lhs,
+										  const inline_buffer_vector_base<T, CanGrow>& rhs )
+	{
+		return lhs.size() == rhs.size() && std::equal( lhs.begin(), lhs.end(), rhs.begin() );
+	}
+
+	template <typename T, bool CanGrow>
+	[[nodiscard]] mclo::synth_three_way_result<T> operator<=>( const inline_buffer_vector_base<T, CanGrow>& lhs,
+															   const inline_buffer_vector_base<T, CanGrow>& rhs )
+	{
+		return std::lexicographical_compare_three_way(
+			lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), mclo::synth_three_way{} );
+	}
 
 	template <typename T>
 	constexpr std::size_t default_inline_capacity_bytes =
