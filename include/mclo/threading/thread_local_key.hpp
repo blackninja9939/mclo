@@ -19,6 +19,11 @@ namespace mclo
 		thread_local_key();
 		~thread_local_key();
 
+		thread_local_key( const thread_local_key& ) = delete;
+		thread_local_key( thread_local_key&& ) = delete;
+		thread_local_key& operator=( const thread_local_key& ) = delete;
+		thread_local_key& operator=( thread_local_key&& ) = delete;
+
 		void set( void* value );
 		void* get() const noexcept;
 
