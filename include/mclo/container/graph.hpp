@@ -288,6 +288,16 @@ namespace mclo
 			return m_edges;
 		}
 
+		/*
+		* todo(mc)
+		* - Add a function to remove an edge
+		* - Add a function to remove a vertex
+		* - Add a function to check if an edge exists, or is this doable via the public exposed data?
+		* - Add a visitor support, depth first, breadth first, etc. must start from a vertex
+		* - From the visitor can we implement the edge detection? Its just visit until you hit that node then stop
+		* - topological sort but will that break the indicies, maybe just a toplogical visitor?
+		*/
+
 		template<typename Func>
 		constexpr void visit_depth_first( const vertex_handle& start, Func func ) const
 		{
