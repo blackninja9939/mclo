@@ -923,8 +923,8 @@ namespace mclo::detail
 	};
 
 	template <typename T, bool CanGrow>
-	[[nodiscard]] friend bool operator==( const inline_buffer_vector_base<T, CanGrow>& lhs,
-										  const inline_buffer_vector_base<T, CanGrow>& rhs )
+	[[nodiscard]] bool operator==( const inline_buffer_vector_base<T, CanGrow>& lhs,
+								   const inline_buffer_vector_base<T, CanGrow>& rhs )
 	{
 		return lhs.size() == rhs.size() && std::equal( lhs.begin(), lhs.end(), rhs.begin() );
 	}
@@ -1046,4 +1046,25 @@ namespace mclo::detail
 	private:
 		alignas( T ) std::byte m_buffer[ sizeof( T ) * Capacity ];
 	};
+}
+
+namespace std
+{
+	template <typename T, bool CanGrow, typename U>
+	constexpr auto erase( mclo::detail::inline_buffer_vector_base<T, CanGrow>& vec, const U& value )
+	{
+		const auto old_size = vec.size();
+		auto last = vec.end();
+		vec.erase( std::remove( vec.begin(), last, value ), last );
+		return old_size - vec.size();
+	}
+
+	template <typename T, bool CanGrow, typename Predicate>
+	constexpr auto erase_if( mclo::detail::inline_buffer_vector_base<T, CanGrow>& vec, Predicate pred )
+	{
+		const auto old_size = vec.size();
+		auto last = vec.end();
+		vec.erase( std::remove_if( vec.begin(), last, pred ), last );
+		return old_size - vec.size();
+	}
 }
