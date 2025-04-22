@@ -14,6 +14,7 @@
 #include "mclo/meta/repeat.hpp"
 #include "mclo/meta/transform.hpp"
 #include "mclo/meta/type_aliases.hpp"
+#include "mclo/meta/type_id.hpp"
 #include "mclo/meta/type_list.hpp"
 
 #include <type_traits>
@@ -75,4 +76,9 @@ namespace
 	static_assert( std::is_same_v<repeat<0, test_list>, type_list<>> );
 
 	static_assert( std::is_same_v<flatten<type_list<int, test_list>>, type_list<int, int, float, bool>> );
+
+	constexpr auto type_id_int = type_id<int>;
+	static_assert( type_id<int> == type_id_int );
+	static_assert( type_id<int> != type_id<float> );
+	static_assert( type_id<int> != type_id<void> );
 }
