@@ -288,7 +288,85 @@ namespace mclo
 			return m_edges;
 		}
 
+		template<typename Func>
+		constexpr void visit_depth_first( const vertex_handle& start, Func func ) const
+		{
+			mclo::dynamic_bitset<> visited( m_vertices.size() );
+			visit_depth_first_recursive( start, visited, func );
+		}
+
+		template <typename Func>
+		constexpr void visit_topological( Func func ) const
+			requires ( Policy::is_directed && !Policy::allow_cycles )
+		{
+			std::vector<std::size_t> in_degree( m_vertices.size(), 0 );
+
+			// Compute in-degrees
+			for ( const auto& edge : m_edges )
+			{
+				in_degree[ edge.to().m_index ]++;
+			}
+
+			// Initialize a queue with vertices that have zero in-degree
+			std::vector<vertex_handle> queue;
+			for ( std::size_t i = 0; i < m_vertices.size(); ++i )
+			{
+				if ( in_degree[ i ] == 0 )
+				{
+					queue.push_back( vertex_handle( i ) );
+				}
+			}
+
+			// Perform topological sort
+			while ( !queue.empty() )
+			{
+				vertex_handle v = queue.back();
+				queue.pop_back();
+				func( v );
+
+				// Decrease the in-degree of all outgoing vertices
+				for ( const edge_handle& e_handle : m_vertices[ v.m_index ].m_edges )
+				{
+					const edge& e = m_edges[ e_handle.m_index ];
+					if ( --in_degree[ e.to().m_index ] == 0 )
+					{
+						queue.push_back( e.to() );
+					}
+				}
+			}
+		}
+
 	private:
+		template <typename Func>
+		constexpr bool visit_depth_first_recursive( const vertex_handle& vertex,
+													mclo::dynamic_bitset<>& visited,
+													Func func ) const
+		{
+			if ( visited.test_set( vertex.m_index ) )
+			{
+				return;
+			}
+
+			func( vertex );
+
+			for ( const auto& e_handle : m_vertices[ vertex.m_index ].m_edges )
+			{
+				const edge& e = m_edges[ e_handle.m_index ];
+				if constexpr ( Policy::is_directed )
+				{
+					if ( e.from() == vertex )
+					{
+						visit_depth_first_recursive( e.to(), visited, func );
+					}
+				}
+				else
+				{
+					const vertex_handle next = ( e.from() == vertex ) ? e.to() : e.from();
+					visit_depth_first_recursive( next, visited, func );
+				}
+			}
+		}
+
 		[[nodiscard]] bool creates_cycle_dfs( vertex_handle from, vertex_handle to ) const
 		{
 			mclo::dynamic_bitset<> visited( m_vertices.size() );
