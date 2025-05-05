@@ -9,6 +9,24 @@ namespace mclo
 #ifdef _WIN32
 	class condition_variable
 	{
+		template <typename Rep, typename Period>
+		[[nodiscard]] static constexpr unsigned long clamp_wait_time_to_ms(
+			const std::chrono::duration<Rep, Period>& relative_time ) noexcept
+		{
+			// Must Clamp so that relative_time is less than Windows INFINITE milliseconds.
+			constexpr std::chrono::milliseconds clamp{ std::chrono::hours{ 24 } };
+
+			if ( relative_time > clamp )
+			{
+				return static_cast<unsigned long>( clamp.count() );
+			}
+			else
+			{
+				const auto relative_ms = std::chrono::ceil<std::chrono::milliseconds>( relative_time );
+				return static_cast<unsigned long>( relative_ms.count() );
+			}
+		}
+
 	public:
 		condition_variable() noexcept = default;
 		~condition_variable() = default;
@@ -19,7 +37,7 @@ namespace mclo
 
 		void wait( std::unique_lock<mclo::mutex>& lock );
 
-		template <class Predicate>
+		template <typename Predicate>
 		void wait( std::unique_lock<mclo::mutex>& lock, Predicate pred )
 		{
 			while ( !pred() )
@@ -28,12 +46,11 @@ namespace mclo
 			}
 		}
 
-		template <class Rep, class Period>
+		template <typename Rep, typename Period>
 		std::cv_status wait_for( std::unique_lock<mclo::mutex>& lock,
-								 const std::chrono::duration<Rep, Period>& rel_time )
+								 const std::chrono::duration<Rep, Period>& relative_time )
 		{
-			const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>( rel_time ).count();
-			if ( wait_for_ms( lock, ms ) )
+			if ( wait_for_ms( lock, clamp_wait_time_to_ms( relative_time ) ) )
 			{
 				return std::cv_status::no_timeout;
 			}
@@ -43,37 +60,37 @@ namespace mclo
 			}
 		}
 
-		template <class Rep, class Period, class Predicate>
+		template <typename Rep, typename Period, typename Predicate>
 		bool wait_for( std::unique_lock<std::mutex>& lock,
-					   const std::chrono::duration<Rep, Period>& rel_time,
+					   const std::chrono::duration<Rep, Period>& relative_time,
 					   Predicate pred )
 		{
-			return wait_until( lock, std::chrono::steady_clock::now() + rel_time, pred );
+			return wait_until( lock, std::chrono::steady_clock::now() + relative_time, pred );
 		}
 
-		template <class Clock, class Duration>
+		template <typename Clock, typename Duration>
 		std::cv_status wait_until( std::unique_lock<mclo::mutex>& lock,
-								   const std::chrono::time_point<Clock, Duration>& abs_time )
+								   const std::chrono::time_point<Clock, Duration>& absolute_time )
 		{
 			const auto now = Clock::now();
-			if ( now >= abs_time )
+			if ( now >= absolute_time )
 			{
 				return std::cv_status::timeout;
 			}
 			else
 			{
-				return wait_for( lock, abs_time - now );
+				return wait_for( lock, absolute_time - now );
 			}
 		}
 
-		template <class Clock, class Duration, class Predicate>
+		template <typename Clock, typename Duration, typename Predicate>
 		bool wait_until( std::unique_lock<std::mutex>& lock,
-						 const std::chrono::time_point<Clock, Duration>& abs_time,
+						 const std::chrono::time_point<Clock, Duration>& absolute_time,
 						 Predicate pred )
 		{
 			while ( !pred() )
 			{
-				if ( wait_until( lock, abs_time ) == std::cv_status::timeout )
+				if ( wait_until( lock, absolute_time ) == std::cv_status::timeout )
 				{
 					return pred();
 				}
