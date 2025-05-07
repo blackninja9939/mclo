@@ -1,6 +1,8 @@
 #pragma once
 
-#include <cstddef>
+#include "type_id.hpp"
+
+#include <array>
 
 namespace mclo::meta
 {
@@ -8,6 +10,7 @@ namespace mclo::meta
 	struct type_list
 	{
 		static constexpr std::size_t size = sizeof...( Ts );
+		static constexpr std::array<type_id_t, size> ids = { type_id<Ts>... };
 	};
 
 	template<typename List>

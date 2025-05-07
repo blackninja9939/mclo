@@ -81,7 +81,15 @@ namespace
 	constexpr auto type_id_int = type_id<int>;
 	static_assert( type_id<int> == type_id_int );
 	static_assert( type_id<int> != type_id<float> );
+	static_assert( type_id<int> != type_id<const int> );
+	static_assert( type_id<int> != type_id<volatile int> );
+	static_assert( type_id<int> != type_id<int*> );
 	static_assert( type_id<int> != type_id<void> );
+
+	static_assert( std::is_same_v<type_of<type_id_int>, int> );
+	static_assert( std::is_same_v<type_of<type_id<int>>, int> );
+	static_assert( std::is_same_v<type_of<type_id<const int>>, const int> );
+	static_assert( !std::is_same_v<type_of<type_id<const int>>, int> );
 
 	static_assert( type_name_v<int> == "int" );
 	static_assert( type_name_v<float> == "float" );
