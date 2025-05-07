@@ -16,6 +16,7 @@
 #include "mclo/meta/type_aliases.hpp"
 #include "mclo/meta/type_id.hpp"
 #include "mclo/meta/type_list.hpp"
+#include "mclo/meta/type_name.hpp"
 
 #include <type_traits>
 
@@ -81,4 +82,7 @@ namespace
 	static_assert( type_id<int> == type_id_int );
 	static_assert( type_id<int> != type_id<float> );
 	static_assert( type_id<int> != type_id<void> );
+
+	static_assert( type_name_v<int> == "int" );
+	static_assert( type_name_v<float> == "float" );
 }

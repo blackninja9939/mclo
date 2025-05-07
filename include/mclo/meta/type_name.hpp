@@ -1,8 +1,8 @@
 #pragma once
 
-#include "fixed_string.hpp"
+#include "mclo/string/fixed_string.hpp"
 
-namespace mclo
+namespace mclo::meta
 {
 	namespace detail
 	{
