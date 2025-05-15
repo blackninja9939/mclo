@@ -36,7 +36,7 @@ namespace mclo::detail
 	/// all and you can use its substr function for offsets
 	/// @brief Core bitset API implemented ontop of a Derived type implementing the derived API
 	/// @tparam Derived Derived type implementing the bitset, must implement:
-	/// constexpr std::size_t derived_size() const noexept;
+	/// constexpr size_type derived_size() const noexept;
 	/// constexpr underlying_type derived_get_last_mask() const noexept;
 	/// constexpr void derived_trim() noexept;
 	/// @tparam UnderlyingContainer The underlying container storing the bits
@@ -46,7 +46,8 @@ namespace mclo::detail
 	public:
 		using underlying_container = UnderlyingContainer;
 		using underlying_type = typename underlying_container::value_type;
-		static constexpr std::size_t npos = static_cast<std::size_t>( -1 );
+		using size_type = typename underlying_container::size_type;
+		static constexpr size_type npos = std::numeric_limits<size_type>::max();
 
 	private:
 		constexpr Derived& as_derived() noexcept
@@ -74,9 +75,9 @@ namespace mclo::detail
 										 const CharT unset_char,
 										 const CharT set_char )
 		{
-			if ( const std::size_t max_size = this->size(); str.size() > max_size )
+			if ( const size_type max_size = this->size(); str.size() > max_size )
 			{
-				for ( std::size_t index = max_size; index < str.size(); ++index )
+				for ( size_type index = max_size; index < str.size(); ++index )
 				{
 					const CharT c = str[ index ];
 					if ( !Traits::eq( c, unset_char ) && !Traits::eq( c, set_char ) )
@@ -87,8 +88,8 @@ namespace mclo::detail
 				str = str.substr( 0, max_size );
 			}
 
-			std::size_t page = 0;
-			std::size_t index_in_underlying = 0;
+			size_type page = 0;
+			size_type index_in_underlying = 0;
 			underlying_type current = zero;
 
 			for ( auto first = str.crbegin(), last = str.crend(); first != last; ++first )
@@ -143,7 +144,7 @@ namespace mclo::detail
 
 		/// @brief Gets the total number of bits in the bitset
 		/// @return Number of bits
-		[[nodiscard]] constexpr std::size_t size() const noexcept
+		[[nodiscard]] constexpr size_type size() const noexcept
 		{
 			return as_derived().derived_size();
 		}
@@ -152,10 +153,10 @@ namespace mclo::detail
 		/// @warning Do not use in a loop, prefer for_each_set or find_first_set/unset, they are much faster
 		/// @param pos Position to check, must be < size()
 		/// @return If the bit is set
-		[[nodiscard]] constexpr bool test( const std::size_t pos ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr bool test( const size_type pos ) const MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
-			const std::size_t page = pos / bits_per_value;
+			const size_type page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			return ( m_container[ page ] & bit_value ) != 0;
 		}
@@ -165,10 +166,10 @@ namespace mclo::detail
 		/// @param pos Position to check, must be < size()
 		/// @param value Value to set the bit
 		/// @return If the bit was set
-		[[nodiscard]] constexpr bool test_set( const std::size_t pos, const bool value = true ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr bool test_set( const size_type pos, const bool value = true ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
-			const std::size_t page = pos / bits_per_value;
+			const size_type page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			underlying_type& data = m_container[ page ];
 
@@ -191,8 +192,8 @@ namespace mclo::detail
 		[[nodiscard]] constexpr bool all() const noexcept
 		{
 			const underlying_type last_mask = get_last_mask();
-			const std::size_t end = m_container.size() - static_cast<std::size_t>( last_mask != 0 );
-			for ( std::size_t index = 0; index < end; ++index )
+			const size_type end = m_container.size() - static_cast<size_type>( last_mask != 0 );
+			for ( size_type index = 0; index < end; ++index )
 			{
 				if ( m_container[ index ] != ~zero )
 				{
@@ -232,9 +233,9 @@ namespace mclo::detail
 
 		/// @brief Count the number of set bits
 		/// @return The number of set bits
-		[[nodiscard]] constexpr std::size_t count() const noexcept
+		[[nodiscard]] constexpr size_type count() const noexcept
 		{
-			std::size_t total_set = 0;
+			size_type total_set = 0;
 			for ( const underlying_type value : m_container )
 			{
 				total_set += std::popcount( value );
@@ -261,7 +262,7 @@ namespace mclo::detail
 		/// @brief Set the bit at pos
 		/// @param pos Position to set, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& set( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
+		constexpr Derived& set( const size_type pos ) MCLO_NOEXCEPT_TESTS
 		{
 			return set_internal<true>( pos );
 		}
@@ -269,7 +270,7 @@ namespace mclo::detail
 		/// @brief Set the bit at pos to value
 		/// @param pos Position to set, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& set( const std::size_t pos, const bool value ) noexcept
+		constexpr Derived& set( const size_type pos, const bool value ) noexcept
 		{
 			return value ? set( pos ) : reset( pos );
 		}
@@ -292,7 +293,7 @@ namespace mclo::detail
 		/// @brief Clear the bit at pos
 		/// @param pos Position to clear, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& reset( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
+		constexpr Derived& reset( const size_type pos ) MCLO_NOEXCEPT_TESTS
 		{
 			return set_internal<false>( pos );
 		}
@@ -312,11 +313,11 @@ namespace mclo::detail
 		/// @brief Flip the bit at pos
 		/// @param pos Position to flip, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& flip( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
+		constexpr Derived& flip( const size_type pos ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
-			const std::size_t page = pos / bits_per_value;
-			const std::size_t index = pos % bits_per_value;
+			const size_type page = pos / bits_per_value;
+			const size_type index = pos % bits_per_value;
 			m_container[ page ] ^= one << index;
 			return as_derived();
 		}
@@ -324,13 +325,13 @@ namespace mclo::detail
 		/// @brief Find the first set bit starting from start_pos
 		/// @param start_pos Position to start searching from
 		/// @return Positon of the first set bit, or npos if none set
-		[[nodiscard]] constexpr std::size_t find_first_set( const std::size_t start_pos = 0 ) const noexcept
+		[[nodiscard]] constexpr size_type find_first_set( const size_type start_pos = 0 ) const noexcept
 		{
-			const std::size_t end = m_container.size();
-			const std::size_t start_page = start_pos / bits_per_value;
-			std::size_t start_index = start_pos % bits_per_value;
+			const size_type end = m_container.size();
+			const size_type start_page = start_pos / bits_per_value;
+			size_type start_index = start_pos % bits_per_value;
 
-			for ( std::size_t page = start_page; page < end; ++page )
+			for ( size_type page = start_page; page < end; ++page )
 			{
 				const int bit_index =
 					std::countr_zero( static_cast<underlying_type>( m_container[ page ] >> start_index ) );
@@ -347,16 +348,16 @@ namespace mclo::detail
 		/// @brief Find the first unset bit starting from start_pos
 		/// @param start_pos Position to start searching from
 		/// @return Positon of the first unset bit, or npos if none set
-		[[nodiscard]] constexpr std::size_t find_first_unset( const std::size_t start_pos = 0 ) const noexcept
+		[[nodiscard]] constexpr size_type find_first_unset( const size_type start_pos = 0 ) const noexcept
 		{
 			const underlying_type last_mask = get_last_mask();
-			const std::size_t end = m_container.size() - static_cast<std::size_t>( last_mask != 0 );
+			const size_type end = m_container.size() - static_cast<size_type>( last_mask != 0 );
 
-			const std::size_t start_page = start_pos / bits_per_value;
-			const std::size_t start_index = start_pos % bits_per_value;
+			const size_type start_page = start_pos / bits_per_value;
+			const size_type start_index = start_pos % bits_per_value;
 			underlying_type mask = ( one << start_index ) - 1;
 
-			for ( std::size_t page = start_page; page < end; ++page )
+			for ( size_type page = start_page; page < end; ++page )
 			{
 				const int bit_index = std::countr_one( static_cast<underlying_type>( m_container[ page ] | mask ) );
 				if ( bit_index != bits_per_value )
@@ -381,10 +382,10 @@ namespace mclo::detail
 
 		/// @brief Iterate over every set bit and call func with the position
 		/// @details Optimized for fast looping vs find_first_set or test loops
-		/// @param func Callable that takes the std::size_t position
-		constexpr void for_each_set( std::invocable<std::size_t> auto func ) const noexcept
+		/// @param func Callable that takes the size_type position
+		constexpr void for_each_set( std::invocable<size_type> auto func ) const noexcept
 		{
-			for ( std::size_t page = 0, end = m_container.size(); page < end; ++page )
+			for ( size_type page = 0, end = m_container.size(); page < end; ++page )
 			{
 				underlying_type value = m_container[ page ];
 				while ( value )
@@ -415,14 +416,14 @@ namespace mclo::detail
 		/// @return If all bits are the same
 		[[nodiscard]] constexpr bool operator==( const bitset_base& other ) const noexcept
 		{
-			const std::size_t size = m_container.size();
+			const size_type size = m_container.size();
 			if ( size != other.m_container.size() )
 			{
 				return false;
 			}
 			if ( std::is_constant_evaluated() )
 			{
-				for ( std::size_t page = 0; page < size; ++page )
+				for ( size_type page = 0; page < size; ++page )
 				{
 					if ( m_container[ page ] != other.m_container[ page ] )
 					{
@@ -443,7 +444,7 @@ namespace mclo::detail
 		/// @return This set
 		constexpr Derived& operator&=( const Derived& other ) noexcept
 		{
-			for ( std::size_t page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
+			for ( size_type page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
 				  ++page )
 			{
 				m_container[ page ] &= other.m_container[ page ];
@@ -467,7 +468,7 @@ namespace mclo::detail
 		/// @return This set
 		constexpr Derived& operator|=( const Derived& other ) noexcept
 		{
-			for ( std::size_t page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
+			for ( size_type page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
 				  ++page )
 			{
 				m_container[ page ] |= other.m_container[ page ];
@@ -491,7 +492,7 @@ namespace mclo::detail
 		/// @return This set
 		constexpr Derived& operator^=( const Derived& other ) noexcept
 		{
-			for ( std::size_t page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
+			for ( size_type page = 0, size = std::min( m_container.size(), other.m_container.size() ); page < size;
 				  ++page )
 			{
 				m_container[ page ] ^= other.m_container[ page ];
@@ -520,7 +521,7 @@ namespace mclo::detail
 		/// @brief Left shift this set by pos bits
 		/// @param pos Amount to shift by
 		/// @return This set
-		constexpr Derived& operator<<=( std::size_t pos ) noexcept
+		constexpr Derived& operator<<=( size_type pos ) noexcept
 		{
 			const auto size = static_cast<std::ptrdiff_t>( m_container.size() - 1 );
 			const auto value_shift = static_cast<std::ptrdiff_t>( pos / bits_per_value );
@@ -553,7 +554,7 @@ namespace mclo::detail
 		/// @brief Right shift this set by pos bits
 		/// @param pos Amount to shift by
 		/// @return This set
-		constexpr Derived& operator>>=( std::size_t pos ) noexcept
+		constexpr Derived& operator>>=( size_type pos ) noexcept
 		{
 			const auto size = static_cast<std::ptrdiff_t>( m_container.size() - 1 );
 			const auto value_shift = static_cast<std::ptrdiff_t>( pos / bits_per_value );
@@ -585,7 +586,7 @@ namespace mclo::detail
 		/// @brief Left shifted copy of the set by pos bits
 		/// @param pos Amount to shift by
 		/// @return The new shifted set
-		[[nodiscard]] constexpr Derived operator<<( const std::size_t pos ) const noexcept
+		[[nodiscard]] constexpr Derived operator<<( const size_type pos ) const noexcept
 		{
 			Derived copy( as_derived() );
 			copy <<= pos;
@@ -595,7 +596,7 @@ namespace mclo::detail
 		/// @brief Right shifted copy of the set by pos bits
 		/// @param pos Amount to shift by
 		/// @return The new shifted set
-		[[nodiscard]] constexpr Derived operator>>( const std::size_t pos ) const noexcept
+		[[nodiscard]] constexpr Derived operator>>( const size_type pos ) const noexcept
 		{
 			Derived copy( as_derived() );
 			copy >>= pos;
@@ -616,9 +617,9 @@ namespace mclo::detail
 		constexpr std::basic_string<CharT, Traits, Allocator> to_string( CharT unset_char = CharT( '0' ),
 																		 CharT set_char = CharT( '1' ) ) const
 		{
-			const std::size_t length = size();
+			const size_type length = size();
 			std::basic_string<CharT, Traits, Allocator> result( length, unset_char );
-			for_each_set( [ & ]( const std::size_t index ) { result[ length - 1 - index ] = set_char; } );
+			for_each_set( [ & ]( const size_type index ) { result[ length - 1 - index ] = set_char; } );
 			return result;
 		}
 
@@ -634,10 +635,10 @@ namespace mclo::detail
 
 	private:
 		template <bool value>
-		[[nodiscard]] constexpr Derived& set_internal( const std::size_t pos ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr Derived& set_internal( const size_type pos ) MCLO_NOEXCEPT_TESTS
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
-			const std::size_t page = pos / bits_per_value;
+			const size_type page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			underlying_type& data = m_container[ page ];
 			if constexpr ( value )

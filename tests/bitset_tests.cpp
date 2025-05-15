@@ -4,11 +4,12 @@
 
 #include "mclo/container/bitset.hpp"
 #include "mclo/container/dynamic_bitset.hpp"
+#include "mclo/container/small_vector.hpp"
 #include "mclo/meta/type_list.hpp"
 
-using namespace Catch::Matchers;
+// #include <functional>
 
-#include <functional>
+using namespace Catch::Matchers;
 
 namespace
 {
@@ -320,4 +321,15 @@ TEST_CASE( "dynamic bitset equals", "[bitset]" )
 
 		CHECK_FALSE( set == other );
 	}
+}
+
+TEST_CASE( "Dynamic bitset with custom underlying container", "[bitset]" )
+{
+	mclo::dynamic_bitset<std::size_t, mclo::small_vector<std::size_t, 4>> set( 4 );
+	set.set( 0 ).set( 2 ).set( 3 );
+
+	set.resize( 8 );
+
+	CHECK( set.size() == 8 );
+	CHECK( set.count() == 3 );
 }

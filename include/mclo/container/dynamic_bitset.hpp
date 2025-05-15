@@ -9,25 +9,26 @@
 namespace mclo
 {
 	/// @brief Bitset with a dynamic size set at run time
-	/// @tparam Allocator Allocator for underlying std::vector
+	/// @tparam UnderlyingContainer Container for the underlying dynamic set, must be a contiguous range
 	/// @tparam UnderlyingType Type of integer to store in the vector for the bitset
-	template <std::unsigned_integral UnderlyingType = std::size_t, typename Allocator = std::allocator<UnderlyingType>>
+	template <std::unsigned_integral UnderlyingType = std::size_t,
+			  std::ranges::contiguous_range UnderlyingContainer = std::vector<UnderlyingType>>
 	class dynamic_bitset
-		: public detail::bitset_base<dynamic_bitset<UnderlyingType, Allocator>, std::vector<UnderlyingType, Allocator>>
+		: public detail::bitset_base<dynamic_bitset<UnderlyingType, UnderlyingContainer>, UnderlyingContainer>
 	{
-		using base =
-			detail::bitset_base<dynamic_bitset<UnderlyingType, Allocator>, std::vector<UnderlyingType, Allocator>>;
+		using base = detail::bitset_base<dynamic_bitset<UnderlyingType, UnderlyingContainer>, UnderlyingContainer>;
 		friend base;
 
 	public:
 		using underlying_container = typename base::underlying_container;
 		using underlying_type = typename base::underlying_type;
+		using size_type = typename base::size_type;
 
 		using base::base;
 
 		/// @brief Construct the bitset with capacity for size bits
 		/// @param size Number of bits to allocate space for
-		explicit dynamic_bitset( const std::size_t size )
+		explicit dynamic_bitset( const size_type size )
 		{
 			resize( size );
 		}
@@ -47,9 +48,9 @@ namespace mclo
 		/// @details Resizing to smaller does not free allocated memory
 		/// @param size Number of bits to allocate space for
 		/// @return This set
-		constexpr dynamic_bitset& resize( const std::size_t size )
+		constexpr dynamic_bitset& resize( const size_type size )
 		{
-			const std::size_t num_values = ceil_divide( size, base::bits_per_value );
+			const size_type num_values = ceil_divide<size_type>( size, base::bits_per_value );
 			base::m_container.resize( num_values );
 			m_size = size;
 			return *this;
@@ -64,7 +65,7 @@ namespace mclo
 		[[nodiscard]] constexpr bool operator==( const dynamic_bitset& other ) const noexcept = default;
 
 	private:
-		[[nodiscard]] constexpr std::size_t derived_size() const noexcept
+		[[nodiscard]] constexpr size_type derived_size() const noexcept
 		{
 			return m_size;
 		}
@@ -84,7 +85,7 @@ namespace mclo
 			}
 		}
 
-		std::size_t m_size = 0;
+		size_type m_size = 0;
 	};
 }
 

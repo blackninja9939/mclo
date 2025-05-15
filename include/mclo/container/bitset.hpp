@@ -40,6 +40,7 @@ namespace mclo
 	public:
 		using underlying_container = typename base::underlying_container;
 		using underlying_type = typename base::underlying_type;
+		using size_type = typename base::size_type;
 
 		using base::base;
 
@@ -82,7 +83,7 @@ namespace mclo
 		static constexpr bool last_needs_mask = Bits % base::bits_per_value != 0;
 		static constexpr UnderlyingType last_mask = ( base::one << ( Bits % base::bits_per_value ) ) - 1;
 
-		[[nodiscard]] static constexpr std::size_t derived_size() noexcept
+		[[nodiscard]] static constexpr size_type derived_size() noexcept
 		{
 			return Bits;
 		}
