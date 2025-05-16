@@ -48,6 +48,7 @@ add_executable( tests
 	"overflowing_math_tests.cpp"
 	"saturated_math_tests.cpp"
 	"normalized_float_tests.cpp"
+	"type_id_set_tests.cpp"
 )
 
 target_compile_definitions( 
