@@ -524,14 +524,17 @@ namespace mclo::detail
 		constexpr Derived& operator<<=( size_type pos ) noexcept
 		{
 			const auto size = static_cast<std::ptrdiff_t>( m_container.size() - 1 );
-			const auto value_shift = static_cast<std::ptrdiff_t>( pos / bits_per_value );
+			const size_type value_shift = pos / bits_per_value;
 
 			// Shift whole values
 			if ( value_shift != 0 )
 			{
 				for ( std::ptrdiff_t index = size; 0 <= index; --index )
 				{
-					m_container[ index ] = value_shift <= index ? m_container[ index - value_shift ] : 0;
+					const size_type type_index = static_cast<size_type>( index );
+					m_container[ type_index ] = static_cast<std::ptrdiff_t>( value_shift ) <= index
+													? m_container[ type_index - value_shift ]
+													: 0;
 				}
 			}
 
@@ -540,8 +543,9 @@ namespace mclo::detail
 			{
 				for ( std::ptrdiff_t index = size; 0 < index; --index )
 				{
-					m_container[ index ] =
-						( m_container[ index ] << pos ) | ( m_container[ index - 1 ] >> ( bits_per_value - pos ) );
+					const size_type type_index = static_cast<size_type>( index );
+					m_container[ type_index ] = ( m_container[ type_index ] << pos ) |
+												( m_container[ type_index - 1 ] >> ( bits_per_value - pos ) );
 				}
 
 				m_container[ 0 ] <<= pos;
@@ -557,14 +561,17 @@ namespace mclo::detail
 		constexpr Derived& operator>>=( size_type pos ) noexcept
 		{
 			const auto size = static_cast<std::ptrdiff_t>( m_container.size() - 1 );
-			const auto value_shift = static_cast<std::ptrdiff_t>( pos / bits_per_value );
+			const size_type value_shift = pos / bits_per_value;
 
 			// Shift whole values
 			if ( value_shift != 0 )
 			{
 				for ( std::ptrdiff_t index = 0; index <= size; ++index )
 				{
-					m_container[ index ] = value_shift <= size - index ? m_container[ index + value_shift ] : 0;
+					const size_type type_index = static_cast<size_type>( index );
+					m_container[ type_index ] = static_cast<std::ptrdiff_t>( value_shift ) <= size - index
+													? m_container[ type_index + value_shift ]
+													: 0;
 				}
 			}
 
@@ -573,11 +580,12 @@ namespace mclo::detail
 			{
 				for ( std::ptrdiff_t index = 0; index < size; ++index )
 				{
-					m_container[ index ] =
-						( m_container[ index ] >> pos ) | ( m_container[ index + 1 ] << ( bits_per_value - pos ) );
+					const size_type type_index = static_cast<size_type>( index );
+					m_container[ type_index ] = ( m_container[ type_index ] >> pos ) |
+												( m_container[ type_index + 1 ] << ( bits_per_value - pos ) );
 				}
 
-				m_container[ size ] >>= pos;
+				m_container[ static_cast<size_type>( size ) ] >>= pos;
 			}
 
 			return as_derived();

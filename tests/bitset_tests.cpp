@@ -15,11 +15,11 @@ namespace
 {
 	constexpr std::size_t bitset_size = 34;
 
-	template <std::unsigned_integral UnderlyingType>
-	class dynamic_bitset_wrapper : public mclo::dynamic_bitset<UnderlyingType>
+	template <std::unsigned_integral UnderlyingType, typename UnderlyingContainer = std::vector<UnderlyingType>>
+	class dynamic_bitset_wrapper : public mclo::dynamic_bitset<UnderlyingType, UnderlyingContainer>
 	{
 	public:
-		using base = mclo::dynamic_bitset<UnderlyingType>;
+		using base = mclo::dynamic_bitset<UnderlyingType, UnderlyingContainer>;
 
 		dynamic_bitset_wrapper()
 			: base( bitset_size )
@@ -33,19 +33,22 @@ namespace
 		[[nodiscard]] constexpr bool operator==( const dynamic_bitset_wrapper& other ) const noexcept = default;
 	};
 
-	using test_types = mclo::meta::type_list<dynamic_bitset_wrapper<std::uint32_t>,
-											 mclo::bitset<bitset_size, std::uint32_t>,
-											 dynamic_bitset_wrapper<std::uint64_t>,
-											 mclo::bitset<bitset_size, std::uint64_t>>;
+	using test_types =
+		mclo::meta::type_list<mclo::bitset<bitset_size, std::uint32_t>,
+							  dynamic_bitset_wrapper<std::uint32_t>,
+							  dynamic_bitset_wrapper<std::uint32_t, mclo::small_vector<std::uint32_t, 4>>,
+							  mclo::bitset<bitset_size, std::uint64_t>,
+							  dynamic_bitset_wrapper<std::uint64_t>,
+							  dynamic_bitset_wrapper<std::uint64_t, mclo::small_vector<std::uint64_t, 4>>>;
 
 	template <typename Bitset, std::size_t Size>
 	void check_only_these_set( const Bitset& bitset, std::array<std::size_t, Size> indices )
 	{
+		using size_type = typename Bitset::size_type;
 		std::ranges::sort( indices );
-		std::size_t indices_index = 0;
+		size_type indices_index = 0;
 
-		bitset.for_each_set(
-			[ & ]( const std::size_t set_index ) { CHECK( set_index == indices[ indices_index++ ] ); } );
+		bitset.for_each_set( [ & ]( const size_type set_index ) { CHECK( set_index == indices[ indices_index++ ] ); } );
 		CHECK( indices_index == Size );
 	}
 
@@ -56,10 +59,10 @@ namespace
 	}
 }
 
-template <std::unsigned_integral UnderlyingType>
-struct std::hash<dynamic_bitset_wrapper<UnderlyingType>>
+template <std::unsigned_integral UnderlyingType, typename UnderlyingContainer>
+struct std::hash<dynamic_bitset_wrapper<UnderlyingType, UnderlyingContainer>>
 {
-	using type = dynamic_bitset_wrapper<UnderlyingType>;
+	using type = dynamic_bitset_wrapper<UnderlyingType, UnderlyingContainer>;
 	[[nodiscard]] std::size_t operator()( const type& wrapper ) const noexcept
 	{
 		return std::hash<typename type::base>()( wrapper );
@@ -68,6 +71,7 @@ struct std::hash<dynamic_bitset_wrapper<UnderlyingType>>
 
 TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 {
+	using size_type = typename TestType::size_type;
 	const TestType set;
 	CHECK( set.size() == bitset_size );
 	CHECK_FALSE( set.all() );
@@ -78,9 +82,9 @@ TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 	CHECK( set.find_first_unset() == 0 );
 
 	bool any = false;
-	set.for_each_set( [ &any ]( const std::size_t ) { any = true; } );
+	set.for_each_set( [ &any ]( const size_type ) { any = true; } );
 
-	for ( std::size_t index = 0; index < set.size(); ++index )
+	for ( size_type index = 0; index < set.size(); ++index )
 	{
 		CHECK_FALSE( set.test( index ) );
 	}
@@ -88,6 +92,7 @@ TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 
 TEMPLATE_LIST_TEST_CASE( "bitset set", "[bitset]", test_types )
 {
+	using size_type = typename TestType::size_type;
 	TestType set;
 
 	set.set( 32 );
@@ -99,9 +104,9 @@ TEMPLATE_LIST_TEST_CASE( "bitset set", "[bitset]", test_types )
 	CHECK( set.find_first_set() == 32 );
 	CHECK( set.find_first_unset() == 0 );
 
-	set.for_each_set( []( const std::size_t index ) { CHECK( index == 32 ); } );
+	set.for_each_set( []( const size_type index ) { CHECK( index == 32 ); } );
 
-	for ( std::size_t index = 0; index < set.size(); ++index )
+	for ( size_type index = 0; index < set.size(); ++index )
 	{
 		if ( index == 32 )
 		{
@@ -113,10 +118,11 @@ TEMPLATE_LIST_TEST_CASE( "bitset set", "[bitset]", test_types )
 
 TEMPLATE_LIST_TEST_CASE( "bitset find_first_set loop", "[bitset]", test_types )
 {
+	using size_type = typename TestType::size_type;
 	TestType set;
 	set.set( 4 ).set( 32 );
 
-	for ( std::size_t index = set.find_first_set(); index != TestType::npos; index = set.find_first_set( index + 1 ) )
+	for ( size_type index = set.find_first_set(); index != TestType::npos; index = set.find_first_set( index + 1 ) )
 	{
 		CHECK( ( index == 4 || index == 32 ) );
 	}
@@ -124,11 +130,12 @@ TEMPLATE_LIST_TEST_CASE( "bitset find_first_set loop", "[bitset]", test_types )
 
 TEMPLATE_LIST_TEST_CASE( "bitset find_first_unset loop", "[bitset]", test_types )
 {
+	using size_type = typename TestType::size_type;
 	TestType set;
 	set.set().reset( 4 ).reset( 32 ).reset( 33 );
 
-	std::size_t count = 0;
-	for ( std::size_t index = set.find_first_unset(); index != TestType::npos;
+	size_type count = 0;
+	for ( size_type index = set.find_first_unset(); index != TestType::npos;
 		  index = set.find_first_unset( index + 1 ) )
 	{
 		CHECK( ( index == 4 || index == 32 || index == 33 ) );
