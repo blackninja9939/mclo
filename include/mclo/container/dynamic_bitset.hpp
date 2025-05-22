@@ -77,7 +77,7 @@ namespace mclo
 
 		constexpr void derived_trim() noexcept
 		{
-			const std::size_t last_bits_used = m_size % base::bits_per_value;
+			const size_type last_bits_used = m_size % base::bits_per_value;
 			if ( last_bits_used != 0 )
 			{
 				const underlying_type last_mask = ( base::one << last_bits_used ) - 1;
