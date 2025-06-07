@@ -181,7 +181,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr vec_base operator-( const T scalar ) const noexcept
 		{
-			return map( bind_back( std::minus{}, scalar ) );
+			return map( mclo::bind_back( std::minus{}, scalar ) );
 		}
 
 		constexpr vec_base& operator-=( const T scalar ) noexcept
@@ -192,7 +192,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr vec_base operator*( const T scalar ) const noexcept
 		{
-			return map( bind_back( std::multiplies{}, scalar ) );
+			return map( mclo::bind_back( std::multiplies{}, scalar ) );
 		}
 
 		constexpr vec_base& operator*=( const T scalar ) noexcept
@@ -203,7 +203,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr vec_base operator/( const T scalar ) const noexcept
 		{
-			return map( bind_back( std::divides{}, scalar ) );
+			return map( mclo::bind_back( std::divides{}, scalar ) );
 		}
 
 		constexpr vec_base& operator/=( const T scalar ) noexcept
