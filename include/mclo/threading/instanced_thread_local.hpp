@@ -16,10 +16,12 @@ namespace mclo
 	{
 		// Aligned to cache line to avoids false sharing of the actual object in case two threads allocated on same
 		// cache line
+		MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
 		struct alignas( std::hardware_destructive_interference_size ) thread_data : intrusive_forward_list_hook<>
 		{
 			T m_object{};
 		};
+		MCLO_MSVC_POP_WARNINGS
 
 		using thread_data_list = atomic_intrusive_forward_list<thread_data>;
 		using list_iterator = typename thread_data_list::iterator;
