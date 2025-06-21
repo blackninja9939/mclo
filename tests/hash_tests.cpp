@@ -64,7 +64,7 @@ TEMPLATE_LIST_TEST_CASE( "hash built in types", "[hash]", mclo::meta::integers )
 
 TEMPLATE_LIST_TEST_CASE( "hash optional", "[hash]", optional_type_list )
 {
-	const std::size_t result = mclo::hash_object( TestType( 42 ) );
+	const std::size_t result = mclo::hash_object( TestType( static_cast<typename TestType::value_type>( 42 ) ) );
 	CHECK( result != 42 );
 
 	const std::size_t nullopt_result = mclo::hash_object( TestType( std::nullopt ) );

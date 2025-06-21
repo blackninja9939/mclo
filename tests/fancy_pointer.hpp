@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mclo/concepts/always_false.hpp"
+
 template <typename Val>
 class fancy_pointer
 {
@@ -84,7 +86,7 @@ public:
 
 	fancy_pointer operator++( int )
 	{
-		static_assert( false, "avoid postincrement" );
+		static_assert( mclo::always_false<Val>, "avoid postincrement" );
 		fancy_pointer result = *this;
 		++rep;
 		return result;
@@ -98,7 +100,7 @@ public:
 
 	fancy_pointer operator--( int )
 	{
-		static_assert( false, "avoid postdecrement" );
+		static_assert( mclo::always_false<Val>, "avoid postdecrement" );
 		fancy_pointer result = *this;
 		--rep;
 		return result;
@@ -315,7 +317,7 @@ struct fancy_allocator
 	void construct( const fancy_pointer<C>&, Args&&... )
 	{
 		// note: static_assert rather than =delete because we want allocator_traits to think we provide this
-		static_assert( false, "construct takes unfancy pointer" );
+		static_assert( mclo::always_false<Val>, "construct takes unfancy pointer" );
 	}
 
 	template <typename C>
@@ -327,7 +329,7 @@ struct fancy_allocator
 	template <typename C>
 	void destroy( const fancy_pointer<C>& )
 	{
-		static_assert( false, "destroy takes unfancy pointer" );
+		static_assert( mclo::always_false<Val>, "destroy takes unfancy pointer" );
 	}
 
 	// default select_on_container_copy_construction
