@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest] # ubuntu-latest disabled as it lacks <format> for C++20
+        os: [macos-latest, windows-latest, ubuntu-latest]
     #env:
     #
     # [OPTIONAL] Define the vcpkg's triplet 
@@ -51,7 +51,7 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-          vcpkgGitCommitId: '65be7019941e1401e02daaba0738cab2c8a4a355'
+          vcpkgGitCommitId: 'e58f7db7592da0b276e8adfce5ee2854889aed49'
           vcpkgJsonGlob: 'vcpkg.json'
 
       # Note: if the preset misses the "configuration", it is possible to explicitly select the
