@@ -69,7 +69,7 @@ namespace
 	{
 		char truncated[ 16 ];
 		std::strncpy( truncated, name.data(), 15 );
-		const int result = pthread_setname_np( thread, truncated );
+		[[maybe_unused]] const int result = pthread_setname_np( thread, truncated );
 		DEBUG_ASSERT( result == 0, "Failed to set thread name" );
 	}
 
