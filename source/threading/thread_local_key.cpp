@@ -51,7 +51,7 @@ namespace mclo
 
 	thread_local_key::~thread_local_key()
 	{
-		[[maybe_unused]] const int result == pthread_key_delete( m_key );
+		[[maybe_unused]] const int result = pthread_key_delete( m_key );
 		DEBUG_ASSERT( result == 0, "Failed to delete thread local key" );
 	}
 
