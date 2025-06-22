@@ -9,6 +9,9 @@
 namespace mclo
 {
 	template <typename T, typename Tag>
+	class intrusive_forward_list;
+
+	template <typename T, typename Tag>
 	class intrusive_forward_list_iterator
 	{
 		using hook_type = intrusive_forward_list_hook<Tag>;
