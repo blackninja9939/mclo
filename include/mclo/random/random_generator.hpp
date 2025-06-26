@@ -126,10 +126,10 @@ namespace mclo
 		}
 
 	private:
-		template <std::ranges::input_range Rng, typename diff_t = std::ranges::range_difference_t<Rng>>
-		auto pick_it_size_checked( Rng&& rng, diff_t size )
+		template <std::ranges::input_range Rng>
+		auto pick_it_size_checked( Rng&& rng, std::ranges::range_difference_t<Rng> size )
 		{
-			uniform_dist_for<diff_t> dist( 0, size - 1 );
+			uniform_dist_for<std::ranges::range_difference_t<Rng>> dist( 0, size - 1 );
 			const auto index = dist( engine );
 			return std::ranges::next( std::ranges::begin( std::forward<Rng>( rng ) ), index );
 		}
