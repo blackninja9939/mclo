@@ -49,6 +49,7 @@ add_executable( tests
 	"saturated_math_tests.cpp"
 	"normalized_float_tests.cpp"
 	"type_id_set_tests.cpp"
+	"lazy_convert_construct_tests.cpp"
 )
 
 target_compile_definitions( 
