@@ -50,6 +50,7 @@ add_executable( tests
 	"normalized_float_tests.cpp"
 	"type_id_set_tests.cpp"
 	"lazy_convert_construct_tests.cpp"
+	"wide_convert_tests.cpp"
 )
 
 target_compile_definitions( 
