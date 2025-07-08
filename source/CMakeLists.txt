@@ -18,7 +18,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/condition_variable.cpp"
     "threading/thread_local_key.cpp"
     "threading/thread_properties.cpp"
-    "threading/windows_wrapper.h"
+    "platform/windows_wrapper.h"
     "allocator/linear_allocator.cpp"
     "debug/breakpoint.cpp"
     "debug/debugger_attached.cpp"

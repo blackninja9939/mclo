@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #ifdef _WIN32
-#include "windows_wrapper.h"
+#include "platform/windows_wrapper.h"
 
 namespace mclo
 {
