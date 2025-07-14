@@ -14,7 +14,7 @@ namespace
 
 TEST_CASE( "lazy_convert_construct constructible from function and calls function", "[utility]" )
 {
-	const mclo::lazy_convert_construct lazy = make_10;
+	const mclo::lazy_convert_construct lazy = &make_10;
 	static_assert( std::is_convertible_v<decltype( lazy ), int> );
 
 	const int value = lazy;
@@ -37,7 +37,7 @@ TEST_CASE( "lazy_convert_construct constructible from lambda with capture and ca
 	CHECK( value == 0 );
 
 	const int result = lazy;
-	CHECK( value == 1 );
+	CHECK( result == 1 );
 	const int result2 = lazy;
 	CHECK( result2 == 2 );
 	CHECK( value == 2 );
@@ -47,28 +47,28 @@ TEST_CASE( "lazy_convert_construct used with unordered_map::try_emplace calls la
 		   "[utility]" )
 {
 	int calls = 0;
-	std::unordered_map<int, mclo::lazy_convert_construct<int()>> map;
+	std::unordered_map<int, int> map;
 
-	const auto [ it, inserted ] = map.try_emplace( 1, [ &calls ] {
-		calls++;
-		return 42;
-	} );
+	const auto [ it, inserted ] = map.try_emplace( 1, mclo::lazy_convert_construct{ [ &calls ] {
+													   calls++;
+													   return 42;
+												   } } );
 	CHECK( inserted );
 	CHECK( it->second == 42 );
 	CHECK( calls == 1 );
 
-	const auto [ it2, inserted2 ] = map.try_emplace( 1, [ &calls ] {
-		calls++;
-		return 100;
-	} );
+	const auto [ it2, inserted2 ] = map.try_emplace( 1, mclo::lazy_convert_construct{ [ &calls ] {
+														 calls++;
+														 return 100;
+													 } } );
 	CHECK_FALSE( inserted2 );
 	CHECK( it2->second == 42 );
 	CHECK( calls == 1 );
 
-	const auto [ it3, inserted3 ] = map.try_emplace( 2, [ &calls ] {
-		calls++;
-		return 100;
-	} );
+	const auto [ it3, inserted3 ] = map.try_emplace( 2, mclo::lazy_convert_construct{ [ &calls ] {
+														 calls++;
+														 return 100;
+													 } } );
 	CHECK( inserted3 );
 	CHECK( it3->second == 100 );
 	CHECK( calls == 2 );
