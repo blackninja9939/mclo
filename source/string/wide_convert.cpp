@@ -11,6 +11,11 @@
 
 std::wstring mclo::to_wstring( const std::string_view str )
 {
+	if ( str.empty() )
+	{
+		return {};
+	}
+
 #ifdef _WIN32
 	if ( str.size() > std::numeric_limits<int>::max() )
 	{
