@@ -52,6 +52,24 @@ namespace mclo
 		m_current = m_current_chunk->begin();
 	}
 
+	void memory_arena::reset_consolidate()
+	{
+		std::size_t toal_size = 0;
+
+		chunk* head = m_head;
+		while ( head )
+		{
+			toal_size += head->m_size;
+			chunk* const next = head->m_next;
+			::operator delete( head, std::align_val_t{ alignof( chunk ) } );
+			head = next;
+		}
+
+		m_head = allocate_chunk( toal_size );
+		m_current_chunk = m_head;
+		m_current = m_head->begin();
+	}
+
 	void memory_arena::release() noexcept
 	{
 		chunk* head = m_head;
