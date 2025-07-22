@@ -2,7 +2,7 @@
 
 #include "mclo/memory/indirect.hpp"
 
-#include "mclo/allocator/linear_allocator.hpp"
+#include "mclo/allocator/arena_allocator.hpp"
 
 namespace
 {
@@ -26,11 +26,11 @@ TEST_CASE( "mclo::indirect default construction", "[indirect]" )
 
 TEST_CASE( "mclo::indirect allocator construct", "[indirect]" )
 {
-	mclo::typed_inline_linear_allocator_resource<int, 1> resource;
-	const mclo::pmr::indirect<int> object( std::allocator_arg, &resource );
+	mclo::memory_arena resource( sizeof( int ) );
+	const mclo::indirect<int, mclo::arena_allocator<int>> object( std::allocator_arg, resource );
 
 	CHECK( *object == 0 ); // Default constructed int is 0
-	CHECK( object.get_allocator() == &resource );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect value construction", "[indirect]" )
@@ -42,11 +42,11 @@ TEST_CASE( "mclo::indirect value construction", "[indirect]" )
 
 TEST_CASE( "mclo::indirect allocator value construct", "[indirect]" )
 {
-	mclo::linear_allocator_resource resource( 1 );
-	const mclo::pmr::indirect<int> object( std::allocator_arg, &resource, 42 );
+	mclo::memory_arena resource( sizeof( int ) );
+	const mclo::indirect<int, mclo::arena_allocator<int>> object( std::allocator_arg, resource, 42 );
 
 	CHECK( *object == 42 );
-	CHECK( object.get_allocator() == &resource );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect deduction guide", "[indirect]" )
@@ -59,11 +59,11 @@ TEST_CASE( "mclo::indirect deduction guide", "[indirect]" )
 
 TEST_CASE( "mclo::indirect allocator deduction guide", "[indirect]" )
 {
-	mclo::linear_allocator_resource resource( 1 );
-	const mclo::indirect object( std::allocator_arg, std::pmr::polymorphic_allocator<int>( &resource ), 42 );
+	mclo::memory_arena resource( sizeof( int ) );
+	const mclo::indirect object( std::allocator_arg, mclo::arena_allocator<int>( resource ), 42 );
 
 	CHECK( *object == 42 );
-	CHECK( object.get_allocator() == &resource );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect in place construction", "[indirect]" )
@@ -75,11 +75,12 @@ TEST_CASE( "mclo::indirect in place construction", "[indirect]" )
 
 TEST_CASE( "mclo::indirect in place construction with allocator", "[indirect]" )
 {
-	mclo::linear_allocator_resource resource( 1 );
-	const mclo::pmr::indirect<std::string> object( std::allocator_arg, &resource, std::in_place, 5, 'a' );
+	mclo::memory_arena resource( 1 );
+	const mclo::indirect<std::string, mclo::arena_allocator<std::string>> object(
+		std::allocator_arg, resource, std::in_place, 5, 'a' );
 	CHECK( *object == "aaaaa" );
 	CHECK_FALSE( object.valueless_after_move() );
-	CHECK( object.get_allocator() == &resource );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect in place construction with initializer list", "[indirect]" )
@@ -91,12 +92,12 @@ TEST_CASE( "mclo::indirect in place construction with initializer list", "[indir
 
 TEST_CASE( "mclo::indirect in place construction with initializer list and allocator", "[indirect]" )
 {
-	mclo::linear_allocator_resource resource( 1 );
-	const mclo::pmr::indirect<std::string> object(
-		std::allocator_arg, &resource, std::in_place, { 'a', 'b', 'c', 'd', 'e' } );
+	mclo::memory_arena resource( 1 );
+	const mclo::indirect<std::string, mclo::arena_allocator<std::string>> object(
+		std::allocator_arg, resource, std::in_place, { 'a', 'b', 'c', 'd', 'e' } );
 	CHECK( *object == "abcde" );
 	CHECK_FALSE( object.valueless_after_move() );
-	CHECK( object.get_allocator() == &resource );
+	CHECK( object.get_allocator() == resource );
 }
 
 TEST_CASE( "mclo::indirect copy construction", "[indirect]" )

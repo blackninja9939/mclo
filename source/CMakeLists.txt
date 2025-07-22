@@ -20,7 +20,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/thread_local_key.cpp"
     "threading/thread_properties.cpp"
     "platform/windows_wrapper.h"
-    "allocator/linear_allocator.cpp"
+    "allocator/arena_allocator.cpp"
     "debug/breakpoint.cpp"
     "debug/debugger_attached.cpp"
 )
