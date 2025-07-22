@@ -19,6 +19,12 @@ namespace mclo
 		MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
 		struct alignas( std::hardware_destructive_interference_size ) thread_data : intrusive_forward_list_hook<>
 		{
+			template<typename... Ts>
+			thread_data( Ts&&... args ) noexcept( std::is_nothrow_constructible_v<T, Ts...> )
+				: m_object( std::forward<Ts>( args )... )
+			{
+			}
+
 			T m_object{};
 		};
 		MCLO_MSVC_POP_WARNINGS
@@ -72,12 +78,13 @@ namespace mclo
 			} );
 		}
 
-		[[nodiscard]] T& get()
+		template <typename... Ts>
+		[[nodiscard]] T& get( Ts&&... construct_args )
 		{
 			thread_data* data = static_cast<thread_data*>( m_key.get() );
 			if ( !data )
 			{
-				data = create_thread_data();
+				data = create_thread_data( std::forward<Ts>( construct_args )... );
 				m_key.set( data );
 				m_list.push_front( *data );
 			}
@@ -110,13 +117,14 @@ namespace mclo
 		}
 
 	private:
-		[[nodiscard]] thread_data* create_thread_data()
+		template <typename... Ts>
+		[[nodiscard]] thread_data* create_thread_data( Ts&&... args )
 		{
 			thread_data_allocator alloc( m_allocator );
 			thread_data* data = alloc.allocate( 1 );
 			try
 			{
-				std::allocator_traits<thread_data_allocator>::construct( alloc, data );
+				std::allocator_traits<thread_data_allocator>::construct( alloc, data, std::forward<Ts>( args )... );
 			}
 			catch ( ... )
 			{

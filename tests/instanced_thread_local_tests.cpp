@@ -148,6 +148,24 @@ TEST_CASE( "instanced_thread_local custom type throws strong exception guarantee
 		UnorderedRangeEquals( std::array{ throwing_type( std::nothrow, 0 ), throwing_type( std::nothrow, 1 ) } ) );
 }
 
+TEST_CASE( "instanced_thread_local with custom default value emplacement", "[instanced_thread_local]" )
+{
+	mclo::instanced_thread_local<int> object;
+	const int value = object.get( 42 );
+	CHECK( value == 42 );
+}
+
+TEST_CASE( "instanced_thread_local with custom default value emplacement does not override existing value",
+		   "[instanced_thread_local]" )
+{
+	mclo::instanced_thread_local<int> object;
+	object.get( 42 ) = 16;
+
+	const int value = object.get( 42 );
+
+	CHECK( value == 16 );
+}
+
 TEST_CASE( "instanced_thread_local_value get is zero initialized", "[instanced_thread_local]" )
 {
 	mclo::instanced_thread_local_value<int> object;
