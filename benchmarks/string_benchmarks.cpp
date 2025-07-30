@@ -34,33 +34,68 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		return mixed_case;
 	}
 
-	void BM_CompareIgnoreCaseScalar( benchmark::State& state )
+	void StringSimdRange( benchmark::internal::Benchmark* b )
 	{
-		const std::string mixed_case = make_mixed_case();
-		for ( auto _ : state )
-		{
-			int result =
-				mclo::detail::compare_ignore_case_scalar( lorem_ipsum.data(), mixed_case.data(), mixed_case.size() );
-			benchmark::DoNotOptimize( result );
-		}
+		b->RangeMultiplier( 2 )->Range( 4, lorem_ipsum.size() );
 	}
-	BENCHMARK( BM_CompareIgnoreCaseScalar );
 
-	void BM_CompareIgnoreCaseSimd( benchmark::State& state )
+	void BM_CompareIgnoreCaseScalar_Same( benchmark::State& state )
 	{
-		const std::string mixed_case = make_mixed_case();
+		const std::size_t size = state.range();
+		const std::string_view original = lorem_ipsum.substr( 0, size );
+		const std::string mixed_case = make_mixed_case().substr( 0, size );
 		for ( auto _ : state )
 		{
-			int result =
-				mclo::detail::compare_ignore_case_simd( lorem_ipsum.data(), mixed_case.data(), mixed_case.size() );
+			int result = mclo::detail::compare_ignore_case_scalar( original.data(), mixed_case.data(), size );
 			benchmark::DoNotOptimize( result );
 		}
 	}
-	BENCHMARK( BM_CompareIgnoreCaseSimd );
+	BENCHMARK( BM_CompareIgnoreCaseScalar_Same )->Apply( StringSimdRange );
+
+	void BM_CompareIgnoreCaseSimd_Same( benchmark::State& state )
+	{
+		const std::size_t size = state.range();
+		const std::string_view original = lorem_ipsum.substr( 0, size );
+		const std::string mixed_case = make_mixed_case().substr( 0, size );
+		for ( auto _ : state )
+		{
+			int result = mclo::detail::compare_ignore_case_simd( original.data(), mixed_case.data(), size );
+			benchmark::DoNotOptimize( result );
+		}
+	}
+	BENCHMARK( BM_CompareIgnoreCaseSimd_Same )->Apply( StringSimdRange );
+
+	void BM_CompareIgnoreCaseScalar_Different( benchmark::State& state )
+	{
+		const std::size_t size = state.range();
+		const std::string_view original = lorem_ipsum.substr( 0, size );
+		std::string mixed_case = make_mixed_case().substr( 0, size );
+		mixed_case[ size / 2 ] = '?';
+		for ( auto _ : state )
+		{
+			int result = mclo::detail::compare_ignore_case_scalar( original.data(), mixed_case.data(), size );
+			benchmark::DoNotOptimize( result );
+		}
+	}
+	BENCHMARK( BM_CompareIgnoreCaseScalar_Different )->Apply( StringSimdRange );
+
+	void BM_CompareIgnoreCaseSimd_Different( benchmark::State& state )
+	{
+		const std::size_t size = state.range();
+		const std::string_view original = lorem_ipsum.substr( 0, size );
+		std::string mixed_case = make_mixed_case().substr( 0, size );
+		mixed_case[ size / 2 ] = '?';
+		for ( auto _ : state )
+		{
+			int result = mclo::detail::compare_ignore_case_simd( original.data(), mixed_case.data(), size );
+			benchmark::DoNotOptimize( result );
+		}
+	}
+	BENCHMARK( BM_CompareIgnoreCaseSimd_Different )->Apply( StringSimdRange );
 
 	void BM_ToUpperScalar( benchmark::State& state )
 	{
-		const std::string mixed_case = make_mixed_case();
+		const std::string mixed_case = make_mixed_case().substr( 0, state.range() );
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
@@ -70,11 +105,11 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 			benchmark::ClobberMemory();
 		}
 	}
-	BENCHMARK( BM_ToUpperScalar );
+	BENCHMARK( BM_ToUpperScalar )->Apply( StringSimdRange );
 
 	void BM_ToUpperSimd( benchmark::State& state )
 	{
-		const std::string mixed_case = make_mixed_case();
+		const std::string mixed_case = make_mixed_case().substr( 0, state.range() );
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
@@ -84,11 +119,11 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 			benchmark::ClobberMemory();
 		}
 	}
-	BENCHMARK( BM_ToUpperSimd );
+	BENCHMARK( BM_ToUpperSimd )->Apply( StringSimdRange );
 
 	void BM_ToLowerScalar( benchmark::State& state )
 	{
-		const std::string mixed_case = make_mixed_case();
+		const std::string mixed_case = make_mixed_case().substr( 0, state.range() );
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
@@ -98,11 +133,11 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 			benchmark::ClobberMemory();
 		}
 	}
-	BENCHMARK( BM_ToLowerScalar );
+	BENCHMARK( BM_ToLowerScalar )->Apply( StringSimdRange );
 
 	void BM_ToLowerSimd( benchmark::State& state )
 	{
-		const std::string mixed_case = make_mixed_case();
+		const std::string mixed_case = make_mixed_case().substr( 0, state.range() );
 		for ( auto _ : state )
 		{
 			std::string string = mixed_case;
@@ -112,7 +147,7 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 			benchmark::ClobberMemory();
 		}
 	}
-	BENCHMARK( BM_ToLowerSimd );
+	BENCHMARK( BM_ToLowerSimd )->Apply( StringSimdRange );
 
 	void BM_ConcatStringOperatorPlus( benchmark::State& state )
 	{
