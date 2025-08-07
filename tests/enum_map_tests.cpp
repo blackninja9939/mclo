@@ -45,9 +45,9 @@ TEST_CASE( "enum_map fill constructor", "[enum_map]" )
 	}
 }
 
-TEST_CASE( "enum_map variadic constructor", "[enum_map]" )
+TEST_CASE( "enum_map variadic value initializer list constructor", "[enum_map]" )
 {
-	const mclo::enum_map<test_enum, int> map{ mclo::sorted_unique, 1, 2, 3, 4 };
+	const mclo::enum_map<test_enum, int> map{ 1, 2, 3, 4 };
 	CHECK( map.size() == 4 );
 	CHECK( map.front() == 1 );
 	CHECK( map.back() == 4 );

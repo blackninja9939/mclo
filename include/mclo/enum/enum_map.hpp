@@ -5,6 +5,7 @@
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
 #include "mclo/utility/array.hpp"
+#include "mclo/utility/synth_three_way.hpp"
 
 #include <array>
 #include <compare>
@@ -135,13 +136,6 @@ namespace mclo
 		difference_type m_index;
 	};
 
-	struct sorted_unique_t
-	{
-		explicit sorted_unique_t() = default;
-	};
-
-	inline constexpr sorted_unique_t sorted_unique;
-
 	template <typename TEnum, typename TValue, TEnum SizeEnum = enum_size<TEnum>>
 	class enum_map
 	{
@@ -187,8 +181,7 @@ namespace mclo
 		}
 
 		template <std::ranges::forward_range Range>
-			requires( !std::convertible_to<Range, const_reference> &&
-					  std::convertible_to<std::ranges::range_reference_t<Range>, pair_type> )
+			requires( std::convertible_to<std::ranges::range_reference_t<Range>, pair_type> )
 		constexpr explicit enum_map( Range&& range )
 		{
 			for ( const auto& pair : range )
@@ -202,17 +195,9 @@ namespace mclo
 		{
 		}
 
-		template <typename... Ts>
-			requires( max_size > 1 && sizeof...( Ts ) == max_size )
-		constexpr enum_map( sorted_unique_t,
-							Ts&&... values ) noexcept( std::is_nothrow_move_constructible_v<value_type> )
-			: m_container{ std::forward<Ts>( values )... }
-		{
-		}
-
 		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
 			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
-		constexpr enum_map( sorted_unique_t, It first, Sentinel last )
+		constexpr enum_map( It first, Sentinel last )
 		{
 			DEBUG_ASSERT( std::ranges::distance( first, last ) <= max_size,
 						  "Iterator pair is over a range larger than this container's max size" );
@@ -220,13 +205,17 @@ namespace mclo
 		}
 
 		template <std::ranges::forward_range Range>
-			requires( !std::convertible_to<Range, const_reference> &&
-					  std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
-		constexpr explicit enum_map( sorted_unique_t, Range&& range )
+			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
+		constexpr explicit enum_map( Range&& range )
 		{
 			DEBUG_ASSERT( std::ranges::distance( range ) <= max_size,
 						  "Range size is larger than this container's max size" );
 			std::ranges::copy( range, m_container.begin() );
+		}
+
+		constexpr enum_map( const std::initializer_list<value_type> init_list )
+			: enum_map( init_list.begin(), init_list.end() )
+		{
 		}
 
 		[[nodiscard]] constexpr reference operator[]( const key_type key ) noexcept
@@ -261,8 +250,6 @@ namespace mclo
 		{
 			lhs.swap( rhs );
 		}
-
-		[[nodiscard]] constexpr auto operator<=>( const enum_map& other ) const = default;
 
 		[[nodiscard]] constexpr mclo::span<value_type, max_size> as_span() noexcept
 		{
@@ -352,4 +339,21 @@ namespace mclo
 	private:
 		container_type m_container{};
 	};
+
+	template <typename TEnum, typename TValue, TEnum SizeEnum>
+	[[nodiscard]] constexpr synth_three_way_result<TValue> operator<=>( const enum_map<TEnum, TValue, SizeEnum>& lhs,
+																		const enum_map<TEnum, TValue, SizeEnum>& rhs )
+	{
+		const auto lhs_span = lhs.as_span();
+		const auto rhs_span = rhs.as_span();
+		return std::lexicographical_compare_three_way(
+			lhs_span.begin(), lhs_span.end(), rhs_span.begin(), rhs_span.end(), synth_three_way{} );
+	}
+
+	template <typename TEnum, typename TValue, TEnum SizeEnum>
+	[[nodiscard]] constexpr bool operator==( const enum_map<TEnum, TValue, SizeEnum>& lhs,
+											 const enum_map<TEnum, TValue, SizeEnum>& rhs )
+	{
+		return lhs.as_span() == rhs.as_span();
+	}
 }

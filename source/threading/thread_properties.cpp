@@ -37,7 +37,6 @@ namespace
 	void set_thread_priority_platform( std::thread::native_handle_type thread, const mclo::thread_priority priority )
 	{
 		static constexpr mclo::enum_map<mclo::thread_priority, int> prio_map{
-			mclo::sorted_unique,
 			THREAD_PRIORITY_LOWEST,
 			THREAD_PRIORITY_BELOW_NORMAL,
 			THREAD_PRIORITY_NORMAL,
@@ -77,7 +76,6 @@ namespace
 	{
 		static constexpr int normal_prio = 5;
 		static constexpr mclo::enum_map<mclo::thread_priority, int> prio_map{
-			mclo::sorted_unique,
 			normal_prio - 2,
 			normal_prio - 1,
 			normal_prio,
