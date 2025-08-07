@@ -178,6 +178,11 @@ TEST_CASE( "enum_map index directly", "[enum_map]" )
 	CHECK( const_map[ test_enum::third ] == 42 );
 }
 
+TEST_CASE( "enum_map narrowing conversions", "[enum_map]" )
+{
+	const mclo::enum_map<test_enum, std::uint8_t> map{ 1, 2, 3, 4 };
+}
+
 #include "mclo/enum/enum_string_bi_map.hpp"
 TEST_CASE( "BiMap" )
 {

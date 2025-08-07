@@ -165,6 +165,7 @@ namespace mclo
 
 		constexpr explicit enum_map( const_reference fill_value ) noexcept(
 			std::is_nothrow_copy_constructible_v<value_type> )
+			requires( max_size != 1 )
 			: m_container( mclo::broadcast_array<max_size>( fill_value ) )
 		{
 		}
@@ -213,8 +214,10 @@ namespace mclo
 			std::ranges::copy( range, m_container.begin() );
 		}
 
-		constexpr enum_map( const std::initializer_list<value_type> init_list )
-			: enum_map( init_list.begin(), init_list.end() )
+		template <std::constructible_from<value_type>... Ts>
+			requires( sizeof...( Ts ) == max_size )
+		constexpr enum_map( Ts&&... args ) noexcept( ( std::is_nothrow_constructible_v<value_type, Ts> && ... ) )
+			: m_container{ static_cast<value_type>( std::forward<Ts>( args ) )... }
 		{
 		}
 
