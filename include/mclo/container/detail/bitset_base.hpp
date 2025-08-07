@@ -195,7 +195,7 @@ namespace mclo::detail
 			const size_type end = m_container.size() - static_cast<size_type>( last_mask != 0 );
 			for ( size_type index = 0; index < end; ++index )
 			{
-				if ( m_container[ index ] != ~zero )
+				if ( m_container[ index ] != static_cast<underlying_type>( ~zero ) )
 				{
 					return false;
 				}
@@ -281,7 +281,7 @@ namespace mclo::detail
 		{
 			if ( std::is_constant_evaluated() )
 			{
-				std::fill( m_container.begin(), m_container.end(), static_cast<underlying_type>( -1 ) );
+				std::fill( m_container.begin(), m_container.end(), 0 );
 			}
 			else
 			{
@@ -304,7 +304,7 @@ namespace mclo::detail
 		{
 			for ( underlying_type& value : m_container )
 			{
-				value = ~value;
+				value = static_cast<underlying_type>( ~value );
 			}
 			trim();
 			return as_derived();
