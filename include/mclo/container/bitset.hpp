@@ -61,20 +61,12 @@ namespace mclo
 			base::init_from_string( view( str ), unset_char, set_char );
 		}
 
-		/// @brief Convert to an unsigned long, only enabled if Bits fits into one unsigned long or smaller
-		/// @return Bitset underlying value as unsigned long
-		[[nodiscard]] constexpr unsigned long to_ulong() const noexcept
-			requires( num_values == 1 && sizeof( underlying_type ) <= sizeof( unsigned long ) )
+		/// @brief Convert to the underlying type, only enabled if Bits fits into one unsigned long or smaller
+		/// @return Bitset underlying value
+		[[nodiscard]] constexpr underlying_type to_mask() const noexcept
+			requires( num_values == 1 )
 		{
-			return static_cast<unsigned long>( base::underlying().front() );
-		}
-
-		/// @brief Convert to an unsigned long long, only enabled if Bits fits into one unsigned long long or smaller
-		/// @return Bitset underlying value as unsigned long long
-		[[nodiscard]] constexpr unsigned long long to_ullong() const noexcept
-			requires( num_values == 1 && sizeof( underlying_type ) <= sizeof( unsigned long long ) )
-		{
-			return static_cast<unsigned long long>( base::underlying().front() );
+			return base::underlying().front();
 		}
 
 		[[nodiscard]] constexpr bool operator==( const bitset& other ) const noexcept = default;

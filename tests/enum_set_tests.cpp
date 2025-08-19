@@ -20,8 +20,6 @@ namespace
 		enum_size,
 	};
 
-	static_assert( std::ranges::forward_range<mclo::enum_set<test_enum>>, "enum_set models a forward range" );
-
 	void _expectSetContains( const mclo::enum_set<test_enum>& set, mclo::span<const test_enum> expectedSet )
 	{
 		DEBUG_ASSERT( std::is_sorted( expectedSet.begin(), expectedSet.end() ) );
@@ -35,24 +33,19 @@ namespace
 		{
 			if ( expectedSetIt != expectedSetEnd && e == *expectedSetIt )
 			{
-				const auto it = set.find( e );
-				REQUIRE( set.end() != it );
-				CHECK( e == *it );
 				CHECK( set.contains( e ) );
 				expectedSetIt++;
 			}
 			else
 			{
-				CHECK( set.end() == set.find( e ) );
 				CHECK_FALSE( set.contains( e ) );
 			}
 		}
 
 		std::vector<test_enum> setValues;
-		set.forEachSet( [ &setValues ]( const test_enum e ) { setValues.push_back( e ); } );
+		setValues.reserve(expectedSet.size());
+		set.for_each_set( [ &setValues ]( const test_enum e ) { setValues.push_back( e ); } );
 		CHECK_THAT( setValues, RangeEquals( expectedSet ) );
-		CHECK_THAT( set, RangeEquals( expectedSet ) );
-		CHECK_THAT( std::as_const( set ), RangeEquals( expectedSet ) );
 	}
 }
 
@@ -90,11 +83,8 @@ TEST_CASE( "EmptySet_InsertSingle_ValueIsSet", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set;
 
-	const auto [ it, inserted ] = set.insert( test_enum::second );
+	set.insert( test_enum::second );
 
-	REQUIRE( set.end() != it );
-	CHECK( test_enum::second == *it );
-	CHECK( inserted );
 	_expectSetContains( set, std::array{ test_enum::second } );
 }
 
@@ -102,15 +92,9 @@ TEST_CASE( "EmptySet_InsertSameValueTwice_OnlyOneSet", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set;
 
-	const auto [ it, inserted ] = set.insert( test_enum::second );
-	const auto [ it2, inserted2 ] = set.insert( test_enum::second );
+	set.insert( test_enum::second );
+	set.insert( test_enum::second );
 
-	REQUIRE( set.end() != it );
-	CHECK( test_enum::second == *it );
-	CHECK( inserted );
-	REQUIRE( set.end() != it2 );
-	CHECK( test_enum::second == *it2 );
-	CHECK_FALSE( inserted2 );
 	_expectSetContains( set, std::array{ test_enum::second } );
 }
 
@@ -180,34 +164,6 @@ TEST_CASE( "SetWithValues_EraseNotPresentKey_Noop", "[enum_set]" )
 	set.erase( test_enum::first );
 
 	_expectSetContains( set, values );
-}
-
-TEST_CASE( "SetWithValues_ErasePresentIterator_ValueIsRemoved", "[enum_set]" )
-{
-	mclo::enum_set<test_enum> set{ test_enum::second, test_enum::third, test_enum::fifth };
-
-	set.erase( set.find( test_enum::third ) );
-
-	_expectSetContains( set, std::array{ test_enum::second, test_enum::fifth } );
-}
-
-TEST_CASE( "SetWithValues_EraseNotPresentIterator_Noop", "[enum_set]" )
-{
-	static constexpr std::array values{ test_enum::second, test_enum::third, test_enum::fifth };
-	mclo::enum_set<test_enum> set{ values };
-
-	set.erase( set.find( test_enum::first ) );
-
-	_expectSetContains( set, values );
-}
-
-TEST_CASE( "TwoDifferentSets_CompareIterators_NotEqual", "[enum_set]" )
-{
-	const mclo::enum_set<test_enum> set1;
-	const mclo::enum_set<test_enum> set2;
-
-	CHECK( set1.begin() != set2.begin() );
-	CHECK( set1.end() != set2.end() );
 }
 
 TEST_CASE( "TwoEmptySets_CompareSets_AreEqual", "[enum_set]" )

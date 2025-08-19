@@ -281,7 +281,7 @@ namespace mclo::detail
 		{
 			if ( std::is_constant_evaluated() )
 			{
-				std::fill( m_container.begin(), m_container.end(), 0 );
+				std::fill( m_container.begin(), m_container.end(), static_cast<underlying_type>( 0 ) );
 			}
 			else
 			{
