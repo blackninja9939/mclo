@@ -52,6 +52,7 @@ add_executable( tests
 	"lazy_convert_construct_tests.cpp"
 	"wide_convert_tests.cpp"
 	"minmax_scored_tests.cpp"
+	"loop_unroll_tests.cpp"
 )
 
 target_compile_definitions( 
