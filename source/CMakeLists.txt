@@ -23,6 +23,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "allocator/arena_allocator.cpp"
     "debug/breakpoint.cpp"
     "debug/debugger_attached.cpp"
+    "numeric/bit.cpp"
 )
 
 set_target_properties(

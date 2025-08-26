@@ -6,6 +6,8 @@ add_executable( benchmarks
 	"enum_range_benchmarks.cpp"
 	"enum_string_bi_map_benchmarks.cpp"
 	"slot_map_benchmarks.cpp"
- "hash_benchmarks.cpp")
+	"hash_benchmarks.cpp"
+	"bit_benchmarks.cpp"
+)
 
 target_link_libraries( benchmarks PRIVATE benchmark::benchmark benchmark::benchmark_main mclo )
