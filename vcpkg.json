@@ -12,6 +12,7 @@
     "benchmark",
     "xsimd",
     "tl-expected",
-    "libassert"
+    "libassert",
+    "xxhash"
   ]
 }

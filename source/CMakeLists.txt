@@ -13,6 +13,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "string/wide_convert.cpp"
     "hash/murmur_hash_3.cpp"
     "hash/rapidhash.cpp"
+    "hash/xxhash.cpp"
     "random/xoshiro256plusplus.cpp"
     "random/splitmix64.cpp"
     "threading/mutex.cpp"
