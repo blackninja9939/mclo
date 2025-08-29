@@ -1,5 +1,7 @@
 #include "consteval_check.hpp"
 
+#include "assert_macros.hpp"
+
 #include "mclo/numeric/log2.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/numeric/pow10.hpp"
@@ -23,6 +25,8 @@ TEST_CASE( "round_down_to_multiple_of", "[math]" )
 
 TEST_CASE( "log2_floor", "[math]" )
 {
+	CHECK_ASSERTS( mclo::log2_floor( 0u ), "log2(0) is undefined" );
+	CONSTEVAL_CHECK( mclo::log2_floor( 1u ) == 0 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 2u ) == 1 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 4u ) == 2 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 8u ) == 3 );
@@ -32,6 +36,8 @@ TEST_CASE( "log2_floor", "[math]" )
 
 TEST_CASE( "log2_ceil", "[math]" )
 {
+	CHECK_ASSERTS( mclo::log2_ceil( 0u ), "log2(0) is undefined" );
+	CONSTEVAL_CHECK( mclo::log2_ceil( 1u ) == 0 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 2u ) == 1 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 4u ) == 2 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 8u ) == 3 );

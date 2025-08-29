@@ -3,17 +3,21 @@
 #include <bit>
 #include <concepts>
 
+#include "mclo/debug/assert.hpp"
+
 namespace mclo
 {
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T log2_floor( const T value ) noexcept
+	[[nodiscard]] constexpr T log2_floor( const T value ) MCLO_NOEXCEPT_TESTS
 	{
+		DEBUG_ASSERT( value != 0, "log2(0) is undefined" );
 		return static_cast<T>( std::bit_width( value ) - 1 );
 	}
 
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T log2_ceil( const T value ) noexcept
+	[[nodiscard]] constexpr T log2_ceil( const T value ) MCLO_NOEXCEPT_TESTS
 	{
-		return log2_floor<T>( value - 1 ) + 1;
+		DEBUG_ASSERT( value != 0, "log2(0) is undefined" );
+		return static_cast<T>( std::bit_width( value - 1 ) );
 	}
 }
