@@ -13,6 +13,8 @@ TEST_CASE( "ceil_divide", "[math]" )
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6, -4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, 4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, -4 ) == 2 );
+
+	CONSTEVAL_CHECK( mclo::ceil_divide( 6u, 4u ) == 2 );
 }
 
 TEST_CASE( "round_down_to_multiple_of", "[math]" )
@@ -28,10 +30,10 @@ TEST_CASE( "log2_floor", "[math]" )
 	CHECK_ASSERTS( mclo::log2_floor( 0u ), "log2(0) is undefined" );
 	CONSTEVAL_CHECK( mclo::log2_floor( 1u ) == 0 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 2u ) == 1 );
-	CONSTEVAL_CHECK( mclo::log2_floor( 4u ) == 2 );
-	CONSTEVAL_CHECK( mclo::log2_floor( 8u ) == 3 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 3u ) == 1 );
+	CONSTEVAL_CHECK( mclo::log2_floor( 4u ) == 2 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 5u ) == 2 );
+	CONSTEVAL_CHECK( mclo::log2_floor( 8u ) == 3 );
 }
 
 TEST_CASE( "log2_ceil", "[math]" )
@@ -39,10 +41,10 @@ TEST_CASE( "log2_ceil", "[math]" )
 	CHECK_ASSERTS( mclo::log2_ceil( 0u ), "log2(0) is undefined" );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 1u ) == 0 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 2u ) == 1 );
-	CONSTEVAL_CHECK( mclo::log2_ceil( 4u ) == 2 );
-	CONSTEVAL_CHECK( mclo::log2_ceil( 8u ) == 3 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 3u ) == 2 );
+	CONSTEVAL_CHECK( mclo::log2_ceil( 4u ) == 2 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 5u ) == 3 );
+	CONSTEVAL_CHECK( mclo::log2_ceil( 8u ) == 3 );
 }
 
 TEST_CASE( "pow2", "[math]" )

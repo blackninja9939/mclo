@@ -8,12 +8,16 @@ namespace mclo
 	template <std::integral T>
 	[[nodiscard]] constexpr T ceil_divide( const T dividend, const T divisor ) noexcept
 	{
-		if ( dividend > 0 == divisor > 0 )
+		if constexpr ( std::is_unsigned_v<T> )
 		{
 			return ( dividend + divisor - 1 ) / divisor;
 		}
 		else
 		{
+			if ( dividend > 0 == divisor > 0 )
+			{
+				return ( dividend + divisor - 1 ) / divisor;
+			}
 			return dividend / divisor;
 		}
 	}
