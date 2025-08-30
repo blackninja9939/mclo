@@ -9,11 +9,11 @@
 
 TEST_CASE( "ceil_divide", "[math]" )
 {
+	CHECK_ASSERTS( mclo::ceil_divide( 6, 0 ), "Divizion by zero" );
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6, 4 ) == 2 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6, -4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, 4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, -4 ) == 2 );
-
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6u, 4u ) == 2 );
 }
 

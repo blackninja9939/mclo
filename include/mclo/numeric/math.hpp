@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
+
 #include <concepts>
 #include <limits>
 
@@ -8,17 +10,19 @@ namespace mclo
 	template <std::integral T>
 	[[nodiscard]] constexpr T ceil_divide( const T dividend, const T divisor ) noexcept
 	{
+		DEBUG_ASSERT( divisor != 0, "Division by zero" );
 		if constexpr ( std::is_unsigned_v<T> )
 		{
+			// Branchless single div instruction
 			return ( dividend + divisor - 1 ) / divisor;
 		}
 		else
 		{
-			if ( dividend > 0 == divisor > 0 )
-			{
-				return ( dividend + divisor - 1 ) / divisor;
-			}
-			return dividend / divisor;
+			// Branchless single idiv instruction as that gives remainder and quotient https://www.felixcloutier.com/x86/idiv
+			// Adds 1 if there is a remainder and signs match via bit XOR to round up
+			const T quotient = dividend / divisor;
+			const T remainder = dividend % divisor;
+			return quotient + ( ( remainder != 0 ) & ( ( dividend ^ divisor ) >= 0 ) );
 		}
 	}
 
