@@ -1,9 +1,9 @@
 #pragma once
 
+#include "mclo/debug/assert.hpp"
+
 #include <bit>
 #include <concepts>
-
-#include "mclo/debug/assert.hpp"
 
 namespace mclo
 {
