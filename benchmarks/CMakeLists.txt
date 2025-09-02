@@ -8,6 +8,7 @@ add_executable( benchmarks
 	"slot_map_benchmarks.cpp"
 	"hash_benchmarks.cpp"
 	"bit_benchmarks.cpp"
+	"math_benchmarks.cpp"
 )
 
 target_link_libraries( benchmarks PRIVATE benchmark::benchmark benchmark::benchmark_main mclo )
