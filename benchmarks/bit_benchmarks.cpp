@@ -10,7 +10,8 @@ namespace
 
 		for ( auto _ : state )
 		{
-			benchmark::DoNotOptimize( mclo::bit_reverse( value ) );
+			auto result = mclo::bit_reverse( value );
+			benchmark::DoNotOptimize( result );
 		}
 	}
 	BENCHMARK( bit_reverse );
@@ -34,7 +35,8 @@ namespace
 
 		for ( auto _ : state )
 		{
-			benchmark::DoNotOptimize( bit_reverse_manual_loop( value ) );
+			auto result = bit_reverse_manual_loop( value );
+			benchmark::DoNotOptimize( result );
 		}
 	}
 	BENCHMARK( bit_reverse_manual );
@@ -46,7 +48,8 @@ namespace
 
 		for ( auto _ : state )
 		{
-			benchmark::DoNotOptimize( mclo::bit_compress( x, m ) );
+			auto result = mclo::bit_compress( x, m );
+			benchmark::DoNotOptimize( result );
 		}
 	}
 	BENCHMARK( bit_compress );
@@ -58,7 +61,8 @@ namespace
 
 		for ( auto _ : state )
 		{
-			benchmark::DoNotOptimize( mclo::detail::bit_compress( x, m ) );
+			auto result = mclo::detail::bit_compress( x, m );
+			benchmark::DoNotOptimize( result );
 		}
 	}
 	BENCHMARK( bit_compress_manual );
@@ -70,7 +74,8 @@ namespace
 
 		for ( auto _ : state )
 		{
-			benchmark::DoNotOptimize( mclo::bit_expand( x, m ) );
+			auto result = mclo::bit_expand( x, m );
+			benchmark::DoNotOptimize( result );
 		}
 	}
 	BENCHMARK( bit_expand );
@@ -82,7 +87,8 @@ namespace
 
 		for ( auto _ : state )
 		{
-			benchmark::DoNotOptimize( mclo::detail::bit_expand( x, m ) );
+			auto result = mclo::detail::bit_expand( x, m );
+			benchmark::DoNotOptimize( result );
 		}
 	}
 	BENCHMARK( bit_expand_manual );
