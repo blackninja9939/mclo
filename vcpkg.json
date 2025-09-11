@@ -5,7 +5,7 @@
     "Matthew Clohessy"
   ],
   "version": "1.0",
-  "builtin-baseline": "e58f7db7592da0b276e8adfce5ee2854889aed49",
+  "builtin-baseline": "120deac3062162151622ca4860575a33844ba10b",
   "dependencies": [
     "fmt",
     "catch2",
