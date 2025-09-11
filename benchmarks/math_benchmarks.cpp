@@ -120,38 +120,4 @@ namespace
 		}
 	}
 	BENCHMARK( int_ceil_div_unsigned )->Args( { 6, 4 } );
-
-	template <std::integral T>
-	[[nodiscard]] constexpr T ceil_divide_old( const T dividend, const T divisor ) MCLO_NOEXCEPT_TESTS
-	{
-		if ( dividend > 0 == divisor > 0 )
-		{
-			return ( dividend + divisor - 1 ) / divisor;
-		}
-		else
-		{
-			return dividend / divisor;
-		}
-	}
-
-	void int_ceil_div_signed_old( benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto value = ceil_divide_old( state.range( 0 ), state.range( 1 ) );
-			benchmark::DoNotOptimize( value );
-		}
-	}
-	BENCHMARK( int_ceil_div_signed_old )->Args( { 6, -4 } );
-
-	void int_ceil_div_unsigned_old( benchmark::State& state )
-	{
-		for ( auto _ : state )
-		{
-			auto value = ceil_divide_old( static_cast<std::uint64_t>( state.range( 0 ) ),
-										  static_cast<std::uint64_t>( state.range( 1 ) ) );
-			benchmark::DoNotOptimize( value );
-		}
-	}
-	BENCHMARK( int_ceil_div_unsigned_old )->Args( { 6, 4 } );
 }
