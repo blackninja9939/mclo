@@ -5,7 +5,6 @@
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
 #include "mclo/utility/array.hpp"
-#include "mclo/utility/synth_three_way.hpp"
 
 #include <array>
 #include <compare>
@@ -161,7 +160,13 @@ namespace mclo
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		using pair_type = std::pair<key_type, value_type>;
 
-		constexpr enum_map() noexcept( std::is_nothrow_default_constructible_v<value_type> ) = default;
+		constexpr enum_map() = default;
+
+		constexpr enum_map( const enum_map& other ) = default;
+		constexpr enum_map( enum_map&& other ) = default;
+
+		constexpr enum_map& operator=( const enum_map& other ) = default;
+		constexpr enum_map& operator=( enum_map&& other ) = default;
 
 		constexpr explicit enum_map( const_reference fill_value ) noexcept(
 			std::is_nothrow_copy_constructible_v<value_type> )
@@ -170,7 +175,7 @@ namespace mclo
 		{
 		}
 
-		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
 			requires( std::convertible_to<std::iter_reference_t<It>, pair_type> )
 		constexpr enum_map( It first, Sentinel last )
 		{
@@ -181,7 +186,7 @@ namespace mclo
 			}
 		}
 
-		template <std::ranges::forward_range Range>
+		template <std::ranges::input_range Range>
 			requires( std::convertible_to<std::ranges::range_reference_t<Range>, pair_type> )
 		constexpr explicit enum_map( Range&& range )
 		{
@@ -196,7 +201,7 @@ namespace mclo
 		{
 		}
 
-		template <std::forward_iterator It, std::sentinel_for<It> Sentinel>
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
 			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
 		constexpr enum_map( It first, Sentinel last )
 		{
@@ -205,7 +210,7 @@ namespace mclo
 			std::ranges::copy( first, last, m_container.begin() );
 		}
 
-		template <std::ranges::forward_range Range>
+		template <std::ranges::input_range Range>
 			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
 		constexpr explicit enum_map( Range&& range )
 		{
@@ -339,24 +344,9 @@ namespace mclo
 			return std::make_reverse_iterator( cbegin() );
 		}
 
+		constexpr auto operator<=>( const enum_map& other ) const = default;
+
 	private:
 		container_type m_container{};
 	};
-
-	template <typename TEnum, typename TValue, TEnum SizeEnum>
-	[[nodiscard]] constexpr synth_three_way_result<TValue> operator<=>( const enum_map<TEnum, TValue, SizeEnum>& lhs,
-																		const enum_map<TEnum, TValue, SizeEnum>& rhs )
-	{
-		const auto lhs_span = lhs.as_span();
-		const auto rhs_span = rhs.as_span();
-		return std::lexicographical_compare_three_way(
-			lhs_span.begin(), lhs_span.end(), rhs_span.begin(), rhs_span.end(), synth_three_way{} );
-	}
-
-	template <typename TEnum, typename TValue, TEnum SizeEnum>
-	[[nodiscard]] constexpr bool operator==( const enum_map<TEnum, TValue, SizeEnum>& lhs,
-											 const enum_map<TEnum, TValue, SizeEnum>& rhs )
-	{
-		return lhs.as_span() == rhs.as_span();
-	}
 }

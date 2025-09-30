@@ -31,21 +31,22 @@ namespace mclo
 		constexpr enum_set( const enum_set& other ) noexcept = default;
 		constexpr enum_set& operator=( const enum_set& other ) noexcept = default;
 
-		template <typename InputIt>
-		constexpr enum_set( InputIt first, InputIt last )
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
+			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
+		constexpr enum_set( It first, Sentinel last )
 		{
 			insert( std::move( first ), std::move( last ) );
 		}
-
-		template <typename Range>
-			requires( !std::same_as<enum_set, std::decay_t<Range>> )
+		
+		template <std::ranges::input_range Range>
+			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
 		constexpr enum_set( Range&& range ) noexcept
-			: enum_set( std::begin( range ), std::end( range ) )
+			: enum_set( std::ranges::begin( range ), std::ranges::end( range ) )
 		{
 		}
 
-		constexpr enum_set( std::initializer_list<value_type> initList ) noexcept
-			: enum_set( std::begin( initList ), std::end( initList ) )
+		constexpr enum_set( std::initializer_list<value_type> init_list ) noexcept
+			: enum_set( init_list.begin(), init_list.end() )
 		{
 		}
 
@@ -93,25 +94,26 @@ namespace mclo
 			m_container.set( static_cast<size_type>( value ) );
 		}
 
-		template <typename InputIt>
-		constexpr void insert( InputIt first, InputIt last )
+		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
+			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
+		constexpr void insert( It first, Sentinel last )
 		{
 			for ( ; first != last; ++first )
 			{
-				m_container.set( static_cast<size_type>( *first ) );
+				insert( *first );
 			}
 		}
 
-		template <typename Range>
-			requires( !std::convertible_to<Range, value_type> )
+		template <std::ranges::input_range Range>
+			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
 		constexpr void insert( Range&& range ) noexcept
 		{
-			insert( std::begin( range ), std::end( range ) );
+			insert( std::ranges::begin( range ), std::ranges::end( range ) );
 		}
 
-		constexpr void insert( std::initializer_list<value_type> initList ) noexcept
+		constexpr void insert( std::initializer_list<value_type> init_list ) noexcept
 		{
-			insert( std::begin( initList ), std::end( initList ) );
+			insert( init_list.begin(), init_list.end() );
 		}
 
 		constexpr void erase( const value_type key ) noexcept
