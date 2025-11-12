@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mclo/memory/not_null.hpp"
 #include "mclo/numeric/math.hpp"
 
 #include <cstddef>
