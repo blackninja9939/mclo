@@ -32,6 +32,15 @@ TEST_CASE( "enum_map default constructor", "[enum_map]" )
 	}
 }
 
+TEST_CASE( "enum_map copy constructor", "[enum_map]" )
+{
+	const mclo::enum_map<test_enum, int> map{ 1, 2, 3, 4 };
+
+	const mclo::enum_map<test_enum, int> copy{ map };
+
+	CHECK( map == copy );
+}
+
 TEST_CASE( "enum_map fill constructor", "[enum_map]" )
 {
 	const mclo::enum_map<test_enum, int> map{ 4 };
