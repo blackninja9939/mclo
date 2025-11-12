@@ -7,7 +7,7 @@
 
 #include <array>
 #include <compare>
-#include <fmt/format.h>
+#include <format>
 #include <stdexcept>
 #include <string_view>
 
@@ -457,14 +457,6 @@ namespace mclo
 		return view_type( lhs ) <=> view_type( rhs );
 	}
 
-	// Formatting
-	template <typename CharT, std::size_t Size>
-	auto format_as( const basic_string_buffer<CharT, Size>& str )
-	{
-		using view_type = typename basic_string_buffer<CharT, Size>::view_type;
-		return view_type( str );
-	}
-
 	// Guides
 	template <typename CharT, std::size_t N>
 	basic_string_buffer( const CharT ( & )[ N ] ) -> basic_string_buffer<CharT, N>;
@@ -503,6 +495,12 @@ namespace mclo
 
 namespace std
 {
+	template <typename CharT, std::size_t Size>
+	struct formatter<mclo::basic_string_buffer<CharT, Size>>
+		: formatter<typename mclo::basic_string_buffer<CharT, Size>::view_type>
+	{
+	};
+
 	template <typename CharT, std::size_t Size>
 	struct hash<mclo::basic_string_buffer<CharT, Size>> : mclo::hash<mclo::basic_string_buffer<CharT, Size>>
 	{

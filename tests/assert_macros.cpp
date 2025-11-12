@@ -2,7 +2,7 @@
 
 #include "assert_macros.hpp"
 
-#include <fmt/format.h>
+#include <format>
 #include <string_view>
 
 mclo::assert_exception_matcher::assert_exception_matcher( std::string message )
@@ -18,5 +18,5 @@ bool mclo::assert_exception_matcher::match( const test_assert_exception& in ) co
 
 std::string mclo::assert_exception_matcher::describe() const
 {
-	return fmt::format( "assert message contains: '{}'", message );
+	return std::format( "assert message contains: '{}'", message );
 }

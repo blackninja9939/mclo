@@ -37,17 +37,16 @@ set_target_properties(
 add_library(${PROJECT_NAME}::${LIBRARY_TARGET_NAME} ALIAS ${LIBRARY_TARGET_NAME})
 
 # Find and link dependencies
-find_package(fmt CONFIG REQUIRED)
 find_package(xsimd CONFIG REQUIRED)
 find_package(libassert CONFIG REQUIRED)
+find_package(xxhash CONFIG REQUIRED)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC fmt::fmt xsimd libassert::assert)
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash)
 
 # Add compile definitions
 target_compile_definitions( 
     ${LIBRARY_TARGET_NAME}
     PUBLIC
-        LIBASSERT_USE_FMT
 )
 
 # Automatically include all public headers from the include folder

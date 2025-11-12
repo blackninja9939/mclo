@@ -1,7 +1,6 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_dependency(fmt)
 find_dependency(xsimd)
 find_dependency(libassert)
 
