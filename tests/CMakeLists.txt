@@ -53,6 +53,7 @@ add_executable( tests
 	"wide_convert_tests.cpp"
 	"minmax_scored_tests.cpp"
 	"loop_unroll_tests.cpp"
+	"morton_index_tests.cpp"
 )
 
 target_compile_definitions( 
