@@ -241,13 +241,6 @@
 			<ExpandedItem>m_data</ExpandedItem>
 		</Expand>
 	</Type>
-  
-  <Type Name="mclo::not_null&lt;*&gt;">
-    <DisplayString>{*m_ptr}</DisplayString>
-    <Expand>
-      <ExpandedItem>m_ptr</ExpandedItem>
-    </Expand>
-  </Type>
 
   <Type Name="mclo::basic_string_flyweight&lt;*&gt;">
     <Intrinsic Name="header" Expression="m_handle.m_string.m_ptr"/>
