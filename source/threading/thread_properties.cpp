@@ -18,6 +18,11 @@ constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = static_
 
 namespace
 {
+	std::thread::native_handle_type get_current_thread_handle_platform()
+	{
+		return GetCurrentThread();
+	}
+
 	void set_thread_name_platform( std::thread::native_handle_type thread, const std::string_view name )
 	{
 		const int name_size = static_cast<int>( name.size() );
@@ -64,6 +69,11 @@ namespace
 
 namespace
 {
+	std::thread::native_handle_type get_current_thread_handle_platform()
+	{
+		return pthread_self();
+	}
+
 	void mclo::set_thread_name( std::thread::native_handle_type thread, const std::string_view name )
 	{
 		char truncated[ 16 ];
@@ -99,6 +109,11 @@ namespace
 
 namespace
 {
+	std::thread::native_handle_type get_current_thread_handle_platform()
+	{
+		return {};
+	}
+
 	void set_thread_name_platform( std::thread::native_handle_type, const std::string_view )
 	{
 	}
@@ -114,32 +129,32 @@ namespace
 
 #endif
 
-void mclo::set_thread_name( std::thread& thread, const std::string_view name )
+void mclo::set_thread_name( std::thread::native_handle_type handle, const std::string_view name )
 {
-	set_thread_name_platform( thread.native_handle(), name );
+	set_thread_name_platform( handle, name );
 }
 
-void mclo::set_thread_name( std::jthread& thread, const std::string_view name )
+void mclo::set_current_thread_name( const std::string_view name )
 {
-	set_thread_name_platform( thread.native_handle(), name );
+	set_thread_name( get_current_thread_handle_platform(), name );
 }
 
-void mclo::set_thread_priority( std::thread& thread, const thread_priority priority )
+void mclo::set_thread_priority( std::thread::native_handle_type handle, const thread_priority priority )
 {
-	set_thread_priority_platform( thread.native_handle(), priority );
+	set_thread_priority_platform( handle, priority );
 }
 
-void mclo::set_thread_priority( std::jthread& thread, const thread_priority priority )
+void mclo::set_current_thread_priority( const thread_priority priority )
 {
-	set_thread_priority_platform( thread.native_handle(), priority );
+	set_thread_priority( get_current_thread_handle_platform(), priority );
 }
 
-void mclo::set_thread_affinity( std::thread& thread, const std::uint64_t affinity )
+void mclo::set_thread_affinity( std::thread::native_handle_type handle, const std::uint64_t affinity )
 {
-	set_thread_affinity_platform( thread.native_handle(), affinity );
+	set_thread_affinity_platform( handle, affinity );
 }
 
-void mclo::set_thread_affinity( std::jthread& thread, const std::uint64_t affinity )
+void mclo::set_current_thread_affinity( const std::uint64_t affinity )
 {
-	set_thread_affinity_platform( thread.native_handle(), affinity );
+	set_thread_affinity( get_current_thread_handle_platform(), affinity );
 }

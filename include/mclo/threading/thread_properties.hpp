@@ -15,13 +15,12 @@ namespace mclo
 		high,
 	};
 
-	void set_thread_name( std::thread& thread, const std::string_view name );
-	void set_thread_name( std::jthread& thread, const std::string_view name );
+	void set_thread_name( std::thread::native_handle_type handle, const std::string_view name );
+	void set_current_thread_name( const std::string_view name );
 
-	void set_thread_priority( std::thread& thread, const thread_priority priority );
-	void set_thread_priority( std::jthread& thread, const thread_priority priority );
-	
-	void set_thread_affinity( std::thread& thread, const std::uint64_t affinity );
-	void set_thread_affinity( std::jthread& thread, const std::uint64_t affinity );
+	void set_thread_priority( std::thread::native_handle_type handle, const thread_priority priority );
+	void set_current_thread_priority( const thread_priority priority );
 
+	void set_thread_affinity( std::thread::native_handle_type handle, const std::uint64_t affinity );
+	void set_current_thread_affinity( const std::uint64_t affinity );
 }
