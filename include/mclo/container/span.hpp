@@ -5,6 +5,7 @@
 #include <concepts>
 #include <iterator>
 #include <limits>
+#include <ranges>
 #include <type_traits>
 
 namespace mclo
