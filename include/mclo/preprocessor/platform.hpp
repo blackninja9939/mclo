@@ -7,10 +7,12 @@
 	_Pragma( "warning( push )" ) _Pragma( MCLO_STRINGIFY( warning( disable : __VA_ARGS__ ) ) )
 
 #define MCLO_MSVC_POP_WARNINGS _Pragma( "warning( pop )" )
+#define MCLO_MSVC_PUSH_WARNING_LEVEL( LEVEL ) _Pragma( MCLO_STRINGIFY( warning( push, LEVEL ) ) )
 
 #else
 #define MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( ... )
 #define MCLO_MSVC_POP_WARNINGS
+#define MCLO_MSVC_PUSH_WARNING_LEVEL( LEVEL )
 #endif
 
 #ifdef __GNUC__
