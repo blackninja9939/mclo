@@ -15,6 +15,7 @@ constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = static_
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_map.hpp"
+#include "mclo/string/wide_convert.hpp"
 
 namespace
 {
@@ -25,15 +26,7 @@ namespace
 
 	void set_thread_name_platform( std::thread::native_handle_type thread, const std::string_view name )
 	{
-		const int name_size = static_cast<int>( name.size() );
-		const int wide_size = MultiByteToWideChar( CP_UTF8, 0, name.data(), name_size, nullptr, 0 );
-		DEBUG_ASSERT( wide_size > 0, "Failed to convert name to wide string", GetLastError() );
-
-		std::wstring wide( wide_size, {} );
-		[[maybe_unused]] const int convert_result =
-			MultiByteToWideChar( CP_UTF8, 0, name.data(), name_size, wide.data(), wide_size );
-		DEBUG_ASSERT( convert_result > 0, "Failed to convert name to wide string", GetLastError() );
-
+		const std::wstring wide = mclo::to_wstring( name );
 		[[maybe_unused]] const HRESULT name_result =
 			SetThreadDescription( static_cast<HANDLE>( thread ), wide.c_str() );
 		DEBUG_ASSERT( SUCCEEDED( name_result ), "Failed to set thread name" );
