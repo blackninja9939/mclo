@@ -11,7 +11,7 @@ constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = static_
 #include <limits>
 #include <string>
 
-#include "platform/windows_wrapper.h"
+#include "mclo/platform/windows_wrapper.h"
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_map.hpp"
@@ -48,7 +48,7 @@ namespace
 	void set_thread_affinity_platform( std::thread::native_handle_type thread, const std::uint64_t affinity )
 	{
 		[[maybe_unused]] const DWORD_PTR result = SetThreadAffinityMask( thread, affinity );
-		DEBUG_ASSERT( result == affinity, "Failed to set thread affinity", GetLastError() );
+		DEBUG_ASSERT( result == affinity, "Failed to set thread affinity", mclo::last_error_code() );
 	}
 }
 

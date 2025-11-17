@@ -1,7 +1,7 @@
 #include "mclo/string/wide_convert.hpp"
 
 #ifdef _WIN32
-#include "platform/windows_wrapper.h"
+#include "mclo/platform/windows_wrapper.h"
 #else
 #include <cwchar>
 #endif
@@ -25,8 +25,7 @@ std::wstring mclo::to_wstring( const std::string_view str )
 	const int size_needed = MultiByteToWideChar( CP_UTF8, 0, str.data(), static_cast<int>( str.size() ), nullptr, 0 );
 	if ( size_needed <= 0 )
 	{
-		throw std::system_error( std::make_error_code( static_cast<std::errc>( GetLastError() ) ),
-								 "Failed to convert string to wide string" );
+		throw std::system_error( last_error_code(), "Failed to convert string to wide string" );
 	}
 
 	std::wstring result( size_needed, L'\0' );

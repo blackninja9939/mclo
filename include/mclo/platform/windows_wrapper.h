@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef _WIN32
+
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
@@ -9,3 +11,12 @@
 #endif
 
 #include <Windows.h>
+
+#include <system_error>
+
+namespace mclo
+{
+	[[nodiscard]] std::error_code last_error_code() noexcept;
+}
+
+#endif
