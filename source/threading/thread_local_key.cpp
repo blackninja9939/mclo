@@ -1,10 +1,11 @@
 #include "mclo/threading/thread_local_key.hpp"
 
 #include "mclo/debug/assert.hpp"
+#include "mclo/platform/os_detection.hpp"
 
 #include <stdexcept>
 
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 #include "mclo/platform/windows_wrapper.h"
 
 namespace mclo

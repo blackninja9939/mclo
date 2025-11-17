@@ -1,13 +1,15 @@
 #include "mclo/debug/debugger_attached.hpp"
 
-#ifdef _WIN32
+#include "mclo/platform/os_detection.hpp"
+
+#ifdef MCLO_OS_WINDOWS
 #include <Windows.h>
 
 bool mclo::is_debugger_attached() noexcept
 {
 	return IsDebuggerPresent() != 0;
 }
-#elif defined( __apple_build_version__ )
+#elif defined( MCLO_OS_APPLE )
 #include <assert.h>
 #include <stdbool.h>
 #include <sys/sysctl.h>
@@ -50,4 +52,3 @@ bool mclo::is_debugger_attached() noexcept
 	return false;
 }
 #endif
-

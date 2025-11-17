@@ -1,6 +1,6 @@
 #include "mclo/threading/mutex.hpp"
 
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 #include "mclo/platform/windows_wrapper.h"
 
 namespace mclo

@@ -1,6 +1,8 @@
 #include "mclo/string/wide_convert.hpp"
 
-#ifdef _WIN32
+#include "mclo/platform/os_detection.hpp"
+
+#ifdef MCLO_OS_WINDOWS
 #include "mclo/platform/windows_wrapper.h"
 #else
 #include <cwchar>
@@ -16,7 +18,7 @@ std::wstring mclo::to_wstring( const std::string_view str )
 		return {};
 	}
 
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 	if ( str.size() > std::numeric_limits<int>::max() )
 	{
 		throw std::length_error( "String size exceeds maximum length for conversion to wide string" );

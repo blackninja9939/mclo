@@ -2,9 +2,11 @@
 
 #include <mutex>
 
+#include "mclo/platform/os_detection.hpp"
+
 namespace mclo
 {
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 	class [[nodiscard]] mutex
 	{
 	public:

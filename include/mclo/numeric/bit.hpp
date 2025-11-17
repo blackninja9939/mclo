@@ -2,6 +2,7 @@
 
 #include "mclo/concepts/always_false.hpp"
 #include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/compiler_detection.hpp"
 
 #include <algorithm>
 #include <array>
@@ -38,7 +39,7 @@ namespace mclo
 		}
 		else
 		{
-#ifdef _MSC_VER // On MSVC at run time use their intrinsics
+#ifdef MCLO_COMPILER_MSVC // On MSVC at run time use their intrinsics
 			if ( std::is_constant_evaluated() )
 			{
 				return detail::byteswap( value );
@@ -62,7 +63,7 @@ namespace mclo
 					static_assert( mclo::always_false<T>, "Invalid integer size" );
 				}
 			}
-#else           // Else always use naive implementation
+#else                     // Else always use naive implementation
 			return detail::byteswap( value );
 #endif
 		}
@@ -72,7 +73,7 @@ namespace mclo
 	template <std::unsigned_integral T>
 	constexpr T bit_reverse( T value ) noexcept
 	{
-#if ( defined( __clang__ ) || defined( __GNUC__ ) ) && MCLO_HAS_BUILTIN( __builtin_bitreverse8 )
+#if defined( MCLO_COMPILER_GCC_COMPATIBLE ) && MCLO_HAS_BUILTIN( __builtin_bitreverse8 )
 		if constexpr ( sizeof( T ) == 1 )
 		{
 			return __builtin_bitreverse8( value );

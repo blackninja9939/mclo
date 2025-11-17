@@ -1,13 +1,15 @@
 #include "mclo/numeric/bit.hpp"
 
-#ifndef _MSC_VER
+#include "mclo/platform/compiler_detection.hpp"
+
+#ifndef MCLO_COMPILER_MSVC
 #include <cpuid.h>
 #endif
 
 namespace
 {
 	const bool has_bmi2_support = [] {
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 		int regs[ 4 ];
 		__cpuidex( regs, 7, 0 );
 		return ( regs[ 1 ] & ( 1 << 8 ) ) != 0; // EBX bit 8

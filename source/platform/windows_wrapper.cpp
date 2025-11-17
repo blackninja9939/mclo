@@ -1,6 +1,6 @@
 #include "mclo/platform/windows_wrapper.h"
 
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 
 std::error_code mclo::last_error_code() noexcept
 {

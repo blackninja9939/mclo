@@ -2,7 +2,9 @@
 
 #include <cinttypes>
 
-#ifndef _WIN32
+#include "mclo/platform/os_detection.hpp"
+
+#ifndef MCLO_OS_WINDOWS
 #include <pthread.h>
 #endif
 
@@ -11,7 +13,7 @@ namespace mclo
 	class thread_local_key
 	{
 	public:
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 		using native_handle_type = std::uint32_t;
 #else
 		using native_handle_type = pthread_key_t;

@@ -1,6 +1,8 @@
 #pragma once
 
-#ifdef _MSC_VER
+#include "mclo/platform/compiler_detection.hpp"
+
+#ifdef MCLO_COMPILER_MSVC
 #define MCLO_ALLOCA_RAW _alloca
 #else
 #define MCLO_ALLOCA_RAW alloca

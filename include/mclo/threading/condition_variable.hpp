@@ -3,10 +3,11 @@
 #include <condition_variable>
 
 #include "mclo/threading/mutex.hpp"
+#include "mclo/platform/os_detection.hpp"
 
 namespace mclo
 {
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 	class condition_variable
 	{
 		template <typename Rep, typename Period>

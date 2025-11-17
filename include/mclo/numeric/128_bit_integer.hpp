@@ -1,12 +1,14 @@
 #pragma once
 
-#ifdef _MSC_VER
+#include "mclo/platform/compiler_detection.hpp"
+
+#ifdef MCLO_COMPILER_MSVC
 #include <__msvc_int128.hpp>
 #endif
 
 namespace mclo
 {
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 	using int128_t = std::_Signed128;
 	using uint128_t = std::_Unsigned128;
 #else

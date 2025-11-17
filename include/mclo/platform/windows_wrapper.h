@@ -1,6 +1,8 @@
 #pragma once
 
-#ifdef _WIN32
+#include "mclo/platform/os_detection.hpp"
+
+#ifdef MCLO_OS_WINDOWS
 
 #ifndef NOMINMAX
 #define NOMINMAX

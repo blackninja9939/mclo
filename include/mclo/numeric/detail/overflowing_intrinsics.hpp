@@ -2,11 +2,12 @@
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
+#include "mclo/platform/compiler_detection.hpp"
 
 #include <limits>
 #include <utility>
 
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 #include <intrin.h>
 #endif
 
@@ -113,7 +114,7 @@ namespace mclo::detail
 	template <standard_integral T>
 	[[nodiscard]] constexpr bool add_overflow( const T x, const T y, T& result ) noexcept
 	{
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 		if ( std::is_constant_evaluated() )
 		{
 			return add_overflow_manual( x, y, result );
@@ -165,7 +166,7 @@ namespace mclo::detail
 	template <standard_integral T>
 	[[nodiscard]] constexpr bool sub_overflow( const T x, const T y, T& result ) noexcept
 	{
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 		if ( std::is_constant_evaluated() )
 		{
 			return sub_overflow_manual( x, y, result );
@@ -217,7 +218,7 @@ namespace mclo::detail
 	template <standard_integral T>
 	[[nodiscard]] constexpr bool mul_overflow( const T x, const T y, T& result ) noexcept
 	{
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 		if ( std::is_constant_evaluated() )
 		{
 			return mul_overflow_manual( x, y, result );

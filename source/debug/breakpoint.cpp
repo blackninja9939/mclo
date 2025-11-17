@@ -1,14 +1,15 @@
 #include "mclo/debug/breakpoint.hpp"
 
 #include "mclo/debug/debugger_attached.hpp"
+#include "mclo/platform/compiler_detection.hpp"
 
 void mclo::breakpoint() noexcept
 {
-#ifdef _WIN32
+#ifdef MCLO_COMPILER_MSVC
 	__debugbreak();
-#elif defined( __clang__ )
+#elif defined( MCLO_COMPILER_CLANG )
 	__builtin_debugtrap();
-#elif defined( __GNUC__ )
+#elif defined( MCLO_COMPILER_GCC )
 	asm( "int3" );
 #endif
 }

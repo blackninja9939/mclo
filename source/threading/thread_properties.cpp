@@ -1,12 +1,13 @@
 #include "mclo/threading/thread_properties.hpp"
 
 #include "mclo/enum/enum_size.hpp"
+#include "mclo/platform/os_detection.hpp"
 
 template <>
 constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = static_cast<mclo::thread_priority>(
 	static_cast<std::underlying_type_t<mclo::thread_priority>>( mclo::thread_priority::high ) + 1 );
 
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 
 #include <limits>
 #include <string>
@@ -52,7 +53,7 @@ namespace
 	}
 }
 
-#elif defined( __linux__ )
+#elif defined( MCLO_OS_LINUX )
 
 #include <cstring>
 #include <pthread.h>
@@ -111,7 +112,7 @@ namespace
 	{
 	}
 
-	void set_thread_priority_platform( std::thread::native_handle_type, const thread_priority )
+	void set_thread_priority_platform( std::thread::native_handle_type, const mclo::thread_priority )
 	{
 	}
 

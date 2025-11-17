@@ -1,8 +1,9 @@
 #pragma once
 
+#include "mclo/platform/compiler_detection.hpp"
 #include "mclo/preprocessor/stringify.hpp"
 
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 #define MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( ... )                                                                     \
 	_Pragma( "warning( push )" ) _Pragma( MCLO_STRINGIFY( warning( disable : __VA_ARGS__ ) ) )
 
@@ -15,7 +16,7 @@
 #define MCLO_MSVC_PUSH_WARNING_LEVEL( LEVEL )
 #endif
 
-#ifdef __GNUC__
+#ifdef MCLO_COMPILER_GCC_COMPATIBLE
 #define MCLO_GCC_PUSH_AND_DISABLE_WARNINGS( ... )                                                                      \
 	_Pragma( "GCC diagnostic push" ) _Pragma( MCLO_STRINGIFY( GCC warning ignored##__VA_ARGS__ ) )
 
@@ -31,19 +32,19 @@
 #define MCLO_HAS_BUILTIN( X ) 0
 #endif
 
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 #define MCLO_MSVC_OR_HAS_BUILTIN( X ) 1
 #else
 #define MCLO_MSVC_OR_HAS_BUILTIN( X ) MCLO_HAS_BUILTIN( X )
 #endif
 
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 #define MCLO_EMPTY_BASES __declspec( empty_bases )
 #else
 #define MCLO_EMPTY_BASES
 #endif
 
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 #define MCLO_RESTRICT __restrict
 #else
 #define MCLO_RESTRICT __restrict__
@@ -65,7 +66,7 @@
 
 #define MCLO_NO_UNIQUE_ADDRESS [[no_unique_address]] [[msvc::no_unique_address]]
 
-#ifdef _MSC_VER
+#ifdef MCLO_COMPILER_MSVC
 #define MCLO_NO_VTABLE __declspec( novtable )
 #else
 #define MCLO_NO_VTABLE

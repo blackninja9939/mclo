@@ -1,6 +1,6 @@
 #include "mclo/threading/condition_variable.hpp"
 
-#ifdef _WIN32
+#ifdef MCLO_OS_WINDOWS
 #include "mclo/platform/windows_wrapper.h"
 
 #include "mclo/debug/assert.hpp"

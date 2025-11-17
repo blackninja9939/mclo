@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/string/fixed_string.hpp"
+#include "mclo/platform/compiler_detection.hpp"
 
 namespace mclo::meta
 {
@@ -9,15 +10,15 @@ namespace mclo::meta
 		template <typename T>
 		[[nodiscard]] constexpr auto extract_type_name()
 		{
-#if defined( __clang__ )
+#if defined( MCLO_COMPILER_CLANG )
 			constexpr auto prefix = std::string_view{ "[T = " };
 			constexpr auto suffix = std::string_view{ "]" };
 			constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
-#elif defined( __GNUC__ )
+#elif defined( MCLO_COMPILER_GCC )
 			constexpr auto prefix = std::string_view{ "with T = " };
 			constexpr auto suffix = std::string_view{ "]" };
 			constexpr auto function = std::string_view{ __PRETTY_FUNCTION__ };
-#elif defined( _MSC_VER )
+#elif defined( MCLO_COMPILER_MSVC )
 			constexpr auto prefix = std::string_view{ "extract_type_name<" };
 			constexpr auto suffix = std::string_view{ ">(void)" };
 			constexpr auto function = std::string_view{ __FUNCSIG__ };
