@@ -4,7 +4,7 @@ add_executable( benchmarks
 	"string_benchmarks.cpp"
 	"bitset_benchmark.cpp"
 	"enum_range_benchmarks.cpp"
-	"enum_string_bi_map_benchmarks.cpp"
+	"enum_bi_map_benchmarks.cpp"
 	"slot_map_benchmarks.cpp"
 	"hash_benchmarks.cpp"
 	"bit_benchmarks.cpp"

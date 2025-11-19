@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/enum/enum_string_bi_map.hpp"
+#include "mclo/enum/enum_bi_map.hpp"
 #include "mclo/hash/constexpr_hash.hpp"
 
 #include <charconv>
@@ -16,45 +16,44 @@ namespace
 	{
 	};
 
-	template <typename TEnum, TEnum SizeEnum = mclo::enum_size<TEnum>>
-	class enum_string_bi_map_unordered_map
+	template <typename TEnum, typename TValue, TEnum SizeEnum = mclo::enum_size<TEnum>>
+	class enum_bi_map_unordered_map
 	{
 	public:
 		static constexpr std::size_t max_size = static_cast<std::size_t>( SizeEnum );
-		using data_pair = std::pair<TEnum, std::string_view>;
+		using data_pair = std::pair<TEnum, TValue>;
 
 		template <std::ranges::input_range Range>
-		constexpr enum_string_bi_map_unordered_map( Range&& init_data )
+		constexpr enum_bi_map_unordered_map( Range&& init_data )
 		{
-			DEBUG_ASSERT( std::ranges::size( init_data ) == max_size,
-						  "Invalid size for enum_string_bi_map_unordered_map" );
-			mStringToEnum.reserve( max_size );
-			mEnumToString.reserve( max_size );
+			DEBUG_ASSERT( std::ranges::size( init_data ) == max_size, "Invalid size for enum_bi_map_unordered_map" );
+			m_data_to_enum.reserve( max_size );
+			m_enum_to_data.reserve( max_size );
 			for ( const auto& [ e, str ] : init_data )
 			{
-				mStringToEnum.emplace( str, e );
-				mEnumToString.emplace( e, str );
+				m_data_to_enum.emplace( str, e );
+				m_enum_to_data.emplace( e, str );
 			}
 		}
 
-		constexpr std::optional<TEnum> lookup_from_string( const std::string_view str ) const noexcept
+		constexpr std::optional<TEnum> lookup_from_data( const TValue& data ) const noexcept
 		{
-			const auto it = mStringToEnum.find( str );
-			if ( it == mStringToEnum.end() )
+			const auto it = m_data_to_enum.find( data );
+			if ( it == m_data_to_enum.end() )
 			{
 				return {};
 			}
 			return it->second;
 		}
 
-		constexpr std::string_view lookup_from_enum( const TEnum e ) const noexcept
+		constexpr const TValue& lookup_from_enum( const TEnum e ) const noexcept
 		{
-			return mEnumToString.find( e )->second;
+			return m_enum_to_data.find( e )->second;
 		}
 
 	private:
-		std::unordered_map<std::string_view, TEnum> mStringToEnum;
-		std::unordered_map<TEnum, std::string_view> mEnumToString; // for a real once we'd use the enum map ehre too
+		std::unordered_map<TValue, TEnum> m_data_to_enum;
+		std::unordered_map<TEnum, TValue> m_enum_to_data; // for a real once we'd use the enum map ehre too
 	};
 
 	template <std::size_t size>
@@ -81,19 +80,19 @@ namespace
 		return std::make_pair( std::move( strs ), std::move( arr ) );
 	}
 
-	template <template <typename E, E> typename BiMap, std::size_t size>
+	template <template <typename E, typename V, E> typename BiMap, std::size_t size>
 	void BM_EnumStringBiMap( benchmark::State& state )
 	{
 		static const auto setup = make_map_init<size>();
 		const auto& arr = setup.second;
-		const BiMap<test_enum, test_enum( size )> map( arr );
+		const BiMap<test_enum, std::string_view, test_enum( size )> map( arr );
 
 		std::mt19937 gen( 42 );
 		std::uniform_int_distribution<std::size_t> dist( 0, arr.size() - 1 );
 
 		for ( auto _ : state )
 		{
-			auto result = map.lookup_from_string( arr[ dist( gen ) ].second );
+			auto result = map.lookup_from_data( arr[ dist( gen ) ].second );
 			benchmark::DoNotOptimize( result );
 		}
 	}
@@ -107,9 +106,9 @@ namespace
 	BENCHMARK( BM_EnumStringBiMap<TYPE, 500> );                                                                        \
 	BENCHMARK( BM_EnumStringBiMap<TYPE, 1000> )
 
-	BENCHMARK_BI_MAP( enum_string_bi_map_unordered_map );
-	BENCHMARK_BI_MAP( mclo::enum_string_bi_map_linear );
-	BENCHMARK_BI_MAP( mclo::enum_string_bi_map_binary );
+	BENCHMARK_BI_MAP( enum_bi_map_unordered_map );
+	BENCHMARK_BI_MAP( mclo::enum_bi_map_linear );
+	BENCHMARK_BI_MAP( mclo::enum_bi_map_binary );
 
 #undef BENCHMARK_BI_MAP
 }

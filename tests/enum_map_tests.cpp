@@ -192,7 +192,7 @@ TEST_CASE( "enum_map narrowing conversions", "[enum_map]" )
 	const mclo::enum_map<test_enum, std::uint8_t> map{ 1, 2, 3, 4 };
 }
 
-#include "mclo/enum/enum_string_bi_map.hpp"
+#include "mclo/enum/enum_bi_map.hpp"
 TEST_CASE( "BiMap" )
 {
 	std::array<std::pair<test_enum, std::string_view>, 4> arr{
@@ -201,9 +201,9 @@ TEST_CASE( "BiMap" )
          { test_enum::third, "third" },
          { test_enum::fourth, "fourth" } }
     };
-	mclo::enum_string_bi_map<test_enum> map( arr );
+	mclo::enum_bi_map<test_enum, std::string_view> map( arr );
 
-	const auto result = map.lookup_from_string( "second" );
+	const auto result = map.lookup_from_data( "second" );
 	REQUIRE( result );
 	CHECK( *result == test_enum::second );
 }
