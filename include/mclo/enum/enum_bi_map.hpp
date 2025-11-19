@@ -34,11 +34,12 @@ namespace mclo
 			}
 		}
 
-		[[nodiscard]] constexpr std::optional<TEnum> lookup_from_data( const TValue& data ) const noexcept
+		template <typename Key>
+		[[nodiscard]] constexpr std::optional<TEnum> lookup_from_data( const Key& key ) const noexcept
 		{
 			const auto first = m_data_to_enum.begin();
 
-			const auto it = Traits::search( m_data_to_enum, data );
+			const auto it = Traits::search( m_data_to_enum, key );
 			if ( it == m_data_to_enum.end() ) [[unlikely]]
 			{
 				return {};

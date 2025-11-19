@@ -27,7 +27,7 @@ namespace mclo::detail
 	/// resized
 	/// - Supports fast iteration via for_each_set
 	/// - Supports fast iteration via find_first_set/unset including starting offset
-	/// - test_and_set in one function
+	/// - test_set in one function
 	/// @warnings The follow std::bitset functionality is divergent
 	/// - No mutable operator[], in std::bitset it returns a proxy reference which indirectly calls set, less efficient
 	/// and less safe
