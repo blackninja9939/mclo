@@ -73,13 +73,13 @@ namespace mclo
 #define MCLO_TRY_VARIABLE_TYPE decltype( MCLO_TRY_VARIABLE_NAME )
 #define MCLO_TRY_VARIABLE_TRAITS mclo::try_traits<std::remove_cvref_t<MCLO_TRY_VARIABLE_TYPE>>
 
-#define MCLO_TRY_INTERNAL( DECLARATION, EXPRESSION )                                                                   \
-	auto&& MCLO_TRY_VARIABLE_NAME = EXPRESSION;                                                                        \
+#define MCLO_TRY_INTERNAL( DECLARATION, ... )                                                                          \
+	auto&& MCLO_TRY_VARIABLE_NAME = __VA_ARGS__;                                                                       \
 	if ( !MCLO_TRY_VARIABLE_TRAITS::has_value( MCLO_TRY_VARIABLE_NAME ) )                                              \
 	{                                                                                                                  \
 		return MCLO_TRY_VARIABLE_TRAITS::error( std::forward<MCLO_TRY_VARIABLE_TYPE>( MCLO_TRY_VARIABLE_NAME ) );      \
 	}                                                                                                                  \
 	DECLARATION MCLO_TRY_VARIABLE_TRAITS::value( std::forward<MCLO_TRY_VARIABLE_TYPE>( MCLO_TRY_VARIABLE_NAME ) )
 
-#define MCLO_TRY( DECLARATION, EXPRESSION ) MCLO_TRY_INTERNAL( DECLARATION =, EXPRESSION )
-#define MCLO_TRY_VOID( EXPRESSION ) MCLO_TRY_INTERNAL( ( void ), EXPRESSION )
+#define MCLO_TRY( DECLARATION, ... ) MCLO_TRY_INTERNAL( DECLARATION =, __VA_ARGS__ )
+#define MCLO_TRY_VOID( ... ) MCLO_TRY_INTERNAL( ( void ), __VA_ARGS__ )
