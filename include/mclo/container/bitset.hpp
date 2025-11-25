@@ -35,12 +35,12 @@ namespace mclo
 			detail::bitset_base<bitset<Bits, UnderlyingType>, detail::fixed_bitset_storage<Bits, UnderlyingType>>;
 		friend base;
 
-		static constexpr std::size_t num_values = detail::num_values_for_bits<UnderlyingType>( Bits );
-
 	public:
 		using underlying_container = typename base::underlying_container;
 		using underlying_type = typename base::underlying_type;
 		using size_type = typename base::size_type;
+
+		static constexpr std::size_t num_values = detail::num_values_for_bits<UnderlyingType>( Bits );
 
 		using base::base;
 
