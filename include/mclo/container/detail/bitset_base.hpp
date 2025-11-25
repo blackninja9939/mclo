@@ -122,26 +122,6 @@ namespace mclo::detail
 		/// @brief Construct the bitset with no set bits
 		constexpr bitset_base() noexcept = default;
 
-		/// @brief Construct the bitset from a copy underlying container
-		/// @details The container will trim set bits outside of the maximum size
-		/// @param container to copy from
-		constexpr bitset_base( const underlying_container& container ) noexcept(
-			std::is_nothrow_copy_constructible_v<underlying_container> )
-			: m_container( container )
-		{
-			trim();
-		}
-
-		/// @brief Construct the bitset from a moved from underlying container
-		/// @details The container will trim set bits outside of the maximum size
-		/// @param container to move from
-		constexpr bitset_base( underlying_container&& container ) noexcept(
-			std::is_nothrow_move_constructible_v<underlying_container> )
-			: m_container( std::move( container ) )
-		{
-			trim();
-		}
-
 		/// @brief Gets the total number of bits in the bitset
 		/// @return Number of bits
 		[[nodiscard]] constexpr size_type size() const noexcept
@@ -666,6 +646,21 @@ namespace mclo::detail
 		}
 
 	protected:
+		// Construct from undelying container, no trimming is performed, derived class should expose
+		// with its own trimming logic
+
+		constexpr bitset_base( const underlying_container& container ) noexcept(
+			std::is_nothrow_copy_constructible_v<underlying_container> )
+			: m_container( container )
+		{
+		}
+
+		constexpr bitset_base( underlying_container&& container ) noexcept(
+			std::is_nothrow_move_constructible_v<underlying_container> )
+			: m_container( std::move( container ) )
+		{
+		}
+
 		underlying_container m_container{};
 	};
 

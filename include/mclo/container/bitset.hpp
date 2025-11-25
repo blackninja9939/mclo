@@ -44,6 +44,26 @@ namespace mclo
 
 		using base::base;
 
+		/// @brief Construct the bitset from a copy underlying container
+		/// @details The container will trim set bits outside of the maximum size
+		/// @param container to copy from
+		constexpr bitset( const underlying_container& container ) noexcept(
+			std::is_nothrow_copy_constructible_v<underlying_container> )
+			: base( container )
+		{
+			derived_trim();
+		}
+
+		/// @brief Construct the bitset from a moved from underlying container
+		/// @details The container will trim set bits outside of the maximum size
+		/// @param container to move from
+		constexpr bitset( underlying_container&& container ) noexcept(
+			std::is_nothrow_move_constructible_v<underlying_container> )
+			: base( std::move( container ) )
+		{
+			derived_trim();
+		}
+
 		/// @brief Construct from underlying_type, only enabled if Bits fits into one UnderlyingType
 		constexpr bitset( const underlying_type value )
 			requires( num_values == 1 )

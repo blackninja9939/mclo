@@ -26,6 +26,28 @@ namespace mclo
 
 		using base::base;
 
+		/// @brief Construct the bitset from a copy underlying container
+		/// @details The container will trim set bits outside of the maximum size
+		/// @param container to copy from
+		constexpr dynamic_bitset( const size_type size, const underlying_container& container ) noexcept(
+			std::is_nothrow_copy_constructible_v<underlying_container> )
+			: base( container )
+			, m_size( size )
+		{
+			derived_trim();
+		}
+
+		/// @brief Construct the bitset from a moved from underlying container
+		/// @details The container will trim set bits outside of the maximum size
+		/// @param container to move from
+		constexpr dynamic_bitset( const size_type size, underlying_container&& container ) noexcept(
+			std::is_nothrow_move_constructible_v<underlying_container> )
+			: base( std::move( container ) )
+			, m_size( size )
+		{
+			derived_trim();
+		}
+
 		/// @brief Construct the bitset with capacity for size bits
 		/// @param size Number of bits to allocate space for
 		explicit dynamic_bitset( const size_type size )

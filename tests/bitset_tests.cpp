@@ -340,3 +340,11 @@ TEST_CASE( "Dynamic bitset with custom underlying container", "[bitset]" )
 	CHECK( set.size() == 8 );
 	CHECK( set.count() == 3 );
 }
+
+TEST_CASE( "Dynamic bitset from underlying container", "[bitset]" )
+{
+	const mclo::dynamic_bitset<> set( std::size_t( 10 ), std::vector<std::uint64_t>{ 255 } );
+
+	CHECK( set.size() == 10 );
+	CHECK( set.count() == 8 );
+}
