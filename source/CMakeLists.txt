@@ -25,6 +25,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "debug/breakpoint.cpp"
     "debug/debugger_attached.cpp"
     "numeric/bit.cpp"
+    "utility/uuid.cpp"
 )
 
 set_target_properties(

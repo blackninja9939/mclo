@@ -54,6 +54,7 @@ add_executable( tests
 	"loop_unroll_tests.cpp"
 	"morton_index_tests.cpp"
 	"timer_tests.cpp"
+	"uuid_tests.cpp"
 )
 
 target_compile_definitions( 
