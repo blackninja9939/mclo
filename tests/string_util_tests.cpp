@@ -300,6 +300,13 @@ TEMPLATE_LIST_TEST_CASE( "string_hash", "[string][hash]", char_types )
 					 mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "Hello" ) ) );
 }
 
+TEST_CASE( "string_hash literals", "[string][hash]" )
+{
+	using namespace mclo::hashed_string_literals;
+	CONSTEVAL_CHECK( mclo::string_hash( "hello" ) == "hello"_hs );
+	CONSTEVAL_CHECK( mclo::string_hash( "hello" ) != "Hello"_hs );
+}
+
 TEST_CASE( "string_hash string types same hash", "[string][hash]" )
 {
 	using namespace std::literals;

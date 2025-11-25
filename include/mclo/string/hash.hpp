@@ -17,6 +17,17 @@ namespace mclo
 		return mclo::constexpr_hash( view.data(), view.size(), salt );
 	}
 
+	inline namespace literals
+	{
+		inline namespace hashed_string_literals
+		{
+			[[nodiscard]] constexpr std::size_t operator"" _hs( const char* const str, const std::size_t len ) noexcept
+			{
+				return mclo::constexpr_hash( str, len );
+			}
+		}
+	}
+
 	template <typename String>
 	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const String& string,
 																 const std::size_t salt = 0 ) noexcept
