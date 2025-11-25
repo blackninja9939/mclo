@@ -202,7 +202,7 @@ TEST_CASE( "TwoSetsWithSameValues_Merge_AreEqual", "[enum_set]" )
 	CHECK( set1 == set2 );
 }
 
-TEST_CASE( "TwoSetsWithDifferentValues_Merge_ResultHasAll", "[enum_set]" )
+TEST_CASE( "TwoSetsWithDifferentValues_MergeInPlace_ResultHasAll", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
@@ -212,7 +212,18 @@ TEST_CASE( "TwoSetsWithDifferentValues_Merge_ResultHasAll", "[enum_set]" )
 	_expectSetContains( set1, std::array{ test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
 }
 
-TEST_CASE( "SetWithValues_MergeWithEmpty_ResultUnchanged", "[enum_set]" )
+TEST_CASE( "TwoSetsWithDifferentValues_Merge_ResultHasAll", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
+
+	const auto result = set1.merge( set2 );
+
+	_expectSetContains( result,
+						std::array{ test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "SetWithValues_MergeInPlaceWithEmpty_ResultUnchanged", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> empty;
@@ -222,7 +233,17 @@ TEST_CASE( "SetWithValues_MergeWithEmpty_ResultUnchanged", "[enum_set]" )
 	_expectSetContains( set, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
 }
 
-TEST_CASE( "TwoSetsWithDifferentValues_Intersect_ResultHasOverlapping", "[enum_set]" )
+TEST_CASE( "SetWithValues_MergeWithEmpty_ResultUnchanged", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> empty;
+
+	const auto result = set.merge( empty );
+
+	_expectSetContains( result, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "TwoSetsWithDifferentValues_IntersectInPlace_ResultHasOverlapping", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
@@ -232,7 +253,17 @@ TEST_CASE( "TwoSetsWithDifferentValues_Intersect_ResultHasOverlapping", "[enum_s
 	_expectSetContains( set1, std::array{ test_enum::second, test_enum::fifth } );
 }
 
-TEST_CASE( "SetWithValues_IntersectWithEmpty_ResultEmpty", "[enum_set]" )
+TEST_CASE( "TwoSetsWithDifferentValues_Intersect_ResultHasOverlapping", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
+
+	const auto result = set1.intersect( set2 );
+
+	_expectSetContains( result, std::array{ test_enum::second, test_enum::fifth } );
+}
+
+TEST_CASE( "SetWithValues_IntersectInPlaceWithEmpty_ResultEmpty", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> empty;
@@ -242,7 +273,17 @@ TEST_CASE( "SetWithValues_IntersectWithEmpty_ResultEmpty", "[enum_set]" )
 	_expectSetContains( set, {} );
 }
 
-TEST_CASE( "TwoSetsWithDifferentValues_Difference_ResultHasDifference", "[enum_set]" )
+TEST_CASE( "SetWithValues_IntersectWithEmpty_ResultEmpty", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> empty;
+
+	const auto result = set.intersect( empty );
+
+	_expectSetContains( result, {} );
+}
+
+TEST_CASE( "TwoSetsWithDifferentValues_DifferenceInPlace_ResultHasDifference", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
@@ -252,7 +293,17 @@ TEST_CASE( "TwoSetsWithDifferentValues_Difference_ResultHasDifference", "[enum_s
 	_expectSetContains( set1, std::array{ test_enum::third, test_enum::fourth } );
 }
 
-TEST_CASE( "SetWithValues_DifferenceWithEmpty_ResultUnchanged", "[enum_set]" )
+TEST_CASE( "TwoSetsWithDifferentValues_Difference_ResultHasDifference", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
+
+	const auto result = set1.difference( set2 );
+
+	_expectSetContains( result, std::array{ test_enum::third, test_enum::fourth } );
+}
+
+TEST_CASE( "SetWithValues_DifferenceInPlaceWithEmpty_ResultUnchanged", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> empty;
@@ -260,6 +311,16 @@ TEST_CASE( "SetWithValues_DifferenceWithEmpty_ResultUnchanged", "[enum_set]" )
 	set.difference( empty );
 
 	_expectSetContains( set, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "SetWithValues_DifferenceWithEmpty_ResultUnchanged", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> empty;
+
+	const auto result = set.difference( empty );
+
+	_expectSetContains( result, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
 }
 
 TEST_CASE( "SetAndSubset_Includes_ReturnsTrue", "[enum_set]" )

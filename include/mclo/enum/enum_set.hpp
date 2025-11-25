@@ -137,10 +137,24 @@ namespace mclo
 			m_container |= other.m_container;
 		}
 
+		constexpr enum_set merge( const enum_set& other ) const noexcept
+		{
+			auto copy = *this;
+			copy.merge( other );
+			return copy;
+		}
+
 		// Compute the intersection of the two sets, that is the set of elements that are in both sets
 		constexpr void intersect( const enum_set& other ) noexcept
 		{
 			m_container &= other.m_container;
+		}
+
+		constexpr enum_set intersect( const enum_set& other ) const noexcept
+		{
+			auto copy = *this;
+			copy.intersect( other );
+			return copy;
 		}
 
 		// Compute the difference of the two sets, that is the set of elements that are in one of the sets but not in
@@ -148,6 +162,13 @@ namespace mclo
 		constexpr void difference( const enum_set& other ) noexcept
 		{
 			m_container ^= other.m_container;
+		}
+
+		constexpr enum_set difference( const enum_set& other ) const noexcept
+		{
+			auto copy = *this;
+			copy.difference( other );
+			return copy;
 		}
 
 		// Check if this set include all elements of the other set
