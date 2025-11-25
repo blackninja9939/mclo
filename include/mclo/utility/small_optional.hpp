@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mclo/concepts/derived_from.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/hash/hash.hpp"
 #include "mclo/preprocessor/platform.hpp"
@@ -30,18 +31,10 @@ namespace mclo
 
 		template <typename Storage, typename T>
 		concept small_optional_storage_type = requires( Storage& storage, const Storage& c_storage, T value ) {
-			{
-				c_storage.has_value()
-			} noexcept -> std::same_as<bool>;
-			{
-				storage.reset()
-			} noexcept -> std::same_as<void>;
-			{
-				c_storage.get()
-			} noexcept -> std::same_as<T>;
-			{
-				storage.set( value )
-			}
+			{ c_storage.has_value() } noexcept -> std::same_as<bool>;
+			{ storage.reset() } noexcept -> std::same_as<void>;
+			{ c_storage.get() } noexcept -> std::same_as<T>;
+			{ storage.set( value ) }
 			MCLO_NOEXCEPT_TESTS->std::same_as<void>;
 			requires std::copyable<Storage>;
 		};
@@ -306,7 +299,7 @@ namespace mclo
 		}
 	};
 
-	template <typename T, typename U>
+	template <typename T, std::equality_comparable_with<T> U>
 	[[nodiscard]] constexpr bool operator==( const mclo::small_optional<T> lhs,
 											 const mclo::small_optional<U> rhs ) noexcept
 	{
@@ -320,9 +313,9 @@ namespace mclo
 		return lhs_has_value == rhs_has_value;
 	}
 
-	template <typename T, typename U>
-	[[nodiscard]] constexpr std::strong_ordering operator<=>( const mclo::small_optional<T> lhs,
-															  const mclo::small_optional<U> rhs ) noexcept
+	template <typename T, std::three_way_comparable_with<T> U>
+	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>(
+		const mclo::small_optional<T> lhs, const mclo::small_optional<U> rhs ) noexcept
 	{
 		const bool lhs_has_value = lhs.has_value();
 		const bool rhs_has_value = rhs.has_value();
@@ -332,6 +325,42 @@ namespace mclo
 		}
 
 		return lhs_has_value <=> rhs_has_value;
+	}
+
+	template <typename T>
+	[[nodiscard]] constexpr bool operator==( const mclo::small_optional<T> lhs, const std::nullopt_t ) noexcept
+	{
+		return !lhs.has_value();
+	}
+
+	template <typename T>
+	[[nodiscard]] constexpr std::strong_ordering operator<=>( const mclo::small_optional<T> lhs,
+															  const std::nullopt_t rhs ) noexcept
+	{
+		return lhs.has_value() <=> false;
+	}
+
+	template <typename T, typename U>
+		requires( !mclo::derived_from_specialization<U, mclo::small_optional> && std::equality_comparable_with<T, U> )
+	[[nodiscard]] constexpr bool operator==( const mclo::small_optional<T> lhs, const U& rhs ) noexcept
+	{
+		if ( lhs )
+		{
+			return *lhs == rhs;
+		}
+		return false;
+	}
+
+	template <typename T, typename U>
+		requires( !mclo::derived_from_specialization<U, mclo::small_optional> && std::three_way_comparable_with<T, U> )
+	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>(
+		const mclo::small_optional<T> lhs, const U& rhs ) noexcept
+	{
+		if ( lhs )
+		{
+			return *lhs == rhs;
+		}
+		return std::strong_ordering::less;
 	}
 }
 
