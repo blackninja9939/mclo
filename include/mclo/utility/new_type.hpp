@@ -53,6 +53,11 @@ namespace mclo
 		}
 
 		[[nodiscard]] constexpr auto operator<=>( const new_type& rhs ) const noexcept = default;
+
+		friend const value_type& format_as( const new_type& obj ) noexcept
+		{
+			return obj.value;
+		}
 	};
 
 	template <hasher Hasher, typename T, typename Tag>
