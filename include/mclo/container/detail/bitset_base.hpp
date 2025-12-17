@@ -131,7 +131,7 @@ namespace mclo::detail
 		template <bitset_convertible_range Range>
 		constexpr void init_from_range( Range&& range ) noexcept
 		{
-			size_type max_size = this->size(); 
+			size_type max_size = this->size();
 
 			size_type page = 0;
 			size_type index_in_underlying = 0;

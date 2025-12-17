@@ -126,7 +126,6 @@ TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 	}
 }
 
-
 TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string, correct are set", "[bitset]", test_types )
 {
 	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();

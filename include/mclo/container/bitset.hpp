@@ -83,7 +83,7 @@ namespace mclo
 		}
 
 		/// @brief Construct from a range of convertible to bool values
-		/// @tparam Range Type of range to construct from 
+		/// @tparam Range Type of range to construct from
 		/// @param range Range to construct from
 		template <detail::bitset_convertible_range Range>
 		constexpr explicit bitset( Range&& range ) noexcept
