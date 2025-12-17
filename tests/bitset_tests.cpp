@@ -2,12 +2,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
+#include "assert_macros.hpp"
+
 #include "mclo/container/bitset.hpp"
 #include "mclo/container/dynamic_bitset.hpp"
 #include "mclo/container/small_vector.hpp"
 #include "mclo/meta/type_list.hpp"
-
-// #include <functional>
 
 using namespace Catch::Matchers;
 
@@ -20,6 +20,7 @@ namespace
 	{
 	public:
 		using base = mclo::dynamic_bitset<UnderlyingType, UnderlyingContainer>;
+		using base::base;
 
 		dynamic_bitset_wrapper()
 			: base( bitset_size )
@@ -57,6 +58,41 @@ namespace
 	{
 		return { indices... };
 	}
+
+	template <typename CharT, std::size_t Size>
+	static std::basic_string<CharT> make_string_for_bits( const std::array<std::size_t, Size>& set_indices,
+														  const CharT unset_char,
+														  const CharT set_char )
+	{
+		std::basic_string<CharT> str( bitset_size, unset_char );
+		for ( const std::size_t index : set_indices )
+		{
+			str[ index ] = set_char;
+		}
+		std::reverse( str.begin(), str.end() );
+		return str;
+	}
+
+	template <typename Container, std::size_t Size>
+	static void fill_bool_container_for_bits( const std::array<std::size_t, Size>& set_indices, Container& container )
+	{
+		auto first = container.begin();
+		std::size_t current_position = 0;
+		for ( const std::size_t index : set_indices )
+		{
+			std::advance( first, index - current_position );
+			*first = true;
+			current_position = index; // Track where we actually are
+		}
+	}
+
+	template <template <typename...> typename Container, std::size_t Size>
+	static Container<bool> make_bool_container_for_bits( const std::array<std::size_t, Size>& set_indices )
+	{
+		Container<bool> container( bitset_size );
+		fill_bool_container_for_bits( set_indices, container );
+		return container;
+	}
 }
 
 template <std::unsigned_integral UnderlyingType, typename UnderlyingContainer>
@@ -88,6 +124,101 @@ TEMPLATE_LIST_TEST_CASE( "bitset default constructor", "[bitset]", test_types )
 	{
 		CHECK_FALSE( set.test( index ) );
 	}
+}
+
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string, correct are set", "[bitset]", test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	constexpr const char set_char = 'a';
+	constexpr const char unset_char = '*';
+	const std::string str = make_string_for_bits( set_indices, unset_char, set_char );
+
+	const TestType set( str, unset_char, set_char );
+
+	check_only_these_set( set, set_indices );
+}
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string with invalid set char, throws invalid_argument",
+						 "[bitset]",
+						 test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	constexpr const char set_char = 'a';
+	constexpr const char unset_char = '*';
+	const std::string str = make_string_for_bits( set_indices, unset_char, 'q' );
+
+	const auto func = [ & ] { [[maybe_unused]] const TestType set( str, unset_char, set_char ); };
+
+	CHECK_THROWS_AS( func(), std::invalid_argument );
+}
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string with invalid unset char, throws invalid_argument",
+						 "[bitset]",
+						 test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	constexpr const char set_char = 'a';
+	constexpr const char unset_char = '*';
+	const std::string str = make_string_for_bits( set_indices, '1', set_char );
+
+	const auto func = [ & ] { [[maybe_unused]] const TestType set( str, unset_char, set_char ); };
+
+	CHECK_THROWS_AS( func(), std::invalid_argument );
+}
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, construct from bool convertible range, correct are set", "[bitset]", test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	const auto container = make_bool_container_for_bits<std::vector>( set_indices );
+
+	const TestType set( container );
+
+	check_only_these_set( set, set_indices );
+}
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, construct from bool convertible list, correct are set", "[bitset]", test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	const auto container = make_bool_container_for_bits<std::list>( set_indices );
+
+	const TestType set( container );
+
+	check_only_these_set( set, set_indices );
+}
+
+TEST_CASE( "Bitset, construct from bool convertible forward list, correct are set", "[bitset]" )
+{
+	// Dynamic bitset must allocate so it requires a sized_range which forward_list is not
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	const auto container = make_bool_container_for_bits<std::forward_list>( set_indices );
+
+	const mclo::bitset<bitset_size> set( container );
+
+	check_only_these_set( set, set_indices );
+}
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, construct from bool convertible array, correct are set", "[bitset]", test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	std::array<bool, bitset_size> container{};
+	fill_bool_container_for_bits( set_indices, container );
+
+	const TestType set( container );
+
+	check_only_these_set( set, set_indices );
+}
+
+TEST_CASE( "Bitset, construct from too large bool convertible range, extra are ignored", "[bitset]" )
+{
+	constexpr auto set_indices = index_array<0, 1, 4>();
+	std::array<bool, bitset_size> container{};
+	fill_bool_container_for_bits( set_indices, container );
+	container[ 16 ] = true;
+
+	const mclo::bitset<8> set( container );
+
+	check_only_these_set( set, set_indices );
 }
 
 TEMPLATE_LIST_TEST_CASE( "bitset set", "[bitset]", test_types )
@@ -135,8 +266,7 @@ TEMPLATE_LIST_TEST_CASE( "bitset find_first_unset loop", "[bitset]", test_types 
 	set.set().reset( 4 ).reset( 32 ).reset( 33 );
 
 	size_type count = 0;
-	for ( size_type index = set.find_first_unset(); index != TestType::npos;
-		  index = set.find_first_unset( index + 1 ) )
+	for ( size_type index = set.find_first_unset(); index != TestType::npos; index = set.find_first_unset( index + 1 ) )
 	{
 		CHECK( ( index == 4 || index == 32 || index == 33 ) );
 		++count;
@@ -279,6 +409,32 @@ TEMPLATE_LIST_TEST_CASE( "bitset operator>>", "[bitset]", test_types )
 	check_only_these_set( set >> 33, index_array<0>() );
 }
 
+TEMPLATE_LIST_TEST_CASE( "Bitset, to string, result matches", "[bitset]", test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	constexpr const char set_char = 'a';
+	constexpr const char unset_char = '*';
+	const std::string expected = make_string_for_bits( set_indices, unset_char, set_char );
+	const TestType set( expected, unset_char, set_char );
+
+	const std::string str = set.to_string( unset_char, set_char );
+
+	CHECK( expected == str );
+}
+
+TEMPLATE_LIST_TEST_CASE( "Bitset, to wide string, result matches", "[bitset]", test_types )
+{
+	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
+	constexpr const wchar_t set_char = L'a';
+	constexpr const wchar_t unset_char = L'*';
+	const std::wstring expected = make_string_for_bits( set_indices, unset_char, set_char );
+	const TestType set( expected, unset_char, set_char );
+
+	const std::wstring str = set.to_string( unset_char, set_char );
+
+	CHECK( expected == str );
+}
+
 TEMPLATE_LIST_TEST_CASE( "bitset hash", "[bitset]", test_types )
 {
 	TestType set;
@@ -347,4 +503,28 @@ TEST_CASE( "Dynamic bitset from underlying container", "[bitset]" )
 
 	CHECK( set.size() == 10 );
 	CHECK( set.count() == 8 );
+}
+
+TEST_CASE( "Dynamic bitset from underlying container larger than possible", "[bitset]" )
+{
+	const auto func = [] {
+		[[maybe_unused]] const mclo::dynamic_bitset<> set( std::size_t( 65 ), std::vector<std::uint64_t>{ 255 } );
+	};
+	CHECK_ASSERTS( func(), "Size greater than max bits per value in container" );
+}
+
+TEST_CASE( "Dynamic bitset copy from underlying container", "[bitset]" )
+{
+	const std::vector<std::uint64_t> vec{ 255 };
+	const mclo::dynamic_bitset<> set( std::size_t( 10 ), vec );
+
+	CHECK( set.size() == 10 );
+	CHECK( set.count() == 8 );
+}
+
+TEST_CASE( "Dynamic bitset copy from underlying container larger than possible", "[bitset]" )
+{
+	const std::vector<std::uint64_t> vec{ 255 };
+	const auto func = [ &vec ] { [[maybe_unused]] const mclo::dynamic_bitset<> set( std::size_t( 65 ), vec ); };
+	CHECK_ASSERTS( func(), "Size greater than max bits per value in container" );
 }

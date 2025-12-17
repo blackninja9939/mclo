@@ -73,12 +73,22 @@ namespace mclo
 
 		/// @brief Construct from a string like type of unset_char and set_char
 		template <typename StringLike, typename CharT = typename StringLike::value_type>
+			requires std::convertible_to<StringLike, std::basic_string_view<CharT, typename StringLike::traits_type>>
 		constexpr explicit bitset( const StringLike& str,
 								   const CharT unset_char = CharT( '0' ),
 								   const CharT set_char = CharT( '1' ) )
 		{
 			using view = std::basic_string_view<CharT, typename StringLike::traits_type>;
 			base::init_from_string( view( str ), unset_char, set_char );
+		}
+
+		/// @brief Construct from a range of convertible to bool values
+		/// @tparam Range Type of range to construct from 
+		/// @param range Range to construct from
+		template <detail::bitset_convertible_range Range>
+		constexpr explicit bitset( Range&& range ) noexcept
+		{
+			base::init_from_range( std::forward<Range>( range ) );
 		}
 
 		/// @brief Convert to the underlying type, only enabled if Bits fits into one unsigned long or smaller

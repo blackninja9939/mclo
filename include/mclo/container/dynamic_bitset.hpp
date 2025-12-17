@@ -28,23 +28,31 @@ namespace mclo
 
 		/// @brief Construct the bitset from a copy underlying container
 		/// @details The container will trim set bits outside of the maximum size
+		/// @param size how many bits in the container are used, that is set or unset, must be <= container size *
+		/// CHAR_BIT
 		/// @param container to copy from
-		constexpr dynamic_bitset( const size_type size, const underlying_container& container ) noexcept(
-			std::is_nothrow_copy_constructible_v<underlying_container> )
+		constexpr dynamic_bitset( const size_type size, const underlying_container& container )
+			MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_copy_constructible_v<underlying_container> )
 			: base( container )
 			, m_size( size )
 		{
+			DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
+						  "Size greater than max bits per value in container" );
 			derived_trim();
 		}
 
 		/// @brief Construct the bitset from a moved from underlying container
 		/// @details The container will trim set bits outside of the maximum size
+		/// @param size how many bits in the container are used, that is set or unset, must be <= container size *
+		/// CHAR_BIT
 		/// @param container to move from
-		constexpr dynamic_bitset( const size_type size, underlying_container&& container ) noexcept(
-			std::is_nothrow_move_constructible_v<underlying_container> )
+		constexpr dynamic_bitset( const size_type size, underlying_container&& container )
+			MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_constructible_v<underlying_container> )
 			: base( std::move( container ) )
 			, m_size( size )
 		{
+			DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
+						  "Size greater than max bits per value in container" );
 			derived_trim();
 		}
 
@@ -57,13 +65,25 @@ namespace mclo
 
 		/// @brief Construct from a string like type of unset_char and set_char
 		template <typename StringLike, typename CharT = typename StringLike::value_type>
+			requires std::convertible_to<StringLike, std::basic_string_view<CharT, typename StringLike::traits_type>>
 		constexpr explicit dynamic_bitset( const StringLike& str,
 										   const CharT unset_char = CharT( '0' ),
 										   const CharT set_char = CharT( '1' ) )
-			: dynamic_bitset( str.size() )
+			: dynamic_bitset( static_cast<size_type>( str.size() ) )
 		{
 			using view = std::basic_string_view<CharT, typename StringLike::traits_type>;
 			base::init_from_string( view( str ), unset_char, set_char );
+		}
+
+		/// @brief Construct from a range of convertible to bool values
+		/// @tparam Range Type of range to construct from, must be a sized range
+		/// @param range Range to construct from
+		template <detail::bitset_convertible_range Range>
+			requires std::ranges::sized_range<Range>
+		constexpr explicit dynamic_bitset( Range&& range )
+			: dynamic_bitset( static_cast<size_type>( std::ranges::size( range ) ) )
+		{
+			base::init_from_range( std::forward<Range>( range ) );
 		}
 
 		/// @brief Resize and allocate space for size bits, will grow or shrink size

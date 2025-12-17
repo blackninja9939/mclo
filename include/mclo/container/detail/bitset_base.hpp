@@ -19,6 +19,16 @@
 
 namespace mclo::detail
 {
+	template <typename T>
+	concept bitset_convertible_range =
+		std::ranges::input_range<T> && std::convertible_to<std::ranges::range_reference_t<T>, bool>;
+
+	template <typename UnderlyingType>
+	[[nodiscard]] constexpr std::size_t num_values_for_bits( const std::size_t num_bits ) noexcept
+	{
+		return ceil_divide( num_bits, CHAR_BIT * sizeof( UnderlyingType ) );
+	}
+
 	/// @brief Optimized implementation of std::bitset with improved API and performance
 	/// @details
 	/// - Access to container of underlying integer type
@@ -103,6 +113,36 @@ namespace mclo::detail
 				}
 
 				current |= static_cast<underlying_type>( is_set ) << index_in_underlying;
+
+				if ( ++index_in_underlying == bits_per_value )
+				{
+					m_container[ page++ ] = current;
+					current = zero;
+					index_in_underlying = 0;
+				}
+			}
+
+			if ( index_in_underlying != 0 )
+			{
+				m_container[ page ] = current;
+			}
+		}
+
+		template <bitset_convertible_range Range>
+		constexpr void init_from_range( Range&& range ) noexcept
+		{
+			size_type max_size = this->size(); 
+
+			size_type page = 0;
+			size_type index_in_underlying = 0;
+			underlying_type current = zero;
+
+			auto first = std::ranges::begin( range );
+			const auto last = std::ranges::end( range );
+
+			for ( ; first != last && max_size != 0; ++first, --max_size )
+			{
+				current |= static_cast<underlying_type>( static_cast<bool>( *first ) ) << index_in_underlying;
 
 				if ( ++index_in_underlying == bits_per_value )
 				{
@@ -663,10 +703,4 @@ namespace mclo::detail
 
 		underlying_container m_container{};
 	};
-
-	template <typename UnderlyingType>
-	[[nodiscard]] constexpr std::size_t num_values_for_bits( const std::size_t num_bits ) noexcept
-	{
-		return ceil_divide( num_bits, CHAR_BIT * sizeof( UnderlyingType ) );
-	}
 }
