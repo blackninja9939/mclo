@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cinttypes>
 #include <compare>
-
-#include "mclo/hash/hash_append.hpp"
+#include <cstdint>
+#include <optional>
+#include <string>
 
 namespace mclo
 {
@@ -31,5 +31,9 @@ namespace mclo
 		}
 
 		[[nodiscard]] constexpr std::strong_ordering operator<=>( const sem_version& other ) const noexcept = default;
+
+		std::string to_string() const;
 	};
+
+	std::string format_as( const sem_version& version );
 }

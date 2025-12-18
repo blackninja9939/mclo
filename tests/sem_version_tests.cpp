@@ -3,6 +3,7 @@
 #include "consteval_check.hpp"
 
 #include "mclo/hash/hash.hpp"
+#include "mclo/random/default_random_generator.hpp"
 #include "mclo/utility/sem_version.hpp"
 
 namespace
@@ -58,4 +59,17 @@ TEST_CASE( "sem_version hash", "[sem_version]" )
 	CHECK( hash != test_version.minor );
 	CHECK( hash != test_version.patch );
 	CHECK( hash != test_version.major + test_version.minor + test_version.patch );
+}
+
+TEST_CASE( "sem_version to_string", "[sem_version]" )
+{
+	mclo::default_random_generator rng( 42 );
+	for ( int i = 0; i < 100; ++i )
+	{
+		const auto major = static_cast<std::uint8_t>( rng.uniform( 0, 255 ) );
+		const auto minor = static_cast<std::uint8_t>( rng.uniform( 0, 255 ) );
+		const auto patch = static_cast<std::uint8_t>( rng.uniform( 0, 255 ) );
+		const std::string version_str = mclo::sem_version{ major, minor, patch }.to_string();
+		CHECK( version_str == std::to_string( major ) + "." + std::to_string( minor ) + "." + std::to_string( patch ) );
+	}
 }
