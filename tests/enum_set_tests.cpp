@@ -56,6 +56,15 @@ TEST_CASE( "DefaultSet_Construct_IsEmpty", "[enum_set]" )
 	_expectSetContains( set, {} );
 }
 
+TEST_CASE( "DefaultSet_ConstructFromUnderlying_ValuesAreSet", "[enum_set]" )
+{
+	const mclo::bitset<5> underlying{ 0b10110 };
+	const mclo::enum_set<test_enum> set{ underlying };
+
+	_expectSetContains( set, std::array{ test_enum::second, test_enum::third, test_enum::fifth } );
+	CHECK( set.underlying() == underlying );
+}
+
 TEST_CASE( "DefaultSet_ConstructFromIteratorPair_ValuesAreSet", "[enum_set]" )
 {
 	static constexpr std::array values{ test_enum::second, test_enum::third, test_enum::fifth };

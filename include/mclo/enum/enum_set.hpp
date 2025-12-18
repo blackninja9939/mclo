@@ -17,12 +17,11 @@ namespace mclo
 		static_assert( static_cast<std::underlying_type_t<TEnum>>( SizeEnum ) > 0,
 					   "SizeEnum should be a positive value" );
 		static constexpr std::size_t size_max = static_cast<std::size_t>( SizeEnum );
-		using container_type = mclo::bitset<size_max>;
 
 	public:
 		static_assert( std::is_enum_v<TEnum>, "TEnum must be an enumeration type" );
 
-		using underlying_type = typename container_type::underlying_type;
+		using underlying_container = mclo::bitset<size_max>;
 		using value_type = TEnum;
 		using size_type = std::size_t;
 
@@ -31,13 +30,18 @@ namespace mclo
 		constexpr enum_set( const enum_set& other ) noexcept = default;
 		constexpr enum_set& operator=( const enum_set& other ) noexcept = default;
 
+		constexpr explicit enum_set( const underlying_container& container ) noexcept
+			: m_container( container )
+		{
+		}
+
 		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
 			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
 		constexpr enum_set( It first, Sentinel last )
 		{
 			insert( std::move( first ), std::move( last ) );
 		}
-		
+
 		template <std::ranges::input_range Range>
 			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
 		constexpr enum_set( Range&& range ) noexcept
@@ -62,21 +66,14 @@ namespace mclo
 		{
 			return m_container.count();
 		}
-		[[nodiscard]] constexpr size_type max_size() const noexcept
+		[[nodiscard]] static constexpr size_type max_size() noexcept
 		{
 			return size_max;
 		}
 
-		[[nodiscard]] constexpr underlying_type to_mask() const noexcept
+		[[nodiscard]] constexpr const underlying_container& underlying() const noexcept
 		{
-			if constexpr ( requires { m_container.to_mask(); } )
-			{
-				return m_container.to_mask();
-			}
-			else
-			{
-				static_assert( always_false<value_type>, "Too many enumerations to create a single mask integer from" );
-			}
+			return m_container;
 		}
 
 		constexpr void clear() noexcept
@@ -209,6 +206,6 @@ namespace mclo
 		[[nodiscard]] constexpr bool operator==( const enum_set& other ) const noexcept = default;
 
 	private:
-		container_type m_container;
+		underlying_container m_container;
 	};
 }
