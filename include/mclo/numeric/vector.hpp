@@ -513,6 +513,9 @@ namespace mclo
 		MCLO_VEC_ACCESSOR( w, 3 )
 	};
 
+	template <typename T>
+	concept vec_type = std::derived_from<T, mclo::vec_base<typename T::value_type, T::size()>>;
+
 	using vec2i = vec2<int>;
 	using vec3i = vec3<int>;
 	using vec4i = vec4<int>;
