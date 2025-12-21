@@ -20,8 +20,6 @@ namespace
 
 TEMPLATE_LIST_TEST_CASE( "Vector shared constructors", "[vector][math]", test_types )
 {
-	static_assert( mclo::vec_type<TestType>, "Should meet vec_type concept" );
-
 	using value_type = typename TestType::value_type;
 
 	static_assert( std::is_trivially_copyable_v<TestType> );

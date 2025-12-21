@@ -27,6 +27,7 @@ if ( MSVC )
 		/Zc:templateScope
 		/Zc:throwingNew
 		/wd5030
+		/w44062
 	)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 elseif( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
