@@ -55,6 +55,7 @@ add_executable( tests
 	"morton_index_tests.cpp"
 	"timer_tests.cpp"
 	"uuid_tests.cpp"
+	"spin_mutex_tests.cpp"
 )
 
 target_compile_definitions( 
