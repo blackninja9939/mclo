@@ -38,6 +38,16 @@ namespace mclo
 	};
 
 	template <typename T>
+	class typed_memory_pool : public memory_pool
+	{
+	public:
+		explicit typed_memory_pool( const std::size_t chunk_count )
+			: memory_pool( chunk_count, sizeof( T ), alignof( T ) )
+		{
+		}
+	};
+
+	template <typename T>
 	class pool_allocator
 	{
 	public:
