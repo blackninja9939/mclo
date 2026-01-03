@@ -22,6 +22,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/thread_properties.cpp"
     "platform/windows_wrapper.cpp"
     "allocator/arena_allocator.cpp"
+    "allocator/pool_allocator.cpp"
     "debug/breakpoint.cpp"
     "debug/debugger_attached.cpp"
     "numeric/bit.cpp"
