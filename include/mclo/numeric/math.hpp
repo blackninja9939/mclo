@@ -10,7 +10,7 @@ namespace mclo
 	template <std::integral T>
 	[[nodiscard]] constexpr T ceil_divide( const T dividend, const T divisor ) MCLO_NOEXCEPT_TESTS
 	{
-		DEBUG_ASSERT( divisor != 0, "Division by zero" );
+		DEBUG_ASSERT( divisor != T( 0 ), "Division by zero" );
 
 		// Branchless single div/idiv instruction as that gives remainder and quotient
 		// https://www.felixcloutier.com/x86/idiv
