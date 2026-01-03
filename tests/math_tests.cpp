@@ -79,6 +79,7 @@ TEST_CASE( "pow10", "[math]" )
 
 TEST_CASE( "align_up", "[math]" )
 {
+	CHECK_ASSERTS( mclo::align_up( 0u, 3u ), "Alignment must be a power of 2" );
 	CONSTEVAL_CHECK( mclo::align_up( 0u, 4u ) == 0u );
 	CONSTEVAL_CHECK( mclo::align_up( 1u, 4u ) == 4u );
 	CONSTEVAL_CHECK( mclo::align_up( 2u, 4u ) == 4u );
