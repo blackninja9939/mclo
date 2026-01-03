@@ -83,6 +83,25 @@ namespace mclo
 			}
 		}
 
+		[[nodiscard]] pointer pop_front() noexcept
+		{
+			hook_type* head = m_head.load( std::memory_order_acquire );
+
+			while ( head )
+			{
+				hook_type* const next = head->m_next;
+
+				if ( m_head.compare_exchange_weak( head, next, std::memory_order_acquire, std::memory_order_relaxed ) )
+				{
+					// Detach the node from the list
+					head->m_next = nullptr;
+					return cast( head );
+				}
+			}
+
+			return nullptr;
+		}
+
 		template <std::invocable<pointer> Func>
 			requires( std::is_nothrow_invocable_v<Func, pointer> )
 		void consume( Func func ) noexcept
