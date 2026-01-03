@@ -2,6 +2,7 @@
 
 #include "assert_macros.hpp"
 
+#include "mclo/numeric/align.hpp"
 #include "mclo/numeric/log2.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/numeric/pow10.hpp"
@@ -14,7 +15,7 @@ TEST_CASE( "ceil_divide", "[math]" )
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6, -4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, 4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, -4 ) == 2 );
-	CONSTEVAL_CHECK( mclo::ceil_divide( 6u, 4u ) == 2 );
+	CONSTEVAL_CHECK( mclo::ceil_divide( 6u, 4u ) == 2u );
 }
 
 TEST_CASE( "round_down_to_multiple_of", "[math]" )
@@ -74,4 +75,16 @@ TEST_CASE( "pow10", "[math]" )
 	CONSTEVAL_CHECK( mclo::pow10( 8u ) == 100000000ull );
 	CONSTEVAL_CHECK( mclo::pow10( 11u ) == 100000000000ull );
 	CONSTEVAL_CHECK( mclo::pow10( 19u ) == 10000000000000000000ull );
+}
+
+TEST_CASE( "align_up", "[math]" )
+{
+	CONSTEVAL_CHECK( mclo::align_up( 0u, 4u ) == 0u );
+	CONSTEVAL_CHECK( mclo::align_up( 1u, 4u ) == 4u );
+	CONSTEVAL_CHECK( mclo::align_up( 2u, 4u ) == 4u );
+	CONSTEVAL_CHECK( mclo::align_up( 3u, 4u ) == 4u );
+	CONSTEVAL_CHECK( mclo::align_up( 4u, 4u ) == 4u );
+	CONSTEVAL_CHECK( mclo::align_up( 5u, 4u ) == 8u );
+	CONSTEVAL_CHECK( mclo::align_up( 7u, 8u ) == 8u );
+	CONSTEVAL_CHECK( mclo::align_up( 9u, 8u ) == 16u );
 }
