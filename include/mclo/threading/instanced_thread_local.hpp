@@ -19,7 +19,7 @@ namespace mclo
 		MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
 		struct alignas( std::hardware_destructive_interference_size ) thread_data : intrusive_forward_list_hook<>
 		{
-			template<typename... Ts>
+			template <typename... Ts>
 			thread_data( Ts&&... args ) noexcept( std::is_nothrow_constructible_v<T, Ts...> )
 				: m_object( std::forward<Ts>( args )... )
 			{
