@@ -2,8 +2,8 @@
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
-#include "mclo/numeric/math.hpp"
 
+#include <concepts>
 #include <iterator>
 #include <limits>
 #include <ranges>
@@ -13,12 +13,28 @@ namespace mclo
 {
 	namespace detail
 	{
+		template <std::integral T, std::integral U>
+		[[nodiscard]] constexpr bool is_safe_addition( const T lhs, const U rhs ) noexcept
+		{
+			constexpr T max = std::numeric_limits<T>::max();
+			constexpr T min = std::numeric_limits<T>::min();
+			if ( rhs > 0 && lhs > max - rhs )
+			{
+				return false;
+			}
+			if ( rhs < 0 && lhs < min - rhs )
+			{
+				return false;
+			}
+			return true;
+		}
+
 		template <typename TEnum>
 		constexpr TEnum enum_add( const TEnum value, const std::ptrdiff_t amount ) noexcept
 		{
 			using underlying_t = std::underlying_type_t<TEnum>;
 			const auto underlying = static_cast<underlying_t>( value );
-			DEBUG_ASSERT( mclo::is_safe_addition( underlying, amount ), "Addition would overflow" );
+			DEBUG_ASSERT( is_safe_addition( underlying, amount ), "Addition would overflow" );
 			return static_cast<TEnum>( underlying + amount );
 		}
 	}
