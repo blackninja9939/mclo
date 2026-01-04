@@ -3,6 +3,8 @@
 #include "mclo/platform/compiler_detection.hpp"
 #include "mclo/preprocessor/stringify.hpp"
 
+// todo(mc) should these be moved into the platform folder really?
+
 #ifdef MCLO_COMPILER_MSVC
 #define MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( ... )                                                                     \
 	_Pragma( "warning( push )" ) _Pragma( MCLO_STRINGIFY( warning( disable : __VA_ARGS__ ) ) )
@@ -64,10 +66,22 @@
 		return EXPRESSION;                                                                                             \
 	}
 
-#define MCLO_NO_UNIQUE_ADDRESS [[no_unique_address]] [[msvc::no_unique_address]]
+#ifdef MCLO_COMPILER_MSVC
+#define MCLO_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+#define MCLO_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
 
 #ifdef MCLO_COMPILER_MSVC
 #define MCLO_NO_VTABLE __declspec( novtable )
 #else
 #define MCLO_NO_VTABLE
+#endif
+
+#ifdef MCLO_COMPILER_MSVC
+#define MCLO_FORCE_INLINE __forceinline
+#elif defined( MCLO_COMPILER_GCC_COMPATIBLE )
+#define MCLO_FORCE_INLINE inline [[gnu::always_inline]]
+#else
+#define MCLO_FORCE_INLINE inline
 #endif

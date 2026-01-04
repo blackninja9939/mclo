@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-#include <immintrin.h>
+#include "mclo/threading/thread_pause.hpp"
 
 namespace mclo
 {
@@ -24,7 +24,7 @@ namespace mclo
 				// Waits for the lock to be released without causing cache invalidation, pauses for power efficiency
 				while ( m_lock.load( std::memory_order_relaxed ) )
 				{
-					_mm_pause();
+					thread_pause();
 				}
 			}
 		}
