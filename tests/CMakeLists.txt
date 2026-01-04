@@ -57,6 +57,7 @@ add_executable( tests
 	"uuid_tests.cpp"
 	"spin_mutex_tests.cpp"
 	"allocate_unique_tests.cpp"
+	"work_stealing_deque_tests.cpp"
 )
 
 target_compile_definitions( 
