@@ -58,6 +58,7 @@ add_executable( tests
 	"spin_mutex_tests.cpp"
 	"allocate_unique_tests.cpp"
 	"work_stealing_deque_tests.cpp"
+	"static_string_tests.cpp"
 )
 
 target_compile_definitions( 
