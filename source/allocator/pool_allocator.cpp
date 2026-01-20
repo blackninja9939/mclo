@@ -42,8 +42,8 @@ namespace mclo
 	{
 	}
 
-	void* memory_pool::allocate( const std::size_t size,
-								 const std::size_t alignment /*= alignof( std::max_align_t ) */ )
+	void* memory_pool::allocate( [[maybe_unused]] const std::size_t size,
+								 [[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */ )
 	{
 		DEBUG_ASSERT( size <= m_chunk_size, "Requested size exceeds chunk size" );
 		DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
@@ -58,9 +58,10 @@ namespace mclo
 		return static_cast<void*>( node );
 	}
 
-	void memory_pool::deallocate( void* const ptr,
-								  const std::size_t size,
-								  const std::size_t alignment /*= alignof( std::max_align_t ) */ ) noexcept
+	void memory_pool::deallocate(
+		void* const ptr,
+		[[maybe_unused]] const std::size_t size,
+		[[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */ ) noexcept
 	{
 		DEBUG_ASSERT( size <= m_chunk_size, "Deallocated size exceeds chunk size" );
 		DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
