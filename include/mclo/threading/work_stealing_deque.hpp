@@ -11,7 +11,7 @@
 namespace mclo
 {
 	MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
-	/// @brief A lock-free work-stealing deque for managing tasks between multiple threads.
+	/// @brief A lock-free work-stealing deque for managing data between multiple threads.
 	/// @tparam T The type of elements stored in the deque. Must be trivially copyable and destructible.
 	/// @details Based on the Chase-Lev work-stealing deque algorithm including the weak memory models fixes from
 	/// Nhat Minh Le, Antoniu Pop, Albert Cohen, and Francesco Zappa Nardelli.
