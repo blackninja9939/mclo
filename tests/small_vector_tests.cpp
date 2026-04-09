@@ -928,3 +928,23 @@ TEST_CASE( "StaticVector_ResizeMore_Asserts", "[small_vector]" )
 
 	CHECK_ASSERTS( vec.resize( 8 ), "Attempting to grow fixed capacity inline buffer vector" );
 }
+
+TEST_CASE( "SmallVector_StdEraseOverload_IsCorrect", "[small_vector]" )
+{
+	mclo::small_vector<int> vec{ 4, 9, 4, 16, 4, 32 };
+	
+	const auto countRemoved = std::erase( vec, 4 );
+
+	CHECK( countRemoved == 3 );
+	CHECK_THAT( vec, RangeEquals( { 9, 16, 32 } ) );
+}
+
+TEST_CASE( "SmallVector_StdEraseIfOverload_IsCorrect", "[small_vector]" )
+{
+	mclo::small_vector<int> vec{ 4, 9, 4, 16, 4, 32 };
+	
+	const auto countRemoved = std::erase_if( vec, []( const int& value ) { return value == 4; } );
+
+	CHECK( countRemoved == 3 );
+	CHECK_THAT( vec, RangeEquals( { 9, 16, 32 } ) );
+}
