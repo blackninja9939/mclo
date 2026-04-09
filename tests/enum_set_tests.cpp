@@ -43,7 +43,7 @@ namespace
 		}
 
 		std::vector<test_enum> setValues;
-		setValues.reserve(expectedSet.size());
+		setValues.reserve( expectedSet.size() );
 		set.for_each_set( [ &setValues ]( const test_enum e ) { setValues.push_back( e ); } );
 		CHECK_THAT( setValues, RangeEquals( expectedSet ) );
 	}
@@ -292,24 +292,64 @@ TEST_CASE( "SetWithValues_IntersectWithEmpty_ResultEmpty", "[enum_set]" )
 	_expectSetContains( result, {} );
 }
 
-TEST_CASE( "TwoSetsWithDifferentValues_DifferenceInPlace_ResultHasDifference", "[enum_set]" )
+TEST_CASE( "TwoSetsWithDifferentValues_SymmetricDifferenceInPlace_ResultHasSymmetricDifference", "[enum_set]" )
+{
+	mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
+
+	set1.symmetric_difference( set2 );
+
+	_expectSetContains( set1, std::array{ test_enum::third, test_enum::fourth } );
+}
+
+TEST_CASE( "TwoSetsWithDifferentValues_SymmetricDifference_ResultHasSymmetricDifference", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
+
+	const auto result = set1.symmetric_difference( set2 );
+
+	_expectSetContains( result, std::array{ test_enum::third, test_enum::fourth } );
+}
+
+TEST_CASE( "SetWithValues_SymmetricDifferenceInPlaceWithEmpty_ResultUnchanged", "[enum_set]" )
+{
+	mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> empty;
+
+	set.symmetric_difference( empty );
+
+	_expectSetContains( set, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "SetWithValues_SymmetricDifferenceWithEmpty_ResultUnchanged", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth, test_enum::fifth };
+	const mclo::enum_set<test_enum> empty;
+
+	const auto result = set.symmetric_difference( empty );
+
+	_expectSetContains( result, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "TwoSetsWithDifferentValues_DifferenceInPlace_ResultHasOnlyInFirst", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
 
 	set1.difference( set2 );
 
-	_expectSetContains( set1, std::array{ test_enum::third, test_enum::fourth } );
+	_expectSetContains( set1, std::array{ test_enum::fourth } );
 }
 
-TEST_CASE( "TwoSetsWithDifferentValues_Difference_ResultHasDifference", "[enum_set]" )
+TEST_CASE( "TwoSetsWithDifferentValues_Difference_ResultHasOnlyInFirst", "[enum_set]" )
 {
 	const mclo::enum_set<test_enum> set1{ test_enum::second, test_enum::fourth, test_enum::fifth };
 	const mclo::enum_set<test_enum> set2{ test_enum::second, test_enum::third, test_enum::fifth };
 
 	const auto result = set1.difference( set2 );
 
-	_expectSetContains( result, std::array{ test_enum::third, test_enum::fourth } );
+	_expectSetContains( result, std::array{ test_enum::fourth } );
 }
 
 TEST_CASE( "SetWithValues_DifferenceInPlaceWithEmpty_ResultUnchanged", "[enum_set]" )
@@ -330,6 +370,65 @@ TEST_CASE( "SetWithValues_DifferenceWithEmpty_ResultUnchanged", "[enum_set]" )
 	const auto result = set.difference( empty );
 
 	_expectSetContains( result, std::array{ test_enum::second, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "SetWithValues_ComplementInPlace_ResultHasOpposite", "[enum_set]" )
+{
+	mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth };
+
+	set.complement();
+
+	_expectSetContains( set, std::array{ test_enum::first, test_enum::third, test_enum::fifth } );
+}
+
+TEST_CASE( "SetWithValues_Complement_ResultHasOpposite", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set{ test_enum::second, test_enum::fourth };
+
+	const auto result = set.complement();
+
+	_expectSetContains( result, std::array{ test_enum::first, test_enum::third, test_enum::fifth } );
+}
+
+TEST_CASE( "EmptySet_ComplementInPlace_ResultIsFull", "[enum_set]" )
+{
+	mclo::enum_set<test_enum> set;
+
+	set.complement();
+
+	_expectSetContains(
+		set, std::array{ test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "EmptySet_Complement_ResultIsFull", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set;
+
+	const auto result = set.complement();
+
+	_expectSetContains(
+		result,
+		std::array{ test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
+}
+
+TEST_CASE( "FullSet_ComplementInPlace_ResultIsEmpty", "[enum_set]" )
+{
+	mclo::enum_set<test_enum> set{
+		test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth };
+
+	set.complement();
+
+	_expectSetContains( set, {} );
+}
+
+TEST_CASE( "FullSet_Complement_ResultIsEmpty", "[enum_set]" )
+{
+	const mclo::enum_set<test_enum> set{
+		test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth };
+
+	const auto result = set.complement();
+
+	_expectSetContains( result, {} );
 }
 
 TEST_CASE( "SetAndSubset_Includes_ReturnsTrue", "[enum_set]" )

@@ -134,7 +134,7 @@ namespace mclo
 			m_container |= other.m_container;
 		}
 
-		constexpr enum_set merge( const enum_set& other ) const noexcept
+		[[nodiscard]] constexpr enum_set merge( const enum_set& other ) const noexcept
 		{
 			auto copy = *this;
 			copy.merge( other );
@@ -147,24 +147,50 @@ namespace mclo
 			m_container &= other.m_container;
 		}
 
-		constexpr enum_set intersect( const enum_set& other ) const noexcept
+		[[nodiscard]] constexpr enum_set intersect( const enum_set& other ) const noexcept
 		{
 			auto copy = *this;
 			copy.intersect( other );
 			return copy;
 		}
 
-		// Compute the difference of the two sets, that is the set of elements that are in one of the sets but not in
-		// both
-		constexpr void difference( const enum_set& other ) noexcept
+		// Compute the symmetric difference of the two sets, that is the set of elements that are in one of the sets
+		// but not in both
+		constexpr void symmetric_difference( const enum_set& other ) noexcept
 		{
 			m_container ^= other.m_container;
 		}
 
-		constexpr enum_set difference( const enum_set& other ) const noexcept
+		[[nodiscard]] constexpr enum_set symmetric_difference( const enum_set& other ) const noexcept
+		{
+			auto copy = *this;
+			copy.symmetric_difference( other );
+			return copy;
+		}
+
+		// Compute the difference of the two sets, that is the set of elements that are in this set but not in the other
+		constexpr void difference( const enum_set& other ) noexcept
+		{
+			m_container &= ~other.m_container;
+		}
+
+		[[nodiscard]] constexpr enum_set difference( const enum_set& other ) const noexcept
 		{
 			auto copy = *this;
 			copy.difference( other );
+			return copy;
+		}
+
+		// Compute the complement of the set, that all elements not in this set but in the universe of possible values
+		constexpr void complement() noexcept
+		{
+			m_container.flip();
+		}
+
+		[[nodiscard]] constexpr enum_set complement() const noexcept
+		{
+			auto copy = *this;
+			copy.complement();
 			return copy;
 		}
 
