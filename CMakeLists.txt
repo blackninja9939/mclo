@@ -3,8 +3,7 @@
 #
 cmake_minimum_required( VERSION 3.28 )
 
-option(BUILD_TESTS "Build tests" OFF)
-option(BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(BUILD_BENCHMARKS "Build benchmarks" ON)
 
 set( CMAKE_COMPILE_WARNING_AS_ERROR ON )
 set( CMAKE_CXX_STANDARD 20 )
@@ -53,7 +52,7 @@ if(BUILD_BENCHMARKS)
 	add_subdirectory("benchmarks")
 endif()
 
-if(BUILD_TESTS)
-	enable_testing()
+include(CTest)
+if(BUILD_TESTING)
 	add_subdirectory("tests")
 endif()

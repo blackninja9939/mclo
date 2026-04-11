@@ -7,60 +7,119 @@
   },
   "configurePresets": [
     {
-      "name": "ninja-multi-vcpkg",
-      "displayName": "Ninja Multi-Config",
-      "description": "Configure with vcpkg toolchain and generate Ninja project files for all configurations",
+      "name": "vcpkg-base",
+      "hidden": true,
       "binaryDir": "${sourceDir}/build/${presetName}",
-      "generator": "Ninja Multi-Config",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "msvc-base",
+      "hidden": true,
+      "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "architecture": { "value": "x64", "strategy": "external" },
+      "toolset": { "value": "host=x64", "strategy": "external" },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "clang-base",
+      "hidden": true,
+      "inherits": "vcpkg-base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "msvc-debug",
+      "displayName": "MSVC Debug",
+      "description": "MSVC debug build",
+      "inherits": "msvc-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "msvc-release",
+      "displayName": "MSVC Release",
+      "description": "MSVC optimised release build",
+      "inherits": "msvc-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "msvc-relwithdebinfo",
+      "displayName": "MSVC Release with Debug Info",
+      "description": "MSVC optimised build with debug symbols",
+      "inherits": "msvc-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+    },
+    {
+      "name": "clang-debug",
+      "displayName": "Clang Debug",
+      "description": "Clang debug build",
+      "inherits": "clang-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "clang-release",
+      "displayName": "Clang Release",
+      "description": "Clang optimised release build",
+      "inherits": "clang-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "clang-relwithdebinfo",
+      "displayName": "Clang Release with Debug Info",
+      "description": "Clang optimised build with debug symbols",
+      "inherits": "clang-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
     }
   ],
   "buildPresets": [
-    {
-      "name": "ninja-vcpkg-debug",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build (Debug)",
-      "description": "Build with Ninja/vcpkg (Debug)",
-      "configuration": "Debug"
-    },
-    {
-      "name": "ninja-vcpkg-release",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build (Release)",
-      "description": "Build with Ninja/vcpkg (Release)",
-      "configuration": "Release"
-    },
-    {
-      "name": "ninja-vcpkg-release-debug",
-      "configurePreset": "ninja-multi-vcpkg",
-      "displayName": "Build (RelWithDebInfo)",
-      "description": "Build with Ninja/vcpkg (RelWithDebInfo)",
-      "configuration": "RelWithDebInfo"
-    }
+    { "name": "msvc-debug", "configurePreset": "msvc-debug" },
+    { "name": "msvc-release", "configurePreset": "msvc-release" },
+    { "name": "msvc-relwithdebinfo", "configurePreset": "msvc-relwithdebinfo" },
+    { "name": "clang-debug", "configurePreset": "clang-debug" },
+    { "name": "clang-release", "configurePreset": "clang-release" },
+    { "name": "clang-relwithdebinfo", "configurePreset": "clang-relwithdebinfo" }
   ],
   "testPresets": [
     {
-      "name": "test-ninja-vcpkg",
-      "configurePreset": "ninja-multi-vcpkg",
-      "hidden": true
+      "name": "msvc-debug",
+      "configurePreset": "msvc-debug",
+      "output": { "outputOnFailure": true }
     },
     {
-      "name": "test-debug",
-      "description": "Test (Debug)",
-      "displayName": "Test (Debug)",
-      "configuration": "Debug",
-      "inherits": [
-        "test-ninja-vcpkg"
-      ]
+      "name": "msvc-release",
+      "configurePreset": "msvc-release",
+      "output": { "outputOnFailure": true }
     },
     {
-      "name": "test-release",
-      "description": "Test (Release)",
-      "displayName": "Test (Release)",
-      "configuration": "Release",
-      "inherits": [
-        "test-ninja-vcpkg"
-      ]
+      "name": "msvc-relwithdebinfo",
+      "configurePreset": "msvc-relwithdebinfo",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "clang-debug",
+      "configurePreset": "clang-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "clang-release",
+      "configurePreset": "clang-release",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "clang-relwithdebinfo",
+      "configurePreset": "clang-relwithdebinfo",
+      "output": { "outputOnFailure": true }
     }
   ]
 }
