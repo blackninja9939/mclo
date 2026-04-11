@@ -59,6 +59,7 @@ add_executable( tests
 	"allocate_unique_tests.cpp"
 	"work_stealing_deque_tests.cpp"
 	"static_string_tests.cpp"
+	"flexible_array_tests.cpp"
 )
 
 target_compile_definitions( 

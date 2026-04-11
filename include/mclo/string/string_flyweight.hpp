@@ -19,7 +19,7 @@ namespace mclo
 		 * As such we use combine the allocation of a fixed size and align header, with a flexible size of chars
 		 * This is effectively C's flexible array members but well done manually cause C++ does not have that feature
 		 * Layout is: m_size, char0, char1, ..., char m_size - 1
-		 * todo(mc) long term it'd be good to use variable_length_array for this
+		 * todo(mc) long term it'd be good to use flexible_array for this
 		 */
 		struct immutable_string_header
 		{
