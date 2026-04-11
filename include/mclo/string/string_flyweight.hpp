@@ -1,10 +1,8 @@
 #pragma once
 
-#include "mclo/numeric/math.hpp"
+#include "mclo/memory/flexible_array.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
-#include <cstddef>
-#include <cstring>
-#include <memory>
 #include <mutex>
 #include <shared_mutex>
 #include <string_view>
@@ -14,69 +12,15 @@ namespace mclo
 {
 	namespace detail
 	{
-		/*
-		 * We want to provide a stable address, a single allocation, and know the size and char* from it
-		 * As such we use combine the allocation of a fixed size and align header, with a flexible size of chars
-		 * This is effectively C's flexible array members but well done manually cause C++ does not have that feature
-		 * Layout is: m_size, char0, char1, ..., char m_size - 1
-		 * todo(mc) long term it'd be good to use flexible_array for this
-		 */
-		struct immutable_string_header
-		{
-			std::size_t m_size = 0;
-		};
-
-		template <typename CharT>
-		[[nodiscard]] constexpr std::size_t calc_num_header_allocs( const std::size_t size ) noexcept
-		{
-			const std::size_t bytes = sizeof( immutable_string_header ) + ( size * sizeof( CharT ) );
-			return mclo::ceil_divide( bytes, sizeof( immutable_string_header ) );
-		}
-
-		template <typename CharT, typename Allocator>
-		struct string_deleter : Allocator
-		{
-			void operator()( const immutable_string_header* const ptr ) noexcept
-			{
-				// No destructor calls required, just directly deallocate
-				static_assert( std::is_trivially_destructible_v<immutable_string_header> );
-				static_assert( std::is_trivially_destructible_v<CharT> );
-				static_cast<Allocator&>( *this ).deallocate( const_cast<immutable_string_header*>( ptr ),
-															 calc_num_header_allocs<CharT>( ptr->m_size ) );
-			}
-		};
-
-		template <typename CharT, typename Allocator>
-		using allocated_string = std::unique_ptr<immutable_string_header, string_deleter<CharT, Allocator>>;
-
-		template <typename ViewType, typename Allocator>
-		[[nodiscard]] auto allocate_string( const ViewType str, Allocator allocator )
-		{
-			using char_type = typename ViewType::value_type;
-			using size_type = typename ViewType::size_type;
-
-			immutable_string_header* header = allocator.allocate( calc_num_header_allocs<char_type>( str.size() ) );
-
-			static_assert( std::is_nothrow_constructible_v<immutable_string_header, size_type> );
-			std::allocator_traits<Allocator>::construct( allocator, header, str.size() );
-			const auto str_start = reinterpret_cast<std::byte*>( header ) + sizeof( immutable_string_header );
-			std::memcpy( str_start, str.data(), str.size() * sizeof( char_type ) );
-
-			using return_type = allocated_string<char_type, Allocator>;
-			return return_type( header, typename return_type::deleter_type{ std::move( allocator ) } );
-		}
-
 		template <typename CharT, typename Traits = std::char_traits<CharT>, typename Allocator = std::allocator<CharT>>
 		class string_flyweight_factory
 		{
 			using view = std::basic_string_view<CharT, Traits>;
-			using header_allocator =
-				typename std::allocator_traits<Allocator>::template rebind_alloc<immutable_string_header>;
-			using string = allocated_string<CharT, header_allocator>;
+			using string = mclo::flexible_array<CharT, std::size_t, Allocator>;
 			using map_allocator = typename std::allocator_traits<Allocator>::template rebind_alloc<string>;
 
 		public:
-			using handle = const immutable_string_header*;
+			using handle = const string*;
 
 			string_flyweight_factory() = default;
 
@@ -97,36 +41,35 @@ namespace mclo
 					auto it = m_strings.find( str );
 					if ( it != m_strings.end() ) [[likely]]
 					{
-						return it->get();
+						return &*it;
 					}
 				}
 
-				string owned = allocate_string<view, header_allocator>( str, header_allocator( m_allocator ) );
+				string owned( str, m_allocator );
 
 				const std::scoped_lock lock( m_mutex );
 
-				return m_strings.insert( std::move( owned ) ).first->get();
+				return &*m_strings.insert( std::move( owned ) ).first;
 			}
 
 			[[nodiscard]] static view get( const handle hdl ) noexcept
 			{
-				return hdl ? get( *hdl ) : view();
+				return hdl ? view( hdl->data(), hdl->size() ) : view();
 			}
 
 		private:
-			[[nodiscard]] static view get( const immutable_string_header& hdr ) noexcept
+			[[nodiscard]] static view view_of( const string& s ) noexcept
 			{
-				const auto str_start = reinterpret_cast<const std::byte*>( &hdr ) + sizeof( immutable_string_header );
-				return { reinterpret_cast<const CharT*>( str_start ), hdr.m_size };
+				return { s.data(), s.size() };
 			}
 
 			struct hasher
 			{
 				using is_transparent = void;
 
-				[[nodiscard]] std::size_t operator()( const string& hdr ) const noexcept
+				[[nodiscard]] std::size_t operator()( const string& s ) const noexcept
 				{
-					return operator()( get( *hdr ) );
+					return operator()( view_of( s ) );
 				}
 				[[nodiscard]] std::size_t operator()( const view str ) const noexcept
 				{
@@ -139,15 +82,15 @@ namespace mclo
 				using is_transparent = void;
 				[[nodiscard]] bool operator()( const string& lhs, const string& rhs ) const noexcept
 				{
-					return operator()( get( *lhs ), get( *rhs ) );
+					return view_of( lhs ) == view_of( rhs );
 				}
 				[[nodiscard]] bool operator()( const string& lhs, const view rhs ) const noexcept
 				{
-					return operator()( get( *lhs ), rhs );
+					return view_of( lhs ) == rhs;
 				}
 				[[nodiscard]] bool operator()( const view lhs, const string& rhs ) const noexcept
 				{
-					return operator()( lhs, get( *rhs ) );
+					return lhs == view_of( rhs );
 				}
 				[[nodiscard]] bool operator()( const view lhs, const view rhs ) const noexcept
 				{
