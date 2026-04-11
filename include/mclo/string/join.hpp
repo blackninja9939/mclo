@@ -26,6 +26,8 @@ namespace mclo
 				size += std::string_view( *it++ ).size();
 				size += delimter.size();
 			}
+
+			result.reserve( size );
 		}
 
 		std::string_view delimiter_to_write;

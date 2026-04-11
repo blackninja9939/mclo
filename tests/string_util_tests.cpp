@@ -174,52 +174,52 @@ TEST_CASE( "to_upper compile time", "[string]" )
 TEMPLATE_LIST_TEST_CASE( "trim_front", "[string]", char_types )
 {
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( "  \n leading spaces\n  " );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( "  \n leading spaces\n  " );
 		constexpr auto trimmed = mclo::trim_front( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "leading spaces\n  " ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "leading spaces\n  " ) );
 	}
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( "no leading spaces\n  " );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( "no leading spaces\n  " );
 		constexpr auto trimmed = mclo::trim_front( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "no leading spaces\n  " ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "no leading spaces\n  " ) );
 	}
 }
 
 TEMPLATE_LIST_TEST_CASE( "trim_back", "[string]", char_types )
 {
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( "  \n trailing spaces  \n" );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( "  \n trailing spaces  \n" );
 		constexpr auto trimmed = mclo::trim_back( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "  \n trailing spaces" ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "  \n trailing spaces" ) );
 	}
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( "  \n no trailing spaces" );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( "  \n no trailing spaces" );
 		constexpr auto trimmed = mclo::trim_back( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "  \n no trailing spaces" ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "  \n no trailing spaces" ) );
 	}
 }
 
 TEMPLATE_LIST_TEST_CASE( "trim", "[string]", char_types )
 {
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( " \n  all spaces   \n" );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( " \n  all spaces   \n" );
 		constexpr auto trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "all spaces" ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "all spaces" ) );
 	}
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( "no leading spaces  \n " );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( "no leading spaces  \n " );
 		constexpr auto trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "no leading spaces" ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "no leading spaces" ) );
 	}
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( " \n   no trailing spaces" );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( " \n   no trailing spaces" );
 		constexpr auto trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "no trailing spaces" ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "no trailing spaces" ) );
 	}
 	{
-		static constexpr auto string = mclo::trandscode_ascii_literal<TestType>( "no spaces" );
+		static constexpr auto string = mclo::transcode_ascii_literal <TestType>( "no spaces" );
 		constexpr auto trimmed = mclo::trim( string );
-		STATIC_CHECK( trimmed == mclo::trandscode_ascii_literal<TestType>( "no spaces" ) );
+		STATIC_CHECK( trimmed == mclo::transcode_ascii_literal <TestType>( "no spaces" ) );
 	}
 }
 
@@ -246,13 +246,23 @@ TEST_CASE( "compare_ignore_case", "[string]" )
 
 TEMPLATE_LIST_TEST_CASE( "replace_all", "[string]", char_types )
 {
-	constexpr auto initial = mclo::trandscode_ascii_literal<TestType>( "1.2.14.9" );
-	constexpr auto what = mclo::trandscode_ascii_literal<TestType>( "." );
-	constexpr auto with = mclo::trandscode_ascii_literal<TestType>( ".." );
-	constexpr auto result = mclo::trandscode_ascii_literal<TestType>( "1..2..14..9" );
+	constexpr auto initial = mclo::transcode_ascii_literal <TestType>( "1.2.14.9" );
+	constexpr auto what = mclo::transcode_ascii_literal <TestType>( "." );
+	constexpr auto with = mclo::transcode_ascii_literal <TestType>( ".." );
+	constexpr auto result = mclo::transcode_ascii_literal <TestType>( "1..2..14..9" );
 	std::basic_string<TestType> string( initial );
 	mclo::replace_all( string, what, with );
 	CHECK( string == result );
+}
+
+TEMPLATE_LIST_TEST_CASE( "replace_all empty find", "[string]", char_types )
+{
+	constexpr auto initial = mclo::transcode_ascii_literal <TestType>( "1.2.14.9" );
+	constexpr auto what = mclo::transcode_ascii_literal <TestType>( "" );
+	constexpr auto with = mclo::transcode_ascii_literal <TestType>( ".." );
+	std::basic_string<TestType> string( initial );
+	mclo::replace_all( string, what, with );
+	CHECK( string == initial );
 }
 
 TEMPLATE_TEST_CASE( "join_string iterators", "[string]", std::string, std::string_view, const char* )
@@ -296,8 +306,8 @@ TEST_CASE( "join_string char* iterators", "[string]" )
 
 TEMPLATE_LIST_TEST_CASE( "string_hash", "[string][hash]", char_types )
 {
-	CONSTEVAL_CHECK( mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "hello" ) ) !=
-					 mclo::string_hash( mclo::trandscode_ascii_literal<TestType>( "Hello" ) ) );
+	CONSTEVAL_CHECK( mclo::string_hash( mclo::transcode_ascii_literal <TestType>( "hello" ) ) !=
+					 mclo::string_hash( mclo::transcode_ascii_literal <TestType>( "Hello" ) ) );
 }
 
 TEST_CASE( "string_hash literals", "[string][hash]" )

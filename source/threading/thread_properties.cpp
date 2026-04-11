@@ -68,7 +68,7 @@ namespace
 		return pthread_self();
 	}
 
-	void mclo::set_thread_name( std::thread::native_handle_type thread, const std::string_view name )
+	void set_thread_name_platform( std::thread::native_handle_type thread, const std::string_view name )
 	{
 		char truncated[ 16 ];
 		std::strncpy( truncated, name.data(), 15 );
@@ -90,7 +90,7 @@ namespace
 		sched_param sch;
 		int policy;
 		pthread_getschedparam( thread, &policy, &sch );
-		sch.sched_priority = static_cast<int>( priority );
+		sch.sched_priority = prio_map[ priority ];
 		pthread_setschedparam( thread, policy, &sch );
 	}
 

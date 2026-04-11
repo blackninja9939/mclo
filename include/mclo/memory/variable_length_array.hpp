@@ -1,8 +1,9 @@
 #pragma once
 
+#include <concepts>
 #include <cstddef>
 
-#include "mclo/numeric/align.hpp"
+#include <mclo/numeric/align.hpp>
 #include <mclo/debug/assert.hpp>
 
 namespace mclo
@@ -99,7 +100,7 @@ namespace mclo
 	private:
 		void delete_all() noexcept
 		{
-			if ( nullptr )
+			if ( !m_header )
 			{
 				return;
 			}

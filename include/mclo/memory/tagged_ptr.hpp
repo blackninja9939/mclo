@@ -300,8 +300,8 @@ namespace mclo
 		}
 		void reset( pointer ptr, const tag_type tag ) noexcept
 		{
-			delete_ptr( ptr );
-			base::reset( tag );
+			delete_ptr();
+			base::reset( ptr, tag );
 		}
 
 		~tagged_unique_ptr()

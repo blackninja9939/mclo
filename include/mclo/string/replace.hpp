@@ -12,6 +12,11 @@ namespace mclo
 					  const std::basic_string_view<std::type_identity_t<CharT>> replace ) noexcept
 	{
 		const std::size_t find_size = find.size();
+		if ( find_size == 0 )
+		{
+			return;
+		}
+		
 		const std::size_t replace_size = replace.size();
 		std::size_t index = 0;
 		for ( ;; )

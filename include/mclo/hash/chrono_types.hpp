@@ -37,12 +37,6 @@ namespace mclo
 	}
 
 	template <mclo::hasher Hasher>
-	void hash_append( Hasher& hasher, const std::chrono::weekday& value ) noexcept
-	{
-		hash_append( hasher, value.c_encoding() );
-	}
-
-	template <mclo::hasher Hasher>
 	void hash_append( Hasher& hasher, const std::chrono::weekday_indexed& value ) noexcept
 	{
 		hash_append( hasher, value.weekday() );
@@ -53,6 +47,13 @@ namespace mclo
 	void hash_append( Hasher& hasher, const std::chrono::weekday_last& value ) noexcept
 	{
 		hash_append( hasher, value.weekday() );
+	}
+
+	template <mclo::hasher Hasher>
+	void hash_append( Hasher& hasher, const std::chrono::month_day& value ) noexcept
+	{
+		hash_append( hasher, value.month() );
+		hash_append( hasher, value.day() );
 	}
 
 	template <mclo::hasher Hasher>

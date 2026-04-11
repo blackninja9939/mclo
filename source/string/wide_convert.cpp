@@ -43,7 +43,7 @@ std::wstring mclo::to_wstring( const std::string_view str )
 	}
 
 	std::wstring result( size, L'\0' );
-	std::mbsrtowcs( result.data(), &str.data(), str.size(), &state );
+	std::mbsrtowcs( result.data(), &str.data(), size, &state );
 	return result;
 #endif
 }

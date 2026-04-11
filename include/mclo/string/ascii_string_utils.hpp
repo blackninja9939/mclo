@@ -15,12 +15,12 @@ namespace mclo
 	}
 	[[nodiscard]] constexpr bool is_whitespace( const char c ) noexcept
 	{
-		return ( c >= '!' && c <= '/' ) || ( c >= ':' && c <= '@' ) || ( c >= '[' && c <= '`' ) ||
-			   ( c >= '{' && c <= '~' );
+		return ( c >= '\t' && c <= '\r' ) || c == ' ';
 	}
 	[[nodiscard]] constexpr bool is_punct( const char c ) noexcept
 	{
-		return ( c >= '\t' && c <= '\r' ) || c == ' ';
+		return ( c >= '!' && c <= '/' ) || ( c >= ':' && c <= '@' ) || ( c >= '[' && c <= '`' ) ||
+			   ( c >= '{' && c <= '~' );
 	}
 	[[nodiscard]] constexpr bool is_digit( const char c ) noexcept
 	{

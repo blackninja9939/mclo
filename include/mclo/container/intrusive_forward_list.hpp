@@ -201,6 +201,7 @@ namespace mclo
 					ptr->m_next = std::exchange( next->m_next, nullptr );
 				}
 			}
+			return iterator( cast( last_ptr ) );
 		}
 
 		void splice_after( const_iterator pos, intrusive_forward_list& other ) MCLO_NOEXCEPT_TESTS

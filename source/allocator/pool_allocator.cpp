@@ -18,7 +18,7 @@ namespace mclo
 			  ::operator new( m_chunk_size* chunk_count, std::align_val_t( m_chunk_alignment ) ) ) )
 	{
 		DEBUG_ASSERT( mclo::is_pow2( m_chunk_alignment ), "Chunk alignment must be a power of 2" );
-		DEBUG_ASSERT( chunk_size % m_chunk_alignment == 0, "Chunk size must be a multiple of chunk alignment" );
+		DEBUG_ASSERT( m_chunk_size % m_chunk_alignment == 0, "Chunk size must be a multiple of chunk alignment" );
 
 		std::byte* ptr = m_data;
 		for ( std::size_t i = 0; i < chunk_count; ++i )

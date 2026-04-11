@@ -32,6 +32,7 @@ namespace mclo
 		friend void intrusive_ptr_release_ref( const intrusive_ref_counter<Derived>* ptr ) noexcept
 		{
 			const std::size_t old = ptr->m_counter.fetch_sub( 1, std::memory_order_acq_rel );
+			DEBUG_ASSERT( old != 0, "Reference count underflow in intrusive_ref_counter" );
 			if ( old == 1 ) // Was last reference
 			{
 				delete static_cast<const Derived*>( ptr );

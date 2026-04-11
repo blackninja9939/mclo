@@ -62,7 +62,7 @@ namespace mclo
 		}
 
 		template <typename Rep, typename Period, typename Predicate>
-		bool wait_for( std::unique_lock<std::mutex>& lock,
+		bool wait_for( std::unique_lock<mclo::mutex>& lock,
 					   const std::chrono::duration<Rep, Period>& relative_time,
 					   Predicate pred )
 		{
@@ -85,7 +85,7 @@ namespace mclo
 		}
 
 		template <typename Clock, typename Duration, typename Predicate>
-		bool wait_until( std::unique_lock<std::mutex>& lock,
+		bool wait_until( std::unique_lock<mclo::mutex>& lock,
 						 const std::chrono::time_point<Clock, Duration>& absolute_time,
 						 Predicate pred )
 		{

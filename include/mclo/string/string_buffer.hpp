@@ -480,7 +480,7 @@ namespace mclo
 	using u32string_buffer = basic_string_buffer<char32_t, Size>;
 
 	template <typename CharT, std::size_t N>
-	[[nodiscard]] constexpr basic_string_buffer<CharT, N> trandscode_ascii_literal( const char ( &str )[ N ] ) noexcept
+	[[nodiscard]] constexpr basic_string_buffer<CharT, N> transcode_ascii_literal ( const char ( &str )[ N ] ) noexcept
 	{
 		basic_string_buffer<CharT, N> buffer( N - 1 );
 		for ( std::size_t i = 0; i < N - 1; ++i )

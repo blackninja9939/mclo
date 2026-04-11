@@ -9,7 +9,7 @@ namespace mclo
 	class fnv1a_hasher
 	{
 		static inline constexpr std::size_t offset_basis = 14695981039346656037ull;
-		static inline constexpr std::size_t prime = 14695981039346656037ull;
+		static inline constexpr std::size_t prime = 1099511628211ull;
 
 	public:
 		void write( const mclo::span<const std::byte> data ) noexcept

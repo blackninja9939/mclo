@@ -150,7 +150,7 @@ namespace mclo
 
 		void reset( T* ptr ) noexcept
 		{
-			// If same pointer then we'd decrememnt our ref count, then incrememnt it again, so
+			// If same pointer then we'd decrement our ref count, then increment it again, so
 			// we can early out
 			if ( m_ptr == ptr )
 			{
