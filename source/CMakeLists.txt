@@ -46,8 +46,12 @@ target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:mclo_comp
 find_package(xsimd CONFIG REQUIRED)
 find_package(libassert CONFIG REQUIRED)
 find_package(xxhash CONFIG REQUIRED)
+find_package(tl-expected CONFIG REQUIRED)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash)
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash tl::expected)
+
+# Require C++20 for consumers
+target_compile_features(${LIBRARY_TARGET_NAME} PUBLIC cxx_std_20)
 
 # Automatically include all public headers from the include folder
 target_include_directories( ${LIBRARY_TARGET_NAME}
