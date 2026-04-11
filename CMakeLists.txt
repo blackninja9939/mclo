@@ -3,11 +3,7 @@
 #
 cmake_minimum_required( VERSION 3.28 )
 
-option(BUILD_BENCHMARKS "Build benchmarks" ON)
-
-set( CMAKE_COMPILE_WARNING_AS_ERROR ON )
-set( CMAKE_CXX_STANDARD 20 )
-set( CMAKE_CXX_STANDARD_REQUIRED ON )
+option(BUILD_BENCHMARKS "Build benchmarks" OFF)
 
 project(
 	"mclo"
@@ -16,8 +12,15 @@ project(
 	LANGUAGES CXX
 )
 
+set( CMAKE_COMPILE_WARNING_AS_ERROR ON )
+set( CMAKE_CXX_STANDARD 20 )
+set( CMAKE_CXX_STANDARD_REQUIRED ON )
+set( CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>" )
+
+# Internal compile options shared across all targets (not exported to consumers)
+add_library( mclo_compile_options INTERFACE )
 if ( MSVC )
-	add_compile_options( 
+	target_compile_options( mclo_compile_options INTERFACE
 		/W4
 		/Zc:__cplusplus
 		/Zc:enumTypes
@@ -28,21 +31,11 @@ if ( MSVC )
 		/wd5030
 		/w44062
 	)
-	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+	target_compile_definitions( mclo_compile_options INTERFACE _CRT_SECURE_NO_WARNINGS )
 elseif( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
-	add_compile_options(
-		-Wno-attributes
-	)
-elseif( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )	
-	add_compile_options(
-		-Wno-unknown-attributes
-	)
-endif()
-
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+	target_compile_options( mclo_compile_options INTERFACE -Wno-attributes )
+elseif( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
+	target_compile_options( mclo_compile_options INTERFACE -Wno-unknown-attributes )
 endif()
 
 # Include sub-projects.

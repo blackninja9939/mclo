@@ -63,10 +63,11 @@ add_executable( tests
 
 target_compile_definitions( 
 	tests 
-	PUBLIC MCLO_CONFIG_ENABLE_TESTING
-	PRIVATE CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+	PRIVATE
+		MCLO_CONFIG_ENABLE_TESTING
+		CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
 )
-target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo )
+target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo mclo_compile_options )
 
 include(Catch)
 catch_discover_tests(tests)

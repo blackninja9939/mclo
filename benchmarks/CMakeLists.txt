@@ -11,4 +11,4 @@ add_executable( benchmarks
 	"math_benchmarks.cpp"
 )
 
-target_link_libraries( benchmarks PRIVATE benchmark::benchmark benchmark::benchmark_main mclo )
+target_link_libraries( benchmarks PRIVATE benchmark::benchmark benchmark::benchmark_main mclo mclo_compile_options )

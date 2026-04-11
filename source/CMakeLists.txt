@@ -39,18 +39,15 @@ set_target_properties(
 # Make alias
 add_library(${PROJECT_NAME}::${LIBRARY_TARGET_NAME} ALIAS ${LIBRARY_TARGET_NAME})
 
+# Link internal compile options (PRIVATE, BUILD_INTERFACE so they don't appear in exports)
+target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:mclo_compile_options>)
+
 # Find and link dependencies
 find_package(xsimd CONFIG REQUIRED)
 find_package(libassert CONFIG REQUIRED)
 find_package(xxhash CONFIG REQUIRED)
 
 target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash)
-
-# Add compile definitions
-target_compile_definitions( 
-    ${LIBRARY_TARGET_NAME}
-    PUBLIC
-)
 
 # Automatically include all public headers from the include folder
 target_include_directories( ${LIBRARY_TARGET_NAME}
@@ -102,7 +99,7 @@ install(
     FILES
         ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_TARGET_NAME}-config.cmake
         ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_TARGET_NAME}-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${LIBRARY_TARGET_NAME}
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${LIBRARY_TARGET_NAME}
 )
 
 set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
