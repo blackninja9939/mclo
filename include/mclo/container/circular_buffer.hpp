@@ -245,8 +245,7 @@ namespace mclo
 		}
 
 		circular_buffer( const circular_buffer& other )
-			: circular_buffer( other, alloc_traits::select_on_container_copy_construction(
-								   other.get_allocator() ) )
+			: circular_buffer( other, alloc_traits::select_on_container_copy_construction( other.get_allocator() ) )
 		{
 		}
 

@@ -329,7 +329,7 @@ TEST_CASE( "Intrusive forward list empty list, unique, unchanged", "[intrusive][
 	CHECK( list.empty() );
 }
 
-//TEST_CASE( "mclo::intrusive_forward_list::sort - Already sorted list", "[intrusive][intrusive_forward_list]" )
+// TEST_CASE( "mclo::intrusive_forward_list::sort - Already sorted list", "[intrusive][intrusive_forward_list]" )
 //{
 //	std::vector<test_type> objects = { 1, 2, 3, 4, 5 };
 //	mclo::intrusive_forward_list<test_type> fl( objects );
@@ -337,9 +337,9 @@ TEST_CASE( "Intrusive forward list empty list, unique, unchanged", "[intrusive][
 //	fl.sort();
 //
 //	CHECK_THAT( fl, RangeEquals( objects ) );
-//}
+// }
 //
-//TEST_CASE( "mclo::intrusive_forward_list::sort - Reverse sorted list", "[intrusive][intrusive_forward_list]" )
+// TEST_CASE( "mclo::intrusive_forward_list::sort - Reverse sorted list", "[intrusive][intrusive_forward_list]" )
 //{
 //	std::vector<test_type> objects = { 5, 4, 3, 2, 1 };
 //	mclo::intrusive_forward_list<test_type> fl( objects );
@@ -348,9 +348,9 @@ TEST_CASE( "Intrusive forward list empty list, unique, unchanged", "[intrusive][
 //
 //	std::ranges::sort( objects );
 //	CHECK_THAT( fl, RangeEquals( objects ) );
-//}
+// }
 //
-//TEST_CASE( "mclo::intrusive_forward_list::sort - Random order list", "[intrusive][intrusive_forward_list]" )
+// TEST_CASE( "mclo::intrusive_forward_list::sort - Random order list", "[intrusive][intrusive_forward_list]" )
 //{
 //	std::vector<test_type> objects = { 3, 1, 4, 5, 2 };
 //	mclo::intrusive_forward_list<test_type> fl( objects );
@@ -359,9 +359,9 @@ TEST_CASE( "Intrusive forward list empty list, unique, unchanged", "[intrusive][
 //
 //	std::ranges::sort( objects );
 //	CHECK_THAT( fl, RangeEquals( objects ) );
-//}
+// }
 //
-//TEST_CASE( "mclo::intrusive_forward_list::sort - List with duplicates", "[intrusive][intrusive_forward_list]" )
+// TEST_CASE( "mclo::intrusive_forward_list::sort - List with duplicates", "[intrusive][intrusive_forward_list]" )
 //{
 //	std::vector<test_type> objects = { 4, 2, 2, 3, 1, 4 };
 //	mclo::intrusive_forward_list<test_type> fl(objects);
@@ -370,4 +370,4 @@ TEST_CASE( "Intrusive forward list empty list, unique, unchanged", "[intrusive][
 //
 //	std::ranges::sort( objects );
 //	CHECK_THAT( fl, RangeEquals( objects ) );
-//}
+// }

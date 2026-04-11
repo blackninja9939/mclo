@@ -353,8 +353,8 @@ namespace mclo
 
 	template <typename T, typename U>
 		requires( !mclo::derived_from_specialization<U, mclo::small_optional> && std::three_way_comparable_with<T, U> )
-	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>(
-		const mclo::small_optional<T> lhs, const U& rhs ) noexcept
+	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>( const mclo::small_optional<T> lhs,
+																			   const U& rhs ) noexcept
 	{
 		if ( lhs )
 		{

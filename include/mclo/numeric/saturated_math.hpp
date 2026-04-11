@@ -104,18 +104,18 @@ namespace mclo
 	[[nodiscard]] constexpr T saturate_cast( const U x ) noexcept
 	{
 		/*
-		* Unwrapped version of effectively:
-		* if ( std::cmp_less( x, std::numeric_limits<T>::min() ) )
-		* {
-		* 	return std::numeric_limits<T>::min();
-		* }
-		* if ( std::cmp_greater( x, std::numeric_limits<T>::max() ) )
-		* {
-		* 	return std::numeric_limits<T>::max();
-		* }
-		* 
-		* Unwrapping lets us eliminate the branches entirely at compile time
-		*/
+		 * Unwrapped version of effectively:
+		 * if ( std::cmp_less( x, std::numeric_limits<T>::min() ) )
+		 * {
+		 * 	return std::numeric_limits<T>::min();
+		 * }
+		 * if ( std::cmp_greater( x, std::numeric_limits<T>::max() ) )
+		 * {
+		 * 	return std::numeric_limits<T>::max();
+		 * }
+		 *
+		 * Unwrapping lets us eliminate the branches entirely at compile time
+		 */
 		constexpr int digits_result = std::numeric_limits<T>::digits;
 		constexpr int digits_in = std::numeric_limits<U>::digits;
 		constexpr T max_result = std::numeric_limits<T>::max();

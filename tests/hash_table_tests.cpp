@@ -13,13 +13,13 @@ TEST_CASE( "Hash map" )
 
 	auto it = map.find( "hello" );
 	REQUIRE( it != std::as_const( map ).end() );
-	CHECK( it->first == "hello");
+	CHECK( it->first == "hello" );
 
 	CHECK( it->second == 5 );
 
 	for ( const auto& pair : map )
 	{
-		CHECK(pair.first == "hello");
+		CHECK( pair.first == "hello" );
 	}
 
 	map.emplace( "hello", 4 );
@@ -28,7 +28,7 @@ TEST_CASE( "Hash map" )
 	map.emplace( "hellooooo", 4 );
 
 	map.erase( "hello" );
-	
+
 	for ( const auto& pair : map )
 	{
 		CHECK( pair.second == 4 );

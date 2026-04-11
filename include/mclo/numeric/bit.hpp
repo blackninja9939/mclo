@@ -1,8 +1,8 @@
 #pragma once
 
 #include "mclo/concepts/always_false.hpp"
-#include "mclo/preprocessor/platform.hpp"
 #include "mclo/platform/compiler_detection.hpp"
+#include "mclo/preprocessor/platform.hpp"
 
 #include <algorithm>
 #include <array>

@@ -132,4 +132,3 @@ TEMPLATE_LIST_TEST_CASE( "div_overflowing performs overflowing division",
 }
 
 MCLO_MSVC_POP_WARNINGS
-

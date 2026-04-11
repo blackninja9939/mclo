@@ -16,7 +16,7 @@ namespace mclo
 		{
 			return;
 		}
-		
+
 		const std::size_t replace_size = replace.size();
 		std::size_t index = 0;
 		for ( ;; )

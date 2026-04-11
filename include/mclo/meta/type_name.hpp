@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mclo/string/fixed_string.hpp"
 #include "mclo/platform/compiler_detection.hpp"
+#include "mclo/string/fixed_string.hpp"
 
 namespace mclo::meta
 {

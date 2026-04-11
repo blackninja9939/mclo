@@ -79,8 +79,8 @@ namespace mclo
 		}
 
 		template <std::ranges::forward_range Range>
-			requires( !std::same_as<std::remove_cvref_t<Range>, flexible_array> )
-				 && std::constructible_from<T, std::ranges::range_reference_t<Range>>
+			requires( !std::same_as<std::remove_cvref_t<Range>, flexible_array> ) &&
+					std::constructible_from<T, std::ranges::range_reference_t<Range>>
 		flexible_array( Range&& range, const Allocator& allocator = Allocator() )
 			: m_allocator( allocator )
 		{
@@ -88,7 +88,8 @@ namespace mclo
 			if ( count > 0 )
 			{
 				allocate_header( count );
-				std::ranges::uninitialized_copy( range, std::ranges::subrange( element_data(), element_data() + count ) );
+				std::ranges::uninitialized_copy( range,
+												 std::ranges::subrange( element_data(), element_data() + count ) );
 			}
 		}
 
@@ -241,8 +242,7 @@ namespace mclo
 			const std::size_t count = total_buffer_count( m_header->m_size );
 			std::destroy_at( m_header );
 			buffer_allocator alloc( m_allocator );
-			buffer_alloc_traits::deallocate(
-				alloc, reinterpret_cast<aligned_buffer*>( m_header ), count );
+			buffer_alloc_traits::deallocate( alloc, reinterpret_cast<aligned_buffer*>( m_header ), count );
 			m_header = nullptr;
 		}
 

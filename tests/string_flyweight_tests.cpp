@@ -8,13 +8,13 @@
 namespace
 {
 	template <typename CharT>
-	constexpr auto hello_world = mclo::transcode_ascii_literal <CharT>( "hello world" );
+	constexpr auto hello_world = mclo::transcode_ascii_literal<CharT>( "hello world" );
 
 	template <typename CharT>
-	constexpr auto bye_world = mclo::transcode_ascii_literal <CharT>( "goodbye world" );
+	constexpr auto bye_world = mclo::transcode_ascii_literal<CharT>( "goodbye world" );
 
 	template <typename CharT>
-	constexpr auto cool_string = mclo::transcode_ascii_literal <CharT>( "new cool string" );
+	constexpr auto cool_string = mclo::transcode_ascii_literal<CharT>( "new cool string" );
 }
 
 TEMPLATE_LIST_TEST_CASE( "string_flyweight default", "[string_flyweight]", mclo::meta::char_types )

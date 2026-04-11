@@ -13,7 +13,7 @@ namespace mclo::meta
 		static constexpr std::array<type_id_t, size> ids = { type_id<Ts>... };
 	};
 
-	template<typename List>
+	template <typename List>
 	constexpr bool is_list = false;
 
 	template <typename... Ts>

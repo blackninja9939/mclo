@@ -89,7 +89,7 @@ TEST_CASE( "circular_buffer push back over capacity overwrites", "[circular_buff
 	check_equals( buffer, { 1, 2, 3, 4, 5 } );
 }
 
-//TEST_CASE( "Quick test" )
+// TEST_CASE( "Quick test" )
 //{
 //	mclo::circular_buffer<int> buffer( 5 );
 //	buffer.push_front( 1 );
@@ -114,4 +114,4 @@ TEST_CASE( "circular_buffer push back over capacity overwrites", "[circular_buff
 //		CHECK_FALSE( first.empty() );
 //		CHECK( second.empty() );
 //	}
-//}
+// }

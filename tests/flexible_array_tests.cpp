@@ -184,7 +184,7 @@ TEST_CASE( "flexible_array operator[] out of bounds asserts", "[flexible_array]"
 {
 	mclo::flexible_array<int> arr( 3 );
 
-	CHECK_ASSERTS( (void)arr[ 3 ], "" );
+	CHECK_ASSERTS( ( void )arr[ 3 ], "" );
 }
 
 // Data pointer

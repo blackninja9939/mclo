@@ -50,12 +50,8 @@ namespace mclo
 
 	template <typename T>
 	concept hash_table_growth_policy = requires( const std::size_t v ) {
-		{
-			T::calculate_index( v, v )
-		} noexcept -> std::same_as<std::size_t>;
-		{
-			T::calculate_capacity_for( v )
-		} noexcept -> std::same_as<std::size_t>;
+		{ T::calculate_index( v, v ) } noexcept -> std::same_as<std::size_t>;
+		{ T::calculate_capacity_for( v ) } noexcept -> std::same_as<std::size_t>;
 	};
 
 	template <typename Key, typename Value>
@@ -951,7 +947,7 @@ namespace mclo
 					{
 						found( node );
 						return {
-							iterator{m_nodes + index, m_meta_data + index},
+							iterator{ m_nodes + index, m_meta_data + index },
                             false
                         };
 					}
@@ -982,7 +978,7 @@ namespace mclo
 				if ( insertion_idx == desired_index )
 				{
 					return {
-						iterator{m_nodes + insertion_idx, m_meta_data + insertion_idx},
+						iterator{ m_nodes + insertion_idx, m_meta_data + insertion_idx },
                         true
                     };
 				}
@@ -1018,7 +1014,7 @@ namespace mclo
 				}
 
 				return {
-					iterator{m_nodes + result_index, m_meta_data + result_index},
+					iterator{ m_nodes + result_index, m_meta_data + result_index },
                     true
                 };
 			}

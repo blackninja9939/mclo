@@ -590,7 +590,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Fuzz Testing Works Correctly", "[slot_map
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "dense_slot_map handle type, hash different handles, different hashes", "[slot_map]", test_types )
+TEMPLATE_LIST_TEST_CASE( "dense_slot_map handle type, hash different handles, different hashes",
+						 "[slot_map]",
+						 test_types )
 {
 	using handle_type = typename TestType::handle_type;
 	STATIC_CHECK( mclo::default_hashable<handle_type> );

@@ -2,8 +2,8 @@
 
 #include <condition_variable>
 
-#include "mclo/threading/mutex.hpp"
 #include "mclo/platform/os_detection.hpp"
+#include "mclo/threading/mutex.hpp"
 
 namespace mclo
 {
