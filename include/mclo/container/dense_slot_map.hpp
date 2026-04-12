@@ -3,7 +3,7 @@
 #include "mclo/container/slot_map_handle.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/numeric/math.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/attributes.hpp"
 
 #include <cinttypes>
 #include <iterator>

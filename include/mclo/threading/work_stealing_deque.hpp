@@ -6,7 +6,7 @@
 #include <type_traits>
 
 #include <mclo/numeric/align.hpp>
-#include <mclo/preprocessor/platform.hpp>
+#include <mclo/platform/warnings.hpp>
 
 namespace mclo
 {

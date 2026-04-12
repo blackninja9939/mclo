@@ -1,7 +1,5 @@
 #pragma once
 
-#include "mclo/preprocessor/platform.hpp"
-
 #include <memory>
 
 namespace mclo

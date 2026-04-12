@@ -6,7 +6,7 @@
 #include "mclo/meta/type_aliases.hpp"
 
 #include "mclo/numeric/overflowing_math.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/warnings.hpp"
 
 namespace
 {

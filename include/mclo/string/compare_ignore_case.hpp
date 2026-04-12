@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/cpp_feature_compat.hpp"
 #include "mclo/string/ascii_string_utils.hpp"
 #include "mclo/string/string_view_type.hpp"
 

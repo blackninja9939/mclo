@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/warnings.hpp"
 #include "mclo/utility/synth_three_way.hpp"
 
 #include <algorithm>

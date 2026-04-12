@@ -1,6 +1,7 @@
 #pragma once
 
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/attributes.hpp"
+#include "mclo/platform/warnings.hpp"
 #include "mclo/threading/atomic_intrusive_forward_list.hpp"
 #include "mclo/threading/thread_local_key.hpp"
 

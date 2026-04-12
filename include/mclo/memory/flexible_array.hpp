@@ -9,7 +9,7 @@
 #include <mclo/debug/assert.hpp>
 #include <mclo/numeric/align.hpp>
 #include <mclo/numeric/math.hpp>
-#include <mclo/preprocessor/platform.hpp>
+#include <mclo/platform/attributes.hpp>
 
 namespace mclo
 {

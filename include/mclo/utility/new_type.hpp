@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/hash/hash_append.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/cpp_feature_compat.hpp"
 
 #include <concepts>
 #include <functional>

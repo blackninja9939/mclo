@@ -3,7 +3,7 @@
 #include "mclo/memory/flexible_array.hpp"
 
 #include "mclo/allocator/arena_allocator.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/warnings.hpp"
 
 #include "assert_macros.hpp"
 

@@ -4,8 +4,6 @@
 #include "mclo/debug/assert.hpp"
 #include "mclo/hash/hash_append_range.hpp"
 #include "mclo/numeric/math.hpp"
-#include "mclo/preprocessor/platform.hpp"
-
 #include <bit>
 #include <climits>
 #include <concepts>

@@ -7,7 +7,7 @@
 #include "mclo/numeric/128_bit_integer.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/numeric/pow2.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/attributes.hpp"
 
 #include <algorithm>
 #include <bit>

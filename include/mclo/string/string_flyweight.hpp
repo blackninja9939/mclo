@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/memory/flexible_array.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/attributes.hpp"
 
 #include <mutex>
 #include <shared_mutex>

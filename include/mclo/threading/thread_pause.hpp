@@ -2,7 +2,7 @@
 
 #include "mclo/platform/arch_detection.hpp"
 #include "mclo/platform/compiler_detection.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/attributes.hpp"
 
 #ifdef MCLO_COMPILER_MSVC
 #include <immintrin.h>

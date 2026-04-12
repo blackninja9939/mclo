@@ -1,7 +1,7 @@
 #include "mclo/hash/rapidhash.hpp"
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/attributes.hpp"
 
 #include <limits>
 

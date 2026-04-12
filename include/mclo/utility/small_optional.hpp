@@ -3,8 +3,6 @@
 #include "mclo/concepts/derived_from.hpp"
 #include "mclo/debug/assert.hpp"
 #include "mclo/hash/hash.hpp"
-#include "mclo/preprocessor/platform.hpp"
-
 #include <compare>
 #include <concepts>
 #include <functional>

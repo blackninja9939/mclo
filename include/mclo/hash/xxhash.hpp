@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mclo/container/span.hpp"
-#include "mclo/preprocessor/platform.hpp"
+#include "mclo/platform/cpp_feature_compat.hpp"
 
 #define XXH_STATIC_LINKING_ONLY
 #include <xxhash.h>
