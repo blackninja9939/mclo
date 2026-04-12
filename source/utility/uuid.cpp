@@ -1,18 +1,6 @@
 #include "mclo/utility/uuid.hpp"
 
-#include <bit>
 #include <random>
-
-namespace
-{
-	std::array<std::byte, 16> generate_128_random_bits()
-	{
-		std::array<unsigned int, 4> bytes;
-		std::random_device rd;
-		std::ranges::generate( bytes, std::ref( rd ) );
-		return std::bit_cast<std::array<std::byte, 16>>( bytes );
-	}
-}
 
 namespace mclo
 {
@@ -39,13 +27,8 @@ namespace mclo
 
 	uuid uuid::generate()
 	{
-		// Generate 128 random bits
-		uuid new_uuid{ generate_128_random_bits() };
-		// Set the version to 4 aka random UUID
-		new_uuid.bytes[ 6 ] = ( new_uuid.bytes[ 6 ] & std::byte{ 0x0F } ) | std::byte{ 0x40 };
-		// Set the variant to RFC 4122
-		new_uuid.bytes[ 8 ] = ( new_uuid.bytes[ 8 ] & std::byte{ 0x3F } ) | std::byte{ 0x80 };
-		return new_uuid;
+		std::random_device rd;
+		return generate( rd );
 	}
 
 	std::string format_as( const uuid& u )
