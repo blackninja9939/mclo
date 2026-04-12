@@ -60,6 +60,7 @@ add_executable( tests
 	"work_stealing_deque_tests.cpp"
 	"static_string_tests.cpp"
 	"flexible_array_tests.cpp"
+	"scope_guard_tests.cpp"
 )
 
 target_compile_definitions( 
