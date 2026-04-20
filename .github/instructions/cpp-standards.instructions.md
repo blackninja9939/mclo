@@ -27,6 +27,7 @@ description: "Use when writing or modifying C++ source and header files. Enforce
 - Use `#pragma once` — never use traditional include guards.
 - Place all public API in the `mclo` namespace; internal helpers in `mclo::detail`.
 - Keep headers self-contained: each header should compile independently.
+- **Prefer forward declarations** over including full headers when only a pointer, reference, or incomplete type is needed. This reduces compile times and breaks dependency cycles.
 
 ## Attributes & Qualifiers
 
@@ -70,6 +71,7 @@ description: "Use when writing or modifying C++ source and header files. Enforce
 - Use `///` (triple-slash) for documentation comments with Doxygen tags.
 - Document public API; internal `detail` code does not require doc comments.
 - See the **writing-documentation** skill for tag usage and conventions.
+- Use `// todo(initials)` for future work annotations, where `initials` are the author's initials (e.g., `// todo(mc) implement caching`).
 
 ## Compiler Compatibility
 
