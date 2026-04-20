@@ -2,6 +2,13 @@
 
 #include "mclo/debug/assert.hpp"
 
+namespace
+{
+	static_assert(
+		sizeof( std::size_t ) == sizeof( XXH64_hash_t ),
+		"Size of std::size_t must be the same as XXH64_hash_t for the return type of finish() to be correct" );
+}
+
 mclo::xxhash_64::xxhash_64( const XXH64_hash_t seed ) noexcept
 {
 	[[maybe_unused]] const XXH_errorcode result = XXH64_reset( &m_state, seed );

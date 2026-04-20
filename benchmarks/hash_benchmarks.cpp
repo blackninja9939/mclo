@@ -7,6 +7,7 @@
 #include "mclo/hash/fnv1a_hasher.hpp"
 #include "mclo/hash/murmur_hash_3.hpp"
 #include "mclo/hash/rapidhash.hpp"
+#include "mclo/hash/xxhash.hpp"
 
 #include "mclo/hash/std_types.hpp"
 
@@ -118,5 +119,7 @@ namespace
 	BENCHMARK( hash_benchmark<hash_helper<mclo::fnv1a_hasher>> );
 	BENCHMARK( hash_benchmark<hash_helper<mclo::murmur_hash_3>> );
 	BENCHMARK( hash_benchmark<hash_helper<mclo::rapidhash>> );
+	BENCHMARK( hash_benchmark<hash_helper<mclo::xxhash_64>> );
+	BENCHMARK( hash_benchmark<hash_helper<mclo::xxhash_3>> );
 	BENCHMARK( hash_benchmark<std_hash_helper> );
 }
