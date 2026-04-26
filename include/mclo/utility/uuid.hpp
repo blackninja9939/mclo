@@ -7,37 +7,12 @@
 #include <string>
 
 #include <mclo/debug/assert.hpp>
+#include <mclo/string/hex_convert.hpp>
 
 namespace mclo
 {
 	namespace detail
 	{
-		constexpr bool is_hex_char( const char c ) noexcept
-		{
-			return ( c >= '0' && c <= '9' ) || ( c >= 'a' && c <= 'f' ) || ( c >= 'A' && c <= 'F' );
-		}
-
-		constexpr std::byte hex_char_to_byte( const char c ) noexcept
-		{
-			if ( c >= '0' && c <= '9' )
-			{
-				return static_cast<std::byte>( c - '0' );
-			}
-			else if ( c >= 'a' && c <= 'f' )
-			{
-				return static_cast<std::byte>( c - 'a' + 10 );
-			}
-			else
-			{
-				return static_cast<std::byte>( c - 'A' + 10 );
-			}
-		}
-
-		constexpr std::byte parse_byte_from_hex( const char high, const char low ) noexcept
-		{
-			return ( hex_char_to_byte( high ) << 4 ) | hex_char_to_byte( low );
-		}
-
 		constexpr std::optional<std::array<std::byte, 16>> try_parse_uuid_from_string(
 			const std::string_view str ) noexcept
 		{
@@ -63,11 +38,11 @@ namespace mclo
 					continue;
 				}
 				const char low = *first++;
-				if ( !is_hex_char( c ) || !is_hex_char( low ) )
+				if ( !is_hex( c ) || !is_hex( low ) )
 				{
 					return std::nullopt;
 				}
-				*out++ = parse_byte_from_hex( c, low );
+				*out++ = static_cast<std::byte>( ( from_hex( c ) << 4 ) | from_hex( low ) );
 			}
 
 			return bytes;
