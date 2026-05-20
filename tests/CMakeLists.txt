@@ -62,6 +62,7 @@ add_executable( tests
 	"flexible_array_tests.cpp"
 	"scope_guard_tests.cpp"
 	"hex_convert_tests.cpp"
+	"packed_int_vector_tests.cpp"
 )
 
 target_compile_definitions( 
