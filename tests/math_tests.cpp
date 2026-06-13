@@ -26,6 +26,58 @@ TEST_CASE( "round_down_to_multiple_of", "[math]" )
 	CONSTEVAL_CHECK( mclo::round_down_to_multiple_of( -6, -4 ) == -4 );
 }
 
+TEST_CASE( "floor_to_int float", "[math]" )
+{
+	CONSTEVAL_CHECK( mclo::floor_to_int( 0.0f ) == 0 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 1.0f ) == 1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 1.5f ) == 1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 1.9f ) == 1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -1.0f ) == -1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -1.5f ) == -2 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -1.9f ) == -2 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -0.1f ) == -1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 2.0f ) == 2 );
+}
+
+TEST_CASE( "ceil_to_int float", "[math]" )
+{
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 0.0f ) == 0 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 1.0f ) == 1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 1.5f ) == 2 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 1.1f ) == 2 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -1.0f ) == -1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -1.5f ) == -1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -1.9f ) == -1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -0.1f ) == 0 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 2.0f ) == 2 );
+}
+
+TEST_CASE( "floor_to_int double", "[math]" )
+{
+	CONSTEVAL_CHECK( mclo::floor_to_int( 0.0 ) == 0 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 1.0 ) == 1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 1.5 ) == 1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 1.9 ) == 1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -1.0 ) == -1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -1.5 ) == -2 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -1.9 ) == -2 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( -0.1 ) == -1 );
+	CONSTEVAL_CHECK( mclo::floor_to_int( 2.0 ) == 2 );
+}
+
+TEST_CASE( "ceil_to_int double", "[math]" )
+{
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 0.0 ) == 0 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 1.0 ) == 1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 1.5 ) == 2 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 1.1 ) == 2 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -1.0 ) == -1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -1.5 ) == -1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -1.9 ) == -1 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( -0.1 ) == 0 );
+	CONSTEVAL_CHECK( mclo::ceil_to_int( 2.0 ) == 2 );
+}
+
 TEST_CASE( "log2_floor", "[math]" )
 {
 	CHECK_ASSERTS( mclo::log2_floor( 0u ), "log2(0) is undefined" );
