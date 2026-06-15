@@ -64,6 +64,7 @@ add_executable( tests
 	"hex_convert_tests.cpp"
 	"packed_int_vector_tests.cpp"
 	"packed_int_array_tests.cpp"
+	"triangular_layout_tests.cpp"
 )
 
 target_compile_definitions( 
