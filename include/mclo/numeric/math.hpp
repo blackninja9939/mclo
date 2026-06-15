@@ -36,25 +36,25 @@ namespace mclo
 
 	[[nodiscard]] constexpr std::int32_t floor_to_int( const float value ) noexcept
 	{
-		const std::int32_t trunc = static_cast<std::int32_t>(value);
-		return trunc - (trunc > value);
+		const std::int32_t trunc = static_cast<std::int32_t>( value );
+		return trunc - ( trunc > value );
 	}
 
 	[[nodiscard]] constexpr std::int32_t ceil_to_int( const float value ) noexcept
 	{
-		const std::int32_t trunc = static_cast<std::int32_t>(value);
-		return trunc + (trunc < value);
+		const std::int32_t trunc = static_cast<std::int32_t>( value );
+		return trunc + ( trunc < value );
 	}
 
 	[[nodiscard]] constexpr std::int64_t floor_to_int( const double value ) noexcept
 	{
-		const std::int64_t trunc = static_cast<std::int64_t>(value);
-		return trunc - (trunc > value);
+		const std::int64_t trunc = static_cast<std::int64_t>( value );
+		return trunc - ( trunc > value );
 	}
 
 	[[nodiscard]] constexpr std::int64_t ceil_to_int( const double value ) noexcept
 	{
-		const std::int64_t trunc = static_cast<std::int64_t>(value);
-		return trunc + (trunc < value);
+		const std::int64_t trunc = static_cast<std::int64_t>( value );
+		return trunc + ( trunc < value );
 	}
 }
