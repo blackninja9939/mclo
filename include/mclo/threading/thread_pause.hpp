@@ -1,8 +1,8 @@
 #pragma once
 
 #include "mclo/platform/arch_detection.hpp"
-#include "mclo/platform/compiler_detection.hpp"
 #include "mclo/platform/attributes.hpp"
+#include "mclo/platform/compiler_detection.hpp"
 
 #ifdef MCLO_COMPILER_MSVC
 #include <immintrin.h>

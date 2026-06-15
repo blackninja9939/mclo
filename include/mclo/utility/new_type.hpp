@@ -7,8 +7,8 @@
 #include <functional>
 #include <type_traits>
 
-// todo(mc) this is a very basic implementation of a new type, it should be expanded with more functionality to a proper type safe wrapper
-// including things like opting into operations, formatting, hashing, etc
+// todo(mc) this is a very basic implementation of a new type, it should be expanded with more functionality to a proper
+// type safe wrapper including things like opting into operations, formatting, hashing, etc
 
 namespace mclo
 {

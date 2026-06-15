@@ -11,7 +11,7 @@ TEST_CASE( "scope_exit, normal exit, calls function", "[utility][scope_guard]" )
 	bool called = false;
 
 	{
-		mclo::scope_exit guard( [&]() { called = true; } );
+		mclo::scope_exit guard( [ & ]() { called = true; } );
 		CHECK_FALSE( called );
 	}
 
@@ -24,7 +24,7 @@ TEST_CASE( "scope_exit, exception exit, calls function", "[utility][scope_guard]
 
 	try
 	{
-		mclo::scope_exit guard( [&]() { called = true; } );
+		mclo::scope_exit guard( [ & ]() { called = true; } );
 		throw std::runtime_error( "test" );
 	}
 	catch ( ... )
@@ -41,8 +41,8 @@ TEST_CASE( "scope_exit, multiple guards, calls in reverse order", "[utility][sco
 	int second_called_at = 0;
 
 	{
-		mclo::scope_exit guard1( [&]() { first_called_at = ++order; } );
-		mclo::scope_exit guard2( [&]() { second_called_at = ++order; } );
+		mclo::scope_exit guard1( [ & ]() { first_called_at = ++order; } );
+		mclo::scope_exit guard2( [ & ]() { second_called_at = ++order; } );
 	}
 
 	CHECK( second_called_at == 1 );
@@ -54,7 +54,7 @@ TEST_CASE( "scope_exit, constexpr, calls function", "[utility][scope_guard]" )
 	constexpr int result = [] {
 		int value = 0;
 		{
-			mclo::scope_exit guard( [&]() { value = 42; } );
+			mclo::scope_exit guard( [ & ]() { value = 42; } );
 		}
 		return value;
 	}();
@@ -69,7 +69,7 @@ TEST_CASE( "scope_fail, normal exit, does not call function", "[utility][scope_g
 	bool called = false;
 
 	{
-		mclo::scope_fail guard( [&]() { called = true; } );
+		mclo::scope_fail guard( [ & ]() { called = true; } );
 	}
 
 	CHECK_FALSE( called );
@@ -81,7 +81,7 @@ TEST_CASE( "scope_fail, exception exit, calls function", "[utility][scope_guard]
 
 	try
 	{
-		mclo::scope_fail guard( [&]() { called = true; } );
+		mclo::scope_fail guard( [ & ]() { called = true; } );
 		throw std::runtime_error( "test" );
 	}
 	catch ( ... )
@@ -98,11 +98,11 @@ TEST_CASE( "scope_fail, nested exception then normal inner exit, does not call i
 
 	try
 	{
-		mclo::scope_fail outer_guard( [&]() { outer_called = true; } );
+		mclo::scope_fail outer_guard( [ & ]() { outer_called = true; } );
 
 		try
 		{
-			mclo::scope_fail inner_guard( [&]() { inner_called = true; } );
+			mclo::scope_fail inner_guard( [ & ]() { inner_called = true; } );
 			// Inner scope exits normally
 		}
 		catch ( ... )
@@ -126,7 +126,7 @@ TEST_CASE( "scope_success, normal exit, calls function", "[utility][scope_guard]
 	bool called = false;
 
 	{
-		mclo::scope_success guard( [&]() { called = true; } );
+		mclo::scope_success guard( [ & ]() { called = true; } );
 	}
 
 	CHECK( called );
@@ -138,7 +138,7 @@ TEST_CASE( "scope_success, exception exit, does not call function", "[utility][s
 
 	try
 	{
-		mclo::scope_success guard( [&]() { called = true; } );
+		mclo::scope_success guard( [ & ]() { called = true; } );
 		throw std::runtime_error( "test" );
 	}
 	catch ( ... )
