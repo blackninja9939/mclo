@@ -78,7 +78,8 @@ namespace mclo
 		}
 
 		constexpr indirect( indirect&& other ) noexcept
-			: indirect( std::allocator_arg, other.m_alloc, std::move( other ) )
+			: m_alloc( std::move( other.m_alloc ) )
+			, m_ptr( std::exchange( other.m_ptr, nullptr ) )
 		{
 		}
 
@@ -102,6 +103,7 @@ namespace mclo
 				else if ( !other.valueless_after_move() )
 				{
 					m_ptr = create( m_alloc, std::move( *other.m_ptr ) );
+					other.destroy();
 				}
 			}
 		}
@@ -186,7 +188,8 @@ namespace mclo
 				}
 				else
 				{
-					pointer tmp = create_select_alloc<update_alloc>( other.m_alloc, m_alloc, *other.m_ptr );
+					allocator_type alloc( update_alloc ? other.m_alloc : m_alloc );
+					pointer tmp = create( alloc, *other.m_ptr );
 					destroy();
 					m_ptr = tmp;
 				}
@@ -215,21 +218,17 @@ namespace mclo
 			{
 				destroy();
 			}
+			else if ( update_alloc || m_alloc == other.m_alloc )
+			{
+				destroy();
+				m_ptr = std::exchange( other.m_ptr, nullptr );
+			}
 			else
 			{
-				if ( m_alloc == other.m_alloc )
-				{
-					using std::swap;
-					swap( m_ptr, other.m_ptr );
-					other.destroy();
-				}
-				else
-				{
-					pointer tmp =
-						create_select_alloc<update_alloc>( other.m_alloc, m_alloc, std::move( *other.m_ptr ) );
-					destroy();
-					m_ptr = tmp;
-				}
+				pointer tmp = create( m_alloc, std::move( *other.m_ptr ) );
+				destroy();
+				other.destroy();
+				m_ptr = tmp;
 			}
 
 			if ( update_alloc )
@@ -419,22 +418,6 @@ namespace mclo
 			}
 		}
 
-		template <bool update_alloc, typename... Ts>
-		[[nodiscard]] constexpr static pointer create_select_alloc( const allocator_type& updated_alloc,
-																	allocator_type& allocator,
-																	Ts&&... ts )
-		{
-			if constexpr ( update_alloc )
-			{
-				allocator_type alloc( updated_alloc );
-				return create( alloc, std::forward<Ts>( ts )... );
-			}
-			else
-			{
-				return create( allocator, std::forward<Ts>( ts )... );
-			}
-		}
-
 		pointer m_ptr = nullptr;
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_alloc;
 	};
@@ -454,6 +437,7 @@ namespace mclo
 }
 
 template <typename T, typename Allocator>
+	requires requires( T a ) { std::hash<T>{}( a ); }
 struct std::hash<mclo::indirect<T, Allocator>>
 {
 	std::size_t operator()( const mclo::indirect<T, Allocator>& value ) const noexcept

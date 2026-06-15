@@ -82,6 +82,11 @@ namespace mclo
 			{
 				value_alloc alloc( allocator );
 				value_traits::destroy( alloc, &m_storage.m_object );
+
+				control_block_alloc cb_alloc( allocator );
+				auto* self = this;
+				control_block_traits::destroy( cb_alloc, self );
+				control_block_traits::deallocate( cb_alloc, self, 1 );
 			}
 
 			constexpr control_block* clone( const Allocator& allocator ) const override
@@ -167,7 +172,8 @@ namespace mclo
 		}
 
 		constexpr polymorphic( polymorphic&& other ) noexcept
-			: polymorphic( std::allocator_arg, other.m_alloc, std::move( other ) )
+			: m_alloc( std::move( other.m_alloc ) )
+			, m_control_block( std::exchange( other.m_control_block, nullptr ) )
 		{
 		}
 
@@ -191,6 +197,7 @@ namespace mclo
 				else if ( !other.valueless_after_move() )
 				{
 					m_control_block = other.m_control_block->move( m_alloc );
+					other.destroy();
 				}
 			}
 		}
@@ -295,20 +302,17 @@ namespace mclo
 			{
 				destroy();
 			}
+			else if ( update_alloc || m_alloc == other.m_alloc )
+			{
+				destroy();
+				m_control_block = std::exchange( other.m_control_block, nullptr );
+			}
 			else
 			{
-				if ( m_alloc == other.m_alloc )
-				{
-					using std::swap;
-					swap( m_control_block, other.m_control_block );
-					other.destroy();
-				}
-				else
-				{
-					control_block* tmp = other.m_control_block->move( update_alloc ? other.m_alloc : m_alloc );
-					destroy();
-					m_control_block = tmp;
-				}
+				control_block* tmp = other.m_control_block->move( m_alloc );
+				destroy();
+				other.destroy();
+				m_control_block = tmp;
 			}
 
 			if ( update_alloc )
