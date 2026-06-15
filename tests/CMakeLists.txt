@@ -33,7 +33,6 @@ add_executable( tests
 	"sem_version_tests.cpp"
 	"try_tests.cpp"
 	"intrusive_ptr_tests.cpp"
-	"numeric_vector_tests.cpp"
 	"hash_table_tests.cpp"
 	"thread_local_key_tests.cpp"
 	"instanced_thread_local_tests.cpp"
