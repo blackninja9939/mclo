@@ -43,6 +43,7 @@ add_executable( tests
 	"null_mutex_tests.cpp"
 	"indirect_tests.cpp"
 	"polymorphic_tests.cpp"
+	"copy_on_write_tests.cpp"
 	"checked_math_tests.cpp"
 	"overflowing_math_tests.cpp"
 	"saturated_math_tests.cpp"
