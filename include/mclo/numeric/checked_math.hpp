@@ -7,9 +7,9 @@
 namespace mclo
 {
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::optional<T> add_checked( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr std::optional<T> checked_add( const T x, const T y ) noexcept
 	{
-		if ( T result; !detail::add_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_add( x, y, result ) )
 		{
 			return result;
 		}
@@ -17,9 +17,9 @@ namespace mclo
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::optional<T> sub_checked( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr std::optional<T> checked_sub( const T x, const T y ) noexcept
 	{
-		if ( T result; !detail::sub_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_sub( x, y, result ) )
 		{
 			return result;
 		}
@@ -27,9 +27,9 @@ namespace mclo
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::optional<T> mul_checked( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr std::optional<T> checked_mul( const T x, const T y ) noexcept
 	{
-		if ( T result; !detail::mul_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_mul( x, y, result ) )
 		{
 			return result;
 		}
@@ -37,9 +37,9 @@ namespace mclo
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::optional<T> div_checked( const T x, const T y ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr std::optional<T> checked_div( const T x, const T y ) MCLO_NOEXCEPT_TESTS
 	{
-		if ( T result; !detail::div_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_div( x, y, result ) )
 		{
 			return result;
 		}

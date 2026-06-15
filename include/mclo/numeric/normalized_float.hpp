@@ -76,13 +76,13 @@ namespace mclo
 		[[nodiscard]] constexpr friend normalized_float operator+( const normalized_float lhs,
 																   const normalized_float rhs ) noexcept
 		{
-			return { from_underlying, mclo::add_sat( lhs.m_value, rhs.m_value ) };
+			return { from_underlying, mclo::saturating_add( lhs.m_value, rhs.m_value ) };
 		}
 
 		[[nodiscard]] constexpr friend normalized_float operator-( const normalized_float lhs,
 																   const normalized_float rhs ) noexcept
 		{
-			return { from_underlying, mclo::sub_sat( lhs.m_value, rhs.m_value ) };
+			return { from_underlying, mclo::saturating_sub( lhs.m_value, rhs.m_value ) };
 		}
 
 		[[nodiscard]] constexpr friend normalized_float operator*( const normalized_float lhs,
@@ -115,7 +115,7 @@ namespace mclo
 			// If lhs > rhs then division will result in a multiplication so we must saturate back
 			const auto full =
 				static_cast<Intermediary>( lhs.m_value ) * scale / ( static_cast<Intermediary>( rhs.m_value ) );
-			return { from_underlying, mclo::saturate_cast<Underlying>( full ) };
+			return { from_underlying, mclo::saturating_cast<Underlying>( full ) };
 		}
 
 		[[nodiscard]] constexpr friend normalized_float operator/( const normalized_float lhs,

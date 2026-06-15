@@ -7,34 +7,34 @@
 namespace mclo
 {
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::pair<T, bool> add_overflowing( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr std::pair<T, bool> overflowing_add( const T x, const T y ) noexcept
 	{
 		T result{};
-		const bool overflowed = detail::add_overflow( x, y, result );
+		const bool overflowed = detail::overflowing_add( x, y, result );
 		return { result, overflowed };
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::pair<T, bool> sub_overflowing( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr std::pair<T, bool> overflowing_sub( const T x, const T y ) noexcept
 	{
 		T result{};
-		const bool overflowed = detail::sub_overflow( x, y, result );
+		const bool overflowed = detail::overflowing_sub( x, y, result );
 		return { result, overflowed };
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::pair<T, bool> mul_overflowing( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr std::pair<T, bool> overflowing_mul( const T x, const T y ) noexcept
 	{
 		T result{};
-		const bool overflowed = detail::mul_overflow( x, y, result );
+		const bool overflowed = detail::overflowing_mul( x, y, result );
 		return { result, overflowed };
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::pair<T, bool> div_overflowing( const T x, const T y ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr std::pair<T, bool> overflowing_div( const T x, const T y ) MCLO_NOEXCEPT_TESTS
 	{
 		T result{};
-		const bool overflowed = detail::div_overflow( x, y, result );
+		const bool overflowed = detail::overflowing_div( x, y, result );
 		return { result, overflowed };
 	}
 }

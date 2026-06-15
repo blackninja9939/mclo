@@ -14,7 +14,7 @@
 namespace mclo::detail
 {
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool add_overflow_manual( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_add_manual( const T x, const T y, T& result ) noexcept
 	{
 		if constexpr ( standard_unsigned_integral<T> )
 		{
@@ -30,7 +30,7 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool sub_overflow_manual( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_sub_manual( const T x, const T y, T& result ) noexcept
 	{
 		if constexpr ( standard_unsigned_integral<T> )
 		{
@@ -47,7 +47,7 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool mul_overflow_manual( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_mul_manual( const T x, const T y, T& result ) noexcept
 	{
 		if ( x == 0 || y == 0 )
 		{
@@ -93,7 +93,7 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool div_overflow_manual( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_div_manual( const T x, const T y, T& result ) noexcept
 	{
 		if constexpr ( standard_unsigned_integral<T> )
 		{
@@ -112,12 +112,12 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool add_overflow( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_add( const T x, const T y, T& result ) noexcept
 	{
 #ifdef MCLO_COMPILER_MSVC
 		if ( std::is_constant_evaluated() )
 		{
-			return add_overflow_manual( x, y, result );
+			return overflowing_add_manual( x, y, result );
 		}
 		else
 		{
@@ -155,7 +155,7 @@ namespace mclo::detail
 			}
 			else
 			{
-				return add_overflow_manual( x, y, result );
+				return overflowing_add_manual( x, y, result );
 			}
 		}
 #else
@@ -164,12 +164,12 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool sub_overflow( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_sub( const T x, const T y, T& result ) noexcept
 	{
 #ifdef MCLO_COMPILER_MSVC
 		if ( std::is_constant_evaluated() )
 		{
-			return sub_overflow_manual( x, y, result );
+			return overflowing_sub_manual( x, y, result );
 		}
 		else
 		{
@@ -207,7 +207,7 @@ namespace mclo::detail
 			}
 			else
 			{
-				return sub_overflow_manual( x, y, result );
+				return overflowing_sub_manual( x, y, result );
 			}
 		}
 #else
@@ -216,12 +216,12 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool mul_overflow( const T x, const T y, T& result ) noexcept
+	[[nodiscard]] constexpr bool overflowing_mul( const T x, const T y, T& result ) noexcept
 	{
 #ifdef MCLO_COMPILER_MSVC
 		if ( std::is_constant_evaluated() )
 		{
-			return mul_overflow_manual( x, y, result );
+			return overflowing_mul_manual( x, y, result );
 		}
 		else
 		{
@@ -268,7 +268,7 @@ namespace mclo::detail
 			}
 			else
 			{
-				return mul_overflow_manual( x, y, result );
+				return overflowing_mul_manual( x, y, result );
 			}
 		}
 #else
@@ -277,10 +277,10 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool div_overflow( const T x, const T y, T& result ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr bool overflowing_div( const T x, const T y, T& result ) MCLO_NOEXCEPT_TESTS
 	{
 		DEBUG_ASSERT( y != 0, "Division by 0 is undefined behaviour" );
 		// No intrinsics since division doesn't really overflow
-		return div_overflow_manual( x, y, result );
+		return overflowing_div_manual( x, y, result );
 	}
 }

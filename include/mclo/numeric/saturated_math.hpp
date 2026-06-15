@@ -5,9 +5,9 @@
 namespace mclo
 {
 	template <standard_integral T>
-	[[nodiscard]] constexpr T add_sat( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr T saturating_add( const T x, const T y ) noexcept
 	{
-		if ( T result; !detail::add_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_add( x, y, result ) )
 		{
 			return result;
 		}
@@ -29,9 +29,9 @@ namespace mclo
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr T sub_sat( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr T saturating_sub( const T x, const T y ) noexcept
 	{
-		if ( T result; !detail::sub_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_sub( x, y, result ) )
 		{
 			return result;
 		}
@@ -53,9 +53,9 @@ namespace mclo
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr T mul_sat( const T x, const T y ) noexcept
+	[[nodiscard]] constexpr T saturating_mul( const T x, const T y ) noexcept
 	{
-		if ( T result; !detail::mul_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_mul( x, y, result ) )
 		{
 			return result;
 		}
@@ -77,9 +77,9 @@ namespace mclo
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr T div_sat( const T x, const T y ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr T saturating_div( const T x, const T y ) MCLO_NOEXCEPT_TESTS
 	{
-		if ( T result; !detail::div_overflow( x, y, result ) )
+		if ( T result; !detail::overflowing_div( x, y, result ) )
 		{
 			return result;
 		}
@@ -101,7 +101,7 @@ namespace mclo
 	}
 
 	template <standard_integral T, standard_integral U>
-	[[nodiscard]] constexpr T saturate_cast( const U x ) noexcept
+	[[nodiscard]] constexpr T saturating_cast( const U x ) noexcept
 	{
 		/*
 		 * Unwrapped version of effectively:
