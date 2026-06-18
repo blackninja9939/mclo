@@ -3,6 +3,7 @@
 #include "mclo/enum/enum_map.hpp"
 #include "mclo/numeric/math.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
+#include "mclo/platform/cpp_feature_compat.hpp"
 
 #include <algorithm>
 #include <array>
@@ -60,7 +61,15 @@ namespace mclo
 
 	namespace detail
 	{
-		inline constexpr auto pair_second = []( const auto& pair ) -> const auto& { return pair.second; };
+		struct pair_second
+		{
+			template <typename T, typename U>
+			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr const U& operator()( const std::pair<T, U>& pair )
+				MCLO_CONST_CALL_OPERATOR
+			{
+				return pair.second;
+			}
+		};
 
 		struct linear_search
 		{
@@ -72,7 +81,7 @@ namespace mclo
 			template <std::ranges::contiguous_range Range, typename Find>
 			[[nodiscard]] static constexpr auto search( Range&& range, const Find& find )
 			{
-				return std::ranges::find( std::forward<Range>( range ), find, pair_second );
+				return std::ranges::find( std::forward<Range>( range ), find, pair_second{} );
 			}
 		};
 
@@ -81,13 +90,14 @@ namespace mclo
 			template <typename Range>
 			static constexpr void setup( Range&& range )
 			{
-				std::ranges::sort( std::forward<Range>( range ), std::ranges::less{}, pair_second );
+				std::ranges::sort( std::forward<Range>( range ), std::ranges::less{}, pair_second{} );
 			}
 
 			template <std::ranges::contiguous_range Range, typename Find>
 			[[nodiscard]] static constexpr auto search( Range&& range, const Find& find )
 			{
-				return std::ranges::lower_bound( std::forward<Range>( range ), find, std::ranges::less{}, pair_second );
+				return std::ranges::lower_bound(
+					std::forward<Range>( range ), find, std::ranges::less{}, pair_second{} );
 			}
 		};
 	}
