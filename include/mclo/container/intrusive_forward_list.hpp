@@ -36,14 +36,15 @@ namespace mclo
 		intrusive_forward_list& operator=( const intrusive_forward_list& other ) = delete;
 
 		intrusive_forward_list( intrusive_forward_list&& other ) noexcept
-			: m_head( std::exchange( other.m_head, hook_type() ) )
 		{
+			m_head.m_next = std::exchange( other.m_head.m_next, nullptr );
 		}
 		intrusive_forward_list& operator=( intrusive_forward_list&& other ) noexcept
 		{
 			if ( this != &other )
 			{
-				m_head = std::exchange( other.m_head, hook_type() );
+				clear();
+				m_head.m_next = std::exchange( other.m_head.m_next, nullptr );
 			}
 			return *this;
 		}
@@ -102,6 +103,18 @@ namespace mclo
 		[[nodiscard]] const_iterator cbefore_begin() const noexcept
 		{
 			return const_iterator( before_begin_ptr() );
+		}
+
+		reference front() noexcept
+		{
+			DEBUG_ASSERT( !empty(), "Cannot access front of empty forward list" );
+			return *head();
+		}
+
+		const_reference front() const noexcept
+		{
+			DEBUG_ASSERT( !empty(), "Cannot access front of empty forward list" );
+			return *head();
 		}
 
 		[[nodiscard]] bool empty() const noexcept
@@ -286,7 +299,7 @@ namespace mclo
 		template <typename U>
 		size_type remove( const U& value )
 		{
-			return remove( [ &value ]( const_reference object ) { return object == value; } );
+			return remove_if( [ &value ]( const_reference object ) { return object == value; } );
 		}
 
 		template <typename UnaryPredicate>
@@ -294,7 +307,7 @@ namespace mclo
 		{
 			size_type count = 0;
 			hook_type* before_head = before_begin_ptr();
-			hook_type* head = head();
+			hook_type* head = this->head();
 			while ( head )
 			{
 				if ( predicate( *cast( head ) ) )
@@ -374,7 +387,49 @@ namespace mclo
 		}
 
 		template <typename Compare>
-		void sort();
+		void sort( Compare comp )
+		{
+			// Already sorted if zero or one elements
+			if ( m_head.m_next == nullptr || m_head.m_next->m_next == nullptr )
+			{
+				return;
+			}
+
+			// Bottom-up merge sort using a binary counter of sorted bins. Bin i holds a sorted
+			// run of 2^i elements, so num_bins supports up to 2^64 elements.
+			constexpr size_type num_bins = 64;
+			intrusive_forward_list carry;
+			intrusive_forward_list bins[ num_bins ];
+			size_type filled = 0;
+
+			while ( !empty() )
+			{
+				// Extract the first element into carry
+				carry.splice_after( carry.before_begin(), *this, before_begin() );
+
+				// Cascade the carry up through the occupied bins, merging as we go
+				size_type i = 0;
+				while ( i < filled && !bins[ i ].empty() )
+				{
+					bins[ i ].merge( carry, comp );
+					carry.swap( bins[ i++ ] );
+				}
+
+				carry.swap( bins[ i ] );
+				if ( i == filled )
+				{
+					++filled;
+				}
+			}
+
+			// Merge all the bins together into the largest
+			for ( size_type i = 1; i < filled; ++i )
+			{
+				bins[ i ].merge( bins[ i - 1 ], comp );
+			}
+
+			swap( bins[ filled - 1 ] );
+		}
 
 		template <typename Compare>
 		void merge( intrusive_forward_list& other, Compare comp )
@@ -401,14 +456,12 @@ namespace mclo
 				}
 				else
 				{
-					size_type n = 0;
 					do
 					{
 						ibx = ibx_next;
-						++n;
 					}
 					while ( ++( ibx_next = ibx ) != other_last && comp( *ibx_next, *bb_next ) );
-					this->splice_after( bb, other, other.before_begin(), ibx, n );
+					this->splice_after( bb, other, other.before_begin(), ibx_next );
 				}
 			}
 		}
@@ -449,8 +502,7 @@ namespace mclo
 
 		void swap( intrusive_forward_list& other ) noexcept
 		{
-			using std::swap;
-			swap( m_head, other.m_head );
+			std::swap( m_head.m_next, other.m_head.m_next );
 		}
 
 		friend void swap( intrusive_forward_list& lhs, intrusive_forward_list& rhs ) noexcept
@@ -465,7 +517,7 @@ namespace mclo
 		}
 		[[nodiscard]] static const_pointer cast( const hook_type* ptr ) noexcept
 		{
-			return static_cast<const pointer>( ptr );
+			return static_cast<const_pointer>( ptr );
 		}
 
 		[[nodiscard]] pointer head() noexcept
@@ -498,13 +550,15 @@ namespace mclo
 namespace std
 {
 	template <typename T, typename Tag, typename U = T>
-	mclo::intrusive_forward_list<T, Tag>::size_type erase( mclo::intrusive_forward_list<T, Tag>& list, const U& value )
+	typename mclo::intrusive_forward_list<T, Tag>::size_type erase( mclo::intrusive_forward_list<T, Tag>& list,
+																	const U& value )
 	{
 		return list.remove( value );
 	}
 
 	template <typename T, typename Tag, typename Pred>
-	mclo::intrusive_forward_list<T, Tag>::size_type erase_if( mclo::intrusive_forward_list<T, Tag>& list, Pred pred )
+	typename mclo::intrusive_forward_list<T, Tag>::size_type erase_if( mclo::intrusive_forward_list<T, Tag>& list,
+																	   Pred pred )
 	{
 		return list.remove_if( pred );
 	}
