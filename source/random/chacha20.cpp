@@ -21,7 +21,6 @@ namespace
 	}
 
 	using row = xsimd::batch<std::uint32_t, xsimd::sse2>;
-	static_assert( alignof( mclo::chacha20 ) == row::arch_type::alignment(), "chacha20 must be aligned for sse2" );
 
 	void quarter_round( row& a, row& b, row& c, row& d ) noexcept
 	{
@@ -37,18 +36,20 @@ namespace
 		c += d;
 		b = xsimd::rotl( b ^ c, 7 );
 	}
-
-	constexpr std::uint8_t keystream_max = 8; // Number of uint64_t results per generated block
 }
 
-mclo::chacha20::chacha20( const std::array<std::uint8_t, 32>& seed, const std::array<std::uint8_t, 12>& nonce ) noexcept
+template <std::size_t Rounds>
+mclo::chacha<Rounds>::chacha( const std::array<std::uint8_t, 32>& seed,
+							  const std::array<std::uint8_t, 12>& nonce ) noexcept
 	: state{ 0x61707865, 0x3320646e, 0x79622d32, 0x6b206574 } // "expand 32-byte k" constants
 {
+	static_assert( alignof( mclo::chacha<Rounds> ) == row::arch_type::alignment(), "chacha must be aligned for sse2" );
 	this->seed( seed, nonce );
 }
 
-void mclo::chacha20::seed( const std::array<std::uint8_t, 32>& seed,
-						   const std::array<std::uint8_t, 12>& nonce ) noexcept
+template <std::size_t Rounds>
+void mclo::chacha<Rounds>::seed( const std::array<std::uint8_t, 32>& seed,
+								 const std::array<std::uint8_t, 12>& nonce ) noexcept
 {
 	// Key
 	for ( std::size_t i = 0; i < 8; ++i )
@@ -68,7 +69,8 @@ void mclo::chacha20::seed( const std::array<std::uint8_t, 32>& seed,
 	keystream_index = keystream_max; // Force generation of new keystream on first use
 }
 
-mclo::chacha20::result_type mclo::chacha20::operator()() noexcept
+template <std::size_t Rounds>
+typename mclo::chacha<Rounds>::result_type mclo::chacha<Rounds>::operator()() noexcept
 {
 	if ( keystream_index >= keystream_max )
 	{
@@ -77,7 +79,8 @@ mclo::chacha20::result_type mclo::chacha20::operator()() noexcept
 	return keystream[ keystream_index++ ];
 }
 
-void mclo::chacha20::discard( unsigned long long count ) noexcept
+template <std::size_t Rounds>
+void mclo::chacha<Rounds>::discard( unsigned long long count ) noexcept
 {
 	// Consume whatever is still buffered in the current block first.
 	const unsigned long long buffered = keystream_max - keystream_index;
@@ -104,13 +107,15 @@ void mclo::chacha20::discard( unsigned long long count ) noexcept
 	}
 }
 
-void mclo::chacha20::set_counter( const std::uint32_t block ) noexcept
+template <std::size_t Rounds>
+void mclo::chacha<Rounds>::set_counter( const std::uint32_t block ) noexcept
 {
 	state[ 12 ] = block;
 	keystream_index = keystream_max; // Force generation at the new position on next use
 }
 
-void mclo::chacha20::generate_block() noexcept
+template <std::size_t Rounds>
+void mclo::chacha<Rounds>::generate_block() noexcept
 {
 	const row state_a = row::load_aligned( state.data() );
 	const row state_b = row::load_aligned( state.data() + 4 );
@@ -122,7 +127,7 @@ void mclo::chacha20::generate_block() noexcept
 	row c = state_c;
 	row d = state_d;
 
-	for ( std::size_t i = 0; i < 10; ++i )
+	for ( std::size_t i = 0; i < Rounds; i += 2 )
 	{
 		// Column rounds
 		quarter_round( a, b, c, d );
@@ -152,7 +157,7 @@ void mclo::chacha20::generate_block() noexcept
 	c.store_aligned( local.data() + 8 );
 	d.store_aligned( local.data() + 12 );
 
-	for ( std::size_t i = 0; i < 8; ++i )
+	for ( std::size_t i = 0; i < keystream_max; ++i )
 	{
 		keystream[ i ] =
 			static_cast<result_type>( local[ 2 * i ] ) | ( static_cast<result_type>( local[ 2 * i + 1 ] ) << 32 );
@@ -162,10 +167,15 @@ void mclo::chacha20::generate_block() noexcept
 	keystream_index = 0;
 }
 
-bool mclo::chacha20::operator==( const chacha20& other ) const noexcept
+template <std::size_t Rounds>
+bool mclo::chacha<Rounds>::operator==( const chacha<Rounds>& other ) const noexcept
 {
 	// Equality is defined by the future keystream, so already consumed buffer entries are ignored.
 	return state == other.state && keystream_index == other.keystream_index &&
 		   std::equal(
 			   keystream.begin() + keystream_index, keystream.end(), other.keystream.begin() + keystream_index );
 }
+
+template class mclo::chacha<8>;
+template class mclo::chacha<12>;
+template class mclo::chacha<20>;
