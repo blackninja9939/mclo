@@ -982,12 +982,12 @@ namespace mclo::detail
 		using typename base::size_type;
 		using typename base::value_type;
 
-		MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 26495 )
+		MCLO_DISABLE_WARNINGS( MCLO_WARNING_UNINITIALIZED_MEMBER )
 		inline_buffer_vector() noexcept
 			: base( Capacity )
 		{
 		}
-		MCLO_MSVC_POP_WARNINGS
+		MCLO_RESTORE_WARNINGS
 
 		inline_buffer_vector( const inline_buffer_vector& other )
 			: inline_buffer_vector()

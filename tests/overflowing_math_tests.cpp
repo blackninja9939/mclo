@@ -23,7 +23,8 @@ namespace
 }
 
 // We are testing overflow
-MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4307 4310 26450 )
+MCLO_DISABLE_WARNINGS(
+	MCLO_WARNING_CONSTANT_OVERFLOW MCLO_WARNING_CONSTANT_TRUNCATION MCLO_WARNING_ARITHMETIC_OVERFLOW )
 
 TEMPLATE_LIST_TEST_CASE( "overflowing_add performs overflowing addition",
 						 "[math][overflowing_math]",
@@ -131,4 +132,4 @@ TEMPLATE_LIST_TEST_CASE( "overflowing_div performs overflowing division",
 	CHECK_ASSERTS( mclo::overflowing_div( T( 6 ), T( 0 ) ), "Division by 0 is undefined behaviour" );
 }
 
-MCLO_MSVC_POP_WARNINGS
+MCLO_RESTORE_WARNINGS

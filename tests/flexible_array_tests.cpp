@@ -77,12 +77,12 @@ namespace
 		}
 	};
 
-	MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
+	MCLO_DISABLE_WARNINGS( MCLO_WARNING_ALIGNMENT_PADDING )
 	struct alignas( 32 ) over_aligned
 	{
 		int value = 0;
 	};
-	MCLO_MSVC_POP_WARNINGS
+	MCLO_RESTORE_WARNINGS
 }
 
 // Static assertions

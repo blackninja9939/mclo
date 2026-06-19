@@ -10,7 +10,7 @@
 
 namespace mclo
 {
-	MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
+	MCLO_DISABLE_WARNINGS( MCLO_WARNING_ALIGNMENT_PADDING )
 	/// @brief A lock-free work-stealing deque for managing data between multiple threads.
 	/// @tparam T The type of elements stored in the deque. Must be trivially copyable and destructible.
 	/// @details Based on the Chase-Lev work-stealing deque algorithm including the weak memory models fixes from
@@ -244,5 +244,5 @@ namespace mclo
 		alignas( std::hardware_destructive_interference_size ) std::atomic<ring_storage*> m_storage;
 		std::vector<std::unique_ptr<ring_storage, deleter>> m_old_storages;
 	};
-	MCLO_MSVC_POP_WARNINGS
+	MCLO_RESTORE_WARNINGS
 }
