@@ -42,7 +42,8 @@ namespace
 		return words;
 	}
 
-	[[nodiscard]] std::array<std::uint64_t, 8> next_block( mclo::chacha20& engine ) noexcept
+	template <std::size_t Rounds>
+	[[nodiscard]] std::array<std::uint64_t, 8> next_block( mclo::chacha<Rounds>& engine ) noexcept
 	{
 		std::array<std::uint64_t, 8> block{};
 		for ( std::uint64_t& word : block )
@@ -66,6 +67,44 @@ TEST_CASE( "chacha20 zero key and nonce, first block, matches RFC 8439 block cou
 		0x6a, 0x43, 0xb8, 0xf4, 0x15, 0x18, 0xa1, 0x1c, 0xc3, 0x87, 0xb6, 0x69, 0xb2, 0xee, 0x65, 0x86 };
 
 	mclo::chacha20 engine( zero_key, zero_nonce );
+
+	// When - generating the first block (block counter 0)
+	const std::array<std::uint64_t, 8> block = next_block( engine );
+
+	// Then - it matches the published keystream
+	CHECK( block == keystream_to_words( expected_keystream ) );
+}
+
+TEST_CASE( "chacha8 zero key and nonce, first block, matches the published reduced round keystream", "[random]" )
+{
+	// Given - draft-strombergson-chacha-test-vectors-01 TC1 (all zero 256 bit key and IV) for 8 rounds. At block 0
+	// with a zero nonce the original 64 bit counter / IV layout and the RFC 8439 layout share the same input state.
+	constexpr std::array<std::uint8_t, 64> expected_keystream{
+		0x3e, 0x00, 0xef, 0x2f, 0x89, 0x5f, 0x40, 0xd6, 0x7f, 0x5b, 0xb8, 0xe8, 0x1f, 0x09, 0xa5, 0xa1,
+		0x2c, 0x84, 0x0e, 0xc3, 0xce, 0x9a, 0x7f, 0x3b, 0x18, 0x1b, 0xe1, 0x88, 0xef, 0x71, 0x1a, 0x1e,
+		0x98, 0x4c, 0xe1, 0x72, 0xb9, 0x21, 0x6f, 0x41, 0x9f, 0x44, 0x53, 0x67, 0x45, 0x6d, 0x56, 0x19,
+		0x31, 0x4a, 0x42, 0xa3, 0xda, 0x86, 0xb0, 0x01, 0x38, 0x7b, 0xfd, 0xb8, 0x0e, 0x0c, 0xfe, 0x42 };
+
+	mclo::chacha8 engine( zero_key, zero_nonce );
+
+	// When - generating the first block (block counter 0)
+	const std::array<std::uint64_t, 8> block = next_block( engine );
+
+	// Then - it matches the published keystream
+	CHECK( block == keystream_to_words( expected_keystream ) );
+}
+
+TEST_CASE( "chacha12 zero key and nonce, first block, matches the published reduced round keystream", "[random]" )
+{
+	// Given - draft-strombergson-chacha-test-vectors-01 TC1 (all zero 256 bit key and IV) for 12 rounds. At block 0
+	// with a zero nonce the original 64 bit counter / IV layout and the RFC 8439 layout share the same input state.
+	constexpr std::array<std::uint8_t, 64> expected_keystream{
+		0x9b, 0xf4, 0x9a, 0x6a, 0x07, 0x55, 0xf9, 0x53, 0x81, 0x1f, 0xce, 0x12, 0x5f, 0x26, 0x83, 0xd5,
+		0x04, 0x29, 0xc3, 0xbb, 0x49, 0xe0, 0x74, 0x14, 0x7e, 0x00, 0x89, 0xa5, 0x2e, 0xae, 0x15, 0x5f,
+		0x05, 0x64, 0xf8, 0x79, 0xd2, 0x7a, 0xe3, 0xc0, 0x2c, 0xe8, 0x28, 0x34, 0xac, 0xfa, 0x8c, 0x79,
+		0x3a, 0x62, 0x9f, 0x2c, 0xa0, 0xde, 0x69, 0x19, 0x61, 0x0b, 0xe8, 0x2f, 0x41, 0x13, 0x26, 0xbe };
+
+	mclo::chacha12 engine( zero_key, zero_nonce );
 
 	// When - generating the first block (block counter 0)
 	const std::array<std::uint64_t, 8> block = next_block( engine );
