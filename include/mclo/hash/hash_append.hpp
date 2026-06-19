@@ -2,7 +2,6 @@
 
 #include "mclo/hash/hasher.hpp"
 
-#include <span>
 #include <type_traits>
 
 namespace mclo

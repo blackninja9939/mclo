@@ -3,13 +3,13 @@
 #include "mclo/memory/flexible_array.hpp"
 
 #include "mclo/allocator/arena_allocator.hpp"
+#include "mclo/container/span.hpp"
 #include "mclo/platform/warnings.hpp"
 
 #include "assert_macros.hpp"
 
 #include <array>
 #include <forward_list>
-#include <span>
 #include <string>
 #include <vector>
 
@@ -621,7 +621,7 @@ TEST_CASE( "flexible_array range construction from array", "[flexible_array]" )
 TEST_CASE( "flexible_array range construction from span", "[flexible_array]" )
 {
 	const int raw[] = { 7, 8, 9 };
-	const std::span<const int> source( raw );
+	const mclo::span<const int> source( raw );
 
 	const mclo::flexible_array<int> arr( source );
 
