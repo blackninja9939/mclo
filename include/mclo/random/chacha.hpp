@@ -1,15 +1,11 @@
 #pragma once
 
-#include "mclo/platform/warnings.hpp"
-
 #include <array>
 #include <cinttypes>
 #include <limits>
 
 namespace mclo
 {
-	MCLO_MSVC_PUSH_AND_DISABLE_WARNINGS( 4324 ) // structure was padded due to alignment specifier
-
 	/// @brief A cryptographically strong pseudo-random number generator based on the ChaCha stream cipher.
 	/// @details This generator produces a keystream using the ChaCha algorithm, seeded with a 256-bit key and a
 	/// 96-bit nonce. The number of rounds is configurable via @p Rounds, trading security margin against speed;
@@ -21,7 +17,7 @@ namespace mclo
 	/// @note The block counter can be set directly to seek within the keystream in constant time.
 	/// @see set_counter
 	template <std::size_t Rounds>
-	class alignas( 16 ) chacha
+	class chacha
 	{
 		static_assert( Rounds != 0, "Number of rounds must be non-zero" );
 		static_assert( Rounds % 2 == 0, "Number of rounds must be even" );
@@ -87,8 +83,6 @@ namespace mclo
 		std::array<result_type, keystream_max> keystream{};
 		std::uint8_t keystream_index = 0;
 	};
-
-	MCLO_MSVC_POP_WARNINGS
 
 	/// @brief ChaCha generator using 8 rounds: the fastest variant, with the smallest security margin.
 	using chacha8 = chacha<8>;

@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <cstring>
 
-#include <xsimd/xsimd.hpp>
-
 namespace
 {
 	[[nodiscard]] std::uint32_t load_le32( const std::uint8_t* const bytes ) noexcept
@@ -20,21 +18,20 @@ namespace
 		return value;
 	}
 
-	using row = xsimd::batch<std::uint32_t, xsimd::sse2>;
-
-	void quarter_round( row& a, row& b, row& c, row& d ) noexcept
+	void quarter_round( std::uint32_t& a, std::uint32_t& b, std::uint32_t& c, std::uint32_t& d ) noexcept
 	{
 		a += b;
-		d = xsimd::rotl( d ^ a, 16 );
-
+		d ^= a;
+		d = std::rotl( d, 16 );
 		c += d;
-		b = xsimd::rotl( b ^ c, 12 );
-
+		b ^= c;
+		b = std::rotl( b, 12 );
 		a += b;
-		d = xsimd::rotl( d ^ a, 8 );
-
+		d ^= a;
+		d = std::rotl( d, 8 );
 		c += d;
-		b = xsimd::rotl( b ^ c, 7 );
+		b ^= c;
+		b = std::rotl( b, 7 );
 	}
 }
 
@@ -43,7 +40,6 @@ mclo::chacha<Rounds>::chacha( const std::array<std::uint8_t, 32>& seed,
 							  const std::array<std::uint8_t, 12>& nonce ) noexcept
 	: state{ 0x61707865, 0x3320646e, 0x79622d32, 0x6b206574 } // "expand 32-byte k" constants
 {
-	static_assert( alignof( mclo::chacha<Rounds> ) == row::arch_type::alignment(), "chacha must be aligned for sse2" );
 	this->seed( seed, nonce );
 }
 
@@ -117,45 +113,26 @@ void mclo::chacha<Rounds>::set_counter( const std::uint32_t block ) noexcept
 template <std::size_t Rounds>
 void mclo::chacha<Rounds>::generate_block() noexcept
 {
-	const row state_a = row::load_aligned( state.data() );
-	const row state_b = row::load_aligned( state.data() + 4 );
-	const row state_c = row::load_aligned( state.data() + 8 );
-	const row state_d = row::load_aligned( state.data() + 12 );
-
-	row a = state_a;
-	row b = state_b;
-	row c = state_c;
-	row d = state_d;
+	std::array<std::uint32_t, 16> local = state;
 
 	for ( std::size_t i = 0; i < Rounds; i += 2 )
 	{
-		// Column rounds
-		quarter_round( a, b, c, d );
-
-		// Rotate for diagonal rounds
-		b = xsimd::rotate_left<1>( b );
-		c = xsimd::rotate_left<2>( c );
-		d = xsimd::rotate_left<3>( d );
-
-		// Diagonal rounds
-		quarter_round( a, b, c, d );
-
-		// Rotate back after diagonal rounds
-		b = xsimd::rotate_right<1>( b );
-		c = xsimd::rotate_right<2>( c );
-		d = xsimd::rotate_right<3>( d );
+		// Odd round
+		quarter_round( local[ 0 ], local[ 4 ], local[ 8 ], local[ 12 ] );  // column 1
+		quarter_round( local[ 1 ], local[ 5 ], local[ 9 ], local[ 13 ] );  // column 2
+		quarter_round( local[ 2 ], local[ 6 ], local[ 10 ], local[ 14 ] ); // column 3
+		quarter_round( local[ 3 ], local[ 7 ], local[ 11 ], local[ 15 ] ); // column 4
+		// Even round
+		quarter_round( local[ 0 ], local[ 5 ], local[ 10 ], local[ 15 ] ); // diagonal 1 (main diagonal)
+		quarter_round( local[ 1 ], local[ 6 ], local[ 11 ], local[ 12 ] ); // diagonal 2
+		quarter_round( local[ 2 ], local[ 7 ], local[ 8 ], local[ 13 ] );  // diagonal 3
+		quarter_round( local[ 3 ], local[ 4 ], local[ 9 ], local[ 14 ] );  // diagonal 4
 	}
 
-	a += state_a;
-	b += state_b;
-	c += state_c;
-	d += state_d;
-
-	alignas( row::arch_type::alignment() ) std::array<std::uint32_t, 16> local;
-	a.store_aligned( local.data() );
-	b.store_aligned( local.data() + 4 );
-	c.store_aligned( local.data() + 8 );
-	d.store_aligned( local.data() + 12 );
+	for ( std::size_t i = 0; i < 16; ++i )
+	{
+		local[ i ] += state[ i ];
+	}
 
 	for ( std::size_t i = 0; i < keystream_max; ++i )
 	{
