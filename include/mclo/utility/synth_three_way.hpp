@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mclo/platform/cpp_feature_compat.hpp"
+
 #include <compare>
 #include <concepts>
 
@@ -19,7 +21,9 @@ namespace mclo
 	struct synth_three_way
 	{
 		template <typename T, typename U>
-		[[nodiscard]] constexpr auto operator()( const T& lhs, const U& rhs )
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr auto operator()( const T& lhs,
+																		   const U& rhs ) MCLO_CONST_CALL_OPERATOR
+			noexcept( noexcept( lhs < rhs ) && noexcept( rhs < lhs ) )
 			requires requires {
 				{ lhs < rhs } -> detail::BooleanTestable;
 				{ rhs < lhs } -> detail::BooleanTestable;
