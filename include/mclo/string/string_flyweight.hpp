@@ -1,7 +1,8 @@
 #pragma once
 
+#include "mclo/allocator/arena_allocator.hpp"
+#include "mclo/memory/byte_literals.hpp"
 #include "mclo/memory/flexible_array.hpp"
-#include "mclo/platform/attributes.hpp"
 
 #include <mutex>
 #include <shared_mutex>
@@ -12,21 +13,20 @@ namespace mclo
 {
 	namespace detail
 	{
-		template <typename CharT, typename Traits = std::char_traits<CharT>, typename Allocator = std::allocator<CharT>>
+		template <typename Domain, typename CharT, typename Traits = std::char_traits<CharT>>
 		class string_flyweight_factory
 		{
 			using view = std::basic_string_view<CharT, Traits>;
-			using string = mclo::flexible_array<CharT, std::size_t, Allocator>;
-			using map_allocator = typename std::allocator_traits<Allocator>::template rebind_alloc<string>;
+			using arena_alloc = mclo::arena_allocator<CharT>;
+			using string = mclo::flexible_array<CharT, std::size_t, arena_alloc>;
 
 		public:
 			using handle = const string*;
 
-			string_flyweight_factory() = default;
-
-			explicit string_flyweight_factory( const Allocator& allocator )
-				: m_allocator( allocator )
+			[[nodiscard]] static string_flyweight_factory& instance() noexcept
 			{
+				static string_flyweight_factory instance;
+				return instance;
 			}
 
 			handle insert( const view str )
@@ -38,17 +38,25 @@ namespace mclo
 
 				{
 					const std::shared_lock lock( m_mutex );
-					auto it = m_strings.find( str );
+					const auto it = m_strings.find( str );
 					if ( it != m_strings.end() ) [[likely]]
 					{
 						return &*it;
 					}
 				}
 
-				string owned( str, m_allocator );
-
 				const std::scoped_lock lock( m_mutex );
 
+				// Re-check under the unique lock: another thread may have inserted the same string between releasing
+				// the shared lock and acquiring this one. The arena allocates under this lock and cannot reclaim
+				// individual allocations, so we must only allocate once we are certain the string is new.
+				const auto it = m_strings.find( str );
+				if ( it != m_strings.end() )
+				{
+					return &*it;
+				}
+
+				string owned( str, m_arena );
 				return &*m_strings.insert( std::move( owned ) ).first;
 			}
 
@@ -98,9 +106,22 @@ namespace mclo
 				}
 			};
 
+			string_flyweight_factory()
+			{
+				m_strings.reserve( 1024 );
+			}
+
+			/*
+			 * todo(mc) if read lock contention becomes heavy we can optimize this more using sharding, we store N
+			 * unordered sets and mutexes, and hash the string to determine which shard to use.
+			 * We'd also then want to avoid hashing repeatedly to determine shard and to find the string and potentially
+			 * use a different set implementation that is optimized for insertions and doesn't require deletions.
+			 * We'd also likely want one arena still to avoid wasting memory, so we'd need a lock free arena allocator.
+			 */
+
 			mutable std::shared_mutex m_mutex;
-			MCLO_NO_UNIQUE_ADDRESS Allocator m_allocator;
-			std::unordered_set<string, hasher, equal_to, map_allocator> m_strings{ map_allocator( m_allocator ) };
+			memory_arena m_arena{ 4_KiB };
+			std::unordered_set<string, hasher, equal_to> m_strings;
 		};
 	}
 
@@ -113,14 +134,10 @@ namespace mclo
 	/// have different mutexes so will not block each other.
 	/// @tparam CharT The type of character for the underlying strings
 	/// @tparam Traits The traits for the underlying strings
-	/// @tparam Allocator The allocator for the underlying strings
-	template <typename Domain,
-			  typename CharT,
-			  typename Traits = std::char_traits<CharT>,
-			  typename Allocator = std::allocator<CharT>>
+	template <typename Domain, typename CharT, typename Traits = std::char_traits<CharT>>
 	class basic_string_flyweight
 	{
-		using factory_t = detail::string_flyweight_factory<CharT, Traits, Allocator>;
+		using factory_t = detail::string_flyweight_factory<Domain, CharT, Traits>;
 
 	public:
 		using view = std::basic_string_view<CharT, Traits>;
@@ -128,13 +145,13 @@ namespace mclo
 		constexpr basic_string_flyweight() noexcept = default;
 
 		explicit basic_string_flyweight( const view str )
-			: m_handle( factory().insert( str ) )
+			: m_handle( factory_t::instance().insert( str ) )
 		{
 		}
 
 		basic_string_flyweight& operator=( const view str )
 		{
-			m_handle = factory().insert( str );
+			m_handle = factory_t::instance().insert( str );
 			return *this;
 		}
 
@@ -162,12 +179,6 @@ namespace mclo
 		}
 
 	private:
-		static factory_t& factory() noexcept
-		{
-			static factory_t instance;
-			return instance;
-		}
-
 		factory_t::handle m_handle{};
 	};
 
