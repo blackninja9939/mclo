@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "mclo/random/chacha20.hpp"
+#include "mclo/random/chacha.hpp"
 
 #include <array>
 #include <cstdint>

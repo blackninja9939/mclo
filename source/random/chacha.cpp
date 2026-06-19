@@ -1,4 +1,4 @@
-#include "mclo/random/chacha20.hpp"
+#include "mclo/random/chacha.hpp"
 
 #include "mclo/numeric/bit.hpp"
 
