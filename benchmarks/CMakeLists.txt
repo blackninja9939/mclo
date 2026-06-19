@@ -12,6 +12,7 @@ add_executable( benchmarks
 	"packed_int_vector_benchmarks.cpp"
 	"packed_int_array_benchmarks.cpp"
 	"radix_sort_benchmarks.cpp"
+	"random_generator_benchmarks.cpp"
 )
 
 target_link_libraries( benchmarks PRIVATE benchmark::benchmark benchmark::benchmark_main mclo mclo_compile_options )
