@@ -69,6 +69,8 @@ namespace mclo
 		template <typename BaseOp>
 		struct string_compare_ignore_case_t
 		{
+			using is_transparent = void;
+
 			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
 				const std::string_view lhs, const std::string_view rhs ) MCLO_CONST_CALL_OPERATOR noexcept
 			{

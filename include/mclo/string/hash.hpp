@@ -39,6 +39,8 @@ namespace mclo
 
 	struct string_hash_t
 	{
+		using is_transparent = void;
+
 		template <typename String>
 		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const String& string )
 			MCLO_CONST_CALL_OPERATOR noexcept
@@ -49,6 +51,8 @@ namespace mclo
 
 	struct string_hash_ignore_case_t
 	{
+		using is_transparent = void;
+
 		template <typename String>
 		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const String& string )
 			MCLO_CONST_CALL_OPERATOR noexcept
