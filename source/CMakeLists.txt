@@ -16,6 +16,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "hash/xxhash.cpp"
     "random/xoshiro256plusplus.cpp"
     "random/splitmix64.cpp"
+    "random/chacha20.cpp"
     "threading/mutex.cpp"
     "threading/condition_variable.cpp"
     "threading/thread_local_key.cpp"
