@@ -28,6 +28,7 @@ add_executable( tests
 	"small_vector_tests.cpp"
 	"xoshiro256plusplus_tests.cpp"
 	"splitmix64_tests.cpp"
+	"seed_mixing_tests.cpp"
 	"chacha_tests.cpp"
 	"random_generator_tests.cpp"
 	"mutex_tests.cpp"
