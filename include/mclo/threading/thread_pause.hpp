@@ -10,6 +10,11 @@
 
 namespace mclo
 {
+	/// @brief Emits a CPU pause/yield hint to improve the efficiency of busy-wait spin loops.
+	/// @details Issues the architecture-appropriate spin-loop hint instruction (e.g. x86 @c PAUSE, ARM @c YIELD).
+	/// This is a lightweight CPU-level hint that reduces power consumption and improves performance on hyper-threaded
+	/// cores while spinning. It is not a thread yield and does not relinquish the time slice to the scheduler.
+	/// @note Falls back to a @c nop, or no operation at all, on architectures without a dedicated spin hint.
 	MCLO_FORCE_INLINE void thread_pause() noexcept
 	{
 #ifdef MCLO_ARCH_X86

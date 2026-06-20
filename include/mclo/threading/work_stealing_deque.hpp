@@ -12,9 +12,9 @@ namespace mclo
 {
 	MCLO_DISABLE_WARNINGS( MCLO_WARNING_ALIGNMENT_PADDING )
 	/// @brief A lock-free work-stealing deque for managing data between multiple threads.
-	/// @tparam T The type of elements stored in the deque. Must be trivially copyable and destructible.
 	/// @details Based on the Chase-Lev work-stealing deque algorithm including the weak memory models fixes from
 	/// Nhat Minh Le, Antoniu Pop, Albert Cohen, and Francesco Zappa Nardelli.
+	/// @tparam T The type of elements stored in the deque. Must be trivially copyable and destructible.
 	template <typename T>
 	class work_stealing_deque
 	{
@@ -36,16 +36,16 @@ namespace mclo
 		}
 
 		/// @brief Get the current capacity of the deque.
-		/// @warning This capacity is approximate as other threads may be modifying the deque concurrently.
 		/// @return The approximate capacity of the deque.
+		/// @warning This capacity is approximate as other threads may be modifying the deque concurrently.
 		[[nodiscard]] std::size_t capacity() const
 		{
 			return m_storage.load( std::memory_order_acquire )->capacity();
 		}
 
 		/// @brief Get the current size of the deque.
-		/// @warning This size is approximate as other threads may be modifying the deque concurrently.
 		/// @return The approximate size of the deque.
+		/// @warning This size is approximate as other threads may be modifying the deque concurrently.
 		[[nodiscard]] std::size_t size() const
 		{
 			const std::int64_t bottom = m_bottom.load( std::memory_order_relaxed );
@@ -54,8 +54,8 @@ namespace mclo
 		}
 
 		/// @brief Check if the deque is empty.
-		/// @warning This check is approximate as other threads may be modifying the deque concurrently.
 		/// @return If the deque is potentially empty.
+		/// @warning This check is approximate as other threads may be modifying the deque concurrently.
 		[[nodiscard]] bool empty() const
 		{
 			const std::int64_t bottom = m_bottom.load( std::memory_order_relaxed );
@@ -64,9 +64,9 @@ namespace mclo
 		}
 
 		/// @brief Push a value onto the deque.
+		/// @details Will resize the internal storage if full. Old storage is only deleted on destruction of the deque.
 		/// @param value The value to push.
 		/// @warning Can only be called by the thread owning the deque.
-		/// @details Will resize the internal storage if full. Old storage is only deleted on destruction of the deque.
 		void push( T value )
 		{
 			const std::int64_t bottom = m_bottom.load( std::memory_order_relaxed );
@@ -86,8 +86,8 @@ namespace mclo
 		}
 
 		/// @brief Pop a value from the deque.
-		/// @warning Can only be called by the thread owning the deque.
 		/// @return The popped value, or std::nullopt if the deque is empty.
+		/// @warning Can only be called by the thread owning the deque.
 		std::optional<T> pop()
 		{
 			const std::int64_t bottom = m_bottom.load( std::memory_order_relaxed ) - 1;
@@ -130,8 +130,8 @@ namespace mclo
 		}
 
 		/// @brief Steal a value from the deque.
-		/// @warning Can be called by any thread.
 		/// @return The stolen value, or std::nullopt if the deque is empty.
+		/// @warning Can be called by any thread.
 		std::optional<T> steal()
 		{
 			std::int64_t top = m_top.load( std::memory_order_acquire );

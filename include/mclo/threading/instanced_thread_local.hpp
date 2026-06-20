@@ -12,6 +12,20 @@
 
 namespace mclo
 {
+	/// @brief A thread-local object that is instanced per owning container, allowing iteration over every thread's
+	/// copy.
+	/// @details Unlike the @c thread_local keyword, which creates a single object shared by all instances at a given
+	/// scope, each @c instanced_thread_local creates a distinct per-thread object for that specific instance. This
+	/// allows many independent thread-local containers to exist simultaneously. Each thread lazily allocates its own
+	/// object on first access via @c get(), and all live per-thread objects are linked together so they can be
+	/// iterated, for example to aggregate per-thread results. Per-thread objects are cache-line aligned to avoid false
+	/// sharing.
+	/// @tparam T The type of the per-thread object. Must be default constructible.
+	/// @tparam Allocator The allocator used to allocate per-thread objects.
+	/// @warning Iteration is not synchronised against concurrent access by other threads. You must only iterate once
+	/// you are certain that no other thread is still writing to its own object, since iteration reads each thread's
+	/// value without locking. Additionally, threads that have not yet accessed the object will not be visible, so newly
+	/// joining threads may be missed entirely.
 	template <typename T, typename Allocator = std::allocator<T>>
 	class instanced_thread_local
 	{
@@ -38,6 +52,7 @@ namespace mclo
 		using value_type = T;
 		using allocator_type = Allocator;
 
+		/// @brief A forward iterator over every thread's instance of the object.
 		class iterator : public list_iterator
 		{
 		public:
@@ -65,6 +80,8 @@ namespace mclo
 
 		instanced_thread_local() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
 
+		/// @brief Constructs the container using the given allocator.
+		/// @param allocator The allocator used to allocate per-thread objects.
 		explicit instanced_thread_local( const allocator_type& allocator ) noexcept
 			: m_allocator( allocator )
 		{
@@ -79,6 +96,12 @@ namespace mclo
 			} );
 		}
 
+		/// @brief Retrieves the calling thread's object, lazily creating it on first access.
+		/// @details The construction arguments are only used the first time this thread accesses the object; subsequent
+		/// calls from the same thread ignore them and return the existing object.
+		/// @param construct_args Arguments forwarded to the constructor of @c T when this thread's object is first
+		/// created.
+		/// @return A reference to the calling thread's object.
 		template <typename... Ts>
 		[[nodiscard]] T& get( Ts&&... construct_args )
 		{
@@ -92,26 +115,36 @@ namespace mclo
 			return data->m_object;
 		}
 
+		/// @brief Retrieves the calling thread's object, lazily default-creating it on first access.
+		/// @return A reference to the calling thread's object.
 		[[nodiscard]] T& operator*()
 		{
 			return get();
 		}
 
+		/// @brief Accesses the calling thread's object, lazily default-creating it on first access.
+		/// @return A pointer to the calling thread's object.
 		[[nodiscard]] T* operator->()
 		{
 			return std::addressof( get() );
 		}
 
+		/// @brief Returns an iterator to the first thread's object.
+		/// @return An iterator to the beginning of the range of per-thread objects.
 		[[nodiscard]] iterator begin() noexcept
 		{
 			return iterator( m_list.begin() );
 		}
 
+		/// @brief Returns an iterator past the last thread's object.
+		/// @return An iterator to the end of the range of per-thread objects.
 		[[nodiscard]] iterator end() noexcept
 		{
 			return iterator( m_list.end() );
 		}
 
+		/// @brief Returns the allocator used to allocate per-thread objects.
+		/// @return A copy of the allocator.
 		allocator_type get_allocator() const noexcept
 		{
 			return m_allocator;
@@ -140,6 +173,14 @@ namespace mclo
 		MCLO_NO_UNIQUE_ADDRESS allocator_type m_allocator;
 	};
 
+	/// @brief A lightweight per-instance thread-local holder for a small, trivially copyable value.
+	/// @details Stores the value directly inside a single thread-local storage slot rather than allocating a separate
+	/// per-thread object, making it cheaper than @c instanced_thread_local but limited to values that fit within a
+	/// pointer. Unlike @c instanced_thread_local it does not track or allow iteration over the values stored by other
+	/// threads. Each thread sees its own independent value, zero-initialised until first set.
+	/// @tparam T The stored value type. Must be trivially copyable, trivially destructible, and no larger than a
+	/// pointer.
+	/// @see instanced_thread_local
 	template <typename T>
 	class instanced_thread_local_value
 	{
@@ -150,6 +191,8 @@ namespace mclo
 
 		using value_type = T;
 
+		/// @brief Retrieves the calling thread's value.
+		/// @return The value previously stored by this thread, or a zero-initialised value if none has been set.
 		[[nodiscard]] T get() noexcept
 		{
 			if constexpr ( std::is_pointer_v<T> )
@@ -162,6 +205,8 @@ namespace mclo
 			}
 		}
 
+		/// @brief Sets the value stored for the calling thread.
+		/// @param value The value to store for the current thread.
 		void set( T value )
 		{
 			if constexpr ( std::is_pointer_v<T> )
@@ -180,6 +225,7 @@ namespace mclo
 
 	namespace pmr
 	{
+		/// @brief Alias for @c instanced_thread_local using a polymorphic allocator.
 		template <typename T>
 		using instanced_thread_local = mclo::instanced_thread_local<T, std::pmr::polymorphic_allocator<T>>;
 	}

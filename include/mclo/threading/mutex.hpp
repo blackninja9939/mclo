@@ -6,6 +6,12 @@
 
 namespace mclo
 {
+	/// @brief A mutex that is functionally identical to @c std::mutex but optimised for size on Windows.
+	/// @details Provides the same interface and semantics as @c std::mutex. On Windows it stores only a single pointer
+	/// and uses a Slim Reader/Writer (SRW) lock directly. @c std::mutex is implemented on top of the very same SRW
+	/// lock, but for ABI stability reasons its standard library type is padded out to a much larger size, so this type
+	/// is a drop-in replacement with a smaller footprint. On all other platforms it is simply an alias for @c
+	/// std::mutex.
 #ifdef MCLO_OS_WINDOWS
 	class [[nodiscard]] mutex
 	{
