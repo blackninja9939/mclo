@@ -1,7 +1,9 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 
+#include "mclo/debug/assert.hpp"
 #include "mclo/platform/os_detection.hpp"
 #include "mclo/threading/mutex.hpp"
 
@@ -17,16 +19,17 @@ namespace mclo
 #ifdef MCLO_OS_WINDOWS
 	class condition_variable
 	{
+		// Windows timed waits must be less than INFINITE milliseconds, and waiting longer than this is not feasible in
+		// practice, so longer requests are clamped to this maximum and then checked in a loop.
+		static constexpr std::chrono::milliseconds max_wait_time{ std::chrono::hours{ 24 } };
+
 		template <typename Rep, typename Period>
 		[[nodiscard]] static constexpr unsigned long clamp_wait_time_to_ms(
 			const std::chrono::duration<Rep, Period>& relative_time ) noexcept
 		{
-			// Must Clamp so that relative_time is less than Windows INFINITE milliseconds.
-			constexpr std::chrono::milliseconds clamp{ std::chrono::hours{ 24 } };
-
-			if ( relative_time > clamp )
+			if ( relative_time > max_wait_time )
 			{
-				return static_cast<unsigned long>( clamp.count() );
+				return static_cast<unsigned long>( max_wait_time.count() );
 			}
 			else
 			{
@@ -48,6 +51,7 @@ namespace mclo
 		template <typename Predicate>
 		void wait( std::unique_lock<mclo::mutex>& lock, Predicate pred )
 		{
+			DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 			while ( !pred() )
 			{
 				wait( lock );
@@ -56,21 +60,18 @@ namespace mclo
 
 		template <typename Rep, typename Period>
 		std::cv_status wait_for( std::unique_lock<mclo::mutex>& lock,
-								 const std::chrono::duration<Rep, Period>& relative_time )
+								 const std::chrono::duration<Rep, Period> relative_time )
 		{
-			if ( wait_for_ms( lock, clamp_wait_time_to_ms( relative_time ) ) )
-			{
-				return std::cv_status::no_timeout;
-			}
-			else
+			if ( relative_time <= std::chrono::duration<Rep, Period>::zero() )
 			{
 				return std::cv_status::timeout;
 			}
+			return wait_until( lock, std::chrono::steady_clock::now() + relative_time );
 		}
 
 		template <typename Rep, typename Period, typename Predicate>
 		bool wait_for( std::unique_lock<mclo::mutex>& lock,
-					   const std::chrono::duration<Rep, Period>& relative_time,
+					   const std::chrono::duration<Rep, Period> relative_time,
 					   Predicate pred )
 		{
 			return wait_until( lock, std::chrono::steady_clock::now() + relative_time, pred );
@@ -78,24 +79,35 @@ namespace mclo
 
 		template <typename Clock, typename Duration>
 		std::cv_status wait_until( std::unique_lock<mclo::mutex>& lock,
-								   const std::chrono::time_point<Clock, Duration>& absolute_time )
+								   const std::chrono::time_point<Clock, Duration> absolute_time )
 		{
-			const auto now = Clock::now();
-			if ( now >= absolute_time )
+			static_assert( std::chrono::is_clock_v<Clock>, "Clock must be a clock type" );
+			DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
+			// Loop because the wait time is clamped to a maximum, so a single timed wait may expire before the real
+			// deadline. Each iteration waits for the clamped remaining time until the deadline is genuinely reached.
+			for ( ;; )
 			{
-				return std::cv_status::timeout;
-			}
-			else
-			{
-				return wait_for( lock, absolute_time - now );
+				const auto now = Clock::now();
+				if ( absolute_time <= now )
+				{
+					return std::cv_status::timeout;
+				}
+
+				// A successful wait means we were woken, either by a notification or a spurious OS wakeup.
+				if ( wait_for_ms( lock, clamp_wait_time_to_ms( absolute_time - now ) ) )
+				{
+					return std::cv_status::no_timeout;
+				}
 			}
 		}
 
 		template <typename Clock, typename Duration, typename Predicate>
 		bool wait_until( std::unique_lock<mclo::mutex>& lock,
-						 const std::chrono::time_point<Clock, Duration>& absolute_time,
+						 const std::chrono::time_point<Clock, Duration> absolute_time,
 						 Predicate pred )
 		{
+			static_assert( std::chrono::is_clock_v<Clock>, "Clock must be a clock type" );
+			DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 			while ( !pred() )
 			{
 				if ( wait_until( lock, absolute_time ) == std::cv_status::timeout )

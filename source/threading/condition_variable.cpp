@@ -3,8 +3,6 @@
 #ifdef MCLO_OS_WINDOWS
 #include "mclo/platform/windows_wrapper.h"
 
-#include "mclo/debug/assert.hpp"
-
 namespace mclo
 {
 	static_assert( sizeof( CONDITION_VARIABLE ) == sizeof( mclo::condition_variable ),
@@ -27,6 +25,7 @@ namespace mclo
 
 	void condition_variable::wait( std::unique_lock<mclo::mutex>& lock )
 	{
+		DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 		if ( !wait_for_ms( lock, INFINITE ) )
 		{
 			std::abort();
@@ -36,7 +35,6 @@ namespace mclo
 	bool condition_variable::wait_for_ms( std::unique_lock<mclo::mutex>& lock, unsigned long ms )
 	{
 		static_assert( std::is_same_v<unsigned long, DWORD>, "DWORD must be the same as unsigned long" );
-		DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 		return SleepConditionVariableSRW( CAST_COND_VAR, CAST_LOCK( &lock.mutex()->m_buffer ), ms, 0 ) != 0;
 	}
 
