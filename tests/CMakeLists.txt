@@ -68,6 +68,7 @@ add_executable( tests
 	"packed_int_array_tests.cpp"
 	"radix_sort_tests.cpp"
 	"triangular_layout_tests.cpp"
+	"shared_library_tests.cpp"
 )
 
 target_compile_definitions( 
@@ -77,6 +78,12 @@ target_compile_definitions(
 		CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
 )
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo mclo_compile_options )
+
+# A small shared library loaded at runtime by the shared_library tests
+add_library( test_module SHARED "test_module/test_module.cpp" )
+target_link_libraries( test_module PRIVATE mclo )
+add_dependencies( tests test_module )
+target_compile_definitions( tests PRIVATE TEST_MODULE_PATH="$<TARGET_FILE:test_module>" )
 
 include(Catch)
 catch_discover_tests(tests)
