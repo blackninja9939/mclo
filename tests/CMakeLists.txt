@@ -33,6 +33,7 @@ add_executable( tests
 	"random_generator_tests.cpp"
 	"mutex_tests.cpp"
 	"sem_version_tests.cpp"
+	"synchronized_tests.cpp"
 	"try_tests.cpp"
 	"intrusive_ptr_tests.cpp"
 	"hash_table_tests.cpp"
