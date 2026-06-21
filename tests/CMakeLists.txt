@@ -70,6 +70,7 @@ add_executable( tests
 	"radix_sort_tests.cpp"
 	"triangular_layout_tests.cpp"
 	"shared_library_tests.cpp"
+	"map_lookup_tests.cpp"
 )
 
 target_compile_definitions( 
