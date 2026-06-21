@@ -4,6 +4,15 @@
 
 namespace mclo
 {
+	/// @brief Allocates and constructs a single @p T using an allocator.
+	/// @details Rebinds @p allocator to @p T, allocates storage for one object and constructs it from @p args. If
+	/// construction throws the storage is deallocated and the exception rethrown.
+	/// @tparam T The type to allocate and construct.
+	/// @tparam Allocator The allocator type, rebound to @p T internally.
+	/// @tparam Args The constructor argument types.
+	/// @param allocator The allocator to allocate and construct with.
+	/// @param args The arguments forwarded to the constructor of @p T.
+	/// @return The allocator's pointer to the constructed object.
 	template <typename T, typename Allocator, typename... Args>
 	[[nodiscard]] auto allocator_new( Allocator& allocator, Args&&... args )
 	{
@@ -25,6 +34,11 @@ namespace mclo
 		}
 	}
 
+	/// @brief Destroys and deallocates an object previously created with @ref allocator_new.
+	/// @tparam Allocator The allocator type, rebound to the pointee type internally.
+	/// @tparam P The pointer type to the object to destroy.
+	/// @param allocator The allocator that owns the storage.
+	/// @param ptr Pointer to the object to destroy and deallocate.
 	template <typename Allocator, typename P>
 	void allocator_delete( Allocator& allocator, P ptr )
 	{
@@ -37,6 +51,10 @@ namespace mclo
 		traits::deallocate( alloc_instance, ptr, 1 );
 	}
 
+	/// @brief Deleter that destroys an object via an allocator, for use with @c std::unique_ptr.
+	/// @details Inherits from the allocator to benefit from empty base optimization and calls @ref allocator_delete
+	/// on invocation.
+	/// @tparam Allocator The allocator type used to destroy and deallocate the object.
 	template <typename Allocator>
 	struct allocation_deleter : public Allocator
 	{
@@ -59,6 +77,15 @@ namespace mclo
 		}
 	};
 
+	/// @brief Creates a @c std::unique_ptr owning a @p T allocated and constructed via an allocator.
+	/// @details Like @c std::make_unique but uses @p allocator for allocation and construction, returning a unique
+	/// pointer whose deleter is an @ref allocation_deleter. Array types are not supported.
+	/// @tparam T The type to allocate and construct.
+	/// @tparam Allocator The allocator type, rebound to @p T internally.
+	/// @tparam Args The constructor argument types.
+	/// @param allocator The allocator to allocate and construct with.
+	/// @param args The arguments forwarded to the constructor of @p T.
+	/// @return A @c std::unique_ptr owning the constructed object with an allocator-aware deleter.
 	template <typename T, typename Allocator, typename... Args>
 	[[nodiscard]] auto allocate_unique( Allocator& allocator, Args&&... args )
 	{

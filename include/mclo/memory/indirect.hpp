@@ -6,6 +6,7 @@
 
 namespace mclo
 {
+	/// @brief An owning wrapper holding a heap-allocated value of @p T with value (deep-copy) semantics.
 	using std::indirect;
 }
 
@@ -23,6 +24,12 @@ namespace mclo
 
 namespace mclo
 {
+	/// @brief An owning wrapper holding a heap-allocated value of @p T with value (deep-copy) semantics.
+	/// @details A polyfill for C++26 @c std::indirect, used when the standard library does not provide it. It behaves
+	/// like a value of @p T but stores it indirectly on the heap, giving a stable address and supporting incomplete
+	/// types. See @c std::indirect for the full interface.
+	/// @tparam T The owned value type.
+	/// @tparam Allocator The allocator used for the owned value's storage.
 	template <typename T, typename Allocator = std::allocator<T>>
 	class indirect
 	{

@@ -6,6 +6,7 @@
 
 namespace mclo
 {
+	/// @brief An owning wrapper holding a value of @p T or any type derived from it, with deep-copy value semantics.
 	using std::polymorphic;
 }
 
@@ -22,6 +23,12 @@ namespace mclo
 
 namespace mclo
 {
+	/// @brief An owning wrapper holding a value of @p T or any type derived from it, with deep-copy value semantics.
+	/// @details A polyfill for C++26 @c std::polymorphic, used when the standard library does not provide it. Unlike
+	/// @c std::unique_ptr it copies the owned object (preserving its dynamic type) on copy, yielding a regular value
+	/// type that still supports runtime polymorphism. See @c std::polymorphic for the full interface.
+	/// @tparam T The base type of the owned object.
+	/// @tparam Allocator The allocator used for the owned object's storage.
 	template <typename T, typename Allocator = std::allocator<T>>
 	class polymorphic
 	{
