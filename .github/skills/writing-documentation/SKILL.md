@@ -197,6 +197,31 @@ Use `@code` and `@endcode` to embed inline code examples within a documentation 
 
 Do **not** use `@example` for inline snippets — `@example` is a Doxygen command that references an external example file.
 
+## Config-Dependent Macros
+
+When a macro expands differently across `#ifdef`/`#else` branches (platform, compiler, or build-config dependent), do **not** attach the documentation comment to one branch. Doxygen's preprocessor and the IDE's IntelliSense each only see the single branch active for their configuration, so the comment would be missing whenever the other branch is taken.
+
+Instead, hide the branching in an undocumented `MCLO_DETAIL_*` helper and document a single, unconditionally-defined public macro that forwards to it:
+
+```cpp
+#ifdef MCLO_COMPILER_MSVC
+#define MCLO_DETAIL_FORCE_INLINE __forceinline
+#elif defined( MCLO_COMPILER_GCC_COMPATIBLE )
+#define MCLO_DETAIL_FORCE_INLINE inline [[gnu::always_inline]]
+#else
+#define MCLO_DETAIL_FORCE_INLINE inline
+#endif
+
+/// @brief Strongly requests that a function be inlined regardless of the compiler's heuristics.
+#define MCLO_FORCE_INLINE MCLO_DETAIL_FORCE_INLINE
+```
+
+The public macro is defined exactly once with the doc comment directly above it, so both Doxygen output and IDE hover always show the documentation. The `MCLO_DETAIL_*` helpers are internal and left undocumented. For function-like macros, forward the arguments:
+
+```cpp
+#define MCLO_HAS_BUILTIN( X ) MCLO_DETAIL_HAS_BUILTIN( X )
+```
+
 ## Tag Order
 
 When multiple tags appear, use this order:
