@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mclo/numeric/saturated_math.hpp"
+#include "mclo/utility/from_underlying.hpp"
 
 #include <cinttypes>
 #include <concepts>
@@ -8,12 +9,6 @@
 
 namespace mclo
 {
-	struct from_underlying_t
-	{
-		explicit from_underlying_t() = default;
-	};
-	inline constexpr from_underlying_t from_underlying{};
-
 	/// @brief Represents a Float object as normalized between 0.0 and 1.0 using an Underlying unsigned integer,
 	/// saturates input value and arithmetic to maintain nomralization invariant
 	/// @tparam Intermediary unsigned_integral type used for multiplication and division to prevent overflow, must be

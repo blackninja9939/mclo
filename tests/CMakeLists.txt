@@ -50,6 +50,7 @@ add_executable( tests
 	"overflowing_math_tests.cpp"
 	"saturated_math_tests.cpp"
 	"normalized_float_tests.cpp"
+	"fixed_point_tests.cpp"
 	"type_id_set_tests.cpp"
 	"lazy_convert_construct_tests.cpp"
 	"wide_convert_tests.cpp"
