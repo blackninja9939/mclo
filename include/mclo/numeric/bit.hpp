@@ -17,6 +17,10 @@ namespace mclo
 {
 #ifdef __cpp_lib_byteswap
 
+	/// @brief Reverses the order of the bytes in an integer, swapping between big and little endian.
+	/// @tparam T The integer type of the value.
+	/// @param value The value whose bytes to reverse.
+	/// @return @p value with its byte order reversed.
 	using std::byteswap;
 #else
 	namespace detail
@@ -30,6 +34,10 @@ namespace mclo
 		}
 	}
 
+	/// @brief Reverses the order of the bytes in an integer, swapping between big and little endian.
+	/// @tparam T The integer type of the value.
+	/// @param value The value whose bytes to reverse.
+	/// @return @p value with its byte order reversed.
 	template <std::integral T>
 	[[nodiscard]] constexpr T byteswap( const T value ) noexcept
 	{
@@ -70,6 +78,10 @@ namespace mclo
 	}
 #endif
 
+	/// @brief Reverses the order of the bits in an integer.
+	/// @tparam T The unsigned integer type of the value.
+	/// @param value The value whose bits to reverse.
+	/// @return @p value with the order of all its bits reversed.
 	template <std::unsigned_integral T>
 	constexpr T bit_reverse( T value ) noexcept
 	{
@@ -107,6 +119,13 @@ namespace mclo
 #endif
 	}
 
+	/// @brief Tiles the lowest @p length bits of a value to fill the whole integer width.
+	/// @details Each bit @c i of the result is taken from bit @c i % length of @p value, repeating the
+	/// low @p length bit pattern across the full width of @p T.
+	/// @tparam T The unsigned integer type of the value.
+	/// @param value The value whose lowest @p length bits form the pattern to repeat.
+	/// @param length The number of low bits that make up the repeating pattern.
+	/// @return The repeating bit pattern expanded to fill @p T.
 	template <std::unsigned_integral T>
 	constexpr T bit_repeat( const T value, const int length ) noexcept
 	{
@@ -149,6 +168,13 @@ namespace mclo
 		}
 	}
 
+	/// @brief Gathers the bits of a value selected by a mask into the contiguous low-order bits of the result.
+	/// @details Equivalent to the x86 @c PEXT (parallel bit extract) operation, using the hardware instruction
+	/// when BMI2 is available and falling back to a portable implementation otherwise.
+	/// @tparam T The unsigned integer type of the operands.
+	/// @param x The value to extract bits from.
+	/// @param m The mask selecting which bits of @p x to gather.
+	/// @return The bits of @p x where @p m is set, packed into the low-order bits in order.
 	template <std::unsigned_integral T>
 	constexpr T bit_compress( const T x, const T m ) noexcept
 	{
@@ -174,6 +200,14 @@ namespace mclo
 		return detail::bit_compress( x, m );
 	}
 
+	/// @brief Scatters the contiguous low-order bits of a value into the positions selected by a mask.
+	/// @details Equivalent to the x86 @c PDEP (parallel bit deposit) operation, using the hardware instruction
+	/// when BMI2 is available and falling back to a portable implementation otherwise. It is the inverse of
+	/// @ref bit_compress for the same mask.
+	/// @tparam T The unsigned integer type of the operands.
+	/// @param x The value whose low-order bits to deposit.
+	/// @param m The mask selecting which result bits to fill.
+	/// @return A value with the low-order bits of @p x placed at the positions where @p m is set.
 	template <std::unsigned_integral T>
 	constexpr T bit_expand( const T x, const T m ) noexcept
 	{

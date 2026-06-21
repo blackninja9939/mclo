@@ -4,6 +4,11 @@
 
 namespace mclo
 {
+	/// @brief Adds two integers, clamping the result on overflow instead of wrapping.
+	/// @tparam T The integer type of the operands.
+	/// @param x The first operand.
+	/// @param y The second operand.
+	/// @return The sum of @p x and @p y, clamped to the range of @p T if the addition overflowed.
 	template <standard_integral T>
 	[[nodiscard]] constexpr T saturating_add( const T x, const T y ) noexcept
 	{
@@ -28,6 +33,11 @@ namespace mclo
 		}
 	}
 
+	/// @brief Subtracts two integers, clamping the result on overflow instead of wrapping.
+	/// @tparam T The integer type of the operands.
+	/// @param x The value to subtract from.
+	/// @param y The value to subtract.
+	/// @return The result of @p x minus @p y, clamped to the range of @p T if the subtraction overflowed.
 	template <standard_integral T>
 	[[nodiscard]] constexpr T saturating_sub( const T x, const T y ) noexcept
 	{
@@ -52,6 +62,11 @@ namespace mclo
 		}
 	}
 
+	/// @brief Multiplies two integers, clamping the result on overflow instead of wrapping.
+	/// @tparam T The integer type of the operands.
+	/// @param x The first operand.
+	/// @param y The second operand.
+	/// @return The product of @p x and @p y, clamped to the range of @p T if the multiplication overflowed.
 	template <standard_integral T>
 	[[nodiscard]] constexpr T saturating_mul( const T x, const T y ) noexcept
 	{
@@ -76,6 +91,12 @@ namespace mclo
 		}
 	}
 
+	/// @brief Divides two integers, clamping the result on overflow instead of wrapping.
+	/// @tparam T The integer type of the operands.
+	/// @param x The dividend.
+	/// @param y The divisor.
+	/// @return The result of @p x divided by @p y, clamped to the range of @p T if the division overflowed.
+	/// @pre @p y must not be zero.
 	template <standard_integral T>
 	[[nodiscard]] constexpr T saturating_div( const T x, const T y ) MCLO_NOEXCEPT_TESTS
 	{
@@ -100,6 +121,11 @@ namespace mclo
 		}
 	}
 
+	/// @brief Casts an integer to a different integer type, clamping to the target range instead of wrapping.
+	/// @tparam T The integer type to cast to.
+	/// @tparam U The integer type of the input value.
+	/// @param x The value to cast.
+	/// @return @p x converted to @p T, clamped to the representable range of @p T.
 	template <standard_integral T, standard_integral U>
 	[[nodiscard]] constexpr T saturating_cast( const U x ) noexcept
 	{
