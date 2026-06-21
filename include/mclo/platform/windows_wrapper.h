@@ -18,6 +18,9 @@
 
 namespace mclo
 {
+	/// @brief Returns an @c std::error_code describing the calling thread's last Windows error.
+	/// @details Wraps @c GetLastError and maps it onto the system error category.
+	/// @return An error code for the most recent failed Windows API call on the calling thread.
 	[[nodiscard]] std::error_code last_error_code() noexcept;
 }
 
