@@ -141,3 +141,29 @@ TEST_CASE( "align_up", "[math]" )
 	CONSTEVAL_CHECK( mclo::align_up( 7u, 8u ) == 8u );
 	CONSTEVAL_CHECK( mclo::align_up( 9u, 8u ) == 16u );
 }
+
+TEST_CASE( "align_down", "[math]" )
+{
+	CHECK_ASSERTS( mclo::align_down( 0u, 3u ), "Alignment must be a power of 2" );
+	CONSTEVAL_CHECK( mclo::align_down( 0u, 4u ) == 0u );
+	CONSTEVAL_CHECK( mclo::align_down( 1u, 4u ) == 0u );
+	CONSTEVAL_CHECK( mclo::align_down( 2u, 4u ) == 0u );
+	CONSTEVAL_CHECK( mclo::align_down( 3u, 4u ) == 0u );
+	CONSTEVAL_CHECK( mclo::align_down( 4u, 4u ) == 4u );
+	CONSTEVAL_CHECK( mclo::align_down( 5u, 4u ) == 4u );
+	CONSTEVAL_CHECK( mclo::align_down( 7u, 8u ) == 0u );
+	CONSTEVAL_CHECK( mclo::align_down( 9u, 8u ) == 8u );
+}
+
+TEST_CASE( "is_aligned", "[math]" )
+{
+	CHECK_ASSERTS( mclo::is_aligned( 0u, 3u ), "Alignment must be a power of 2" );
+	CONSTEVAL_CHECK( mclo::is_aligned( 0u, 4u ) );
+	CONSTEVAL_CHECK( !mclo::is_aligned( 1u, 4u ) );
+	CONSTEVAL_CHECK( !mclo::is_aligned( 2u, 4u ) );
+	CONSTEVAL_CHECK( !mclo::is_aligned( 3u, 4u ) );
+	CONSTEVAL_CHECK( mclo::is_aligned( 4u, 4u ) );
+	CONSTEVAL_CHECK( !mclo::is_aligned( 5u, 4u ) );
+	CONSTEVAL_CHECK( mclo::is_aligned( 8u, 8u ) );
+	CONSTEVAL_CHECK( !mclo::is_aligned( 9u, 8u ) );
+}
