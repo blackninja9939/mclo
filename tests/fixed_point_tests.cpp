@@ -124,6 +124,25 @@ TEST_CASE( "fixed_point compound assignment", "[math][fixed_point]" )
 	CHECK( value == binary( 3 ) );
 }
 
+TEST_CASE( "fixed_point increment and decrement", "[math][fixed_point]" )
+{
+	binary value( 1 );
+	CHECK( ++value == binary( 2 ) );
+	CHECK( value == binary( 2 ) );
+	CHECK( value++ == binary( 2 ) );
+	CHECK( value == binary( 3 ) );
+	CHECK( --value == binary( 2 ) );
+	CHECK( value == binary( 2 ) );
+	CHECK( value-- == binary( 2 ) );
+	CHECK( value == binary( 1 ) );
+
+	decimal frac( 1.25 );
+	++frac;
+	CHECK( frac == decimal( 2.25 ) );
+	--frac;
+	CHECK( frac == decimal( 1.25 ) );
+}
+
 TEST_CASE( "fixed_point comparison", "[math][fixed_point]" )
 {
 	CONSTEVAL_CHECK( binary( 1 ) < binary( 2 ) );

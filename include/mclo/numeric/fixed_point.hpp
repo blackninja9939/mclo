@@ -252,6 +252,36 @@ namespace mclo
 			return *this;
 		}
 
+		/// @brief Increment by one whole unit
+		constexpr fixed_point& operator++() noexcept
+		{
+			m_value = static_cast<Rep>( static_cast<unsigned_type>( m_value ) + static_cast<unsigned_type>( scale ) );
+			return *this;
+		}
+
+		/// @brief Increment by one whole unit, returning the value before the change
+		constexpr fixed_point operator++( int ) noexcept
+		{
+			const fixed_point old = *this;
+			++*this;
+			return old;
+		}
+
+		/// @brief Decrement by one whole unit
+		constexpr fixed_point& operator--() noexcept
+		{
+			m_value = static_cast<Rep>( static_cast<unsigned_type>( m_value ) - static_cast<unsigned_type>( scale ) );
+			return *this;
+		}
+
+		/// @brief Decrement by one whole unit, returning the value before the change
+		constexpr fixed_point operator--( int ) noexcept
+		{
+			const fixed_point old = *this;
+			--*this;
+			return old;
+		}
+
 		/// @brief Absolute value, found by ADL to act as a customization point for std::abs style usage
 		[[nodiscard]] constexpr friend fixed_point abs( const fixed_point value ) noexcept
 			requires( std::is_signed_v<Rep> )

@@ -181,12 +181,12 @@ namespace mclo
 
 			[[nodiscard]] constexpr normalized_float16 operator""_nf16( const long double value ) noexcept
 			{
-				return static_cast<float>( value );
+				return static_cast<double>( value );
 			}
 
 			[[nodiscard]] constexpr normalized_float16 operator""_nf16( const unsigned long long value ) noexcept
 			{
-				return static_cast<float>( value );
+				return static_cast<double>( value );
 			}
 		}
 	}
@@ -225,7 +225,8 @@ public:
 
 	static constexpr type min() noexcept
 	{
-		return type( mclo::from_underlying, underlying_limits::min() );
+		// Smallest positive value, a single step above zero
+		return type( mclo::from_underlying, Underlying( 1 ) );
 	}
 
 	static constexpr type lowest() noexcept
@@ -245,26 +246,28 @@ public:
 
 	static constexpr type round_error() noexcept
 	{
-		return type( mclo::from_underlying, underlying_limits::round_error() );
+		// Truncation toward zero loses up to one unit in the last place
+		return type( mclo::from_underlying, Underlying( 1 ) );
 	}
 
 	static constexpr type infinity() noexcept
 	{
-		return type( mclo::from_underlying, underlying_limits::infinity() );
+		return type();
 	}
 
 	static constexpr type quiet_NaN() noexcept
 	{
-		return type( mclo::from_underlying, underlying_limits::quiet_NaN() );
+		return type();
 	}
 
 	static constexpr type signaling_NaN() noexcept
 	{
-		return type( mclo::from_underlying, underlying_limits::signaling_NaN() );
+		return type();
 	}
 
 	static constexpr type denorm_min() noexcept
 	{
-		return type( mclo::from_underlying, underlying_limits::denorm_min() );
+		// Subnormals are not supported, so this equals the minimum positive value
+		return min();
 	}
 };
