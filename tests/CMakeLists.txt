@@ -71,6 +71,8 @@ add_executable( tests
 	"triangular_layout_tests.cpp"
 	"shared_library_tests.cpp"
 	"map_lookup_tests.cpp"
+	"atomic128_tests.cpp"
+	"atomic_shared_ptr_tests.cpp"
 )
 
 target_compile_definitions( 
