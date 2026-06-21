@@ -6,6 +6,18 @@
 
 namespace mclo
 {
+	/// @brief Finds the element with the smallest score, as produced by a scoring function.
+	/// @details Each element is scored once via @p score and the scores compared with @p compare.
+	/// @tparam It Forward iterator type for the input range.
+	/// @tparam Sentinel Sentinel type for @p It.
+	/// @tparam Scorer Invocable mapping an element to a comparable score.
+	/// @tparam Compare Binary predicate establishing a strict ordering of scores.
+	/// @param first Iterator to the first element of the range.
+	/// @param last Sentinel denoting the end of the range.
+	/// @param score Functor producing the score for each element.
+	/// @param compare Comparator returning true when the first score orders before the second.
+	/// @return Iterator to the lowest-scored element, or @p last if the range is empty. The first
+	/// such element is returned on ties.
 	template <std::forward_iterator It,
 			  std::sentinel_for<It> Sentinel,
 			  std::invocable<std::iter_reference_t<It>> Scorer,
@@ -35,6 +47,18 @@ namespace mclo
 		return min_it;
 	}
 
+	/// @brief Finds the element with the largest score, as produced by a scoring function.
+	/// @details Each element is scored once via @p score and the scores compared with @p compare.
+	/// @tparam It Forward iterator type for the input range.
+	/// @tparam Sentinel Sentinel type for @p It.
+	/// @tparam Scorer Invocable mapping an element to a comparable score.
+	/// @tparam Compare Binary predicate establishing a strict ordering of scores.
+	/// @param first Iterator to the first element of the range.
+	/// @param last Sentinel denoting the end of the range.
+	/// @param score Functor producing the score for each element.
+	/// @param compare Comparator returning true when the first score orders before the second.
+	/// @return Iterator to the highest-scored element, or @p last if the range is empty. The first
+	/// such element is returned on ties.
 	template <std::forward_iterator It,
 			  std::sentinel_for<It> Sentinel,
 			  std::invocable<std::iter_reference_t<It>> Scorer,
@@ -64,6 +88,18 @@ namespace mclo
 		return max_it;
 	}
 
+	/// @brief Finds the elements with the smallest and largest scores in a single pass.
+	/// @details Each element is scored once via @p score and the scores compared with @p compare.
+	/// @tparam It Forward iterator type for the input range.
+	/// @tparam Sentinel Sentinel type for @p It.
+	/// @tparam Scorer Invocable mapping an element to a comparable score.
+	/// @tparam Compare Binary predicate establishing a strict ordering of scores.
+	/// @param first Iterator to the first element of the range.
+	/// @param last Sentinel denoting the end of the range.
+	/// @param score Functor producing the score for each element.
+	/// @param compare Comparator returning true when the first score orders before the second.
+	/// @return A pair of iterators to the lowest- and highest-scored elements respectively, or
+	/// { last, last } if the range is empty.
 	template <std::forward_iterator It,
 			  std::sentinel_for<It> Sentinel,
 			  std::invocable<std::iter_reference_t<It>> Scorer,

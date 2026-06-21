@@ -2,6 +2,9 @@
 
 namespace mclo
 {
+	/// @brief True if T is a specialization of the class template Template
+	/// @tparam T The type to inspect
+	/// @tparam Template The class template to test against
 	template <typename T, template <typename...> class Template>
 	constexpr bool is_specialization_of_v = false;
 
