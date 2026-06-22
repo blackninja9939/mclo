@@ -139,7 +139,7 @@ namespace mclo
 
 	namespace detail
 	{
-		[[nodiscard]] bool has_bmi2() noexcept;
+		extern const bool has_bmi2;
 
 		template <std::unsigned_integral T>
 		constexpr T bit_compress( const T x, const T m ) noexcept
@@ -182,7 +182,7 @@ namespace mclo
 		{
 			return detail::bit_compress( x, m );
 		}
-		else if ( detail::has_bmi2() )
+		else if ( detail::has_bmi2 )
 		{
 			if constexpr ( sizeof( T ) <= 4 )
 			{
@@ -215,7 +215,7 @@ namespace mclo
 		{
 			return detail::bit_expand( x, m );
 		}
-		else if ( detail::has_bmi2() )
+		else if ( detail::has_bmi2 )
 		{
 			if constexpr ( sizeof( T ) <= 4 )
 			{
