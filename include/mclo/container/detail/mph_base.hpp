@@ -14,8 +14,13 @@
 
 namespace mclo
 {
-	// These hashes need to be very simple operations for constant evaluation but also give some decent amount of
-	// entropy
+	/// @brief Customisation point providing a constexpr, salted hash for keys of a minimal perfect hash container.
+	/// @details The hash takes a key and a salt and must be a simple, fully @c constexpr operation that still yields a
+	/// good spread of entropy, since it is evaluated repeatedly at compile time while building the perfect hash.
+	/// Specialise
+	/// @c mph_hash for custom key types. Specialisations are provided for integral and enum types, types convertible to
+	/// @c std::string_view, and @c std::optional.
+	/// @tparam T The key type to hash.
 	template <typename T>
 	struct mph_hash;
 
@@ -67,6 +72,19 @@ namespace mclo
 
 namespace mclo::detail
 {
+	/// @brief Shared implementation for the minimal perfect hash containers @ref mclo::mph_map and @ref mclo::mph_set.
+	/// @details Builds, at construction (which is usable in a constant expression), a minimal perfect hash over a fixed
+	/// set of @p Size keys so that every key maps to a unique slot with no collisions and no wasted space. Each key is
+	/// first hashed with a primary salt into a bucket; buckets are then resolved largest-first, each finding a
+	/// secondary salt that scatters its entries into free slots, while single-entry buckets are placed directly.
+	/// Lookups therefore touch at most two hashes and one comparison. The container is fixed-size and immutable after
+	/// construction.
+	/// @tparam Key The key type used for lookups.
+	/// @tparam StoredValue The element type stored in each slot (the key itself for a set, a key/value pair for a map).
+	/// @tparam Hash The salted hash functor, see @ref mclo::mph_hash.
+	/// @tparam KeyEquals The key equality comparator.
+	/// @tparam GetKey A functor extracting the @p Key from a @p StoredValue.
+	/// @tparam Size The exact number of elements.
 	template <typename Key, typename StoredValue, typename Hash, typename KeyEquals, typename GetKey, std::size_t Size>
 	class MCLO_EMPTY_BASES mph_base : private Hash, private KeyEquals, private GetKey
 	{
@@ -128,6 +146,10 @@ namespace mclo::detail
 		using reverse_iterator = typename storage_array::reverse_iterator;
 		using const_reverse_iterator = typename storage_array::const_reverse_iterator;
 
+		/// @brief Constructs the container by building a minimal perfect hash over @p data.
+		/// @details Distributes the @p Size keys into buckets, resolves secondary salts so each key lands in a unique
+		/// slot, and then constructs the stored values into those slots.
+		/// @param data The exact set of @p Size elements to store; keys must be unique.
 		constexpr mph_base( const sized_array<value_type>& data )
 		{
 			// Every entry gets hashed into a bucket, the bucket maintains a linked list of everything
@@ -240,6 +262,9 @@ namespace mclo::detail
 			}
 		}
 
+		/// @brief Finds the element with the given @p key.
+		/// @param key The key to look up.
+		/// @return A const iterator to the matching element, or @ref end() if @p key is not present.
 		[[nodiscard]] constexpr const_iterator find( const key_type& key ) const
 		{
 			const std::size_t data_index = find_data_index( key );
@@ -247,84 +272,109 @@ namespace mclo::detail
 			return equals( get_key( *it ), key ) ? it : end();
 		}
 
+		/// @brief Checks whether an element with the given @p key is present.
+		/// @param key The key to look up.
+		/// @return @c true if @p key is stored in the container.
 		[[nodiscard]] constexpr bool contains( const key_type& key ) const
 		{
 			const std::size_t data_index = find_data_index( key );
 			return equals( get_key( m_storage[ data_index ] ), key );
 		}
 
+		/// @brief Returns the number of elements, which is always @p Size.
 		[[nodiscard]] static constexpr size_type size() noexcept
 		{
 			return Size;
 		}
 
+		/// @brief Returns the maximum number of elements, which is always @p Size.
 		[[nodiscard]] static constexpr size_type max_size() noexcept
 		{
 			return Size;
 		}
 
+		/// @brief Returns a pointer to the underlying contiguous element storage.
 		[[nodiscard]] constexpr pointer data() noexcept
 		{
 			return m_storage.data();
 		}
+		/// @copydoc data()
 		[[nodiscard]] constexpr const_pointer data() const noexcept
 		{
 			return m_storage.data();
 		}
 
+		/// @brief Returns an iterator to the first element.
 		[[nodiscard]] constexpr iterator begin() noexcept
 		{
 			return m_storage.begin();
 		}
+		/// @copydoc begin()
 		[[nodiscard]] constexpr const_iterator begin() const noexcept
 		{
 			return m_storage.begin();
 		}
+		/// @brief Returns a const iterator to the first element.
 		[[nodiscard]] constexpr const_iterator cbegin() const noexcept
 		{
 			return m_storage.cbegin();
 		}
 
+		/// @brief Returns an iterator past the last element.
 		[[nodiscard]] constexpr iterator end() noexcept
 		{
 			return m_storage.end();
 		}
+		/// @copydoc end()
 		[[nodiscard]] constexpr const_iterator end() const noexcept
 		{
 			return m_storage.end();
 		}
+		/// @brief Returns a const iterator past the last element.
 		[[nodiscard]] constexpr const_iterator cend() const noexcept
 		{
 			return m_storage.cend();
 		}
 
+		/// @brief Returns a reverse iterator to the last element.
 		[[nodiscard]] constexpr reverse_iterator rbegin() noexcept
 		{
 			return m_storage.rbegin();
 		}
+		/// @copydoc rbegin()
 		[[nodiscard]] constexpr const_reverse_iterator rbegin() const noexcept
 		{
 			return m_storage.rbegin();
 		}
+		/// @brief Returns a const reverse iterator to the last element.
 		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept
 		{
 			return m_storage.crbegin();
 		}
 
+		/// @brief Returns a reverse iterator before the first element.
 		[[nodiscard]] constexpr reverse_iterator rend() noexcept
 		{
 			return m_storage.rend();
 		}
+		/// @copydoc rend()
 		[[nodiscard]] constexpr const_reverse_iterator rend() const noexcept
 		{
 			return m_storage.rend();
 		}
+		/// @brief Returns a const reverse iterator before the first element.
 		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept
 		{
 			return m_storage.crend();
 		}
 
 	protected:
+		/// @brief Computes the storage slot index a @p key maps to via the perfect hash.
+		/// @details Resolves the bucket's stored salt: a negative value encodes a direct slot index, a non-negative
+		/// value is the secondary salt used to hash @p key to its slot. The result is unverified, callers must still
+		/// compare the key at that slot, since a key not in the set will still map to some slot.
+		/// @param key The key to locate.
+		/// @return The slot index @p key hashes to.
 		[[nodiscard]] constexpr size_type find_data_index( const key_type& key ) const
 		{
 			const std::size_t salt_index = hash( key, primary_salt ) % Size;
@@ -332,14 +382,17 @@ namespace mclo::detail
 			return salt_value < 0 ? ( -salt_value - 1 ) : ( hash( key, salt_value ) % Size );
 		}
 
+		/// @brief Hashes @p key with @p salt using the @p Hash functor.
 		[[nodiscard]] constexpr std::size_t hash( const Key& key, const std::size_t salt ) const noexcept
 		{
 			return static_cast<const Hash&>( *this )( key, salt );
 		}
+		/// @brief Compares @p lhs and @p rhs for equality using the @p KeyEquals functor.
 		[[nodiscard]] constexpr std::size_t equals( const Key& lhs, const Key& rhs ) const noexcept
 		{
 			return static_cast<const KeyEquals&>( *this )( lhs, rhs );
 		}
+		/// @brief Extracts the key from a stored @p value using the @p GetKey functor.
 		[[nodiscard]] constexpr const Key& get_key( const StoredValue& value ) const noexcept
 		{
 			return static_cast<const GetKey&>( *this )( value );
