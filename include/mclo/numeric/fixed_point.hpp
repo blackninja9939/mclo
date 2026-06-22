@@ -359,6 +359,9 @@ namespace mclo
 			return value < low ? low : high < value ? high : value;
 		}
 
+		/// @brief Appends this fixed point value to a hasher, hashing by its underlying representation.
+		/// @param hasher The hasher to append to.
+		/// @param value The fixed point value to hash.
 		template <hasher Hasher>
 		friend void hash_append( Hasher& hasher, const fixed_point value ) noexcept
 		{

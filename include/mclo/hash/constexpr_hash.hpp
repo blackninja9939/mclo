@@ -29,9 +29,21 @@ namespace mclo
 		};
 
 		inline constexpr std::size_t fnva1_offset_basis = 14695981039346656037ull;
-		inline constexpr std::size_t fnva1_prime = 14695981039346656037ull;
+		inline constexpr std::size_t fnva1_prime = 1099511628211ull;
 	}
 
+	/// @brief Computes a hash over an array at compile time.
+	/// @details A constexpr-friendly FNV-1a hash, suitable for hashing data during constant evaluation (e.g. building
+	/// compile-time lookup tables) where the regular @ref hasher framework cannot be used. Each element is passed
+	/// through @p transform before being mixed in.
+	/// @tparam T The element type.
+	/// @tparam Transform A callable mapping an element to a value convertible to @c std::size_t, defaulting to
+	/// identity.
+	/// @param data Pointer to the first element.
+	/// @param size The number of elements.
+	/// @param salt An additional value mixed into the final hash to vary the result.
+	/// @param transform The per-element transform to apply before hashing.
+	/// @return The computed hash.
 	template <typename T, detail::constexpr_hash_transform<T> Transform = detail::identity>
 	[[nodiscard]] constexpr std::size_t constexpr_hash( const T* data,
 														const std::size_t size,

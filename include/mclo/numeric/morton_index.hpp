@@ -52,6 +52,9 @@ namespace mclo
 		/// @brief Compares two Morton indices by their interleaved value, giving Z-order ordering.
 		[[nodiscard]] constexpr auto operator<=>( const morton_index& rhs ) const noexcept = default;
 
+		/// @brief Appends this Morton index value to a hasher, hashing by its underlying representation.
+		/// @param hasher The hasher to append to.
+		/// @param value The Morton index value to hash.
 		template <hasher Hasher>
 		friend void hash_append( Hasher& hasher, const morton_index& value ) noexcept
 		{

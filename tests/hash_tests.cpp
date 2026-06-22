@@ -12,6 +12,11 @@
 #include "mclo/meta/type_aliases.hpp"
 #include "mclo/meta/type_list.hpp"
 
+#include <cstdint>
+#include <optional>
+#include <string>
+#include <vector>
+
 namespace
 {
 	static_assert( sizeof( mclo::fnv1a_hasher ) == 8 );
@@ -56,6 +61,10 @@ namespace
 
 	using hasher_types = mclo::meta::
 		type_list<mclo::fnv1a_hasher, mclo::murmur_hash_3, mclo::rapidhash, mclo::xxhash_64, mclo::xxhash_3>;
+
+	// fnv1a_hasher is not seedable, so it is excluded from the seed-forwarding tests
+	using seedable_hasher_types =
+		mclo::meta::type_list<mclo::murmur_hash_3, mclo::rapidhash, mclo::xxhash_64, mclo::xxhash_3>;
 }
 
 TEMPLATE_LIST_TEST_CASE( "hash built in types", "[hash]", mclo::meta::integers )
@@ -123,6 +132,10 @@ TEMPLATE_LIST_TEST_CASE( "hash specific hashers", "[hash]", hasher_types )
 	};
 	const std::size_t result = mclo::hash_range<TestType>( vec );
 	CHECK( result != 0 );
+
+	TestType hasher;
+	mclo::hash_append_range( hasher, vec );
+	CHECK( result == hasher.finish() );
 }
 
 TEMPLATE_LIST_TEST_CASE( "hash specific hashers bitwise types", "[hash]", hasher_types )
@@ -134,4 +147,55 @@ TEMPLATE_LIST_TEST_CASE( "hash specific hashers bitwise types", "[hash]", hasher
 	};
 	const std::size_t result = mclo::hash_range<TestType>( vec );
 	CHECK( result != 0 );
+
+	TestType hasher;
+	mclo::hash_append_range( hasher, vec );
+	CHECK( result == hasher.finish() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "hash_object matches manual hashing", "[hash]", hasher_types )
+{
+	const test_type value{ 42, 7 };
+
+	TestType hasher;
+	hash_append( hasher, value ); // Unqualified for ADL, matching hash_object internally
+
+	CHECK( mclo::hash_object<TestType>( value ) == hasher.finish() );
+}
+
+TEMPLATE_LIST_TEST_CASE( "hash_object forwards seed to hasher", "[hash]", seedable_hasher_types )
+{
+	const test_type value{ 42, 7 };
+	constexpr std::uint32_t seed = 0x12345678;
+
+	TestType hasher( seed );
+	hash_append( hasher, value ); // Unqualified for ADL, matching hash_object internally
+	const std::size_t seeded_result = mclo::hash_object<TestType>( value, seed );
+
+	// Seeding hash_object matches constructing the hasher with the same seed manually
+	CHECK( seeded_result == hasher.finish() );
+
+	// A seed changes the result compared to the default-constructed hasher
+	CHECK( seeded_result != mclo::hash_object<TestType>( value ) );
+
+	// Different seeds produce different results
+	CHECK( seeded_result != mclo::hash_object<TestType>( value, seed + 1 ) );
+}
+
+TEMPLATE_LIST_TEST_CASE( "hash_range forwards seed to hasher", "[hash]", seedable_hasher_types )
+{
+	const std::vector<test_type> vec{
+		{42, 42},
+		{11, 11},
+		{16, 32},
+	};
+	constexpr std::uint32_t seed = 0x12345678;
+
+	TestType hasher( seed );
+	mclo::hash_append_range( hasher, vec );
+	const std::size_t seeded_result = mclo::hash_range<TestType>( vec, seed );
+
+	CHECK( seeded_result == hasher.finish() );
+	CHECK( seeded_result != mclo::hash_range<TestType>( vec ) );
+	CHECK( seeded_result != mclo::hash_range<TestType>( vec, seed + 1 ) );
 }
