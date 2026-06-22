@@ -18,6 +18,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "random/splitmix64.cpp"
     "random/chacha.cpp"
     "threading/mutex.cpp"
+    "threading/adaptive_waiter.cpp"
     "threading/condition_variable.cpp"
     "threading/thread_local_key.cpp"
     "threading/thread_properties.cpp"
