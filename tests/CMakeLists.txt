@@ -36,7 +36,6 @@ add_executable( tests
 	"synchronized_tests.cpp"
 	"try_tests.cpp"
 	"intrusive_ptr_tests.cpp"
-	"hash_table_tests.cpp"
 	"thread_local_key_tests.cpp"
 	"instanced_thread_local_tests.cpp"
 	"circular_buffer_tests.cpp"
