@@ -6,6 +6,12 @@
 
 namespace mclo
 {
+	/// @brief Replaces every non-overlapping occurrence of @p find in @p string with @p replace, in place.
+	/// @details Does nothing if @p find is empty. Replacement text is not rescanned, so a @p replace that contains
+	/// @p find will not cause further substitutions.
+	/// @param string The string to modify.
+	/// @param find The substring to search for.
+	/// @param replace The text to substitute for each occurrence of @p find.
 	template <typename CharT>
 	void replace_all( std::basic_string<CharT>& string,
 					  const std::basic_string_view<std::type_identity_t<CharT>> find,

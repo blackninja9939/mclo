@@ -68,6 +68,11 @@ namespace mclo
 		}
 	}
 
+	/// @brief Appends a single argument to @p out, converting it to text if it is not already a string.
+	/// @details Arithmetic values are formatted via @ref to_string and a @c char is appended as a single character;
+	/// string-like arguments are appended directly.
+	/// @param out The string to append to.
+	/// @param arg The value to append.
 	template <typename String, typename T>
 	constexpr void append_string( String& out, T&& arg )
 	{
@@ -75,6 +80,11 @@ namespace mclo
 		out.append( std::string_view( detail::convert_string( std::forward<T>( arg ) ) ) );
 	}
 
+	/// @brief Appends several arguments to @p out in one call, reserving capacity up front.
+	/// @details Each argument is converted as in the single-argument overload. Arithmetic values are formatted and a
+	/// @c char is appended as a single character.
+	/// @param out The string to append to.
+	/// @param args The values to append, in order.
 	template <typename String, typename... Ts>
 	constexpr void append_string( String& out, Ts&&... args )
 	{
@@ -82,6 +92,12 @@ namespace mclo
 		detail::append_strings( out, std::string_view( detail::convert_string( std::forward<Ts>( args ) ) )... );
 	}
 
+	/// @brief Builds and returns a new string from the concatenation of @p args.
+	/// @details Each argument is converted as by @ref append_string; arithmetic values are formatted and a @c char is
+	/// appended as a single character.
+	/// @tparam String The string type to construct.
+	/// @param args The values to concatenate, in order.
+	/// @return A @p String containing all the arguments joined together.
 	template <typename String = std::string, typename... Ts>
 	[[nodiscard]] constexpr String concat_string( Ts&&... args )
 	{

@@ -10,6 +10,14 @@
 
 namespace mclo
 {
+	/// @brief Joins the elements of the range [@p first, @p last) into a string separated by @p delimter.
+	/// @details Each element is converted as by @ref append_string, so non-string elements such as numbers are
+	/// formatted automatically. The result is pre-sized when the iterators form a forward range of string-like values.
+	/// @tparam String The string type to build.
+	/// @param first Iterator to the first element.
+	/// @param last Sentinel marking the end of the range.
+	/// @param delimter The separator inserted between consecutive elements.
+	/// @return A @p String containing the joined elements.
 	template <typename String = std::string, std::input_iterator It, std::sentinel_for<It> Sentinel>
 	[[nodiscard]] constexpr String join_string( It first, Sentinel last, const std::string_view delimter )
 	{
@@ -40,6 +48,13 @@ namespace mclo
 		return result;
 	}
 
+	/// @brief Joins the elements of @p range into a string separated by @p delimter.
+	/// @details Each element is converted as by @ref append_string, so non-string elements such as numbers are
+	/// formatted automatically.
+	/// @tparam String The string type to build.
+	/// @param range The range of elements to join.
+	/// @param delimter The separator inserted between consecutive elements.
+	/// @return A @p String containing the joined elements.
 	template <typename String = std::string, std::ranges::input_range Range>
 	[[nodiscard]] constexpr String join_string( Range&& range, const std::string_view delimter )
 	{

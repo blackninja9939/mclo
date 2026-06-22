@@ -37,9 +37,15 @@ namespace mclo
 		};
 	}
 
+	/// @brief The @c std::basic_string_view type corresponding to the string-like type @p String.
+	/// @details Maps owning strings, string views, character pointers, and character arrays to the matching
+	/// @c std::basic_string_view, letting generic code accept any string-like input.
+	/// @tparam String A string, string view, character pointer, or character array type.
 	template <typename String>
 	using string_view_t = typename detail::string_view<String>::type;
 
+	/// @brief The character type of the string-like type @p String.
+	/// @tparam String A string, string view, character pointer, or character array type.
 	template <typename String>
 	using string_char_t = typename string_view_t<String>::value_type;
 }

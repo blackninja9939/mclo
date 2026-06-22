@@ -42,6 +42,13 @@ namespace mclo
 		}
 	}
 
+	/// @brief Compares two strings lexicographically, ignoring ASCII case.
+	/// @details Uses a SIMD implementation at runtime and a scalar one during constant evaluation. Only ASCII letters
+	/// are case-folded.
+	/// @param lhs The first string.
+	/// @param rhs The second string.
+	/// @return A negative value if @p lhs orders before @p rhs, zero if they are case-insensitively equal, or a
+	/// positive value otherwise.
 	[[nodiscard]] constexpr int compare_ignore_case( const std::string_view lhs, const std::string_view rhs ) noexcept
 	{
 		const std::size_t lhs_size = lhs.size();
@@ -79,10 +86,18 @@ namespace mclo
 		};
 	}
 
+	/// @brief Transparent functor comparing strings for case-insensitive equality. See @ref compare_ignore_case.
 	using string_equal_to_ignore_case = detail::string_compare_ignore_case_t<std::equal_to<>>;
+	/// @brief Transparent functor comparing strings for case-insensitive inequality. See @ref compare_ignore_case.
 	using string_not_equal_to_ignore_case = detail::string_compare_ignore_case_t<std::not_equal_to<>>;
+	/// @brief Transparent functor for a case-insensitive less-than ordering of strings. See @ref compare_ignore_case.
 	using string_less_ignore_case = detail::string_compare_ignore_case_t<std::less<>>;
+	/// @brief Transparent functor for a case-insensitive greater-than ordering of strings. See @ref
+	/// compare_ignore_case.
 	using string_greater_ignore_case = detail::string_compare_ignore_case_t<std::greater<>>;
+	/// @brief Transparent functor for a case-insensitive less-or-equal ordering of strings. See @ref
+	/// compare_ignore_case.
 	using string_less_equal_ignore_case = detail::string_compare_ignore_case_t<std::less_equal<>>;
+	/// @brief Transparent functor for a case-insensitive greater-or-equal ordering. See @ref compare_ignore_case.
 	using string_greater_equal_ignore_case = detail::string_compare_ignore_case_t<std::greater_equal<>>;
 }

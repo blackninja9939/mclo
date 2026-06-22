@@ -140,39 +140,50 @@ namespace mclo
 		using factory_t = detail::string_flyweight_factory<Domain, CharT, Traits>;
 
 	public:
+		/// @brief The string view type used to read the interned string.
 		using view = std::basic_string_view<CharT, Traits>;
 
+		/// @brief Constructs an empty flyweight that refers to no string.
 		constexpr basic_string_flyweight() noexcept = default;
 
+		/// @brief Interns @p str in the shared pool and refers to the stored copy.
+		/// @param str The string to intern.
 		explicit basic_string_flyweight( const view str )
 			: m_handle( factory_t::instance().insert( str ) )
 		{
 		}
 
+		/// @brief Interns @p str in the shared pool and refers to the stored copy.
+		/// @param str The string to intern.
 		basic_string_flyweight& operator=( const view str )
 		{
 			m_handle = factory_t::instance().insert( str );
 			return *this;
 		}
 
+		/// @brief Returns a view of the referenced string, or an empty view if none.
 		[[nodiscard]] view get() const noexcept
 		{
 			return factory_t::get( m_handle );
 		}
 
+		/// @brief Converts to a view of the referenced string.
 		[[nodiscard]] operator view() const noexcept
 		{
 			return get();
 		}
 
+		/// @brief Compares two flyweights. Cheap, as it compares interned handles, not string contents.
 		[[nodiscard]] constexpr auto operator<=>( const basic_string_flyweight& other ) const noexcept = default;
 
+		/// @brief Swaps the referenced strings of two flyweights.
 		void swap( basic_string_flyweight& other ) noexcept
 		{
 			using std::swap;
 			swap( m_handle, other.m_handle );
 		}
 
+		/// @brief Swaps the referenced strings of two flyweights.
 		friend void swap( basic_string_flyweight& lhs, basic_string_flyweight& rhs ) noexcept
 		{
 			lhs.swap( rhs );
@@ -182,20 +193,25 @@ namespace mclo
 		factory_t::handle m_handle{};
 	};
 
+	/// @brief A @ref basic_string_flyweight of @c char.
 	template <typename Domain = void>
 	using string_flyweight = basic_string_flyweight<Domain, char>;
 
+	/// @brief A @ref basic_string_flyweight of @c wchar_t.
 	template <typename Domain = void>
 	using wstring_flyweight = basic_string_flyweight<Domain, wchar_t>;
 
 #ifdef __cpp_lib_char8_t
+	/// @brief A @ref basic_string_flyweight of @c char8_t.
 	template <typename Domain = void>
 	using u8string_flyweight = basic_string_flyweight<Domain, char8_t>;
 #endif
 
+	/// @brief A @ref basic_string_flyweight of @c char16_t.
 	template <typename Domain = void>
 	using u16string_flyweight = basic_string_flyweight<Domain, char16_t>;
 
+	/// @brief A @ref basic_string_flyweight of @c char32_t.
 	template <typename Domain = void>
 	using u32string_flyweight = basic_string_flyweight<Domain, char32_t>;
 }

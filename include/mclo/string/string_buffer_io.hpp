@@ -7,6 +7,7 @@
 
 namespace mclo
 {
+	/// @brief Writes the contents of @p str to the output stream @p os.
 	template <typename CharT, std::size_t N>
 	std::basic_ostream<CharT, std::char_traits<CharT>>& operator<<(
 		std::basic_ostream<CharT, std::char_traits<CharT>>& os, const basic_string_buffer<CharT, N>& str )
@@ -15,6 +16,9 @@ namespace mclo
 		return os << view( str );
 	}
 
+	/// @brief Extracts a whitespace-delimited word from @p is into @p str.
+	/// @details Mirrors @c std::string extraction: skips leading whitespace, reads until whitespace or end of input,
+	/// and respects the stream's field width. Reading stops early if the buffer's capacity is reached.
 	template <typename CharT, std::size_t N>
 	std::basic_istream<CharT, std::char_traits<CharT>>& operator>>(
 		std::basic_istream<CharT, std::char_traits<CharT>>& is, basic_string_buffer<CharT, N>& str )
