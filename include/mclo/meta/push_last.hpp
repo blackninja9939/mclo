@@ -16,6 +16,9 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief A @ref type_list equal to @p List with @p T appended as the new last element.
+	/// @tparam T The type to add to the back.
+	/// @tparam List The @ref type_list to append to.
 	template <typename T, typename List>
 	using push_last = typename detail::push_last_impl<T, List>::type;
 }

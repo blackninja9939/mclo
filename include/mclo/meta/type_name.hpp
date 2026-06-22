@@ -39,6 +39,10 @@ namespace mclo::meta
 		constexpr fixed_string name_buffer = extract_type_name<T>();
 	}
 
+	/// @brief The human-readable name of the type @p T, derived at compile time from a compiler-specific signature.
+	/// @details Parsed from @c __PRETTY_FUNCTION__ (Clang/GCC) or @c __FUNCSIG__ (MSVC), so the exact spelling depends
+	/// on the compiler and is intended for diagnostics and debugging rather than as a stable identifier.
+	/// @tparam T The type to name.
 	template <typename T>
 	constexpr std::string_view type_name_v = detail::name_buffer<T>;
 }

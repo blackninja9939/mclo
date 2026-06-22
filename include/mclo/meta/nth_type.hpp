@@ -29,6 +29,9 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief The type at index @p Index in @p List.
+	/// @tparam Index The zero-based position of the type to retrieve. Must be less than the list's size.
+	/// @tparam List The @ref type_list to index into.
 	template <std::size_t Index, typename List>
 	using nth = typename detail::nth_impl<Index, List>::type;
 }

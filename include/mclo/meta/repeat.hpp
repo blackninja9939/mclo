@@ -18,6 +18,10 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief A @ref type_list formed by concatenating @p List with itself @p Amount times.
+	/// @details An @p Amount of zero yields an empty @ref type_list.
+	/// @tparam Amount The number of times to repeat @p List.
+	/// @tparam List The @ref type_list to repeat.
 	template <std::size_t Amount, typename List>
 	using repeat = typename detail::repeat_impl<std::make_index_sequence<Amount>, List>::type;
 }

@@ -19,6 +19,10 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief A @ref type_list containing only the elements of @p List for which @p Predicate holds.
+	/// @details Order is preserved. @p Predicate is applied as @c Predicate<T>::value to each element.
+	/// @tparam Predicate A class template whose @c value member decides whether to keep a type.
+	/// @tparam List The @ref type_list to filter.
 	template <template <typename...> typename Predicate, typename List>
 	using filter = typename detail::filter_impl<Predicate, List>::type;
 }

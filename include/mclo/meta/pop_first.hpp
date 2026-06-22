@@ -16,6 +16,8 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief A @ref type_list equal to @p List with its first element removed.
+	/// @tparam List A non-empty @ref type_list.
 	template <typename List>
 	using pop_first = typename detail::pop_first_impl<List>::type;
 }

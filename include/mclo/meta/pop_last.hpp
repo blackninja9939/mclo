@@ -24,6 +24,8 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief A @ref type_list equal to @p List with its last element removed.
+	/// @tparam List A non-empty @ref type_list.
 	template <typename List>
 	using pop_last = typename detail::pop_last_impl<List>::type;
 }

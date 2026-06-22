@@ -16,6 +16,8 @@ namespace mclo::meta
 		};
 	}
 
+	/// @brief The first type in @p List.
+	/// @tparam List A non-empty @ref type_list.
 	template <typename List>
 	using first = typename detail::first_impl<List>::type;
 }
