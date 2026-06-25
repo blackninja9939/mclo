@@ -73,6 +73,7 @@ add_executable( tests
 	"map_lookup_tests.cpp"
 	"atomic128_tests.cpp"
 	"atomic_shared_ptr_tests.cpp"
+	"state_machine_tests.cpp"
 )
 
 target_compile_definitions( 
