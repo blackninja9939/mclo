@@ -89,10 +89,10 @@ namespace mclo
 
 		/// @brief Advances the machine by asking @p selector which transition to perform from the active state.
 		/// @details The selector inspects the active state by @c const reference — it does not mutate it — and returns
-		/// the transition to perform (an alternative of that state's @c transitions variant). The active state is then
-		/// moved out of the machine and consumed by the chosen transition, whose result becomes the new active state.
-		/// Because the state is moved out first, a transition may safely mutate and return the same object for a
-		/// self-loop.
+		/// the transition to perform (an alternative of that state's @c transitions variant). The chosen transition
+		/// consumes the active state and produces the next state, which is emplaced as the new active state. The new
+		/// value is fully constructed before the old state is replaced, so a transition may safely mutate and return
+		/// the same object for a self-loop.
 		/// @tparam Selector A callable accepting every state by @c const reference and returning that state's
 		/// permitted transitions variant.
 		/// @param selector The visitor selecting the transition to apply.
@@ -107,8 +107,10 @@ namespace mclo
 					auto transition = std::forward<Selector>( selector )( std::as_const( state ) );
 					std::visit(
 						[ this, &state ]( auto&& chosen ) {
-							auto local = std::move( state );
-							m_state = std::forward<decltype( chosen )>( chosen )( std::move( local ) );
+							using next_state = std::remove_cvref_t<
+								std::invoke_result_t<decltype( chosen ), std::remove_reference_t<decltype( state )>>>;
+							m_state.template emplace<next_state>(
+								std::forward<decltype( chosen )>( chosen )( std::move( state ) ) );
 						},
 						std::move( transition ) );
 				},
