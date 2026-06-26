@@ -4,12 +4,8 @@
 #include "mclo/utility/state_machine.hpp"
 
 #include <concepts>
-#include <cstddef>
 #include <string>
 #include <string_view>
-#include <type_traits>
-#include <utility>
-#include <variant>
 
 namespace mclo
 {
@@ -60,54 +56,27 @@ namespace mclo
 			out += label;
 			out += "\"];\n";
 		}
-
-		template <typename State, typename Transitions>
-		struct dump_state_edges;
-
-		template <typename State, typename... Transitions>
-		struct dump_state_edges<State, std::variant<Transitions...>>
-		{
-			static void append( std::string& out )
-			{
-				(
-					[ &out ] {
-						using next_state = std::remove_cvref_t<std::invoke_result_t<const Transitions&, State&&>>;
-						append_dot_edge( out,
-										 state_display_name<State>(),
-										 transition_display_name<Transitions>(),
-										 state_display_name<next_state>() );
-					}(),
-					... );
-			}
-		};
-
-		template <typename Machine>
-		struct dump_machine_graph;
-
-		template <typename... States>
-		struct dump_machine_graph<state_machine<States...>>
-		{
-			static std::string dump()
-			{
-				std::string out = "digraph state_machine {\n";
-				( dump_state_edges<States, state_transitions_t<States>>::append( out ), ... );
-				out += "}\n";
-				return out;
-			}
-		};
 	}
 
 	/// @brief Produces a Graphviz DOT description of every state and transition in @p Machine.
-	/// @details Walks each state's authored transitions and emits a directed edge from the state to the state the
-	/// transition returns, labelled with the transition. Self-loops (transitions that return their own state type)
-	/// are included as edges from a state to itself. Each state and transition is labelled with its @c state_name or
-	/// @c transition_name @c static @c constexpr member if it declares one, otherwise its type name. The result can
-	/// be rendered with Graphviz (e.g. @c dot) to visualise the machine.
+	/// @details Walks the machine's transition graph via @ref visit_state_machine_transitions and emits a directed
+	/// edge from each state to the state its transition returns, labelled with the transition. Self-loops (transitions
+	/// that return their own state type) are included as edges from a state to itself. Each state and transition is
+	/// labelled with its @c state_name or @c transition_name @c static @c constexpr member if it declares one,
+	/// otherwise its type name. The result can be rendered with Graphviz (e.g. @c dot) to visualise the machine.
 	/// @tparam Machine A @ref state_machine specialisation to describe.
 	/// @return The DOT digraph as a string.
 	template <typename Machine>
 	[[nodiscard]] std::string state_machine_to_dot()
 	{
-		return detail::dump_machine_graph<Machine>::dump();
+		std::string out = "digraph state_machine {\n";
+		visit_state_machine_transitions<Machine>( [ &out ]<typename Edge>( Edge ) {
+			detail::append_dot_edge( out,
+									 detail::state_display_name<typename Edge::from_state>(),
+									 detail::transition_display_name<typename Edge::transition>(),
+									 detail::state_display_name<typename Edge::to_state>() );
+		} );
+		out += "}\n";
+		return out;
 	}
 }

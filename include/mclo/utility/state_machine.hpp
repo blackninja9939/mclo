@@ -179,4 +179,100 @@ namespace mclo
 	private:
 		variant_type m_state;
 	};
+
+	/// @brief A node in a @ref state_machine's transition graph, identifying one state type.
+	/// @details A purely type-level descriptor passed to a @ref visit_state_machine_states visitor. It carries no
+	/// runtime data; consumers read the @c state alias (e.g. to resolve a display name or build a node).
+	/// @tparam State The state type this node represents.
+	template <typename State>
+	struct state_machine_node
+	{
+		/// @brief The state type this node represents.
+		using state = State;
+	};
+
+	/// @brief An edge in a @ref state_machine's transition graph: a transition from one state to another.
+	/// @details A purely type-level descriptor passed to a @ref visit_state_machine_transitions visitor. It carries
+	/// no runtime data; consumers read the type aliases to resolve names or build their own graph representation. A
+	/// self-loop is represented by an edge whose @c from_state and @c to_state are the same type.
+	/// @tparam From The state type the transition consumes.
+	/// @tparam Transition The transition function object type.
+	/// @tparam To The state type the transition produces.
+	template <typename From, typename Transition, typename To>
+	struct state_machine_edge
+	{
+		/// @brief The state type the transition consumes.
+		using from_state = From;
+		/// @brief The transition function object type.
+		using transition = Transition;
+		/// @brief The state type the transition produces.
+		using to_state = To;
+	};
+
+	namespace detail
+	{
+		template <typename State, typename Transitions>
+		struct state_machine_edge_emitter;
+
+		template <typename State, typename... Transitions>
+		struct state_machine_edge_emitter<State, std::variant<Transitions...>>
+		{
+			template <typename Visitor>
+			static constexpr void emit( Visitor& visitor )
+			{
+				( visitor(
+					  state_machine_edge<State,
+										 Transitions,
+										 std::remove_cvref_t<std::invoke_result_t<const Transitions&, State&&>>>{} ),
+				  ... );
+			}
+		};
+
+		template <typename Machine>
+		struct state_machine_walker;
+
+		template <typename... States>
+		struct state_machine_walker<state_machine<States...>>
+		{
+			template <typename Visitor>
+			static constexpr void visit_states( Visitor& visitor )
+			{
+				( visitor( state_machine_node<States>{} ), ... );
+			}
+
+			template <typename Visitor>
+			static constexpr void visit_transitions( Visitor& visitor )
+			{
+				( state_machine_edge_emitter<States, state_transitions_t<States>>::emit( visitor ), ... );
+			}
+		};
+	}
+
+	/// @brief Invokes @p visitor once per state of @p Machine, walking its transition graph's nodes.
+	/// @details The visitor is called with a @ref state_machine_node for each state type, in declaration order. The
+	/// walk is purely type-level (no machine instance is required), so this is the building block for tooling such as
+	/// graph exporters or editors. Use an explicitly templated lambda (e.g. @c []<typename Node>(Node){}) to read the
+	/// node's @c state type.
+	/// @tparam Machine A @ref state_machine specialisation to walk.
+	/// @tparam Visitor A callable accepting a @ref state_machine_node for every state.
+	/// @param visitor The visitor invoked for each state node.
+	template <typename Machine, typename Visitor>
+	constexpr void visit_state_machine_states( Visitor&& visitor )
+	{
+		detail::state_machine_walker<Machine>::visit_states( visitor );
+	}
+
+	/// @brief Invokes @p visitor once per transition of @p Machine, walking its transition graph's edges.
+	/// @details The visitor is called with a @ref state_machine_edge for every transition each state authors, in
+	/// declaration order. Self-loops (transitions returning their own state type) are included. The walk is purely
+	/// type-level (no machine instance is required). Use an explicitly templated lambda (e.g.
+	/// @c []<typename Edge>(Edge){}) to read the edge's @c from_state, @c transition and @c to_state types.
+	/// @tparam Machine A @ref state_machine specialisation to walk.
+	/// @tparam Visitor A callable accepting a @ref state_machine_edge for every transition.
+	/// @param visitor The visitor invoked for each transition edge.
+	template <typename Machine, typename Visitor>
+	constexpr void visit_state_machine_transitions( Visitor&& visitor )
+	{
+		detail::state_machine_walker<Machine>::visit_transitions( visitor );
+	}
 }

@@ -6,6 +6,7 @@
 
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <variant>
 
 namespace
@@ -303,4 +304,44 @@ TEST_CASE( "state_machine_to_dot emits an edge per transition including self-loo
 		pos += 2;
 	}
 	CHECK( edges == 4 );
+}
+
+TEST_CASE( "visit_state_machine_states walks every state once", "[state_machine]" )
+{
+	int count = 0;
+	bool saw_red = false;
+	bool saw_green = false;
+	bool saw_yellow = false;
+	mclo::visit_state_machine_states<traffic_light>( [ & ]<typename Node>( Node ) {
+		++count;
+		using state = typename Node::state;
+		saw_red |= std::is_same_v<state, red>;
+		saw_green |= std::is_same_v<state, green>;
+		saw_yellow |= std::is_same_v<state, yellow>;
+	} );
+
+	CHECK( count == 3 );
+	CHECK( saw_red );
+	CHECK( saw_green );
+	CHECK( saw_yellow );
+}
+
+TEST_CASE( "visit_state_machine_transitions walks every edge with its types", "[state_machine]" )
+{
+	int edges = 0;
+	bool saw_self_loop = false;
+	bool saw_red_to_green = false;
+	mclo::visit_state_machine_transitions<traffic_light>( [ & ]<typename Edge>( Edge ) {
+		++edges;
+		saw_self_loop |= std::is_same_v<typename Edge::from_state, typename Edge::to_state>;
+		if constexpr ( std::is_same_v<typename Edge::from_state, red> )
+		{
+			saw_red_to_green |= std::is_same_v<typename Edge::to_state, green>;
+		}
+	} );
+
+	// red: hold (self) + go, green: caution, yellow: stop = 4 edges.
+	CHECK( edges == 4 );
+	CHECK( saw_self_loop ); // red -> red via hold
+	CHECK( saw_red_to_green );
 }
