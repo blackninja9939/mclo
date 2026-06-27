@@ -49,9 +49,8 @@ target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:mclo_comp
 find_package(xsimd CONFIG REQUIRED)
 find_package(libassert CONFIG REQUIRED)
 find_package(xxhash CONFIG REQUIRED)
-find_package(tl-expected CONFIG REQUIRED)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash tl::expected)
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash)
 
 # Link the platform dynamic loading library (dl) for shared_library on POSIX systems
 target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${CMAKE_DL_LIBS})

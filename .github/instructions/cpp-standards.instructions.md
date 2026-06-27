@@ -49,7 +49,7 @@ description: "Use when writing or modifying C++ source and header files. Enforce
 ## Error Handling
 
 - This codebase does not use exceptions for control flow.
-- Prefer `tl::expected` (aliased as `mclo::expected`) for recoverable errors.
+- Prefer `mclo::expected` for recoverable errors.
 - Use the following assertion macros:
   - Conditional: `MACRO( condition, optional message, optional diagnostics... )`
   - Unconditional (`PANIC`, `UNREACHABLE`): `MACRO( optional message, optional diagnostics... )`
