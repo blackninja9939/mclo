@@ -1,0 +1,13 @@
+MurmurHash3 / PMurHash
+https://github.com/aappleby/smhasher
+SPDX-License-Identifier: Unlicense (public domain)
+(source vendored into source/hash/murmur_hash_3.cpp)
+
+MurmurHash3 was written by Austin Appleby, and is placed in the public domain.
+
+The portable, progressive/streaming PMurHash implementation was written by
+Shane Day, and is also placed in the public domain.
+
+The authors hereby disclaim copyright to these source code files. Because the
+work is placed in the public domain, no attribution is legally required; it is
+provided here as a courtesy to the original authors.
