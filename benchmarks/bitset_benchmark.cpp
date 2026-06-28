@@ -29,11 +29,11 @@ namespace
 
 	struct find_first_setup
 	{
-		static void small( benchmark::internal::Benchmark* const b )
+		static void small( benchmark::Benchmark* const b )
 		{
 			b->Arg( 8 );
 		}
-		static void large( benchmark::internal::Benchmark* const b )
+		static void large( benchmark::Benchmark* const b )
 		{
 			b->Arg( 8 )->Arg( 63 );
 		}
@@ -107,11 +107,11 @@ namespace
 
 	struct for_each_set_setup
 	{
-		static void small( benchmark::internal::Benchmark* const b )
+		static void small( benchmark::Benchmark* const b )
 		{
 			b->Args( { 3, 2, 7, 8, 0, 0 } );
 		}
-		static void large( benchmark::internal::Benchmark* const b )
+		static void large( benchmark::Benchmark* const b )
 		{
 			small( b );
 			b->Args( { 5, 4, 19, 38, 55, 68 } );

@@ -4,7 +4,7 @@
 
 namespace
 {
-	void packed_int_vector_size_args( benchmark::internal::Benchmark* b )
+	void packed_int_vector_size_args( benchmark::Benchmark* b )
 	{
 		b->RangeMultiplier( 2 )->Range( 8, 8192 );
 	}

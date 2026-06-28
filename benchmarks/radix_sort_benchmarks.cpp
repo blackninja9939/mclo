@@ -136,7 +136,7 @@ namespace
 		state.SetBytesProcessed( static_cast<std::int64_t>( items_processed * sizeof( T ) ) );
 	}
 
-	void sizes( benchmark::internal::Benchmark* b )
+	void sizes( benchmark::Benchmark* b )
 	{
 		b->RangeMultiplier( 2 )->Range( 16, 1 << 16 );
 	}

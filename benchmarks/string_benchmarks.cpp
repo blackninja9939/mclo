@@ -34,7 +34,7 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 		return mixed_case;
 	}
 
-	void StringSimdRange( benchmark::internal::Benchmark* b )
+	void StringSimdRange( benchmark::Benchmark* b )
 	{
 		b->RangeMultiplier( 2 )->Range( 4, lorem_ipsum.size() );
 	}

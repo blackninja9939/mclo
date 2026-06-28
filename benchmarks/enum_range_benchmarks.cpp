@@ -18,7 +18,7 @@ namespace
 	{
 		for ( auto _ : state )
 		{
-			for ( const test_enum e : mclo::enum_range<test_enum>() )
+			for ( test_enum e : mclo::enum_range<test_enum>() )
 			{
 				benchmark::DoNotOptimize( e );
 			}
