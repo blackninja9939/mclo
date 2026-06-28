@@ -25,7 +25,7 @@ namespace mclo
 
 	void condition_variable::wait( std::unique_lock<mclo::mutex>& lock )
 	{
-		DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
+		MCLO_DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 		if ( !wait_for_ms( lock, INFINITE ) )
 		{
 			std::abort();

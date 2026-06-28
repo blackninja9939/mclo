@@ -103,7 +103,7 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				DEBUG_ASSERT( count == extent, "Count was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT( count == extent, "Count was not actually equal to static extent" );
 			}
 		}
 
@@ -114,8 +114,8 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				DEBUG_ASSERT( static_cast<size_type>( last - first ) == extent,
-							  "Iterator pair distance was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT( static_cast<size_type>( last - first ) == extent,
+								   "Iterator pair distance was not actually equal to static extent" );
 			}
 		}
 
@@ -147,8 +147,8 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				DEBUG_ASSERT( std::ranges::size( range ) == extent,
-							  "Range distance was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT( std::ranges::size( range ) == extent,
+								   "Range distance was not actually equal to static extent" );
 			}
 		}
 
@@ -158,7 +158,8 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				DEBUG_ASSERT( init_list.size() == extent, "Range distance was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT( init_list.size() == extent,
+								   "Range distance was not actually equal to static extent" );
 			}
 		}
 
@@ -170,7 +171,7 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				DEBUG_ASSERT( other.size() == extent, "Other span size was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT( other.size() == extent, "Other span size was not actually equal to static extent" );
 			}
 		}
 
@@ -179,19 +180,19 @@ namespace mclo
 
 		[[nodiscard]] constexpr reference front() const noexcept
 		{
-			DEBUG_ASSERT( m_size != 0, "Span is empty" );
+			MCLO_DEBUG_ASSERT( m_size != 0, "Span is empty" );
 			return *m_data;
 		}
 
 		[[nodiscard]] constexpr reference back() const noexcept
 		{
-			DEBUG_ASSERT( m_size != 0, "Span is empty" );
+			MCLO_DEBUG_ASSERT( m_size != 0, "Span is empty" );
 			return m_data[ m_size - 1 ];
 		}
 
 		[[nodiscard]] constexpr reference operator[]( const size_type index ) const
 		{
-			DEBUG_ASSERT( index < m_size, "Index out of bounds" );
+			MCLO_DEBUG_ASSERT( index < m_size, "Index out of bounds" );
 			return m_data[ index ];
 		}
 
@@ -224,14 +225,14 @@ namespace mclo
 			}
 			else
 			{
-				DEBUG_ASSERT( Count <= m_size, "Count is out of range" );
+				MCLO_DEBUG_ASSERT( Count <= m_size, "Count is out of range" );
 			}
 			return span<element_type, Count>( m_data, Count );
 		}
 
 		[[nodiscard]] constexpr auto first( const size_type count ) const noexcept
 		{
-			DEBUG_ASSERT( count <= m_size, "Count is out of range" );
+			MCLO_DEBUG_ASSERT( count <= m_size, "Count is out of range" );
 			return span<element_type, dynamic_extent>( m_data, count );
 		}
 
@@ -244,14 +245,14 @@ namespace mclo
 			}
 			else
 			{
-				DEBUG_ASSERT( Count <= m_size, "Count is out of range" );
+				MCLO_DEBUG_ASSERT( Count <= m_size, "Count is out of range" );
 			}
 			return span<element_type, Count>( m_data + ( m_size - Count ), Count );
 		}
 
 		[[nodiscard]] constexpr auto last( const size_type count ) const noexcept
 		{
-			DEBUG_ASSERT( count <= m_size, "Count is out of range" );
+			MCLO_DEBUG_ASSERT( count <= m_size, "Count is out of range" );
 			return span<element_type, dynamic_extent>( m_data + ( m_size - count ), count );
 		}
 
@@ -265,10 +266,10 @@ namespace mclo
 			}
 			else
 			{
-				DEBUG_ASSERT( Offset <= m_size, "Offset is out of range" );
+				MCLO_DEBUG_ASSERT( Offset <= m_size, "Offset is out of range" );
 				if constexpr ( Count != dynamic_extent )
 				{
-					DEBUG_ASSERT( Count <= m_size - Offset, "Count is out of range" );
+					MCLO_DEBUG_ASSERT( Count <= m_size - Offset, "Count is out of range" );
 				}
 			}
 			using return_type =
@@ -280,8 +281,8 @@ namespace mclo
 		[[nodiscard]] constexpr auto subspan( const size_type offset,
 											  const size_type count = dynamic_extent ) const noexcept
 		{
-			DEBUG_ASSERT( offset <= m_size, "Offset is out of range" );
-			DEBUG_ASSERT( count == dynamic_extent || count <= m_size - offset, "Count is out of range" );
+			MCLO_DEBUG_ASSERT( offset <= m_size, "Offset is out of range" );
+			MCLO_DEBUG_ASSERT( count == dynamic_extent || count <= m_size - offset, "Count is out of range" );
 			using return_type = span<element_type, dynamic_extent>;
 			return return_type( m_data + offset, count == dynamic_extent ? m_size - offset : count );
 		}

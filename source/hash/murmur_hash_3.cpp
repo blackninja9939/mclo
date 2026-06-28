@@ -304,8 +304,8 @@ static std::uint32_t PMurHash32_Result( std::uint32_t h, std::uint32_t carry, st
 void mclo::murmur_hash_3::write( const mclo::span<const std::byte> data ) noexcept
 {
 	PMurHash32_Process( &m_hash, &m_carry, reinterpret_cast<const std::uint8_t*>( data.data() ), data.size() );
-	DEBUG_ASSERT( std::numeric_limits<std::uint32_t>::max() - m_total_length >= data.size(),
-				  "MurmurHash3 can only process up to uint32_t max data" );
+	MCLO_DEBUG_ASSERT( std::numeric_limits<std::uint32_t>::max() - m_total_length >= data.size(),
+					   "MurmurHash3 can only process up to uint32_t max data" );
 	m_total_length += static_cast<std::uint32_t>( data.size() );
 }
 

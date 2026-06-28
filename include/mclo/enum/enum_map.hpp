@@ -250,8 +250,8 @@ namespace mclo
 			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
 		constexpr enum_map( It first, Sentinel last )
 		{
-			DEBUG_ASSERT( std::ranges::distance( first, last ) <= max_size,
-						  "Iterator pair is over a range larger than this container's max size" );
+			MCLO_DEBUG_ASSERT( std::ranges::distance( first, last ) <= max_size,
+							   "Iterator pair is over a range larger than this container's max size" );
 			std::ranges::copy( first, last, m_container.begin() );
 		}
 
@@ -262,8 +262,8 @@ namespace mclo
 			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
 		constexpr explicit enum_map( Range&& range )
 		{
-			DEBUG_ASSERT( std::ranges::distance( range ) <= max_size,
-						  "Range size is larger than this container's max size" );
+			MCLO_DEBUG_ASSERT( std::ranges::distance( range ) <= max_size,
+							   "Range size is larger than this container's max size" );
 			std::ranges::copy( range, m_container.begin() );
 		}
 

@@ -30,7 +30,7 @@ namespace
 		const std::wstring wide = mclo::to_wstring( name );
 		[[maybe_unused]] const HRESULT name_result =
 			SetThreadDescription( static_cast<HANDLE>( thread ), wide.c_str() );
-		DEBUG_ASSERT( SUCCEEDED( name_result ), "Failed to set thread name" );
+		MCLO_DEBUG_ASSERT( SUCCEEDED( name_result ), "Failed to set thread name" );
 	}
 
 	void set_thread_priority_platform( std::thread::native_handle_type thread, const mclo::thread_priority priority )
@@ -43,13 +43,13 @@ namespace
 			THREAD_PRIORITY_HIGHEST,
 		};
 		[[maybe_unused]] const BOOL result = SetThreadPriority( static_cast<HANDLE>( thread ), prio_map[ priority ] );
-		DEBUG_ASSERT( result != 0, "Failed to set thread priority" );
+		MCLO_DEBUG_ASSERT( result != 0, "Failed to set thread priority" );
 	}
 
 	void set_thread_affinity_platform( std::thread::native_handle_type thread, const std::uint64_t affinity )
 	{
 		[[maybe_unused]] const DWORD_PTR result = SetThreadAffinityMask( thread, affinity );
-		DEBUG_ASSERT( result == affinity, "Failed to set thread affinity", mclo::last_error_code() );
+		MCLO_DEBUG_ASSERT( result == affinity, "Failed to set thread affinity", mclo::last_error_code() );
 	}
 }
 
@@ -73,7 +73,7 @@ namespace
 		char truncated[ 16 ];
 		std::strncpy( truncated, name.data(), 15 );
 		[[maybe_unused]] const int result = pthread_setname_np( thread, truncated );
-		DEBUG_ASSERT( result == 0, "Failed to set thread name" );
+		MCLO_DEBUG_ASSERT( result == 0, "Failed to set thread name" );
 	}
 
 	void set_thread_priority_platform( std::thread::native_handle_type thread, const mclo::thread_priority priority )

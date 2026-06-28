@@ -51,15 +51,15 @@ description: "Use when writing or modifying C++ source and header files. Enforce
 - Prefer `mclo::expected` for recoverable errors.
 - Use the following assertion macros:
   - Conditional: `MACRO( condition, optional message, optional diagnostics... )`
-  - Unconditional (`PANIC`, `UNREACHABLE`): `MACRO( optional message, optional diagnostics... )`
+  - Unconditional (`MCLO_PANIC`, `MCLO_UNREACHABLE`): `MACRO( optional message, optional diagnostics... )`
 
 | Macro            | Debug          | Release              | Use when                                                                                        |
 |------------------|----------------|----------------------|-------------------------------------------------------------------------------------------------|
-| `DEBUG_ASSERT`   | Checked        | Compiled out         | Internal invariants that are programmer error — should be caught and fixed before shipping.      |
-| `ASSERT`         | Checked        | Checked              | Invariants that are not recoverable but could occur due to invalid user input.                   |
-| `ASSUME`         | Checked        | UB optimization hint | Conditions that are impossible by design and provide useful information to the compiler.         |
-| `PANIC`          | Always fires   | Always fires         | Unconditional `ASSERT` — same use cases as `ASSERT` but for code paths that should never run.   |
-| `UNREACHABLE`    | Always fires   | UB optimization hint | Unconditional `ASSUME` — same use cases as `ASSUME` for code paths that should be unreachable.  |
+| `MCLO_DEBUG_ASSERT`   | Checked        | Compiled out         | Internal invariants that are programmer error — should be caught and fixed before shipping.      |
+| `MCLO_ASSERT`         | Checked        | Checked              | Invariants that are not recoverable but could occur due to invalid user input.                   |
+| `MCLO_ASSUME`         | Checked        | UB optimization hint | Conditions that are impossible by design and provide useful information to the compiler.         |
+| `MCLO_PANIC`          | Always fires   | Always fires         | Unconditional `MCLO_ASSERT` — same use cases as `MCLO_ASSERT` but for code paths that should never run.   |
+| `MCLO_UNREACHABLE`    | Always fires   | UB optimization hint | Unconditional `MCLO_ASSUME` — same use cases as `MCLO_ASSUME` for code paths that should be unreachable.  |
 
 ## Formatting
 

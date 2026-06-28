@@ -255,8 +255,8 @@ namespace mclo
 		[[nodiscard]] static packed_type pack_ptr( pointer ptr ) noexcept
 		{
 			const auto ptr_bits = reinterpret_cast<packed_type>( ptr );
-			DEBUG_ASSERT( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ),
-						  "Ptr is too strictly aligned, it must be aligned to at least Alignment" );
+			MCLO_DEBUG_ASSERT( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ),
+							   "Ptr is too strictly aligned, it must be aligned to at least Alignment" );
 			return ptr_bits << free_upper_bits;
 		}
 		[[nodiscard]] static pointer unpack_ptr( packed_type ptr ) noexcept
@@ -266,7 +266,7 @@ namespace mclo
 
 		[[nodiscard]] static constexpr packed_type pack_tag( const tag_type tag ) noexcept
 		{
-			DEBUG_ASSERT( can_store_tag( tag ), "Tag using too many bits" );
+			MCLO_DEBUG_ASSERT( can_store_tag( tag ), "Tag using too many bits" );
 			return pack_tag_unchecked( tag );
 		}
 		[[nodiscard]] static constexpr tag_type unpack_tag( packed_type tag ) noexcept

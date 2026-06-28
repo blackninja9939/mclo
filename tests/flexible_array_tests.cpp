@@ -23,7 +23,7 @@ namespace
 
 		counters()
 		{
-			DEBUG_ASSERT( current == nullptr, "Only one counters instance should be active at a time" );
+			MCLO_DEBUG_ASSERT( current == nullptr, "Only one counters instance should be active at a time" );
 			current = this;
 		}
 
@@ -49,28 +49,28 @@ namespace
 
 		tracked()
 		{
-			DEBUG_ASSERT( counters::current, "No active counters instance" );
+			MCLO_DEBUG_ASSERT( counters::current, "No active counters instance" );
 			++counters::current->constructions;
 		}
 
 		explicit tracked( const int v )
 			: value( v )
 		{
-			DEBUG_ASSERT( counters::current, "No active counters instance" );
+			MCLO_DEBUG_ASSERT( counters::current, "No active counters instance" );
 			++counters::current->constructions;
 		}
 
 		tracked( const tracked& other )
 			: value( other.value )
 		{
-			DEBUG_ASSERT( counters::current, "No active counters instance" );
+			MCLO_DEBUG_ASSERT( counters::current, "No active counters instance" );
 			++counters::current->constructions;
 			++counters::current->copies;
 		}
 
 		~tracked()
 		{
-			DEBUG_ASSERT( counters::current, "No active counters instance" );
+			MCLO_DEBUG_ASSERT( counters::current, "No active counters instance" );
 			++counters::current->destructions;
 		}
 	};

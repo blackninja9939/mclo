@@ -13,7 +13,7 @@ namespace mclo
 	template <std::unsigned_integral T>
 	[[nodiscard]] constexpr T align_down( const T value, const T align ) noexcept
 	{
-		DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
+		MCLO_DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
 		return value & ~( align - 1 );
 	}
 
@@ -26,7 +26,7 @@ namespace mclo
 	template <std::unsigned_integral T>
 	[[nodiscard]] constexpr T align_up( const T value, const T align ) noexcept
 	{
-		DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
+		MCLO_DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
 		return align_down( static_cast<T>( value + align - 1 ), align );
 	}
 
@@ -39,7 +39,7 @@ namespace mclo
 	template <std::unsigned_integral T>
 	[[nodiscard]] constexpr bool is_aligned( const T value, const T align ) noexcept
 	{
-		DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
+		MCLO_DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
 		return modulo_pow2( value, align ) == 0;
 	}
 }

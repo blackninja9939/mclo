@@ -46,7 +46,7 @@ namespace mclo
 	/// @pre @p exponent must be small enough that @c 10^exponent fits in a @c std::size_t.
 	[[nodiscard]] constexpr std::size_t pow10( const unsigned char exponent ) noexcept
 	{
-		DEBUG_ASSERT( exponent < detail::size( detail::pow10s ), "Result would overflow std::size_t" );
+		MCLO_DEBUG_ASSERT( exponent < detail::size( detail::pow10s ), "Result would overflow std::size_t" );
 		return detail::pow10s[ exponent ];
 	}
 }

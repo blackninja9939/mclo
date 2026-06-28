@@ -156,7 +156,7 @@ namespace mclo
 		/// @pre The pointer must be non-null.
 		[[nodiscard]] T& operator*() const noexcept
 		{
-			ASSUME( m_ptr, "Dereferencing null intrusive_ptr" );
+			MCLO_ASSUME( m_ptr, "Dereferencing null intrusive_ptr" );
 			return *m_ptr;
 		}
 

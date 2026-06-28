@@ -191,7 +191,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr friend fixed_point operator/( const fixed_point lhs, const fixed_point rhs ) noexcept
 		{
-			DEBUG_ASSERT( rhs.m_value != 0, "Division by zero" );
+			MCLO_DEBUG_ASSERT( rhs.m_value != 0, "Division by zero" );
 			const intermediary_type full =
 				static_cast<intermediary_type>( lhs.m_value ) * static_cast<intermediary_type>( scale );
 			return { from_underlying, static_cast<Rep>( full / static_cast<intermediary_type>( rhs.m_value ) ) };
@@ -211,7 +211,7 @@ namespace mclo
 
 		[[nodiscard]] constexpr friend fixed_point operator/( const fixed_point lhs, const Rep rhs ) noexcept
 		{
-			DEBUG_ASSERT( rhs != 0, "Division by zero" );
+			MCLO_DEBUG_ASSERT( rhs != 0, "Division by zero" );
 			return { from_underlying, static_cast<Rep>( lhs.m_value / rhs ) };
 		}
 
@@ -354,7 +354,7 @@ namespace mclo
 														  const fixed_point low,
 														  const fixed_point high ) noexcept
 		{
-			DEBUG_ASSERT( !( high < low ), "clamp: low must not be greater than high" );
+			MCLO_DEBUG_ASSERT( !( high < low ), "clamp: low must not be greater than high" );
 			return value < low ? low : high < value ? high : value;
 		}
 

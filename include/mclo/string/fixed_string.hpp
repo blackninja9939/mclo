@@ -21,7 +21,7 @@ namespace mclo
 		/// @pre @p str must have a size of @p N.
 		constexpr explicit fixed_string( const std::string_view str ) noexcept
 		{
-			DEBUG_ASSERT( str.size() == N, "String size does not match fixed string size" );
+			MCLO_DEBUG_ASSERT( str.size() == N, "String size does not match fixed string size" );
 			for ( size_t i = 0; i < N; ++i )
 			{
 				m_data[ i ] = str[ i ];

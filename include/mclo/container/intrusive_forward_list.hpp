@@ -107,13 +107,13 @@ namespace mclo
 
 		reference front() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Cannot access front of empty forward list" );
+			MCLO_DEBUG_ASSERT( !empty(), "Cannot access front of empty forward list" );
 			return *head();
 		}
 
 		const_reference front() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Cannot access front of empty forward list" );
+			MCLO_DEBUG_ASSERT( !empty(), "Cannot access front of empty forward list" );
 			return *head();
 		}
 
@@ -149,7 +149,7 @@ namespace mclo
 
 		iterator insert_after( const_iterator pos, reference value ) noexcept
 		{
-			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
+			MCLO_DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
 			hook_type* const ptr = unwrap_iterator( pos );
 			hook_type* const hook = std::addressof( value );
 			hook->m_next = std::exchange( ptr->m_next, hook );
@@ -160,7 +160,7 @@ namespace mclo
 			requires( std::same_as<reference, std::iter_reference_t<It>> )
 		iterator insert_after( const_iterator pos, It first, Sentinel last ) noexcept
 		{
-			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
+			MCLO_DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
 			if ( first == last )
 			{
 				return pos;
@@ -186,7 +186,7 @@ namespace mclo
 
 		iterator erase_after( const_iterator pos ) noexcept
 		{
-			DEBUG_ASSERT( pos != end(), "Cannot erase after end of forward list" );
+			MCLO_DEBUG_ASSERT( pos != end(), "Cannot erase after end of forward list" );
 			hook_type* const ptr = unwrap_iterator( pos );
 			hook_type* const original_next = ptr->m_next;
 			if ( ptr->m_next )
@@ -198,8 +198,8 @@ namespace mclo
 
 		iterator erase_after( const_iterator first, const_iterator last ) noexcept
 		{
-			DEBUG_ASSERT( first != end(), "Cannot erase after end of forward list" );
-			DEBUG_ASSERT( last != end(), "Cannot erase after end of forward list" );
+			MCLO_DEBUG_ASSERT( first != end(), "Cannot erase after end of forward list" );
+			MCLO_DEBUG_ASSERT( last != end(), "Cannot erase after end of forward list" );
 			hook_type* ptr = unwrap_iterator( first );
 			hook_type* const last_ptr = unwrap_iterator( last );
 			if ( ptr != last_ptr )
@@ -219,8 +219,8 @@ namespace mclo
 
 		void splice_after( const_iterator pos, intrusive_forward_list& other ) noexcept
 		{
-			DEBUG_ASSERT( this != &other, "Cannot splice in same container" );
-			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
+			MCLO_DEBUG_ASSERT( this != &other, "Cannot splice in same container" );
+			MCLO_DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
 			splice_after( pos, other, other.before_begin(), other.end() );
 		}
 
@@ -231,7 +231,7 @@ namespace mclo
 
 		void splice_after( const_iterator pos, intrusive_forward_list&, const_iterator it ) noexcept
 		{
-			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
+			MCLO_DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
 
 			hook_type* const insert = unwrap_iterator( pos );
 			hook_type* const prev = unwrap_iterator( it );

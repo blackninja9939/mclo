@@ -85,7 +85,7 @@ namespace mclo
 		/// @pre @p count must not exceed @ref max_string_size.
 		constexpr void assign( const size_type count, value_type ch ) noexcept
 		{
-			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
+			MCLO_DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			traits_assign( m_data.data(), count, ch );
 			m_length = count;
 			null_terminate_end();
@@ -111,7 +111,7 @@ namespace mclo
 		/// @pre @p size must not exceed @ref max_string_size.
 		constexpr void assign( const const_pointer str, const size_type size ) noexcept
 		{
-			DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
+			MCLO_DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
 			traits_copy( m_data.data(), str, size );
 			m_length = size;
 			null_terminate_end();
@@ -149,12 +149,12 @@ namespace mclo
 		/// @pre @p pos must be less than @ref size().
 		[[nodiscard]] constexpr reference operator[]( const size_type pos ) noexcept
 		{
-			DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
+			MCLO_DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
 			return m_data[ pos ];
 		}
 		[[nodiscard]] constexpr const_reference operator[]( const size_type pos ) const noexcept
 		{
-			DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
+			MCLO_DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
 			return m_data[ pos ];
 		}
 
@@ -162,12 +162,12 @@ namespace mclo
 		/// @pre The string must not be empty.
 		[[nodiscard]] constexpr reference front() noexcept
 		{
-			DEBUG_ASSERT( m_length > 0, "Container is empty" );
+			MCLO_DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.front();
 		}
 		[[nodiscard]] constexpr const_reference front() const noexcept
 		{
-			DEBUG_ASSERT( m_length > 0, "Container is empty" );
+			MCLO_DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.front();
 		}
 
@@ -175,12 +175,12 @@ namespace mclo
 		/// @pre The string must not be empty.
 		[[nodiscard]] constexpr reference back() noexcept
 		{
-			DEBUG_ASSERT( m_length > 0, "Container is empty" );
+			MCLO_DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.back();
 		}
 		[[nodiscard]] constexpr const_reference back() const noexcept
 		{
-			DEBUG_ASSERT( m_length > 0, "Container is empty" );
+			MCLO_DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.back();
 		}
 
@@ -299,7 +299,7 @@ namespace mclo
 		/// @pre @p size must not exceed @ref max_string_size.
 		constexpr void reserve( [[maybe_unused]] const size_type size ) noexcept
 		{
-			DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
+			MCLO_DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
 		}
 
 		/// @brief No-op provided for interface compatibility with @c std::string.
@@ -340,7 +340,7 @@ namespace mclo
 		/// @pre @p count must not exceed @ref max_string_size.
 		constexpr void resize( const size_type count, const value_type ch ) noexcept
 		{
-			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
+			MCLO_DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			if ( count == m_length )
 			{
 				return;
@@ -361,7 +361,7 @@ namespace mclo
 		/// @pre @p count must not exceed @ref max_string_size.
 		constexpr void resize( const size_type count ) noexcept
 		{
-			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
+			MCLO_DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			if ( count > m_length )
 			{
 				// We know we're filling null terminator so do it as part of the fill_n itself so do not call
@@ -380,7 +380,7 @@ namespace mclo
 		/// @pre The string must have room for one more character.
 		constexpr void push_back( const value_type c ) noexcept
 		{
-			DEBUG_ASSERT( m_length < max_string_size, "Count would be larger than max string size" );
+			MCLO_DEBUG_ASSERT( m_length < max_string_size, "Count would be larger than max string size" );
 			traits_type::assign( m_data[ m_length++ ], c );
 			null_terminate_end();
 		}
@@ -389,7 +389,7 @@ namespace mclo
 		/// @pre The string must not be empty.
 		constexpr void pop_back() noexcept
 		{
-			DEBUG_ASSERT( m_length > 0, "Container is empty" );
+			MCLO_DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			--m_length;
 			null_terminate_end();
 		}
@@ -398,7 +398,8 @@ namespace mclo
 		/// @pre The combined length must not exceed @ref max_string_size.
 		constexpr void append( const view_type& string ) noexcept
 		{
-			DEBUG_ASSERT( string.size() + m_length < max_string_size, "Count would be larger than max string size" );
+			MCLO_DEBUG_ASSERT( string.size() + m_length < max_string_size,
+							   "Count would be larger than max string size" );
 			traits_copy( m_data.data() + m_length, string.data(), string.size() );
 			m_length += string.size();
 			null_terminate_end();
@@ -576,7 +577,7 @@ namespace mclo
 		for ( std::size_t i = 0; i < N - 1; ++i )
 		{
 			const char ch = str[ i ];
-			DEBUG_ASSERT( mclo::is_ascii( ch ), "Character is not ascii", ch );
+			MCLO_DEBUG_ASSERT( mclo::is_ascii( ch ), "Character is not ascii", ch );
 			buffer[ i ] = static_cast<CharT>( ch );
 		}
 		return buffer;

@@ -125,7 +125,7 @@ namespace mclo
 		decltype( auto ) pick( Rng&& rng )
 		{
 			const auto size = std::ranges::distance( rng );
-			DEBUG_ASSERT( size != 0, "Range must not be empty" );
+			MCLO_DEBUG_ASSERT( size != 0, "Range must not be empty" );
 			return *pick_it_size_checked( std::forward<Rng>( rng ), size );
 		}
 
@@ -178,7 +178,7 @@ namespace mclo
 		template <std::floating_point T>
 		bool percent_chance( T chance )
 		{
-			DEBUG_ASSERT( chance >= T( 0 ) && chance <= T( 1 ), "chance must be in range [0.0, 1.0]" );
+			MCLO_DEBUG_ASSERT( chance >= T( 0 ) && chance <= T( 1 ), "chance must be in range [0.0, 1.0]" );
 			// Uniform real distribution is [0, 1), so for a chance of 1 aka 100% every possible
 			// generated value is less than 1 so returns true.
 			return uniform( T( 0 ), T( 1 ) ) < chance;

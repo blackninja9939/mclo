@@ -129,7 +129,8 @@ namespace mclo
 				}
 				else
 				{
-					DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for copy assignment" );
+					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator,
+									   "containers incompatible for copy assignment" );
 				}
 				copy_from( other );
 				return *this;
@@ -148,7 +149,8 @@ namespace mclo
 				}
 				else
 				{
-					DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for move assignment" );
+					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator,
+									   "containers incompatible for move assignment" );
 				}
 				m_data = std::exchange( other.m_data, nullptr );
 				m_data_reverse_map = std::exchange( other.m_data_reverse_map, nullptr );
@@ -181,7 +183,7 @@ namespace mclo
 				}
 				else
 				{
-					DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for swap" );
+					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for swap" );
 				}
 				swap( m_data, other.m_data );
 				swap( m_data_reverse_map, other.m_data_reverse_map );
@@ -227,7 +229,7 @@ namespace mclo
 			void emplace_back( const size_type index, Args&&... args )
 			{
 				reserve( m_size + 1 );
-				DEBUG_ASSERT( m_size < m_capacity, "Size should be less than capacity" );
+				MCLO_DEBUG_ASSERT( m_size < m_capacity, "Size should be less than capacity" );
 				alloc_traits::construct(
 					m_allocator, std::addressof( m_data[ m_size ] ), std::forward<Args>( args )... );
 				size_allocator_type size_allocator( m_allocator );
@@ -237,7 +239,7 @@ namespace mclo
 
 			void pop_back() noexcept
 			{
-				DEBUG_ASSERT( m_size > size_type( 0 ), "Size should be greater than 0" );
+				MCLO_DEBUG_ASSERT( m_size > size_type( 0 ), "Size should be greater than 0" );
 				--m_size;
 				alloc_traits::destroy( m_allocator, std::addressof( m_data[ m_size ] ) );
 				size_allocator_type size_allocator( m_allocator );
@@ -246,7 +248,7 @@ namespace mclo
 
 			bool swap_and_pop_at( const size_type index ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 			{
-				DEBUG_ASSERT( index < m_size, "Index should be less than size" );
+				MCLO_DEBUG_ASSERT( index < m_size, "Index should be less than size" );
 				if ( index == m_size - 1 )
 				{
 					pop_back();
@@ -329,7 +331,7 @@ namespace mclo
 
 			void copy_from( const dense_slot_map_data& other )
 			{
-				DEBUG_ASSERT( m_size == size_type( 0 ), "Size should be 0" );
+				MCLO_DEBUG_ASSERT( m_size == size_type( 0 ), "Size should be 0" );
 				reserve( other.m_size );
 				std::uninitialized_copy_n( other.m_data, other.m_size, m_data );
 				static_assert( std::is_nothrow_copy_constructible_v<size_type>,
@@ -500,7 +502,7 @@ namespace mclo
 			}
 			if ( current_size < capacity() )
 			{
-				DEBUG_ASSERT( current_size <= slot_count(), "Size should be less than or equal to slot_count" );
+				MCLO_DEBUG_ASSERT( current_size <= slot_count(), "Size should be less than or equal to slot_count" );
 				return emplace_and_get_with_guard<noop_guard>( std::forward<Args>( arguments )... );
 			}
 			return emplace_and_get_with_guard<emplace_guard>( std::forward<Args>( arguments )... );
@@ -786,23 +788,23 @@ namespace mclo
 
 		[[nodiscard]] reference front() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return *data();
 		}
 		[[nodiscard]] reference back() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return data()[ size() - 1 ];
 		}
 
 		[[nodiscard]] const_reference front() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return *data();
 		}
 		[[nodiscard]] const_reference back() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Should not be empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return data()[ size() - 1 ];
 		}
 
@@ -921,7 +923,7 @@ namespace mclo
 				m_slot_indirection.push_back( handle_type{ new_num_slots, {} } );
 			}
 
-			DEBUG_ASSERT( new_num_slots == slot_count(), "New num slots should equal slot_count" );
+			MCLO_DEBUG_ASSERT( new_num_slots == slot_count(), "New num slots should equal slot_count" );
 
 			// We're safe now to return without cleanup, remaining changes are noexcept
 			guard.release();

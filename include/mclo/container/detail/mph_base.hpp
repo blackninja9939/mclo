@@ -254,7 +254,7 @@ namespace mclo::detail
 			// All slots are used so we now finally construct the real values
 			for ( std::size_t slot = 0; slot < Size; ++slot )
 			{
-				ASSUME( slot_data_index[ slot ] != 0, "Data at slot should be non zero", slot, slot_data_index );
+				MCLO_ASSUME( slot_data_index[ slot ] != 0, "Data at slot should be non zero", slot, slot_data_index );
 				const std::size_t data_index = slot_data_index[ slot ] - 1;
 				const pointer storage = std::addressof( m_storage[ slot ] );
 				std::destroy_at( storage );

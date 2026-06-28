@@ -332,37 +332,37 @@ namespace mclo
 
 		[[nodiscard]] constexpr const T& operator*() const& noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return *m_control_block->m_ptr;
 		}
 
 		[[nodiscard]] constexpr T& operator*() & noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return *m_control_block->m_ptr;
 		}
 
 		[[nodiscard]] constexpr const T&& operator*() const&& noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return std::move( **this );
 		}
 
 		[[nodiscard]] constexpr T&& operator*() && noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return std::move( **this );
 		}
 
 		[[nodiscard]] constexpr const_pointer operator->() const noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
 			return m_control_block->m_ptr;
 		}
 
 		[[nodiscard]] constexpr pointer operator->() noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
 			return m_control_block->m_ptr;
 		}
 
@@ -394,7 +394,7 @@ namespace mclo
 				}
 				else
 				{
-					UNREACHABLE( "Cannot swap polymorphics with different allocators" );
+					MCLO_UNREACHABLE( "Cannot swap polymorphics with different allocators" );
 				}
 			}
 		}

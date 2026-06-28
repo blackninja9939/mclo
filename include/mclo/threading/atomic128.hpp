@@ -59,7 +59,7 @@ namespace mclo
 				case std::memory_order_seq_cst:
 					return __ATOMIC_SEQ_CST;
 				default:
-					UNREACHABLE( "Invalid memory order" );
+					MCLO_UNREACHABLE( "Invalid memory order" );
 			}
 		}
 #endif
@@ -121,7 +121,7 @@ namespace mclo
 				case std::memory_order_seq_cst:
 					return _InterlockedCompareExchange128( target, high, low, comparand );
 				default:
-					UNREACHABLE( "Invalid memory order for atomic compare exchange" );
+					MCLO_UNREACHABLE( "Invalid memory order for atomic compare exchange" );
 			}
 #else
 			// x86-64 only provides the full barrier form, which is always at least as strong as requested.
@@ -179,8 +179,8 @@ namespace mclo
 		/// @return The value currently held.
 		[[nodiscard]] T load( const std::memory_order order = std::memory_order_seq_cst ) const noexcept
 		{
-			DEBUG_ASSERT( order != std::memory_order_release && order != std::memory_order_acq_rel,
-						  "Invalid memory order for atomic load" );
+			MCLO_DEBUG_ASSERT( order != std::memory_order_release && order != std::memory_order_acq_rel,
+							   "Invalid memory order for atomic load" );
 			return std::bit_cast<T>( load_storage( order ) );
 		}
 
@@ -190,9 +190,9 @@ namespace mclo
 		/// @c memory_order_acq_rel.
 		void store( const T desired, const std::memory_order order = std::memory_order_seq_cst ) noexcept
 		{
-			DEBUG_ASSERT( order != std::memory_order_consume && order != std::memory_order_acquire &&
-							  order != std::memory_order_acq_rel,
-						  "Invalid memory order for atomic store" );
+			MCLO_DEBUG_ASSERT( order != std::memory_order_consume && order != std::memory_order_acquire &&
+								   order != std::memory_order_acq_rel,
+							   "Invalid memory order for atomic store" );
 			store_storage( std::bit_cast<detail::storage128>( desired ), order );
 		}
 

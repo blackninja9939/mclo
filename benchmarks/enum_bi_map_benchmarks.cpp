@@ -26,7 +26,8 @@ namespace
 		template <std::ranges::input_range Range>
 		constexpr enum_bi_map_unordered_map( Range&& init_data )
 		{
-			DEBUG_ASSERT( std::ranges::size( init_data ) == max_size, "Invalid size for enum_bi_map_unordered_map" );
+			MCLO_DEBUG_ASSERT( std::ranges::size( init_data ) == max_size,
+							   "Invalid size for enum_bi_map_unordered_map" );
 			m_data_to_enum.reserve( max_size );
 			m_enum_to_data.reserve( max_size );
 			for ( const auto& [ e, str ] : init_data )
@@ -71,7 +72,7 @@ namespace
 			str_array& hashStr = strs[ i ];
 			const std::size_t hash = mclo::constexpr_hash( &i, 1 );
 			const std::to_chars_result result = std::to_chars( hashStr.data(), hashStr.data() + hashStr.size(), hash );
-			DEBUG_ASSERT( result.ec == std::errc{}, "Parsing should succeed" );
+			MCLO_DEBUG_ASSERT( result.ec == std::errc{}, "Parsing should succeed" );
 
 			str = { hashStr.data(), result.ptr };
 			++i;

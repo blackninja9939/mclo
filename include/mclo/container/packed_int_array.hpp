@@ -45,7 +45,7 @@ namespace mclo
 		/// @param init List of values to store, must have exactly Size elements
 		constexpr packed_int_array( const std::initializer_list<value_type> init ) noexcept
 		{
-			DEBUG_ASSERT( init.size() == Size, "Initializer list size must match array Size" );
+			MCLO_DEBUG_ASSERT( init.size() == Size, "Initializer list size must match array Size" );
 			size_type i = 0;
 			for ( const auto value : init )
 			{

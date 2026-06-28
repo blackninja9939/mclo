@@ -146,10 +146,3 @@ namespace mclo::detail
 #endif
 
 #endif
-
-// todo(mc) replace these with the direct MCLO prefixed one
-#define DEBUG_ASSERT( EXPR, ... ) MCLO_DEBUG_ASSERT( EXPR, __VA_ARGS__ )
-#define ASSERT( EXPR, ... ) MCLO_ASSERT( EXPR, __VA_ARGS__ )
-#define ASSUME( EXPR, ... ) MCLO_ASSUME( EXPR, __VA_ARGS__ )
-#define PANIC( ... ) MCLO_PANIC( __VA_ARGS__ )
-#define UNREACHABLE( ... ) MCLO_UNREACHABLE( __VA_ARGS__ )

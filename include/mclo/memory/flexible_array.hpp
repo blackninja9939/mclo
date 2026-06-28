@@ -174,7 +174,8 @@ namespace mclo
 				}
 				else
 				{
-					DEBUG_ASSERT( m_allocator == other.m_allocator, "Containers incompatible for move assignment" );
+					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator,
+									   "Containers incompatible for move assignment" );
 				}
 				m_header = std::exchange( other.m_header, nullptr );
 			}
@@ -215,7 +216,7 @@ namespace mclo
 		/// @pre @p index must be less than @ref size().
 		[[nodiscard]] reference operator[]( const Size index ) noexcept
 		{
-			DEBUG_ASSERT( index < size() );
+			MCLO_DEBUG_ASSERT( index < size() );
 			return data()[ index ];
 		}
 
@@ -223,7 +224,7 @@ namespace mclo
 		/// @pre @p index must be less than @ref size().
 		[[nodiscard]] const_reference operator[]( const Size index ) const noexcept
 		{
-			DEBUG_ASSERT( index < size() );
+			MCLO_DEBUG_ASSERT( index < size() );
 			return data()[ index ];
 		}
 
@@ -241,7 +242,7 @@ namespace mclo
 			}
 			else
 			{
-				DEBUG_ASSERT( m_allocator == other.m_allocator, "Containers incompatible for swap" );
+				MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator, "Containers incompatible for swap" );
 			}
 			swap( m_header, other.m_header );
 		}

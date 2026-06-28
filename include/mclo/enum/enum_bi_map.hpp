@@ -37,7 +37,7 @@ namespace mclo
 		template <std::ranges::input_range Range>
 		constexpr enum_bi_map_generic( Range&& init_data )
 		{
-			DEBUG_ASSERT( std::ranges::size( init_data ) == max_size, "Invalid size for enum_bi_map" );
+			MCLO_DEBUG_ASSERT( std::ranges::size( init_data ) == max_size, "Invalid size for enum_bi_map" );
 			std::ranges::move( std::forward<Range>( init_data ), m_data_to_enum.begin() );
 			Traits::setup( m_data_to_enum );
 

@@ -22,7 +22,7 @@ namespace
 
 	void _expectSetContains( const mclo::enum_set<test_enum>& set, mclo::span<const test_enum> expectedSet )
 	{
-		DEBUG_ASSERT( std::is_sorted( expectedSet.begin(), expectedSet.end() ) );
+		MCLO_DEBUG_ASSERT( std::is_sorted( expectedSet.begin(), expectedSet.end() ) );
 
 		CHECK( expectedSet.empty() == set.empty() );
 		CHECK( expectedSet.size() == set.size() );

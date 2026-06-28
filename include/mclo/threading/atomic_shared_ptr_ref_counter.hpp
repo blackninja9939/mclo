@@ -115,7 +115,7 @@ namespace mclo
 			}
 			while ( !m_counter.compare_exchange_weak( old, desired ) );
 
-			DEBUG_ASSERT( old.m_count != 0, "Reference count underflow in atomic_shared_ptr_ref_counter" );
+			MCLO_DEBUG_ASSERT( old.m_count != 0, "Reference count underflow in atomic_shared_ptr_ref_counter" );
 			if ( old.m_count == 1 && old.m_external_counters == 0 )
 			{
 				std::atomic_thread_fence( std::memory_order_acquire );

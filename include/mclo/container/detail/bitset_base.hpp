@@ -173,7 +173,7 @@ namespace mclo::detail
 		/// @return If the bit is set
 		[[nodiscard]] constexpr bool test( const size_type pos ) const noexcept
 		{
-			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
+			MCLO_DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			return ( m_container[ page ] & bit_value ) != 0;
@@ -186,7 +186,7 @@ namespace mclo::detail
 		/// @return If the bit was set
 		[[nodiscard]] constexpr bool test_set( const size_type pos, const bool value = true ) noexcept
 		{
-			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
+			MCLO_DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			underlying_type& data = m_container[ page ];
@@ -333,7 +333,7 @@ namespace mclo::detail
 		/// @return Reference to the set
 		constexpr Derived& flip( const size_type pos ) noexcept
 		{
-			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
+			MCLO_DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
 			const size_type index = pos % bits_per_value;
 			m_container[ page ] ^= one << index;
@@ -663,7 +663,7 @@ namespace mclo::detail
 		template <bool value>
 		[[nodiscard]] constexpr Derived& set_internal( const size_type pos ) noexcept
 		{
-			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
+			MCLO_DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
 			const underlying_type bit_value = one << ( pos % bits_per_value );
 			underlying_type& data = m_container[ page ];

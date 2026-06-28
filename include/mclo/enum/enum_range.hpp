@@ -34,7 +34,7 @@ namespace mclo
 		{
 			using underlying_t = std::underlying_type_t<TEnum>;
 			const auto underlying = static_cast<underlying_t>( value );
-			DEBUG_ASSERT( is_safe_addition( underlying, amount ), "Addition would overflow" );
+			MCLO_DEBUG_ASSERT( is_safe_addition( underlying, amount ), "Addition would overflow" );
 			return static_cast<TEnum>( underlying + amount );
 		}
 	}
@@ -200,7 +200,7 @@ namespace mclo
 		{
 			if constexpr ( mclo::has_enum_size<TEnum> )
 			{
-				DEBUG_ASSERT(
+				MCLO_DEBUG_ASSERT(
 					last != enum_size<TEnum>,
 					"This constructor is inclusive to its arguments, so passing in EnumSize will include it in the "
 					"range, this is likely an error, either use the default or exclusive_enum_range constructor" );
@@ -214,7 +214,7 @@ namespace mclo
 			: m_begin( first )
 			, m_end( last )
 		{
-			DEBUG_ASSERT( first <= last, "Iterators must form a valid range" );
+			MCLO_DEBUG_ASSERT( first <= last, "Iterators must form a valid range" );
 		}
 
 		/// @brief Returns an iterator to the first enumerator in the range.

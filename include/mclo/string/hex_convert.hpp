@@ -54,8 +54,8 @@ namespace mclo
 	/// @pre @p output must have a size of at least @p input size / 2.
 	constexpr void from_hex( const std::string_view input, const mclo::span<std::uint8_t> output ) noexcept
 	{
-		DEBUG_ASSERT( input.size() % 2 == 0, "Hex string must have an even length" );
-		DEBUG_ASSERT( output.size() >= input.size() / 2, "Output buffer too small for hex decoding" );
+		MCLO_DEBUG_ASSERT( input.size() % 2 == 0, "Hex string must have an even length" );
+		MCLO_DEBUG_ASSERT( output.size() >= input.size() / 2, "Output buffer too small for hex decoding" );
 		for ( std::size_t i = 0; i < input.size(); i += 2 )
 		{
 			output[ i / 2 ] = static_cast<std::uint8_t>( ( from_hex( input[ i ] ) << 4 ) | from_hex( input[ i + 1 ] ) );
@@ -68,7 +68,7 @@ namespace mclo
 	/// @pre @p output must have a size of at least @p input size * 2.
 	constexpr void to_hex( const mclo::span<const std::uint8_t> input, const mclo::span<char> output ) noexcept
 	{
-		DEBUG_ASSERT( output.size() >= input.size() * 2, "Output buffer too small for hex conversion" );
+		MCLO_DEBUG_ASSERT( output.size() >= input.size() * 2, "Output buffer too small for hex conversion" );
 		for ( std::size_t i = 0; i < input.size(); ++i )
 		{
 			output[ i * 2 ] = to_hex( input[ i ] >> 4 );
@@ -82,7 +82,7 @@ namespace mclo
 	/// @pre @p output must have a size of at least @p input size * 2.
 	constexpr void to_hex_upper( const mclo::span<const std::uint8_t> input, const mclo::span<char> output ) noexcept
 	{
-		DEBUG_ASSERT( output.size() >= input.size() * 2, "Output buffer too small for hex conversion" );
+		MCLO_DEBUG_ASSERT( output.size() >= input.size() * 2, "Output buffer too small for hex conversion" );
 		for ( std::size_t i = 0; i < input.size(); ++i )
 		{
 			output[ i * 2 ] = to_hex_upper( input[ i ] >> 4 );

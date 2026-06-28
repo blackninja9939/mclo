@@ -51,7 +51,7 @@ namespace mclo
 		template <typename Predicate>
 		void wait( std::unique_lock<mclo::mutex>& lock, Predicate pred )
 		{
-			DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
+			MCLO_DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 			while ( !pred() )
 			{
 				wait( lock );
@@ -82,7 +82,7 @@ namespace mclo
 								   const std::chrono::time_point<Clock, Duration> absolute_time )
 		{
 			static_assert( std::chrono::is_clock_v<Clock>, "Clock must be a clock type" );
-			DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
+			MCLO_DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 			// Loop because the wait time is clamped to a maximum, so a single timed wait may expire before the real
 			// deadline. Each iteration waits for the clamped remaining time until the deadline is genuinely reached.
 			for ( ;; )
@@ -107,7 +107,7 @@ namespace mclo
 						 Predicate pred )
 		{
 			static_assert( std::chrono::is_clock_v<Clock>, "Clock must be a clock type" );
-			DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
+			MCLO_DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
 			while ( !pred() )
 			{
 				if ( wait_until( lock, absolute_time ) == std::cv_status::timeout )

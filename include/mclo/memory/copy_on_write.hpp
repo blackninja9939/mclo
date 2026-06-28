@@ -326,7 +326,7 @@ namespace mclo
 		/// @pre The instance must not be valueless.
 		[[nodiscard]] const T& operator*() const& noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Dereferencing copy_on_write that is valueless_after_move" );
 			return m_ptr->m_value;
 		}
 
@@ -334,7 +334,8 @@ namespace mclo
 		/// @pre The instance must not be valueless.
 		[[nodiscard]] const_pointer operator->() const noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(),
+							   "Getting pointer for copy_on_write that is valueless_after_move" );
 			return std::addressof( m_ptr->m_value );
 		}
 
@@ -356,7 +357,8 @@ namespace mclo
 		/// code. Do not use it for synchronization decisions.
 		[[nodiscard]] long use_count() const noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Getting use_count for copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(),
+							   "Getting use_count for copy_on_write that is valueless_after_move" );
 			return m_ptr->m_counter.load( std::memory_order_relaxed );
 		}
 
@@ -364,8 +366,8 @@ namespace mclo
 		/// @pre Neither instance may be valueless.
 		[[nodiscard]] bool identical_to( const copy_on_write& other ) const noexcept
 		{
-			DEBUG_ASSERT( !valueless_after_move() && !other.valueless_after_move(),
-						  "Checking identical_to for copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move() && !other.valueless_after_move(),
+							   "Checking identical_to for copy_on_write that is valueless_after_move" );
 			return m_ptr == other.m_ptr;
 		}
 
@@ -383,7 +385,7 @@ namespace mclo
 			requires mclo::invocable_r<void, Func, T&>
 		void modify( Func&& func )
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Modifying copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Modifying copy_on_write that is valueless_after_move" );
 
 			if ( m_ptr->m_counter.load( std::memory_order_acquire ) > 1 )
 			{
@@ -412,7 +414,7 @@ namespace mclo
 			requires mclo::invocable_r<void, Func, T&> && mclo::invocable_r<T, Transform, const T&>
 		void modify( Func&& func, Transform&& transform )
 		{
-			DEBUG_ASSERT( !valueless_after_move(), "Modifying copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT( !valueless_after_move(), "Modifying copy_on_write that is valueless_after_move" );
 
 			if ( m_ptr->m_counter.load( std::memory_order_acquire ) > 1 )
 			{
@@ -447,7 +449,7 @@ namespace mclo
 				}
 				else
 				{
-					UNREACHABLE( "Cannot swap copy_on_writes with different allocators" );
+					MCLO_UNREACHABLE( "Cannot swap copy_on_writes with different allocators" );
 				}
 			}
 		}
@@ -558,7 +560,7 @@ namespace mclo
 			if ( m_ptr )
 			{
 				const std::size_t old = m_ptr->m_counter.fetch_sub( 1, std::memory_order_release );
-				DEBUG_ASSERT( old != 0, "Reference count underflow in copy_on_write" );
+				MCLO_DEBUG_ASSERT( old != 0, "Reference count underflow in copy_on_write" );
 				if ( old == 1 ) // Was last reference
 				{
 					std::atomic_thread_fence( std::memory_order_acquire );

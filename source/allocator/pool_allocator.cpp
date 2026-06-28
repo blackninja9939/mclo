@@ -18,8 +18,8 @@ namespace mclo
 		, m_data( static_cast<std::byte*>(
 			  ::operator new( m_chunk_size* chunk_count, std::align_val_t( m_chunk_alignment ) ) ) )
 	{
-		DEBUG_ASSERT( mclo::is_pow2( m_chunk_alignment ), "Chunk alignment must be a power of 2" );
-		DEBUG_ASSERT( m_chunk_size % m_chunk_alignment == 0, "Chunk size must be a multiple of chunk alignment" );
+		MCLO_DEBUG_ASSERT( mclo::is_pow2( m_chunk_alignment ), "Chunk alignment must be a power of 2" );
+		MCLO_DEBUG_ASSERT( m_chunk_size % m_chunk_alignment == 0, "Chunk size must be a multiple of chunk alignment" );
 
 		std::byte* ptr = m_data;
 		for ( std::size_t i = 0; i < chunk_count; ++i )
@@ -46,8 +46,8 @@ namespace mclo
 	void* memory_pool::allocate( [[maybe_unused]] const std::size_t size,
 								 [[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */ )
 	{
-		DEBUG_ASSERT( size <= m_chunk_size, "Requested size exceeds chunk size" );
-		DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
+		MCLO_DEBUG_ASSERT( size <= m_chunk_size, "Requested size exceeds chunk size" );
+		MCLO_DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
 		free_list_node* const node = m_free_list.pop_front();
 
 		if ( !node )
@@ -64,8 +64,8 @@ namespace mclo
 		[[maybe_unused]] const std::size_t size,
 		[[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */ ) noexcept
 	{
-		DEBUG_ASSERT( size <= m_chunk_size, "Deallocated size exceeds chunk size" );
-		DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
+		MCLO_DEBUG_ASSERT( size <= m_chunk_size, "Deallocated size exceeds chunk size" );
+		MCLO_DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
 
 		// Reconstruct the node and push it back to the free list
 		// Construct at ensures pointer provenance without needing std::launder

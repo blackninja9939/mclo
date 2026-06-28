@@ -78,7 +78,7 @@ namespace mclo
 		/// @param value Value to append
 		void push_back( const value_type value )
 		{
-			DEBUG_ASSERT( value <= max_value, "Value exceeds maximum for BitWidth" );
+			MCLO_DEBUG_ASSERT( value <= max_value, "Value exceeds maximum for BitWidth" );
 
 			const size_type current_size = m_container.size();
 			const size_type needed = base::required_physical_size( m_size + 1 );
@@ -112,7 +112,7 @@ namespace mclo
 		/// @brief Remove the last virtual integer
 		void pop_back() noexcept
 		{
-			DEBUG_ASSERT( !this->empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !this->empty(), "Container is empty" );
 			--m_size;
 		}
 
@@ -149,7 +149,7 @@ namespace mclo
 		/// @param new_size New number of virtual integers
 		void resize( const size_type new_size )
 		{
-			DEBUG_ASSERT( new_size <= max_size(), "Virtual size exceeds max_size" );
+			MCLO_DEBUG_ASSERT( new_size <= max_size(), "Virtual size exceeds max_size" );
 			if ( new_size > m_size )
 			{
 				m_container.resize( base::required_physical_size( new_size ) );

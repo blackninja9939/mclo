@@ -72,7 +72,7 @@ namespace mclo
 		}
 		constexpr void set( const T value ) noexcept
 		{
-			DEBUG_ASSERT( value != invalid, "Value is invalid sentinel" );
+			MCLO_DEBUG_ASSERT( value != invalid, "Value is invalid sentinel" );
 			m_value = value;
 		}
 
@@ -120,7 +120,7 @@ namespace mclo
 		constexpr void set( const Float value ) noexcept
 		{
 			m_value = std::bit_cast<IntRep>( value );
-			DEBUG_ASSERT( m_value != invalid, "Value is invalid sentinel" );
+			MCLO_DEBUG_ASSERT( m_value != invalid, "Value is invalid sentinel" );
 		}
 
 		// We store as an integer so that we can compare against invalid without the NaNs are never equal kicking in
@@ -303,7 +303,7 @@ namespace mclo
 		/// @pre The optional must hold a value.
 		[[nodiscard]] T operator*() const noexcept
 		{
-			DEBUG_ASSERT( has_value(), "Optional has no value" );
+			MCLO_DEBUG_ASSERT( has_value(), "Optional has no value" );
 			return base::get();
 		}
 

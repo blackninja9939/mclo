@@ -184,12 +184,12 @@ namespace mclo
 
 		[[nodiscard]] reference operator[]( const size_type index ) noexcept
 		{
-			DEBUG_ASSERT( index < m_size, "Index out of range" );
+			MCLO_DEBUG_ASSERT( index < m_size, "Index out of range" );
 			return data()[ index ];
 		}
 		[[nodiscard]] const_reference operator[]( const size_type index ) const noexcept
 		{
-			DEBUG_ASSERT( index < m_size, "Index out of range" );
+			MCLO_DEBUG_ASSERT( index < m_size, "Index out of range" );
 			return data()[ index ];
 		}
 
@@ -212,23 +212,23 @@ namespace mclo
 
 		[[nodiscard]] reference front() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *data();
 		}
 		[[nodiscard]] const_reference front() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *data();
 		}
 
 		[[nodiscard]] reference back() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return data()[ m_size - 1 ];
 		}
 		[[nodiscard]] const_reference back() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return data()[ m_size - 1 ];
 		}
 
@@ -330,7 +330,7 @@ namespace mclo
 		template <typename... Args>
 		iterator emplace( const_iterator pos, Args&&... args )
 		{
-			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 
 			if ( m_size == m_capacity )
 			{
@@ -364,7 +364,7 @@ namespace mclo
 
 		iterator insert( const_iterator pos, const size_type amount, const_reference value )
 		{
-			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 
 			const iterator insert_pos = unwrap_iterator( pos );
 
@@ -444,21 +444,21 @@ namespace mclo
 		{
 			const size_type where_pos = static_cast<size_type>( std::distance( cbegin(), pos ) );
 			const std::size_t amount = init_list.size();
-			DEBUG_ASSERT( amount <= max_size() - m_size, "New size would be greater than max_size" );
+			MCLO_DEBUG_ASSERT( amount <= max_size() - m_size, "New size would be greater than max_size" );
 			insert_sized( pos, init_list.begin(), static_cast<size_type>( amount ) );
 			return begin() + where_pos;
 		}
 
 		void pop_back() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			std::destroy_at( end() - 1 );
 			--m_size;
 		}
 
 		iterator erase( const_iterator pos ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 		{
-			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 			const iterator it = unwrap_iterator( pos );
 			std::move( it + 1, end(), it );
 			--m_size;
@@ -468,9 +468,9 @@ namespace mclo
 		iterator erase( const_iterator first,
 						const_iterator last ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 		{
-			DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
-			DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
-			DEBUG_ASSERT( first <= last, "first and last must form a valid range in this container" );
+			MCLO_DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( first <= last, "first and last must form a valid range in this container" );
 
 			const iterator first_mut = unwrap_iterator( first );
 			const iterator last_mut = unwrap_iterator( last );
@@ -584,7 +584,7 @@ namespace mclo
 
 			void set_begin( const pointer new_first ) noexcept
 			{
-				DEBUG_ASSERT( new_first <= m_last, "first and last must form a valid range" );
+				MCLO_DEBUG_ASSERT( new_first <= m_last, "first and last must form a valid range" );
 				m_first = new_first;
 			}
 			void release() noexcept
@@ -729,7 +729,7 @@ namespace mclo
 		template <typename... Args>
 		[[nodiscard]] iterator emplace_reallocate( const_iterator pos, Args&&... args )
 		{
-			DEBUG_ASSERT( m_size == m_capacity, "No unused capacity" );
+			MCLO_DEBUG_ASSERT( m_size == m_capacity, "No unused capacity" );
 
 			return insert_reallocate( pos, 1, [... args = std::forward<Args>( args ) ]( const pointer ptr ) mutable {
 				std::construct_at( ptr, std::forward<Args>( args )... );
@@ -870,7 +870,7 @@ namespace mclo
 
 		void swap_with_larger( small_vector_base& larger )
 		{
-			DEBUG_ASSERT( m_size < larger.m_size, "larger should actually be larger" );
+			MCLO_DEBUG_ASSERT( m_size < larger.m_size, "larger should actually be larger" );
 			const size_type overlap_size = m_size;
 			std::swap_ranges( begin(), begin() + overlap_size, larger.begin() );
 

@@ -29,7 +29,7 @@ namespace
 
 	void check_equals( const mclo::circular_buffer<int>& buffer, mclo::span<const int> values )
 	{
-		DEBUG_ASSERT( !values.empty() );
+		MCLO_DEBUG_ASSERT( !values.empty() );
 		CHECK_FALSE( buffer.empty() );
 		CHECK( buffer.size() == values.size() );
 		CHECK( buffer.begin() != buffer.end() );

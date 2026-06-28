@@ -25,13 +25,13 @@ namespace mclo
 	thread_local_key::~thread_local_key()
 	{
 		[[maybe_unused]] const BOOL result = TlsFree( m_key );
-		DEBUG_ASSERT( result != 0, "Failed to free thread local key" );
+		MCLO_DEBUG_ASSERT( result != 0, "Failed to free thread local key" );
 	}
 
 	void thread_local_key::set( void* value )
 	{
 		[[maybe_unused]] const BOOL result = TlsSetValue( m_key, value );
-		DEBUG_ASSERT( result != 0, "Failed to set thread local value" );
+		MCLO_DEBUG_ASSERT( result != 0, "Failed to set thread local value" );
 	}
 
 	void* thread_local_key::get() const noexcept
@@ -53,13 +53,13 @@ namespace mclo
 	thread_local_key::~thread_local_key()
 	{
 		[[maybe_unused]] const int result = pthread_key_delete( m_key );
-		DEBUG_ASSERT( result == 0, "Failed to delete thread local key" );
+		MCLO_DEBUG_ASSERT( result == 0, "Failed to delete thread local key" );
 	}
 
 	void thread_local_key::set( void* value )
 	{
 		[[maybe_unused]] const int result = pthread_setspecific( m_key, value );
-		DEBUG_ASSERT( result == 0, "Failed to set thread local value" );
+		MCLO_DEBUG_ASSERT( result == 0, "Failed to set thread local value" );
 	}
 
 	void* thread_local_key::get() const noexcept

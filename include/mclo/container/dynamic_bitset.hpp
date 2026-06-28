@@ -36,8 +36,8 @@ namespace mclo
 			: base( container )
 			, m_size( size )
 		{
-			DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
-						  "Size greater than max bits per value in container" );
+			MCLO_DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
+							   "Size greater than max bits per value in container" );
 			derived_trim();
 		}
 
@@ -51,8 +51,8 @@ namespace mclo
 			: base( std::move( container ) )
 			, m_size( size )
 		{
-			DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
-						  "Size greater than max bits per value in container" );
+			MCLO_DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
+							   "Size greater than max bits per value in container" );
 			derived_trim();
 		}
 

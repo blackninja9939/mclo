@@ -48,7 +48,7 @@ namespace mclo
 	template <std::unsigned_integral T>
 	[[nodiscard]] constexpr T modulo_pow2( const T value, const T mod ) noexcept
 	{
-		DEBUG_ASSERT( is_pow2( mod ), "Mod must be a power of 2" );
+		MCLO_DEBUG_ASSERT( is_pow2( mod ), "Mod must be a power of 2" );
 		return value & ( mod - 1 );
 	}
 }

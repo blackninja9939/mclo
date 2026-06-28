@@ -116,7 +116,7 @@ namespace mclo
 		{
 			static_assert( meta::count_v<T, ptr_alternatives> == 1,
 						   "Type based get is only valid to use if T appears in the alternative types exactly once" );
-			DEBUG_ASSERT( index() == tag_v<T>, "Variant does not currently hold altnerative" );
+			MCLO_DEBUG_ASSERT( index() == tag_v<T>, "Variant does not currently hold altnerative" );
 			return cast_to<T>( get_raw() );
 		}
 		/// @brief Returns the stored pointer as a @c const T*.
@@ -127,7 +127,7 @@ namespace mclo
 		{
 			static_assert( meta::count_v<T, ptr_alternatives> == 1,
 						   "Type based get is only valid to use if T appears in the alternative types exactly once" );
-			DEBUG_ASSERT( index() == tag_v<T>, "Variant does not currently hold altnerative" );
+			MCLO_DEBUG_ASSERT( index() == tag_v<T>, "Variant does not currently hold altnerative" );
 			return cast_to<const T>( get_raw() );
 		}
 
@@ -137,7 +137,7 @@ namespace mclo
 		[[nodiscard]] alternative_t<Index>* get() noexcept
 		{
 			static_assert( Index < size, "Index out of range of alternatives" );
-			DEBUG_ASSERT( index() == Index, "Variant does not currently hold altnerative" );
+			MCLO_DEBUG_ASSERT( index() == Index, "Variant does not currently hold altnerative" );
 			return cast_to<alternative_t<Index>>( get_raw() );
 		}
 		/// @brief Returns the stored pointer as a const pointer to the alternative type at @p Index.
@@ -146,7 +146,7 @@ namespace mclo
 		[[nodiscard]] const alternative_t<Index>* get() const noexcept
 		{
 			static_assert( Index < size, "Index out of range of alternatives" );
-			DEBUG_ASSERT( index() == Index, "Variant does not currently hold altnerative" );
+			MCLO_DEBUG_ASSERT( index() == Index, "Variant does not currently hold altnerative" );
 			return cast_to<const alternative_t<Index>>( get_raw() );
 		}
 

@@ -43,15 +43,15 @@ namespace mclo
 
 		[[nodiscard]] reference operator*() const noexcept
 		{
-			DEBUG_ASSERT( m_buffer, "Dereferencing an invalid iterator" );
-			DEBUG_ASSERT( m_ptr, "Dereferencing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_buffer, "Dereferencing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_ptr, "Dereferencing an invalid iterator" );
 			return *m_ptr;
 		}
 
 		[[nodiscard]] pointer operator->() const noexcept
 		{
-			DEBUG_ASSERT( m_buffer, "Dereferencing an invalid iterator" );
-			DEBUG_ASSERT( m_ptr, "Dereferencing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_buffer, "Dereferencing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_ptr, "Dereferencing an invalid iterator" );
 			return m_ptr;
 		}
 
@@ -62,8 +62,8 @@ namespace mclo
 
 		circular_buffer_iterator& operator++() noexcept
 		{
-			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
-			DEBUG_ASSERT( m_ptr, "Incrementing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_ptr, "Incrementing an invalid iterator" );
 			m_buffer->increment( m_ptr );
 			if ( m_ptr == m_buffer->m_tail )
 			{
@@ -81,8 +81,8 @@ namespace mclo
 
 		circular_buffer_iterator& operator--() noexcept
 		{
-			DEBUG_ASSERT( m_buffer, "Decrementing an invalid iterator" );
-			DEBUG_ASSERT( m_ptr != m_buffer->m_data, "Decrementing begin iterator" );
+			MCLO_DEBUG_ASSERT( m_buffer, "Decrementing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_ptr != m_buffer->m_data, "Decrementing begin iterator" );
 			if ( !m_ptr )
 			{
 				m_ptr = m_buffer->m_tail;
@@ -100,7 +100,7 @@ namespace mclo
 
 		circular_buffer_iterator& operator+=( const difference_type amount ) noexcept
 		{
-			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
 			if ( amount > 0 )
 			{
 				m_buffer->increment( m_ptr, amount );
@@ -118,7 +118,7 @@ namespace mclo
 
 		circular_buffer_iterator& operator-=( const difference_type amount ) noexcept
 		{
-			DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
+			MCLO_DEBUG_ASSERT( m_buffer, "Incrementing an invalid iterator" );
 			if ( amount > 0 )
 			{
 				if ( !m_ptr )
@@ -156,20 +156,20 @@ namespace mclo
 		[[nodiscard]] constexpr friend difference_type operator-( const circular_buffer_iterator& lhs,
 																  const circular_buffer_iterator& rhs ) noexcept
 		{
-			DEBUG_ASSERT( lhs.m_buffer == rhs.m_buffer, "Iterators are not comparable" );
+			MCLO_DEBUG_ASSERT( lhs.m_buffer == rhs.m_buffer, "Iterators are not comparable" );
 			return lhs.contiguous_ptr() - rhs.contiguous_ptr();
 		}
 
 		template <bool OtherConst>
 		[[nodiscard]] bool operator==( const circular_buffer_iterator<Buffer, OtherConst>& other ) const noexcept
 		{
-			DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
+			MCLO_DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
 			return m_ptr == other.m_ptr;
 		}
 		template <bool OtherConst>
 		[[nodiscard]] auto operator<=>( const circular_buffer_iterator<Buffer, OtherConst>& other ) const noexcept
 		{
-			DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
+			MCLO_DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
 			return contiguous_ptr() <=> other.contiguous_ptr();
 		}
 
@@ -360,29 +360,29 @@ namespace mclo
 
 		[[nodiscard]] reference front() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *m_head;
 		}
 		[[nodiscard]] const_reference front() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *m_head;
 		}
 
 		[[nodiscard]] reference back() noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return m_tail[ -1 ];
 		}
 		[[nodiscard]] const_reference back() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return m_tail[ -1 ];
 		}
 
 		[[nodiscard]] reference operator[]( const size_type index ) noexcept
 		{
-			DEBUG_ASSERT( index < size(), "Index out of range" );
+			MCLO_DEBUG_ASSERT( index < size(), "Index out of range" );
 			pointer ptr = m_head;
 			increment( ptr, index );
 			return *ptr;
@@ -390,7 +390,7 @@ namespace mclo
 
 		[[nodiscard]] const_reference operator[]( const size_type index ) const noexcept
 		{
-			DEBUG_ASSERT( index < size(), "Index out of range" );
+			MCLO_DEBUG_ASSERT( index < size(), "Index out of range" );
 			pointer ptr = m_head;
 			increment( ptr, index );
 			return *ptr;
@@ -493,7 +493,7 @@ namespace mclo
 
 		void pop_back()
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			decrement( m_tail );
 			alloc_traits::destroy( m_allocator, m_tail );
 			--m_size;
@@ -533,7 +533,7 @@ namespace mclo
 
 		void pop_front()
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			alloc_traits::destroy( m_allocator, m_head );
 			increment( m_head );
 			--m_size;
@@ -544,7 +544,7 @@ namespace mclo
 
 		iterator erase( const_iterator pos )
 		{
-			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 			const iterator it = pos;
 			std::move( it + 1, end(), it );
 			pop_back();
@@ -553,9 +553,9 @@ namespace mclo
 
 		iterator erase( const_iterator first, const_iterator last )
 		{
-			DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
-			DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
-			DEBUG_ASSERT( first <= last, "first and last must form a valid range in this container" );
+			MCLO_DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
+			MCLO_DEBUG_ASSERT( first <= last, "first and last must form a valid range in this container" );
 
 			const iterator first_mut = first;
 			const iterator last_mut = last;
@@ -617,7 +617,7 @@ namespace mclo
 			}
 			else
 			{
-				DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for swap" );
+				MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator, "containers incompatible for swap" );
 			}
 			swap( m_data, other.m_data );
 			swap( m_data_end, other.m_data_end );
@@ -729,7 +729,7 @@ namespace mclo
 
 		void set_data( const pointer new_data, const size_type new_size, const size_type new_capacity ) noexcept
 		{
-			DEBUG_ASSERT( new_capacity >= new_size, "Capacity must be greater than or equal to size" );
+			MCLO_DEBUG_ASSERT( new_capacity >= new_size, "Capacity must be greater than or equal to size" );
 			m_allocator.deallocate( m_data, capacity() );
 			m_data = new_data;
 			m_data_end = m_data + new_capacity;

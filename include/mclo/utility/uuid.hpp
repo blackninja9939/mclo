@@ -51,7 +51,7 @@ namespace mclo
 		constexpr std::array<std::byte, 16> parse_uuid_from_string( const std::string_view str ) noexcept
 		{
 			auto result = try_parse_uuid_from_string( str );
-			ASSERT( result.has_value(), "Invalid UUID string", str );
+			MCLO_ASSERT( result.has_value(), "Invalid UUID string", str );
 			return *result;
 		}
 	}

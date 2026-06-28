@@ -95,7 +95,7 @@ namespace mclo::detail
 		/// @return The value of the virtual integer
 		[[nodiscard]] constexpr value_type get( const size_type index ) const noexcept
 		{
-			DEBUG_ASSERT( index < size(), "Index out of range" );
+			MCLO_DEBUG_ASSERT( index < size(), "Index out of range" );
 
 			const std::size_t bit_offset = index * bit_width;
 
@@ -128,8 +128,8 @@ namespace mclo::detail
 		/// @param value Value to set, only the lowest BitWidth bits are used
 		constexpr void set( const size_type index, const value_type value ) noexcept
 		{
-			DEBUG_ASSERT( index < size(), "Index out of range" );
-			DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
+			MCLO_DEBUG_ASSERT( index < size(), "Index out of range" );
+			MCLO_DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
 
 			const std::size_t bit_offset = index * bit_width;
 			const auto physical_index = static_cast<size_type>( bit_offset / bits_per_underlying );
@@ -145,8 +145,8 @@ namespace mclo::detail
 				const std::size_t bits_in_first = bits_per_underlying - bit_index;
 				if ( bits_in_first < bit_width )
 				{
-					DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
-								  "Physical index out of bounds on boundary crossing" );
+					MCLO_DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
+									   "Physical index out of bounds on boundary crossing" );
 					const std::size_t remaining_bits = bit_width - bits_in_first;
 					auto& next_physical = data[ physical_index + 1 ];
 					next_physical &=
@@ -163,8 +163,8 @@ namespace mclo::detail
 		/// @return The previous value at the given index
 		[[nodiscard]] constexpr value_type exchange( const size_type index, const value_type value ) noexcept
 		{
-			DEBUG_ASSERT( index < size(), "Index out of range" );
-			DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
+			MCLO_DEBUG_ASSERT( index < size(), "Index out of range" );
+			MCLO_DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
 
 			const std::size_t bit_offset = index * bit_width;
 			const auto physical_index = static_cast<size_type>( bit_offset / bits_per_underlying );
@@ -183,8 +183,8 @@ namespace mclo::detail
 				const std::size_t bits_in_first = bits_per_underlying - bit_index;
 				if ( bits_in_first < bit_width )
 				{
-					DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
-								  "Physical index out of bounds on boundary crossing" );
+					MCLO_DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
+									   "Physical index out of bounds on boundary crossing" );
 					auto& next_physical = data[ physical_index + 1 ];
 
 					old_val |= static_cast<underlying_type>( next_physical << bits_in_first );
@@ -203,14 +203,14 @@ namespace mclo::detail
 		/// @brief Get the first virtual integer
 		[[nodiscard]] constexpr value_type front() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return static_cast<value_type>( as_derived().derived_data()[ 0 ] & mask );
 		}
 
 		/// @brief Get the last virtual integer
 		[[nodiscard]] constexpr value_type back() const noexcept
 		{
-			DEBUG_ASSERT( !empty(), "Container is empty" );
+			MCLO_DEBUG_ASSERT( !empty(), "Container is empty" );
 			return get( size() - 1 );
 		}
 
@@ -259,7 +259,7 @@ namespace mclo::detail
 		/// @param value Value to fill with, only the lowest BitWidth bits are used
 		constexpr void fill( const value_type value ) noexcept
 		{
-			DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
+			MCLO_DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
 
 			const size_type physical_size = as_derived().derived_physical_size();
 			if ( physical_size == 0 )
@@ -400,8 +400,8 @@ namespace mclo::detail
 				const std::size_t bits_in_first = bits_per_underlying - bit_index;
 				if ( bits_in_first < BitWidth )
 				{
-					DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
-								  "Physical index out of bounds on boundary crossing" );
+					MCLO_DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
+									   "Physical index out of bounds on boundary crossing" );
 					value |= static_cast<underlying_type>( data[ physical_index + 1 ] << bits_in_first );
 				}
 			}
