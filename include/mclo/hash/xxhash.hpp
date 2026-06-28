@@ -3,6 +3,8 @@
 #include "mclo/container/span.hpp"
 #include "mclo/platform/cpp_feature_compat.hpp"
 
+#include <memory>
+
 #define XXH_STATIC_LINKING_ONLY
 #include <xxhash.h>
 #undef XXH_STATIC_LINKING_ONLY

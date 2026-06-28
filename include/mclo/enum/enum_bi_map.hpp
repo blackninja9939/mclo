@@ -9,6 +9,7 @@
 #include <array>
 #include <bit>
 #include <numeric>
+#include <optional>
 #include <ranges>
 
 namespace mclo

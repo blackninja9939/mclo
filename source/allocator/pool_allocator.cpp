@@ -4,6 +4,7 @@
 #include "mclo/numeric/align.hpp"
 #include "mclo/numeric/pow2.hpp"
 
+#include <memory>
 #include <new>
 #include <utility>
 
