@@ -18,17 +18,12 @@ redistributed as part of mclo's own source tree.
 
 ## Library dependencies (linked into the distributed artifact)
 
-Pulled in via vcpkg. The transitive entries (cpptrace, fmt, magic_enum) are
-dependencies of libassert.
+Pulled in via vcpkg directly or transitively.
 
 | Component | License | File |
 |-----------|---------|------|
 | xsimd | BSD-3-Clause | [xsimd.txt](xsimd.txt) |
-| libassert | MIT | [libassert.txt](libassert.txt) |
 | xxHash | BSD-2-Clause | [xxhash.txt](xxhash.txt) |
-| cpptrace (transitive) | MIT | [cpptrace.txt](cpptrace.txt) |
-| {fmt} (transitive) | MIT | [fmt.txt](fmt.txt) |
-| magic_enum (transitive) | MIT | [magic_enum.txt](magic_enum.txt) |
 
 ## Build & test tooling (NOT distributed)
 

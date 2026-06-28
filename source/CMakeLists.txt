@@ -26,6 +26,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "platform/shared_library.cpp"
     "allocator/arena_allocator.cpp"
     "allocator/pool_allocator.cpp"
+    "debug/assert.cpp"
     "debug/breakpoint.cpp"
     "debug/debugger_attached.cpp"
     "numeric/bit.cpp"
@@ -47,10 +48,9 @@ target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE $<BUILD_INTERFACE:mclo_comp
 
 # Find and link dependencies
 find_package(xsimd CONFIG REQUIRED)
-find_package(libassert CONFIG REQUIRED)
 find_package(xxhash CONFIG REQUIRED)
 
-target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd libassert::assert xxHash::xxhash)
+target_link_libraries(${LIBRARY_TARGET_NAME} PUBLIC xsimd xxHash::xxhash)
 
 # Link the platform dynamic loading library (dl) for shared_library on POSIX systems
 target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${CMAKE_DL_LIBS})
