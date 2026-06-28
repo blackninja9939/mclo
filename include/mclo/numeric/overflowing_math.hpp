@@ -52,7 +52,7 @@ namespace mclo
 	/// @return A pair of the wrapped quotient and a boolean that is @c true if the division overflowed.
 	/// @pre @p y must not be zero.
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::pair<T, bool> overflowing_div( const T x, const T y ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr std::pair<T, bool> overflowing_div( const T x, const T y ) noexcept
 	{
 		T result{};
 		const bool overflowed = detail::overflowing_div( x, y, result );

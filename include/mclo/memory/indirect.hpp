@@ -262,37 +262,37 @@ namespace mclo
 			return *this;
 		}
 
-		[[nodiscard]] constexpr const T& operator*() const& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const T& operator*() const& noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return *m_ptr;
 		}
 
-		[[nodiscard]] constexpr T& operator*() & MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr T& operator*() & noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return *m_ptr;
 		}
 
-		[[nodiscard]] constexpr const T&& operator*() const&& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const T&& operator*() const&& noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return std::move( **this );
 		}
 
-		[[nodiscard]] constexpr T&& operator*() && MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr T&& operator*() && noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing indirect that is valueless_after_move" );
 			return std::move( **this );
 		}
 
-		[[nodiscard]] constexpr const_pointer operator->() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const_pointer operator->() const noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
 			return m_ptr;
 		}
 
-		[[nodiscard]] constexpr pointer operator->() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr pointer operator->() noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for indirect that is valueless_after_move" );
 			return m_ptr;

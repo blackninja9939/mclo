@@ -182,12 +182,12 @@ namespace mclo
 		using base::max_size;
 		using base::size;
 
-		[[nodiscard]] reference operator[]( const size_type index ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference operator[]( const size_type index ) noexcept
 		{
 			DEBUG_ASSERT( index < m_size, "Index out of range" );
 			return data()[ index ];
 		}
-		[[nodiscard]] const_reference operator[]( const size_type index ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference operator[]( const size_type index ) const noexcept
 		{
 			DEBUG_ASSERT( index < m_size, "Index out of range" );
 			return data()[ index ];
@@ -210,23 +210,23 @@ namespace mclo
 			return data()[ index ];
 		}
 
-		[[nodiscard]] reference front() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference front() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *data();
 		}
-		[[nodiscard]] const_reference front() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference front() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *data();
 		}
 
-		[[nodiscard]] reference back() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference back() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return data()[ m_size - 1 ];
 		}
-		[[nodiscard]] const_reference back() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference back() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return data()[ m_size - 1 ];
@@ -449,14 +449,14 @@ namespace mclo
 			return begin() + where_pos;
 		}
 
-		void pop_back() MCLO_NOEXCEPT_TESTS
+		void pop_back() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			std::destroy_at( end() - 1 );
 			--m_size;
 		}
 
-		iterator erase( const_iterator pos ) MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_assignable_v<value_type> )
+		iterator erase( const_iterator pos ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 		{
 			DEBUG_ASSERT( pos >= begin() && pos <= end(), "pos must be an iterator in this container" );
 			const iterator it = unwrap_iterator( pos );
@@ -465,8 +465,8 @@ namespace mclo
 			return it;
 		}
 
-		iterator erase( const_iterator first, const_iterator last )
-			MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_assignable_v<value_type> )
+		iterator erase( const_iterator first,
+						const_iterator last ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 		{
 			DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
 			DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
@@ -582,7 +582,7 @@ namespace mclo
 				std::destroy( m_first, m_last );
 			}
 
-			void set_begin( const pointer new_first ) MCLO_NOEXCEPT_TESTS
+			void set_begin( const pointer new_first ) noexcept
 			{
 				DEBUG_ASSERT( new_first <= m_last, "first and last must form a valid range" );
 				m_first = new_first;

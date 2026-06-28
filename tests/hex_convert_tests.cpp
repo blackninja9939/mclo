@@ -2,8 +2,6 @@
 
 #include "mclo/string/hex_convert.hpp"
 
-#include "assert_macros.hpp"
-
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 #include <array>
@@ -148,14 +146,6 @@ TEST_CASE( "all byte values, to_hex span, matches per-byte to_hex", "[hex_conver
 	}
 }
 
-TEST_CASE( "to_hex span, output buffer too small, asserts", "[hex_convert]" )
-{
-	constexpr std::array<std::uint8_t, 2> input = { 0xAB, 0xCD };
-	std::array<char, 3> output = {};
-
-	CHECK_ASSERTS( mclo::to_hex( input, output ), "Output buffer too small for hex conversion" );
-}
-
 // -- to_hex_upper (bulk) --
 
 TEST_CASE( "empty input, to_hex_upper, returns empty string", "[hex_convert]" )
@@ -184,14 +174,6 @@ TEST_CASE( "multiple bytes, to_hex_upper span overload, writes correct hex to bu
 	mclo::to_hex_upper( input, output );
 
 	CHECK( std::string_view( output.data(), output.size() ) == "CAFE" );
-}
-
-TEST_CASE( "to_hex_upper span, output buffer too small, asserts", "[hex_convert]" )
-{
-	constexpr std::array<std::uint8_t, 2> input = { 0xAB, 0xCD };
-	std::array<char, 3> output = {};
-
-	CHECK_ASSERTS( mclo::to_hex_upper( input, output ), "Output buffer too small for hex conversion" );
 }
 
 // -- from_hex (bulk) --
@@ -252,18 +234,4 @@ TEST_CASE( "from_hex span roundtrips with to_hex for all byte values", "[hex_con
 	mclo::from_hex( hex, decoded );
 
 	CHECK_THAT( decoded, RangeEquals( original ) );
-}
-
-TEST_CASE( "from_hex span, output buffer too small, asserts", "[hex_convert]" )
-{
-	std::array<std::uint8_t, 1> output = {};
-
-	CHECK_ASSERTS( mclo::from_hex( "aabb", output ), "Output buffer too small for hex decoding" );
-}
-
-TEST_CASE( "from_hex span, odd length input, asserts", "[hex_convert]" )
-{
-	std::array<std::uint8_t, 2> output = {};
-
-	CHECK_ASSERTS( mclo::from_hex( "abc", output ), "Hex string must have an even length" );
 }

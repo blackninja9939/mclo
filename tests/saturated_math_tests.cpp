@@ -1,6 +1,5 @@
 #include <catch2/catch_template_test_macros.hpp>
 
-#include "assert_macros.hpp"
 #include "consteval_check.hpp"
 
 #include "mclo/meta/type_aliases.hpp"
@@ -100,9 +99,6 @@ TEMPLATE_LIST_TEST_CASE( "saturating_div performs saturated division", "[math][s
 	{
 		CONSTEVAL_CHECK( mclo::saturating_div( min, T( -1 ) ) == max );
 	}
-
-	// Division by 0 asserts
-	CHECK_ASSERTS( mclo::saturating_div( T( 6 ), T( 0 ) ), "Division by 0 is undefined behaviour" );
 }
 
 TEST_CASE( "saturating_cast tests", "[saturate_cast]" )

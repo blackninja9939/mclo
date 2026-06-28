@@ -277,7 +277,7 @@ namespace mclo::detail
 	}
 
 	template <standard_integral T>
-	[[nodiscard]] constexpr bool overflowing_div( const T x, const T y, T& result ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr bool overflowing_div( const T x, const T y, T& result ) noexcept
 	{
 		DEBUG_ASSERT( y != 0, "Division by 0 is undefined behaviour" );
 		// No intrinsics since division doesn't really overflow

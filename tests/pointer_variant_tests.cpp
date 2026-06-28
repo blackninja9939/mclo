@@ -1,8 +1,6 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "assert_macros.hpp"
-
 #include "mclo/memory/pointer_variant.hpp"
 
 #include "mclo/utility/overloaded.hpp"
@@ -23,7 +21,6 @@ TEST_CASE( "default pointer_variant, is first variant nullptr", "[pointer_varian
 	CHECK( var.index() == 0 );
 	CHECK_FALSE( var.get_raw() );
 	CHECK_FALSE( var.get<0>() );
-	CHECK_ASSERTS( var.get<3>(), "Variant does not currently hold altnerative" );
 }
 
 TEST_CASE( "pointer_variant, construct with int pointer, is first filled variant", "[pointer_variant]" )
@@ -33,7 +30,6 @@ TEST_CASE( "pointer_variant, construct with int pointer, is first filled variant
 	CHECK( var.index() == 0 );
 	CHECK( var.get_raw() == &i );
 	CHECK( var.get<0>() == &i );
-	CHECK_ASSERTS( var.get<3>(), "Variant does not currently hold altnerative" );
 }
 
 TEST_CASE( "pointer_variant, construct with index and int pointer, is last filled variant", "[pointer_variant]" )
@@ -43,7 +39,6 @@ TEST_CASE( "pointer_variant, construct with index and int pointer, is last fille
 	CHECK( var.index() == 3 );
 	CHECK( var.get_raw() == &i );
 	CHECK( var.get<3>() == &i );
-	CHECK_ASSERTS( var.get<0>(), "Variant does not currently hold altnerative" );
 }
 
 TEST_CASE( "pointer_variant, construct with other type pointer, is correctfilled variant", "[pointer_variant]" )
@@ -55,7 +50,6 @@ TEST_CASE( "pointer_variant, construct with other type pointer, is correctfilled
 	CHECK( var.get_raw() == &i );
 	CHECK( var.get<bool>() == &i );
 	CHECK( var.get<1>() == &i );
-	CHECK_ASSERTS( var.get<0>(), "Variant does not currently hold altnerative" );
 }
 
 TEST_CASE( "active pointer_variant, emplace, is new value", "[pointer_variant]" )
@@ -71,7 +65,6 @@ TEST_CASE( "active pointer_variant, emplace, is new value", "[pointer_variant]" 
 	CHECK( var.get_raw() == &j );
 	CHECK( var.get<float>() == &j );
 	CHECK( var.get<2>() == &j );
-	CHECK_ASSERTS( var.get<bool>(), "Variant does not currently hold altnerative" );
 }
 
 TEST_CASE( "active pointer_variant, assign, is new value", "[pointer_variant]" )
@@ -87,7 +80,6 @@ TEST_CASE( "active pointer_variant, assign, is new value", "[pointer_variant]" )
 	CHECK( var.get_raw() == &j );
 	CHECK( var.get<float>() == &j );
 	CHECK( var.get<2>() == &j );
-	CHECK_ASSERTS( var.get<bool>(), "Variant does not currently hold altnerative" );
 }
 
 TEST_CASE( "active pointer_variant, write through pointer, modifies original", "[pointer_variant]" )

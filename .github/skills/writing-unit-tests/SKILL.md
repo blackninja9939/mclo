@@ -112,7 +112,6 @@ Prefer the `_FALSE` variant over negating with `!`.
 | `static_assert` | Type traits and compile-time properties that must always hold. Place at file scope. | — |
 | `STATIC_CHECK` / `STATIC_REQUIRE` | Fully `constexpr` expressions that only need compile-time verification (e.g. a `static constexpr` result). | `catch2/catch_test_macros.hpp` |
 | `CONSTEVAL_CHECK` / `CONSTEVAL_REQUIRE` | User-defined `constexpr` functions that *could* diverge between compile time and runtime (e.g. `if consteval`, `std::is_constant_evaluated()`). Runs the check at both compile time and runtime. | `"consteval_check.hpp"` |
-| `CHECK_ASSERTS` / `REQUIRE_ASSERTS` | Verifies that an expression fires a project assertion macro with a matching message. | `"assert_macros.hpp"` |
 | `CHECK_THROWS_AS` / `REQUIRE_THROWS_AS` | Verifies that an expression throws a specific exception type. | `catch2/catch_test_macros.hpp` |
 | `CHECK_THAT` / `REQUIRE_THAT` | Expressive checks using matchers (see Matchers below). | `catch2/matchers/catch_matchers_all.hpp` |
 
@@ -136,13 +135,7 @@ STATIC_CHECK( *result == expected );
 // User-defined constexpr function that may diverge — test both paths
 CONSTEVAL_CHECK( my_constexpr_func() == expected );
 CONSTEVAL_CHECK_FALSE( my_constexpr_func_returning_false() );
-
-// Project assertion macro fires with expected message
-#include "assert_macros.hpp"
-CHECK_ASSERTS( function_that_should_assert(), "expected assertion message" );
 ```
-
-In test builds, project assertion macros (`ASSERT`, `PANIC`, etc.) throw exceptions instead of aborting so they can be caught and validated. Functions that are `noexcept` but contain assertions use `MCLO_NOEXCEPT_TESTS` / `MCLO_NOEXCEPT_TESTS_IF` instead — these expand to nothing in test builds, allowing the exception to propagate.
 
 ### Matchers
 

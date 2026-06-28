@@ -48,7 +48,7 @@ namespace mclo
 			return bytes;
 		}
 
-		constexpr std::array<std::byte, 16> parse_uuid_from_string( const std::string_view str ) MCLO_NOEXCEPT_TESTS
+		constexpr std::array<std::byte, 16> parse_uuid_from_string( const std::string_view str ) noexcept
 		{
 			auto result = try_parse_uuid_from_string( str );
 			ASSERT( result.has_value(), "Invalid UUID string", str );
@@ -76,7 +76,7 @@ namespace mclo
 		/// @param str A 36-character string in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx".
 		/// @pre @p str must be a valid UUID string.
 		// clang-format off
-		constexpr uuid( const std::string_view str ) MCLO_NOEXCEPT_TESTS
+		constexpr uuid( const std::string_view str ) noexcept
 			: uuid( detail::parse_uuid_from_string( str ) )
 		{
 		}

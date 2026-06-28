@@ -2,8 +2,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_all.hpp>
 
-#include "assert_macros.hpp"
-
 #include "mclo/container/bitset.hpp"
 #include "mclo/container/dynamic_bitset.hpp"
 #include "mclo/container/small_vector.hpp"
@@ -504,14 +502,6 @@ TEST_CASE( "Dynamic bitset from underlying container", "[bitset]" )
 	CHECK( set.count() == 8 );
 }
 
-TEST_CASE( "Dynamic bitset from underlying container larger than possible", "[bitset]" )
-{
-	const auto func = [] {
-		[[maybe_unused]] const mclo::dynamic_bitset<> set( std::size_t( 65 ), std::vector<std::uint64_t>{ 255 } );
-	};
-	CHECK_ASSERTS( func(), "Size greater than max bits per value in container" );
-}
-
 TEST_CASE( "Dynamic bitset copy from underlying container", "[bitset]" )
 {
 	const std::vector<std::uint64_t> vec{ 255 };
@@ -519,11 +509,4 @@ TEST_CASE( "Dynamic bitset copy from underlying container", "[bitset]" )
 
 	CHECK( set.size() == 10 );
 	CHECK( set.count() == 8 );
-}
-
-TEST_CASE( "Dynamic bitset copy from underlying container larger than possible", "[bitset]" )
-{
-	const std::vector<std::uint64_t> vec{ 255 };
-	const auto func = [ &vec ] { [[maybe_unused]] const mclo::dynamic_bitset<> set( std::size_t( 65 ), vec ); };
-	CHECK_ASSERTS( func(), "Size greater than max bits per value in container" );
 }

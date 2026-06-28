@@ -324,7 +324,7 @@ namespace mclo
 
 		/// @brief Returns a const reference to the contained value.
 		/// @pre The instance must not be valueless.
-		[[nodiscard]] const T& operator*() const& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const T& operator*() const& noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Dereferencing copy_on_write that is valueless_after_move" );
 			return m_ptr->m_value;
@@ -332,7 +332,7 @@ namespace mclo
 
 		/// @brief Returns a const pointer to the contained value for member access.
 		/// @pre The instance must not be valueless.
-		[[nodiscard]] const_pointer operator->() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_pointer operator->() const noexcept
 		{
 			DEBUG_ASSERT( !valueless_after_move(), "Getting pointer for copy_on_write that is valueless_after_move" );
 			return std::addressof( m_ptr->m_value );

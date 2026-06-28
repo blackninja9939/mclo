@@ -13,7 +13,7 @@ namespace mclo
 	/// @return The quotient of @p dividend divided by @p divisor, rounded up.
 	/// @pre @p divisor must not be zero.
 	template <std::integral T>
-	[[nodiscard]] constexpr T ceil_divide( const T dividend, const T divisor ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr T ceil_divide( const T dividend, const T divisor ) noexcept
 	{
 		DEBUG_ASSERT( divisor != T( 0 ), "Division by zero" );
 

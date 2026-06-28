@@ -58,7 +58,7 @@ namespace mclo
 	/// @return The result of @p x divided by @p y, or @c std::nullopt if the division overflowed.
 	/// @pre @p y must not be zero.
 	template <standard_integral T>
-	[[nodiscard]] constexpr std::optional<T> checked_div( const T x, const T y ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr std::optional<T> checked_div( const T x, const T y ) noexcept
 	{
 		if ( T result; !detail::overflowing_div( x, y, result ) )
 		{

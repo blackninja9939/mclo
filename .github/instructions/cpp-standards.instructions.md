@@ -37,7 +37,6 @@ description: "Use when writing or modifying C++ source and header files. Enforce
   - The return value must be checked (e.g. error codes) and the type itself is not already `[[nodiscard]]`.
   - If all uses of a class/struct should be captured, prefer marking the type itself `[[nodiscard]]` instead of individual functions.
 - Mark functions `noexcept` wherever possible. Use conditional noexcept for templates: `noexcept(std::is_nothrow_move_constructible_v<T>)`.
-- If a function should be `noexcept` but its body contains any assertion macro (`DEBUG_ASSERT`, `ASSERT`, `ASSUME`, etc.), use `MCLO_NOEXCEPT_TESTS` instead of `noexcept`, or `MCLO_NOEXCEPT_TESTS_IF(condition)` instead of `noexcept(condition)`. In test builds, assertions throw exceptions so they can be validated — these macros expand to nothing in tests to avoid crashing on throw-in-noexcept.
 - Use `constexpr` aggressively — constructors, operators, utility functions.
 
 ## Concepts & Templates

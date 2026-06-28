@@ -11,7 +11,7 @@ namespace mclo
 	/// @return The largest multiple of @p align that is less than or equal to @p value.
 	/// @pre @p align must be a power of two.
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T align_down( const T value, const T align ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr T align_down( const T value, const T align ) noexcept
 	{
 		DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
 		return value & ~( align - 1 );
@@ -24,7 +24,7 @@ namespace mclo
 	/// @return The smallest multiple of @p align that is greater than or equal to @p value.
 	/// @pre @p align must be a power of two.
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T align_up( const T value, const T align ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr T align_up( const T value, const T align ) noexcept
 	{
 		DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
 		return align_down( static_cast<T>( value + align - 1 ), align );
@@ -37,7 +37,7 @@ namespace mclo
 	/// @return @c true if @p value is a multiple of @p align, @c false otherwise.
 	/// @pre @p align must be a power of two.
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr bool is_aligned( const T value, const T align ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr bool is_aligned( const T value, const T align ) noexcept
 	{
 		DEBUG_ASSERT( is_pow2( align ), "Alignment must be a power of 2" );
 		return modulo_pow2( value, align ) == 0;

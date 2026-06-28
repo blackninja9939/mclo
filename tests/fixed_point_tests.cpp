@@ -1,7 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include "assert_macros.hpp"
 #include "consteval_check.hpp"
 
 #include "mclo/hash/hash.hpp"
@@ -194,12 +193,6 @@ TEST_CASE( "fixed_point numeric_limits", "[math][fixed_point]" )
 	STATIC_CHECK( std::numeric_limits<decimal>::radix == 10 );
 }
 
-TEST_CASE( "fixed_point division by zero asserts", "[math][fixed_point]" )
-{
-	CHECK_ASSERTS( binary( 1 ) / binary( 0 ), "Division by zero" );
-	CHECK_ASSERTS( binary( 1 ) / 0, "Division by zero" );
-}
-
 TEST_CASE( "fixed_point user defined literals", "[math][fixed_point]" )
 {
 	using namespace mclo::literals;
@@ -275,7 +268,6 @@ TEST_CASE( "fixed_point clamp", "[math][fixed_point]" )
 	CONSTEVAL_CHECK( clamp( binary( 5 ), binary( 0 ), binary( 3 ) ) == binary( 3 ) );
 	CONSTEVAL_CHECK( clamp( binary( -1 ), binary( 0 ), binary( 3 ) ) == binary( 0 ) );
 	CONSTEVAL_CHECK( clamp( binary( 2 ), binary( 0 ), binary( 3 ) ) == binary( 2 ) );
-	CHECK_ASSERTS( clamp( binary( 2 ), binary( 3 ), binary( 0 ) ), "clamp: low must not be greater than high" );
 }
 
 TEST_CASE( "fixed_point std min max clamp work via spaceship", "[math][fixed_point]" )

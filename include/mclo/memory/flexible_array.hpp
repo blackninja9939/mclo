@@ -213,7 +213,7 @@ namespace mclo
 
 		/// @brief Returns a reference to the element at @p index.
 		/// @pre @p index must be less than @ref size().
-		[[nodiscard]] reference operator[]( const Size index ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference operator[]( const Size index ) noexcept
 		{
 			DEBUG_ASSERT( index < size() );
 			return data()[ index ];
@@ -221,7 +221,7 @@ namespace mclo
 
 		/// @brief Returns a const reference to the element at @p index.
 		/// @pre @p index must be less than @ref size().
-		[[nodiscard]] const_reference operator[]( const Size index ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference operator[]( const Size index ) const noexcept
 		{
 			DEBUG_ASSERT( index < size() );
 			return data()[ index ];

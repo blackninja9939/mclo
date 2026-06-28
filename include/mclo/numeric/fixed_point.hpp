@@ -189,8 +189,7 @@ namespace mclo
 			return { from_underlying, static_cast<Rep>( full / scale ) };
 		}
 
-		[[nodiscard]] constexpr friend fixed_point operator/( const fixed_point lhs,
-															  const fixed_point rhs ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr friend fixed_point operator/( const fixed_point lhs, const fixed_point rhs ) noexcept
 		{
 			DEBUG_ASSERT( rhs.m_value != 0, "Division by zero" );
 			const intermediary_type full =
@@ -210,7 +209,7 @@ namespace mclo
 			return rhs * lhs;
 		}
 
-		[[nodiscard]] constexpr friend fixed_point operator/( const fixed_point lhs, const Rep rhs ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr friend fixed_point operator/( const fixed_point lhs, const Rep rhs ) noexcept
 		{
 			DEBUG_ASSERT( rhs != 0, "Division by zero" );
 			return { from_underlying, static_cast<Rep>( lhs.m_value / rhs ) };
@@ -240,13 +239,13 @@ namespace mclo
 			return *this;
 		}
 
-		constexpr fixed_point& operator/=( const fixed_point other ) MCLO_NOEXCEPT_TESTS
+		constexpr fixed_point& operator/=( const fixed_point other ) noexcept
 		{
 			*this = *this / other;
 			return *this;
 		}
 
-		constexpr fixed_point& operator/=( const Rep other ) MCLO_NOEXCEPT_TESTS
+		constexpr fixed_point& operator/=( const Rep other ) noexcept
 		{
 			*this = *this / other;
 			return *this;
@@ -353,7 +352,7 @@ namespace mclo
 		/// @brief Clamp value into the inclusive range [ low, high ]
 		[[nodiscard]] constexpr friend fixed_point clamp( const fixed_point value,
 														  const fixed_point low,
-														  const fixed_point high ) MCLO_NOEXCEPT_TESTS
+														  const fixed_point high ) noexcept
 		{
 			DEBUG_ASSERT( !( high < low ), "clamp: low must not be greater than high" );
 			return value < low ? low : high < value ? high : value;

@@ -3,7 +3,6 @@
 #include <mclo/utility/array.hpp>
 #include <mclo/utility/uuid.hpp>
 
-#include "assert_macros.hpp"
 #include "consteval_check.hpp"
 
 #include <random>
@@ -74,22 +73,6 @@ TEST_CASE( "uuid from string round-trip, to_string matches original", "[uuid]" )
 	const std::string str = id.to_string();
 
 	CHECK( str == "550e8400-e29b-41d4-a716-446655440000" );
-}
-
-TEST_CASE( "uuid from invalid length string, asserts", "[uuid]" )
-{
-	CHECK_ASSERTS( mclo::uuid( "too-short" ), "Invalid UUID string" );
-	CHECK_ASSERTS( mclo::uuid( "550e8400-e29b-41d4-a716-4466554400001234" ), "Invalid UUID string" );
-}
-
-TEST_CASE( "uuid from string with missing hyphens, asserts", "[uuid]" )
-{
-	CHECK_ASSERTS( mclo::uuid( "550e8400xe29b-41d4-a716-446655440000" ), "Invalid UUID string" );
-}
-
-TEST_CASE( "uuid from string with invalid hex character, asserts", "[uuid]" )
-{
-	CHECK_ASSERTS( mclo::uuid( "550g8400-e29b-41d4-a716-446655440000" ), "Invalid UUID string" );
 }
 
 TEST_CASE( "two different uuids, comparison, ordered correctly", "[uuid]" )

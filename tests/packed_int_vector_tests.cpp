@@ -1,8 +1,6 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "assert_macros.hpp"
-
 #include "mclo/container/packed_int_vector.hpp"
 #include "mclo/container/small_vector.hpp"
 #include "mclo/meta/type_list.hpp"
@@ -337,41 +335,6 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, fill, sets all elements to value", 
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, get out of range, asserts", "[packed_int_vector]", test_types )
-{
-	using vec_type = typename TestType::vec_type;
-
-	vec_type vec( 4 );
-
-	CHECK_ASSERTS( vec.get( 4 ), "Index out of range" );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set out of range, asserts", "[packed_int_vector]", test_types )
-{
-	using vec_type = typename TestType::vec_type;
-	using value_type = typename TestType::value_type;
-
-	vec_type vec( 4 );
-
-	CHECK_ASSERTS( vec.set( 4, static_cast<value_type>( 0 ) ), "Index out of range" );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set value exceeding bit width, asserts",
-						 "[packed_int_vector]",
-						 test_types )
-{
-	using vec_type = typename TestType::vec_type;
-	using value_type = typename TestType::value_type;
-	constexpr auto max_val = vec_type::max_value;
-
-	vec_type vec( 4 );
-
-	if constexpr ( static_cast<std::size_t>( max_val ) < std::numeric_limits<value_type>::max() )
-	{
-		CHECK_ASSERTS( vec.set( 0, static_cast<value_type>( max_val + 1 ) ), "Value exceeds maximum for BitWidth" );
-	}
-}
-
 TEMPLATE_LIST_TEST_CASE( "packed_int_vector default constructed, is empty", "[packed_int_vector]", test_types )
 {
 	using vec_type = typename TestType::vec_type;
@@ -410,24 +373,6 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, front and back, return correct valu
 
 	CHECK( vec.front() == 1 );
 	CHECK( vec.back() == max_val );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector empty, front asserts", "[packed_int_vector]", test_types )
-{
-	using vec_type = typename TestType::vec_type;
-
-	vec_type vec;
-
-	CHECK_ASSERTS( vec.front(), "Container is empty" );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector empty, back asserts", "[packed_int_vector]", test_types )
-{
-	using vec_type = typename TestType::vec_type;
-
-	vec_type vec;
-
-	CHECK_ASSERTS( vec.back(), "Container is empty" );
 }
 
 TEMPLATE_LIST_TEST_CASE( "packed_int_vector, push_back, appends elements", "[packed_int_vector]", test_types )
@@ -492,24 +437,6 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, pop_back, removes last element", "[
 	CHECK( vec.get( 0 ) == 1 );
 	CHECK( vec.get( 1 ) == max_val );
 	CHECK( vec.get( 2 ) == 0 );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector empty, pop_back asserts", "[packed_int_vector]", test_types )
-{
-	using vec_type = typename TestType::vec_type;
-
-	vec_type vec;
-
-	CHECK_ASSERTS( vec.pop_back(), "Container is empty" );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, resize beyond max_size, asserts", "[packed_int_vector]", test_types )
-{
-	using vec_type = typename TestType::vec_type;
-
-	vec_type vec;
-
-	CHECK_ASSERTS( vec.resize( vec.max_size() + 1 ), "Virtual size exceeds max_size" );
 }
 
 TEMPLATE_LIST_TEST_CASE( "packed_int_vector constructed, capacity reflects physical storage",

@@ -13,7 +13,7 @@ namespace mclo
 	/// @return The largest integer @c n such that @c 2^n is less than or equal to @p value.
 	/// @pre @p value must not be zero.
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T log2_floor( const T value ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr T log2_floor( const T value ) noexcept
 	{
 		DEBUG_ASSERT( value != T( 0 ), "log2(0) is undefined" );
 		return static_cast<T>( std::bit_width( value ) - 1 );
@@ -25,7 +25,7 @@ namespace mclo
 	/// @return The smallest integer @c n such that @c 2^n is greater than or equal to @p value.
 	/// @pre @p value must not be zero.
 	template <std::unsigned_integral T>
-	[[nodiscard]] constexpr T log2_ceil( const T value ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr T log2_ceil( const T value ) noexcept
 	{
 		DEBUG_ASSERT( value != T( 0 ), "log2(0) is undefined" );
 		return static_cast<T>( std::bit_width( value - 1 ) );

@@ -161,15 +161,13 @@ namespace mclo
 		}
 
 		template <bool OtherConst>
-		[[nodiscard]] bool operator==( const circular_buffer_iterator<Buffer, OtherConst>& other ) const
-			MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] bool operator==( const circular_buffer_iterator<Buffer, OtherConst>& other ) const noexcept
 		{
 			DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
 			return m_ptr == other.m_ptr;
 		}
 		template <bool OtherConst>
-		[[nodiscard]] auto operator<=>( const circular_buffer_iterator<Buffer, OtherConst>& other ) const
-			MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] auto operator<=>( const circular_buffer_iterator<Buffer, OtherConst>& other ) const noexcept
 		{
 			DEBUG_ASSERT( m_buffer == other.m_buffer, "Iterators are not comparable" );
 			return contiguous_ptr() <=> other.contiguous_ptr();
@@ -360,29 +358,29 @@ namespace mclo
 
 		// Element access
 
-		[[nodiscard]] reference front() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference front() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *m_head;
 		}
-		[[nodiscard]] const_reference front() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference front() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return *m_head;
 		}
 
-		[[nodiscard]] reference back() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference back() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return m_tail[ -1 ];
 		}
-		[[nodiscard]] const_reference back() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference back() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return m_tail[ -1 ];
 		}
 
-		[[nodiscard]] reference operator[]( const size_type index ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference operator[]( const size_type index ) noexcept
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
 			pointer ptr = m_head;
@@ -390,7 +388,7 @@ namespace mclo
 			return *ptr;
 		}
 
-		[[nodiscard]] const_reference operator[]( const size_type index ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference operator[]( const size_type index ) const noexcept
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
 			pointer ptr = m_head;
@@ -606,7 +604,7 @@ namespace mclo
 			m_tail = m_data;
 		}
 
-		void swap( circular_buffer& other ) MCLO_NOEXCEPT_TESTS
+		void swap( circular_buffer& other ) noexcept
 		{
 			if ( this == &other )
 			{
@@ -628,7 +626,7 @@ namespace mclo
 			swap( m_tail, other.m_tail );
 		}
 
-		friend void swap( circular_buffer& lhs, circular_buffer& rhs ) MCLO_NOEXCEPT_TESTS
+		friend void swap( circular_buffer& lhs, circular_buffer& rhs ) noexcept
 		{
 			lhs.swap( rhs );
 		}

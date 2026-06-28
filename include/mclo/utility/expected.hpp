@@ -574,37 +574,37 @@ namespace mclo
 		}
 
 		// Observers
-		[[nodiscard]] constexpr const T* operator->() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const T* operator->() const noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 			return std::addressof( m_value );
 		}
 
-		[[nodiscard]] [[nodiscard]] constexpr T* operator->() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] [[nodiscard]] constexpr T* operator->() noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 			return std::addressof( m_value );
 		}
 
-		[[nodiscard]] constexpr const T& operator*() const& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const T& operator*() const& noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 			return m_value;
 		}
 
-		[[nodiscard]] constexpr T& operator*() & MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr T& operator*() & noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 			return m_value;
 		}
 
-		[[nodiscard]] constexpr const T&& operator*() const&& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const T&& operator*() const&& noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 			return std::move( m_value );
 		}
 
-		[[nodiscard]] constexpr T&& operator*() && MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr T&& operator*() && noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 			return std::move( m_value );
@@ -656,25 +656,25 @@ namespace mclo
 			return std::move( m_value );
 		}
 
-		[[nodiscard]] constexpr const E& error() const& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const E& error() const& noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return m_error;
 		}
 
-		[[nodiscard]] constexpr E& error() & MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr E& error() & noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return m_error;
 		}
 
-		[[nodiscard]] constexpr const E&& error() const&& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const E&& error() const&& noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return std::move( m_error );
 		}
 
-		[[nodiscard]] constexpr E&& error() && MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr E&& error() && noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return std::move( m_error );
@@ -1336,7 +1336,7 @@ namespace mclo
 		}
 
 		// Observers
-		constexpr void operator*() const MCLO_NOEXCEPT_TESTS
+		constexpr void operator*() const noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Attempted to access value of an expected that does not contain a value" );
 		}
@@ -1367,25 +1367,25 @@ namespace mclo
 			}
 		}
 
-		[[nodiscard]] constexpr const E& error() const& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const E& error() const& noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return m_error;
 		}
 
-		[[nodiscard]] constexpr E& error() & MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr E& error() & noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return m_error;
 		}
 
-		[[nodiscard]] constexpr const E&& error() const&& MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const E&& error() const&& noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return std::move( m_error );
 		}
 
-		[[nodiscard]] constexpr E&& error() && MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr E&& error() && noexcept
 		{
 			DEBUG_ASSERT( !has_value(), "Attempted to access error of an expected that contains a value" );
 			return std::move( m_error );

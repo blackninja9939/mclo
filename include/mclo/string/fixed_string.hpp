@@ -19,7 +19,7 @@ namespace mclo
 		/// @brief Constructs from @p str, which must be exactly @p N characters long.
 		/// @param str The source characters to copy.
 		/// @pre @p str must have a size of @p N.
-		constexpr explicit fixed_string( const std::string_view str ) MCLO_NOEXCEPT_TESTS
+		constexpr explicit fixed_string( const std::string_view str ) noexcept
 		{
 			DEBUG_ASSERT( str.size() == N, "String size does not match fixed string size" );
 			for ( size_t i = 0; i < N; ++i )

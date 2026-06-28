@@ -177,7 +177,7 @@ namespace mclo
 		/// @brief Atomically loads the current value.
 		/// @param order The memory order, must not be @c memory_order_release or @c memory_order_acq_rel.
 		/// @return The value currently held.
-		[[nodiscard]] T load( const std::memory_order order = std::memory_order_seq_cst ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] T load( const std::memory_order order = std::memory_order_seq_cst ) const noexcept
 		{
 			DEBUG_ASSERT( order != std::memory_order_release && order != std::memory_order_acq_rel,
 						  "Invalid memory order for atomic load" );
@@ -188,7 +188,7 @@ namespace mclo
 		/// @param desired The value to store.
 		/// @param order The memory order, must not be @c memory_order_consume, @c memory_order_acquire or
 		/// @c memory_order_acq_rel.
-		void store( const T desired, const std::memory_order order = std::memory_order_seq_cst ) MCLO_NOEXCEPT_TESTS
+		void store( const T desired, const std::memory_order order = std::memory_order_seq_cst ) noexcept
 		{
 			DEBUG_ASSERT( order != std::memory_order_consume && order != std::memory_order_acquire &&
 							  order != std::memory_order_acq_rel,

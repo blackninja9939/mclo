@@ -98,7 +98,7 @@ namespace mclo
 		= default;
 
 		template <detail::span_compatible_iterator<T> It>
-		explicit( extent != dynamic_extent ) constexpr span( const It first, const size_type count ) MCLO_NOEXCEPT_TESTS
+		explicit( extent != dynamic_extent ) constexpr span( const It first, const size_type count ) noexcept
 			: base( std::to_address( first ), count )
 		{
 			if constexpr ( extent != dynamic_extent )
@@ -108,8 +108,8 @@ namespace mclo
 		}
 
 		template <detail::span_compatible_iterator<T> It, std::sized_sentinel_for<It> Sentinel>
-		explicit( extent != dynamic_extent ) constexpr span( const It first, const Sentinel last )
-			MCLO_NOEXCEPT_TESTS_IF( noexcept( last - first ) )
+		explicit( extent != dynamic_extent ) constexpr span( const It first,
+															 const Sentinel last ) noexcept( noexcept( last - first ) )
 			: base( std::to_address( first ), static_cast<size_type>( last - first ) )
 		{
 			if constexpr ( extent != dynamic_extent )
@@ -152,8 +152,7 @@ namespace mclo
 			}
 		}
 
-		explicit( extent !=
-				  dynamic_extent ) constexpr span( std::initializer_list<value_type> init_list ) MCLO_NOEXCEPT_TESTS
+		explicit( extent != dynamic_extent ) constexpr span( std::initializer_list<value_type> init_list ) noexcept
 			requires( std::is_const_v<element_type> )
 			: base( init_list.begin(), init_list.size() )
 		{
@@ -166,8 +165,7 @@ namespace mclo
 		template <typename U, std::size_t N>
 			requires( ( extent == dynamic_extent || N == dynamic_extent || extent == N ) &&
 					  detail::valid_pointer_conversion<U, element_type> )
-		explicit( extent != dynamic_extent &&
-				  N == dynamic_extent ) constexpr span( const span<U, N>& other ) MCLO_NOEXCEPT_TESTS
+		explicit( extent != dynamic_extent && N == dynamic_extent ) constexpr span( const span<U, N>& other ) noexcept
 			: base( other.data(), other.size() )
 		{
 			if constexpr ( extent != dynamic_extent )
@@ -179,13 +177,13 @@ namespace mclo
 		constexpr span( const span& other ) noexcept = default;
 		constexpr span& operator=( const span& other ) noexcept = default;
 
-		[[nodiscard]] constexpr reference front() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr reference front() const noexcept
 		{
 			DEBUG_ASSERT( m_size != 0, "Span is empty" );
 			return *m_data;
 		}
 
-		[[nodiscard]] constexpr reference back() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr reference back() const noexcept
 		{
 			DEBUG_ASSERT( m_size != 0, "Span is empty" );
 			return m_data[ m_size - 1 ];
@@ -218,7 +216,7 @@ namespace mclo
 		}
 
 		template <std::size_t Count>
-		[[nodiscard]] constexpr auto first() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr auto first() const noexcept
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
@@ -231,14 +229,14 @@ namespace mclo
 			return span<element_type, Count>( m_data, Count );
 		}
 
-		[[nodiscard]] constexpr auto first( const size_type count ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr auto first( const size_type count ) const noexcept
 		{
 			DEBUG_ASSERT( count <= m_size, "Count is out of range" );
 			return span<element_type, dynamic_extent>( m_data, count );
 		}
 
 		template <std::size_t Count>
-		[[nodiscard]] constexpr auto last() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr auto last() const noexcept
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
@@ -251,14 +249,14 @@ namespace mclo
 			return span<element_type, Count>( m_data + ( m_size - Count ), Count );
 		}
 
-		[[nodiscard]] constexpr auto last( const size_type count ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr auto last( const size_type count ) const noexcept
 		{
 			DEBUG_ASSERT( count <= m_size, "Count is out of range" );
 			return span<element_type, dynamic_extent>( m_data + ( m_size - count ), count );
 		}
 
 		template <std::size_t Offset, std::size_t Count = dynamic_extent>
-		[[nodiscard]] constexpr auto subspan() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr auto subspan() const noexcept
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
@@ -280,7 +278,7 @@ namespace mclo
 		}
 
 		[[nodiscard]] constexpr auto subspan( const size_type offset,
-											  const size_type count = dynamic_extent ) const MCLO_NOEXCEPT_TESTS
+											  const size_type count = dynamic_extent ) const noexcept
 		{
 			DEBUG_ASSERT( offset <= m_size, "Offset is out of range" );
 			DEBUG_ASSERT( count == dynamic_extent || count <= m_size - offset, "Count is out of range" );

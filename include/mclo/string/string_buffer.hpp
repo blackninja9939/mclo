@@ -53,13 +53,13 @@ namespace mclo
 
 		/// @brief Constructs a string of @p count copies of @p ch.
 		/// @pre @p count must not exceed @ref max_string_size.
-		constexpr basic_string_buffer( const size_type count, const value_type ch ) MCLO_NOEXCEPT_TESTS
+		constexpr basic_string_buffer( const size_type count, const value_type ch ) noexcept
 		{
 			resize( count, ch );
 		}
 		/// @brief Constructs a string of @p count default (null) characters.
 		/// @pre @p count must not exceed @ref max_string_size.
-		constexpr explicit basic_string_buffer( const size_type count ) MCLO_NOEXCEPT_TESTS
+		constexpr explicit basic_string_buffer( const size_type count ) noexcept
 		{
 			resize( count );
 		}
@@ -74,7 +74,7 @@ namespace mclo
 
 		/// @brief Constructs from a string view.
 		/// @pre The view's size must not exceed @ref max_string_size.
-		constexpr basic_string_buffer( const view_type& str ) MCLO_NOEXCEPT_TESTS
+		constexpr basic_string_buffer( const view_type& str ) noexcept
 		{
 			assign( str );
 		}
@@ -83,7 +83,7 @@ namespace mclo
 
 		/// @brief Replaces the contents with @p count copies of @p ch.
 		/// @pre @p count must not exceed @ref max_string_size.
-		constexpr void assign( const size_type count, value_type ch ) MCLO_NOEXCEPT_TESTS
+		constexpr void assign( const size_type count, value_type ch ) noexcept
 		{
 			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			traits_assign( m_data.data(), count, ch );
@@ -109,7 +109,7 @@ namespace mclo
 
 		/// @brief Replaces the contents with @p size characters copied from @p str.
 		/// @pre @p size must not exceed @ref max_string_size.
-		constexpr void assign( const const_pointer str, const size_type size ) MCLO_NOEXCEPT_TESTS
+		constexpr void assign( const const_pointer str, const size_type size ) noexcept
 		{
 			DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
 			traits_copy( m_data.data(), str, size );
@@ -119,7 +119,7 @@ namespace mclo
 
 		/// @brief Replaces the contents with the characters of @p str.
 		/// @pre The view's size must not exceed @ref max_string_size.
-		constexpr void assign( const view_type& str ) MCLO_NOEXCEPT_TESTS
+		constexpr void assign( const view_type& str ) noexcept
 		{
 			assign( str.data(), str.size() );
 		}
@@ -147,12 +147,12 @@ namespace mclo
 
 		/// @brief Returns a reference to the character at @p pos.
 		/// @pre @p pos must be less than @ref size().
-		[[nodiscard]] constexpr reference operator[]( const size_type pos ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr reference operator[]( const size_type pos ) noexcept
 		{
 			DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
 			return m_data[ pos ];
 		}
-		[[nodiscard]] constexpr const_reference operator[]( const size_type pos ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const_reference operator[]( const size_type pos ) const noexcept
 		{
 			DEBUG_ASSERT( pos < m_length, "Indexing out of range" );
 			return m_data[ pos ];
@@ -160,12 +160,12 @@ namespace mclo
 
 		/// @brief Returns a reference to the first character.
 		/// @pre The string must not be empty.
-		[[nodiscard]] constexpr reference front() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr reference front() noexcept
 		{
 			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.front();
 		}
-		[[nodiscard]] constexpr const_reference front() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const_reference front() const noexcept
 		{
 			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.front();
@@ -173,12 +173,12 @@ namespace mclo
 
 		/// @brief Returns a reference to the last character.
 		/// @pre The string must not be empty.
-		[[nodiscard]] constexpr reference back() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr reference back() noexcept
 		{
 			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.back();
 		}
-		[[nodiscard]] constexpr const_reference back() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr const_reference back() const noexcept
 		{
 			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			return m_data.back();
@@ -297,7 +297,7 @@ namespace mclo
 
 		/// @brief No-op provided for interface compatibility with @c std::string.
 		/// @pre @p size must not exceed @ref max_string_size.
-		constexpr void reserve( [[maybe_unused]] const size_type size ) MCLO_NOEXCEPT_TESTS
+		constexpr void reserve( [[maybe_unused]] const size_type size ) noexcept
 		{
 			DEBUG_ASSERT( size <= max_string_size, "Size larger than max string size" );
 		}
@@ -338,7 +338,7 @@ namespace mclo
 
 		/// @brief Resizes to @p count characters, padding with @p ch when growing.
 		/// @pre @p count must not exceed @ref max_string_size.
-		constexpr void resize( const size_type count, const value_type ch ) MCLO_NOEXCEPT_TESTS
+		constexpr void resize( const size_type count, const value_type ch ) noexcept
 		{
 			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			if ( count == m_length )
@@ -359,7 +359,7 @@ namespace mclo
 
 		/// @brief Resizes to @p count characters, padding with null characters when growing.
 		/// @pre @p count must not exceed @ref max_string_size.
-		constexpr void resize( const size_type count ) MCLO_NOEXCEPT_TESTS
+		constexpr void resize( const size_type count ) noexcept
 		{
 			DEBUG_ASSERT( count <= max_string_size, "Count larger than max string size" );
 			if ( count > m_length )
@@ -378,7 +378,7 @@ namespace mclo
 
 		/// @brief Appends a single character to the end.
 		/// @pre The string must have room for one more character.
-		constexpr void push_back( const value_type c ) MCLO_NOEXCEPT_TESTS
+		constexpr void push_back( const value_type c ) noexcept
 		{
 			DEBUG_ASSERT( m_length < max_string_size, "Count would be larger than max string size" );
 			traits_type::assign( m_data[ m_length++ ], c );
@@ -387,7 +387,7 @@ namespace mclo
 
 		/// @brief Removes the last character.
 		/// @pre The string must not be empty.
-		constexpr void pop_back() MCLO_NOEXCEPT_TESTS
+		constexpr void pop_back() noexcept
 		{
 			DEBUG_ASSERT( m_length > 0, "Container is empty" );
 			--m_length;
@@ -396,7 +396,7 @@ namespace mclo
 
 		/// @brief Appends the characters of @p string to the end.
 		/// @pre The combined length must not exceed @ref max_string_size.
-		constexpr void append( const view_type& string ) MCLO_NOEXCEPT_TESTS
+		constexpr void append( const view_type& string ) noexcept
 		{
 			DEBUG_ASSERT( string.size() + m_length < max_string_size, "Count would be larger than max string size" );
 			traits_copy( m_data.data() + m_length, string.data(), string.size() );

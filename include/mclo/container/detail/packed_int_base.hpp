@@ -93,7 +93,7 @@ namespace mclo::detail
 		/// @brief Get the virtual integer at the given index
 		/// @param index Index of the virtual integer, must be less than size()
 		/// @return The value of the virtual integer
-		[[nodiscard]] constexpr value_type get( const size_type index ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr value_type get( const size_type index ) const noexcept
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
 
@@ -126,7 +126,7 @@ namespace mclo::detail
 		/// @brief Set the virtual integer at the given index to the given value
 		/// @param index Index of the virtual integer, must be less than size()
 		/// @param value Value to set, only the lowest BitWidth bits are used
-		constexpr void set( const size_type index, const value_type value ) MCLO_NOEXCEPT_TESTS
+		constexpr void set( const size_type index, const value_type value ) noexcept
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
 			DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
@@ -161,7 +161,7 @@ namespace mclo::detail
 		/// @param index Index of the virtual integer, must be less than size()
 		/// @param value New value to set, only the lowest BitWidth bits are used
 		/// @return The previous value at the given index
-		[[nodiscard]] constexpr value_type exchange( const size_type index, const value_type value ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr value_type exchange( const size_type index, const value_type value ) noexcept
 		{
 			DEBUG_ASSERT( index < size(), "Index out of range" );
 			DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
@@ -201,14 +201,14 @@ namespace mclo::detail
 		}
 
 		/// @brief Get the first virtual integer
-		[[nodiscard]] constexpr value_type front() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr value_type front() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return static_cast<value_type>( as_derived().derived_data()[ 0 ] & mask );
 		}
 
 		/// @brief Get the last virtual integer
-		[[nodiscard]] constexpr value_type back() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr value_type back() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Container is empty" );
 			return get( size() - 1 );
@@ -257,7 +257,7 @@ namespace mclo::detail
 
 		/// @brief Fill all virtual integers with the given value
 		/// @param value Value to fill with, only the lowest BitWidth bits are used
-		constexpr void fill( const value_type value ) MCLO_NOEXCEPT_TESTS
+		constexpr void fill( const value_type value ) noexcept
 		{
 			DEBUG_ASSERT( value <= mask, "Value exceeds maximum for BitWidth" );
 
@@ -387,7 +387,7 @@ namespace mclo::detail
 
 	private:
 		/// @brief Aligned element access for get(), also used as constexpr fallback
-		[[nodiscard]] constexpr value_type get_aligned( const std::size_t bit_offset ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr value_type get_aligned( const std::size_t bit_offset ) const noexcept
 		{
 			const auto physical_index = static_cast<size_type>( bit_offset / bits_per_underlying );
 			const std::size_t bit_index = bit_offset % bits_per_underlying;

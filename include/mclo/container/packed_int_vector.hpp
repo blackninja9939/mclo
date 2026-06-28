@@ -110,7 +110,7 @@ namespace mclo
 		}
 
 		/// @brief Remove the last virtual integer
-		void pop_back() MCLO_NOEXCEPT_TESTS
+		void pop_back() noexcept
 		{
 			DEBUG_ASSERT( !this->empty(), "Container is empty" );
 			--m_size;

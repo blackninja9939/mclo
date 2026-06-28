@@ -32,8 +32,7 @@ namespace mclo
 			{ c_storage.has_value() } noexcept -> std::same_as<bool>;
 			{ storage.reset() } noexcept -> std::same_as<void>;
 			{ c_storage.get() } noexcept -> std::same_as<T>;
-			{ storage.set( value ) }
-			MCLO_NOEXCEPT_TESTS->std::same_as<void>;
+			{ storage.set( value ) } noexcept -> std::same_as<void>;
 			requires std::copyable<Storage>;
 		};
 	}
@@ -71,7 +70,7 @@ namespace mclo
 		{
 			return m_value;
 		}
-		constexpr void set( const T value ) MCLO_NOEXCEPT_TESTS
+		constexpr void set( const T value ) noexcept
 		{
 			DEBUG_ASSERT( value != invalid, "Value is invalid sentinel" );
 			m_value = value;
@@ -302,7 +301,7 @@ namespace mclo
 		/// @brief Returns the held value without checking.
 		/// @return The held value.
 		/// @pre The optional must hold a value.
-		[[nodiscard]] T operator*() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] T operator*() const noexcept
 		{
 			DEBUG_ASSERT( has_value(), "Optional has no value" );
 			return base::get();

@@ -235,7 +235,7 @@ namespace mclo
 				++m_size;
 			}
 
-			void pop_back() MCLO_NOEXCEPT_TESTS
+			void pop_back() noexcept
 			{
 				DEBUG_ASSERT( m_size > size_type( 0 ), "Size should be greater than 0" );
 				--m_size;
@@ -244,8 +244,7 @@ namespace mclo
 				size_alloc_traits::destroy( size_allocator, std::addressof( m_data_reverse_map[ m_size ] ) );
 			}
 
-			bool swap_and_pop_at( const size_type index )
-				MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_assignable_v<value_type> )
+			bool swap_and_pop_at( const size_type index ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 			{
 				DEBUG_ASSERT( index < m_size, "Index should be less than size" );
 				if ( index == m_size - 1 )
@@ -785,23 +784,23 @@ namespace mclo
 			return m_data.get_allocator();
 		}
 
-		[[nodiscard]] reference front() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference front() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return *data();
 		}
-		[[nodiscard]] reference back() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] reference back() noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return data()[ size() - 1 ];
 		}
 
-		[[nodiscard]] const_reference front() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference front() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return *data();
 		}
-		[[nodiscard]] const_reference back() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const_reference back() const noexcept
 		{
 			DEBUG_ASSERT( !empty(), "Should not be empty" );
 			return data()[ size() - 1 ];

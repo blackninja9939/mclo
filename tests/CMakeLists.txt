@@ -3,11 +3,6 @@ find_package( Catch2 3 REQUIRED )
 add_executable( tests
 	"consteval_check.hpp"
 	"fancy_pointer.hpp"
-	"assert_exception.hpp"
-	"assert_macros.hpp"
-	"assert_macros.cpp"
-	"assert_listener.cpp"
-	"assert_macro_tests.cpp"
 	"array_tests.cpp"
 	"bit_tests.cpp"
 	"string_util_tests.cpp"
@@ -79,7 +74,6 @@ add_executable( tests
 target_compile_definitions( 
 	tests 
 	PRIVATE
-		MCLO_CONFIG_ENABLE_TESTING
 		CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
 )
 target_link_libraries( tests PRIVATE Catch2::Catch2WithMain mclo mclo_compile_options )

@@ -6,8 +6,6 @@
 #include "mclo/container/span.hpp"
 #include "mclo/platform/warnings.hpp"
 
-#include "assert_macros.hpp"
-
 #include <array>
 #include <forward_list>
 #include <string>
@@ -178,13 +176,6 @@ TEST_CASE( "flexible_array const operator[]", "[flexible_array]" )
 	const auto& const_arr = arr;
 
 	CHECK( const_arr[ 0 ] == 42 );
-}
-
-TEST_CASE( "flexible_array operator[] out of bounds asserts", "[flexible_array]" )
-{
-	mclo::flexible_array<int> arr( 3 );
-
-	CHECK_ASSERTS( ( void )arr[ 3 ], "" );
 }
 
 // Data pointer

@@ -1,6 +1,5 @@
 #include <catch2/catch_template_test_macros.hpp>
 
-#include "assert_macros.hpp"
 #include "consteval_check.hpp"
 
 #include "mclo/meta/type_aliases.hpp"
@@ -127,9 +126,6 @@ TEMPLATE_LIST_TEST_CASE( "overflowing_div performs overflowing division",
 	{
 		CONSTEVAL_CHECK( mclo::overflowing_div( min, T( -1 ) ) == overflow( 0 ) );
 	}
-
-	// Division by 0 asserts
-	CHECK_ASSERTS( mclo::overflowing_div( T( 6 ), T( 0 ) ), "Division by 0 is undefined behaviour" );
 }
 
 MCLO_RESTORE_WARNINGS

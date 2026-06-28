@@ -171,7 +171,7 @@ namespace mclo::detail
 		/// @warning Do not use in a loop, prefer for_each_set or find_first_set/unset, they are much faster
 		/// @param pos Position to check, must be < size()
 		/// @return If the bit is set
-		[[nodiscard]] constexpr bool test( const size_type pos ) const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr bool test( const size_type pos ) const noexcept
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
@@ -184,7 +184,7 @@ namespace mclo::detail
 		/// @param pos Position to check, must be < size()
 		/// @param value Value to set the bit
 		/// @return If the bit was set
-		[[nodiscard]] constexpr bool test_set( const size_type pos, const bool value = true ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr bool test_set( const size_type pos, const bool value = true ) noexcept
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
@@ -280,7 +280,7 @@ namespace mclo::detail
 		/// @brief Set the bit at pos
 		/// @param pos Position to set, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& set( const size_type pos ) MCLO_NOEXCEPT_TESTS
+		constexpr Derived& set( const size_type pos ) noexcept
 		{
 			return set_internal<true>( pos );
 		}
@@ -311,7 +311,7 @@ namespace mclo::detail
 		/// @brief Clear the bit at pos
 		/// @param pos Position to clear, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& reset( const size_type pos ) MCLO_NOEXCEPT_TESTS
+		constexpr Derived& reset( const size_type pos ) noexcept
 		{
 			return set_internal<false>( pos );
 		}
@@ -331,7 +331,7 @@ namespace mclo::detail
 		/// @brief Flip the bit at pos
 		/// @param pos Position to flip, must be < size()
 		/// @return Reference to the set
-		constexpr Derived& flip( const size_type pos ) MCLO_NOEXCEPT_TESTS
+		constexpr Derived& flip( const size_type pos ) noexcept
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;
@@ -661,7 +661,7 @@ namespace mclo::detail
 
 	private:
 		template <bool value>
-		[[nodiscard]] constexpr Derived& set_internal( const size_type pos ) MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] constexpr Derived& set_internal( const size_type pos ) noexcept
 		{
 			DEBUG_ASSERT( pos < size(), "Pos out of range of bitset" );
 			const size_type page = pos / bits_per_value;

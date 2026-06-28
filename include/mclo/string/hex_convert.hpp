@@ -52,7 +52,7 @@ namespace mclo
 	/// @param output The destination buffer for the decoded bytes.
 	/// @pre @p input must contain only valid hexadecimal characters and have an even length.
 	/// @pre @p output must have a size of at least @p input size / 2.
-	constexpr void from_hex( const std::string_view input, const mclo::span<std::uint8_t> output ) MCLO_NOEXCEPT_TESTS
+	constexpr void from_hex( const std::string_view input, const mclo::span<std::uint8_t> output ) noexcept
 	{
 		DEBUG_ASSERT( input.size() % 2 == 0, "Hex string must have an even length" );
 		DEBUG_ASSERT( output.size() >= input.size() / 2, "Output buffer too small for hex decoding" );
@@ -66,8 +66,7 @@ namespace mclo
 	/// @param input The bytes to convert.
 	/// @param output The destination buffer for the hexadecimal characters.
 	/// @pre @p output must have a size of at least @p input size * 2.
-	constexpr void to_hex( const mclo::span<const std::uint8_t> input,
-						   const mclo::span<char> output ) MCLO_NOEXCEPT_TESTS
+	constexpr void to_hex( const mclo::span<const std::uint8_t> input, const mclo::span<char> output ) noexcept
 	{
 		DEBUG_ASSERT( output.size() >= input.size() * 2, "Output buffer too small for hex conversion" );
 		for ( std::size_t i = 0; i < input.size(); ++i )
@@ -81,8 +80,7 @@ namespace mclo
 	/// @param input The bytes to convert.
 	/// @param output The destination buffer for the hexadecimal characters.
 	/// @pre @p output must have a size of at least @p input size * 2.
-	constexpr void to_hex_upper( const mclo::span<const std::uint8_t> input,
-								 const mclo::span<char> output ) MCLO_NOEXCEPT_TESTS
+	constexpr void to_hex_upper( const mclo::span<const std::uint8_t> input, const mclo::span<char> output ) noexcept
 	{
 		DEBUG_ASSERT( output.size() >= input.size() * 2, "Output buffer too small for hex conversion" );
 		for ( std::size_t i = 0; i < input.size(); ++i )

@@ -112,7 +112,7 @@ namespace mclo
 		/// @details @p T must appear in @p Ts exactly once.
 		/// @pre @p T must be the active alternative.
 		template <typename T>
-		[[nodiscard]] T* get() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] T* get() noexcept
 		{
 			static_assert( meta::count_v<T, ptr_alternatives> == 1,
 						   "Type based get is only valid to use if T appears in the alternative types exactly once" );
@@ -123,7 +123,7 @@ namespace mclo
 		/// @details @p T must appear in @p Ts exactly once.
 		/// @pre @p T must be the active alternative.
 		template <typename T>
-		[[nodiscard]] const T* get() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const T* get() const noexcept
 		{
 			static_assert( meta::count_v<T, ptr_alternatives> == 1,
 						   "Type based get is only valid to use if T appears in the alternative types exactly once" );
@@ -134,7 +134,7 @@ namespace mclo
 		/// @brief Returns the stored pointer as the alternative type at @p Index.
 		/// @pre @p Index must be the active alternative.
 		template <std::size_t Index>
-		[[nodiscard]] alternative_t<Index>* get() MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] alternative_t<Index>* get() noexcept
 		{
 			static_assert( Index < size, "Index out of range of alternatives" );
 			DEBUG_ASSERT( index() == Index, "Variant does not currently hold altnerative" );
@@ -143,7 +143,7 @@ namespace mclo
 		/// @brief Returns the stored pointer as a const pointer to the alternative type at @p Index.
 		/// @pre @p Index must be the active alternative.
 		template <std::size_t Index>
-		[[nodiscard]] const alternative_t<Index>* get() const MCLO_NOEXCEPT_TESTS
+		[[nodiscard]] const alternative_t<Index>* get() const noexcept
 		{
 			static_assert( Index < size, "Index out of range of alternatives" );
 			DEBUG_ASSERT( index() == Index, "Variant does not currently hold altnerative" );

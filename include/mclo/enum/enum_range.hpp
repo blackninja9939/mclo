@@ -184,7 +184,7 @@ namespace mclo
 
 		/// @brief Constructs a range spanning every enumerator, from @c 0 up to (but excluding) @ref enum_size.
 		/// @details Only available when @p TEnum opts in via @ref enum_size.
-		constexpr enum_range() MCLO_NOEXCEPT_TESTS
+		constexpr enum_range() noexcept
 			requires mclo::has_enum_size<TEnum>
 			: enum_range( exclusive_enum_range, static_cast<TEnum>( 0 ), enum_size<TEnum> )
 		{
@@ -195,7 +195,7 @@ namespace mclo
 		/// @param last The last enumerator in the range, included.
 		/// @warning This constructor is inclusive, so passing @ref enum_size as @p last includes the sentinel value;
 		/// prefer the default or @ref exclusive_enum_range constructor in that case.
-		constexpr enum_range( const TEnum first, const TEnum last ) MCLO_NOEXCEPT_TESTS
+		constexpr enum_range( const TEnum first, const TEnum last ) noexcept
 			: enum_range( exclusive_enum_range, first, detail::enum_add( last, 1 ) )
 		{
 			if constexpr ( mclo::has_enum_size<TEnum> )
@@ -210,9 +210,9 @@ namespace mclo
 		/// @brief Constructs a range over the half-open interval [@p first, @p last).
 		/// @param first The first enumerator in the range.
 		/// @param last One past the last enumerator in the range.
-		constexpr enum_range( exclusive_enum_range_t, const TEnum first, const TEnum last ) MCLO_NOEXCEPT_TESTS
-			: m_begin( first ),
-			  m_end( last )
+		constexpr enum_range( exclusive_enum_range_t, const TEnum first, const TEnum last ) noexcept
+			: m_begin( first )
+			, m_end( last )
 		{
 			DEBUG_ASSERT( first <= last, "Iterators must form a valid range" );
 		}

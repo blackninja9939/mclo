@@ -1,6 +1,5 @@
 #include <catch2/catch_template_test_macros.hpp>
 
-#include "assert_macros.hpp"
 #include "consteval_check.hpp"
 
 #include "mclo/meta/type_aliases.hpp"
@@ -96,7 +95,4 @@ TEMPLATE_LIST_TEST_CASE( "checked_div performs checked division", "[math][checke
 	{
 		CONSTEVAL_CHECK( mclo::checked_div( min, T( -1 ) ) == std::nullopt );
 	}
-
-	// Division by 0 asserts
-	CHECK_ASSERTS( mclo::checked_div( T( 6 ), T( 0 ) ), "Division by 0 is undefined behaviour" );
 }

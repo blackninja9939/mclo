@@ -50,13 +50,13 @@ namespace mclo
 		}
 
 		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
-		intrusive_forward_list( It first, Sentinel last ) MCLO_NOEXCEPT_TESTS
+		intrusive_forward_list( It first, Sentinel last ) noexcept
 		{
 			insert_after( before_begin(), std::move( first ), std::move( last ) );
 		}
 
 		template <std::ranges::input_range Range>
-		intrusive_forward_list( Range&& range ) MCLO_NOEXCEPT_TESTS
+		intrusive_forward_list( Range&& range ) noexcept
 		{
 			insert_after( before_begin(), std::forward<Range>( range ) );
 		}
@@ -132,22 +132,22 @@ namespace mclo
 
 		template <std::ranges::input_range Range>
 			requires( std::same_as<reference, std::ranges::range_reference_t<Range>> )
-		void assign( Range&& range ) MCLO_NOEXCEPT_TESTS
+		void assign( Range&& range ) noexcept
 		{
 			return assign( std::ranges::begin( range ), std::ranges::end( range ) );
 		}
 
-		void push_front( reference value ) MCLO_NOEXCEPT_TESTS
+		void push_front( reference value ) noexcept
 		{
 			insert_after( before_begin(), value );
 		}
 
-		pointer pop_front() MCLO_NOEXCEPT_TESTS
+		pointer pop_front() noexcept
 		{
 			return cast( unwrap_iterator( erase_after( before_begin() ) ) );
 		}
 
-		iterator insert_after( const_iterator pos, reference value ) MCLO_NOEXCEPT_TESTS
+		iterator insert_after( const_iterator pos, reference value ) noexcept
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
 			hook_type* const ptr = unwrap_iterator( pos );
@@ -158,7 +158,7 @@ namespace mclo
 
 		template <std::input_iterator It, std::sentinel_for<It> Sentinel>
 			requires( std::same_as<reference, std::iter_reference_t<It>> )
-		iterator insert_after( const_iterator pos, It first, Sentinel last ) MCLO_NOEXCEPT_TESTS
+		iterator insert_after( const_iterator pos, It first, Sentinel last ) noexcept
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot insert after end of forward list" );
 			if ( first == last )
@@ -179,12 +179,12 @@ namespace mclo
 
 		template <std::ranges::input_range Range>
 			requires( std::same_as<reference, std::ranges::range_reference_t<Range>> )
-		iterator insert_after( const_iterator pos, Range&& range ) MCLO_NOEXCEPT_TESTS
+		iterator insert_after( const_iterator pos, Range&& range ) noexcept
 		{
 			return insert_after( pos, std::ranges::begin( range ), std::ranges::end( range ) );
 		}
 
-		iterator erase_after( const_iterator pos ) MCLO_NOEXCEPT_TESTS
+		iterator erase_after( const_iterator pos ) noexcept
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot erase after end of forward list" );
 			hook_type* const ptr = unwrap_iterator( pos );
@@ -196,7 +196,7 @@ namespace mclo
 			return iterator( cast( original_next ) );
 		}
 
-		iterator erase_after( const_iterator first, const_iterator last ) MCLO_NOEXCEPT_TESTS
+		iterator erase_after( const_iterator first, const_iterator last ) noexcept
 		{
 			DEBUG_ASSERT( first != end(), "Cannot erase after end of forward list" );
 			DEBUG_ASSERT( last != end(), "Cannot erase after end of forward list" );
@@ -217,19 +217,19 @@ namespace mclo
 			return iterator( cast( last_ptr ) );
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list& other ) MCLO_NOEXCEPT_TESTS
+		void splice_after( const_iterator pos, intrusive_forward_list& other ) noexcept
 		{
 			DEBUG_ASSERT( this != &other, "Cannot splice in same container" );
 			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
 			splice_after( pos, other, other.before_begin(), other.end() );
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list&& other ) MCLO_NOEXCEPT_TESTS
+		void splice_after( const_iterator pos, intrusive_forward_list&& other ) noexcept
 		{
 			splice_after( pos, other );
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list&, const_iterator it ) MCLO_NOEXCEPT_TESTS
+		void splice_after( const_iterator pos, intrusive_forward_list&, const_iterator it ) noexcept
 		{
 			DEBUG_ASSERT( pos != end(), "Cannot splice after end of forward list" );
 
@@ -248,13 +248,15 @@ namespace mclo
 			}
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list&& other, const_iterator it ) MCLO_NOEXCEPT_TESTS
+		void splice_after( const_iterator pos, intrusive_forward_list&& other, const_iterator it ) noexcept
 		{
 			splice_after( pos, other, it );
 		}
 
-		void splice_after( const_iterator pos, intrusive_forward_list&, const_iterator first, const_iterator last )
-			MCLO_NOEXCEPT_TESTS
+		void splice_after( const_iterator pos,
+						   intrusive_forward_list&,
+						   const_iterator first,
+						   const_iterator last ) noexcept
 		{
 			if ( first == last )
 			{
@@ -291,7 +293,7 @@ namespace mclo
 		void splice_after( const_iterator pos,
 						   intrusive_forward_list&& other,
 						   const_iterator first,
-						   const_iterator last ) MCLO_NOEXCEPT_TESTS
+						   const_iterator last ) noexcept
 		{
 			splice_after( pos, other, first, last );
 		}

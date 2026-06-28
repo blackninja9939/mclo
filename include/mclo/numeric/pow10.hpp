@@ -44,7 +44,7 @@ namespace mclo
 	/// @param exponent The exponent to raise ten to.
 	/// @return The value @c 10^exponent.
 	/// @pre @p exponent must be small enough that @c 10^exponent fits in a @c std::size_t.
-	[[nodiscard]] constexpr std::size_t pow10( const unsigned char exponent ) MCLO_NOEXCEPT_TESTS
+	[[nodiscard]] constexpr std::size_t pow10( const unsigned char exponent ) noexcept
 	{
 		DEBUG_ASSERT( exponent < detail::size( detail::pow10s ), "Result would overflow std::size_t" );
 		return detail::pow10s[ exponent ];

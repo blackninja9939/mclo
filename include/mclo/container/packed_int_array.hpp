@@ -36,14 +36,14 @@ namespace mclo
 
 		/// @brief Construct a packed_int_array with all elements filled with the given value
 		/// @param value Value to fill each virtual integer with
-		constexpr explicit packed_int_array( const value_type value ) MCLO_NOEXCEPT_TESTS
+		constexpr explicit packed_int_array( const value_type value ) noexcept
 		{
 			this->fill( value );
 		}
 
 		/// @brief Construct a packed_int_array from an initializer list of values
 		/// @param init List of values to store, must have exactly Size elements
-		constexpr packed_int_array( const std::initializer_list<value_type> init ) MCLO_NOEXCEPT_TESTS
+		constexpr packed_int_array( const std::initializer_list<value_type> init ) noexcept
 		{
 			DEBUG_ASSERT( init.size() == Size, "Initializer list size must match array Size" );
 			size_type i = 0;

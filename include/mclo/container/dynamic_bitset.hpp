@@ -31,8 +31,8 @@ namespace mclo
 		/// @param size how many bits in the container are used, that is set or unset, must be <= container size *
 		/// CHAR_BIT
 		/// @param container to copy from
-		constexpr dynamic_bitset( const size_type size, const underlying_container& container )
-			MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_copy_constructible_v<underlying_container> )
+		constexpr dynamic_bitset( const size_type size, const underlying_container& container ) noexcept(
+			std::is_nothrow_copy_constructible_v<underlying_container> )
 			: base( container )
 			, m_size( size )
 		{
@@ -46,8 +46,8 @@ namespace mclo
 		/// @param size how many bits in the container are used, that is set or unset, must be <= container size *
 		/// CHAR_BIT
 		/// @param container to move from
-		constexpr dynamic_bitset( const size_type size, underlying_container&& container )
-			MCLO_NOEXCEPT_TESTS_IF( std::is_nothrow_move_constructible_v<underlying_container> )
+		constexpr dynamic_bitset( const size_type size, underlying_container&& container ) noexcept(
+			std::is_nothrow_move_constructible_v<underlying_container> )
 			: base( std::move( container ) )
 			, m_size( size )
 		{

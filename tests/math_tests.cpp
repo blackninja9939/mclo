@@ -1,7 +1,5 @@
 #include "consteval_check.hpp"
 
-#include "assert_macros.hpp"
-
 #include "mclo/numeric/align.hpp"
 #include "mclo/numeric/log2.hpp"
 #include "mclo/numeric/math.hpp"
@@ -10,7 +8,6 @@
 
 TEST_CASE( "ceil_divide", "[math]" )
 {
-	CHECK_ASSERTS( mclo::ceil_divide( 6, 0 ), "Division by zero" );
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6, 4 ) == 2 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( 6, -4 ) == -1 );
 	CONSTEVAL_CHECK( mclo::ceil_divide( -6, 4 ) == -1 );
@@ -80,7 +77,6 @@ TEST_CASE( "ceil_to_int double", "[math]" )
 
 TEST_CASE( "log2_floor", "[math]" )
 {
-	CHECK_ASSERTS( mclo::log2_floor( 0u ), "log2(0) is undefined" );
 	CONSTEVAL_CHECK( mclo::log2_floor( 1u ) == 0 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 2u ) == 1 );
 	CONSTEVAL_CHECK( mclo::log2_floor( 3u ) == 1 );
@@ -91,7 +87,6 @@ TEST_CASE( "log2_floor", "[math]" )
 
 TEST_CASE( "log2_ceil", "[math]" )
 {
-	CHECK_ASSERTS( mclo::log2_ceil( 0u ), "log2(0) is undefined" );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 1u ) == 0 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 2u ) == 1 );
 	CONSTEVAL_CHECK( mclo::log2_ceil( 3u ) == 2 );
@@ -131,7 +126,6 @@ TEST_CASE( "pow10", "[math]" )
 
 TEST_CASE( "align_up", "[math]" )
 {
-	CHECK_ASSERTS( mclo::align_up( 0u, 3u ), "Alignment must be a power of 2" );
 	CONSTEVAL_CHECK( mclo::align_up( 0u, 4u ) == 0u );
 	CONSTEVAL_CHECK( mclo::align_up( 1u, 4u ) == 4u );
 	CONSTEVAL_CHECK( mclo::align_up( 2u, 4u ) == 4u );
@@ -144,7 +138,6 @@ TEST_CASE( "align_up", "[math]" )
 
 TEST_CASE( "align_down", "[math]" )
 {
-	CHECK_ASSERTS( mclo::align_down( 0u, 3u ), "Alignment must be a power of 2" );
 	CONSTEVAL_CHECK( mclo::align_down( 0u, 4u ) == 0u );
 	CONSTEVAL_CHECK( mclo::align_down( 1u, 4u ) == 0u );
 	CONSTEVAL_CHECK( mclo::align_down( 2u, 4u ) == 0u );
@@ -157,7 +150,6 @@ TEST_CASE( "align_down", "[math]" )
 
 TEST_CASE( "is_aligned", "[math]" )
 {
-	CHECK_ASSERTS( mclo::is_aligned( 0u, 3u ), "Alignment must be a power of 2" );
 	CONSTEVAL_CHECK( mclo::is_aligned( 0u, 4u ) );
 	CONSTEVAL_CHECK( !mclo::is_aligned( 1u, 4u ) );
 	CONSTEVAL_CHECK( !mclo::is_aligned( 2u, 4u ) );

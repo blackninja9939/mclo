@@ -1,8 +1,6 @@
 #include <catch2/catch_template_test_macros.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-#include "assert_macros.hpp"
-
 #include "mclo/container/packed_int_array.hpp"
 #include "mclo/meta/type_list.hpp"
 
@@ -174,35 +172,6 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, set ascending pattern, get returns c
 	{
 		CHECK( arr.get( i ) == static_cast<value_type>( i % mod ) );
 	}
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, set value exceeding bit width, asserts", "[packed_int_array]", test_types )
-{
-	using value_type = typename TestType::value_type;
-	constexpr auto max_val = TestType::max_value;
-
-	TestType arr;
-
-	if constexpr ( static_cast<std::size_t>( max_val ) < std::numeric_limits<value_type>::max() )
-	{
-		CHECK_ASSERTS( arr.set( 0, static_cast<value_type>( max_val + 1 ) ), "Value exceeds maximum for BitWidth" );
-	}
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, get out of range, asserts", "[packed_int_array]", test_types )
-{
-	TestType arr;
-
-	CHECK_ASSERTS( arr.get( test_size ), "Index out of range" );
-}
-
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, set out of range, asserts", "[packed_int_array]", test_types )
-{
-	using value_type = typename TestType::value_type;
-
-	TestType arr;
-
-	CHECK_ASSERTS( arr.set( test_size, static_cast<value_type>( 0 ) ), "Index out of range" );
 }
 
 TEMPLATE_LIST_TEST_CASE( "packed_int_array, front and back", "[packed_int_array]", test_types )
