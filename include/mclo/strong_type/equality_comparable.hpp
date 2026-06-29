@@ -1,6 +1,6 @@
 #pragma once
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds homogeneous equality comparison (== and !=).
 	struct equality_comparable

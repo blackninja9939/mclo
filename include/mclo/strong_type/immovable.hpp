@@ -1,8 +1,8 @@
 #pragma once
 
-namespace mclo
+namespace mclo::strong_type
 {
-	/// @brief Mixin that makes a strong_typedef neither copyable nor movable.
+	/// @brief Mixin that makes a strong type neither copyable nor movable.
 	struct immovable
 	{
 		template <typename Derived>

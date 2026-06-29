@@ -3,7 +3,7 @@
 #include <ranges>
 #include <utility>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin exposing the wrapped value as a range by forwarding to the std::ranges customization points.
 	/// @details Generates begin() and end() (with const overloads) that dispatch to std::ranges::begin and

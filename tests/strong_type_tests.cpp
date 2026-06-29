@@ -2,29 +2,29 @@
 #include <catch2/catch_test_macros.hpp>
 
 // Strong type headers
-#include "mclo/strong_typedef/arithmetic.hpp"
-#include "mclo/strong_typedef/bitwise.hpp"
-#include "mclo/strong_typedef/boolean.hpp"
-#include "mclo/strong_typedef/decrementable.hpp"
-#include "mclo/strong_typedef/default_initialized.hpp"
-#include "mclo/strong_typedef/difference.hpp"
-#include "mclo/strong_typedef/equality_comparable.hpp"
-#include "mclo/strong_typedef/formattable.hpp"
-#include "mclo/strong_typedef/hashable.hpp"
-#include "mclo/strong_typedef/immovable.hpp"
-#include "mclo/strong_typedef/implicitly_convertible.hpp"
-#include "mclo/strong_typedef/incrementable.hpp"
-#include "mclo/strong_typedef/indexed.hpp"
-#include "mclo/strong_typedef/invocable.hpp"
-#include "mclo/strong_typedef/move_only.hpp"
-#include "mclo/strong_typedef/ordered.hpp"
-#include "mclo/strong_typedef/pointer.hpp"
-#include "mclo/strong_typedef/range.hpp"
-#include "mclo/strong_typedef/regular.hpp"
-#include "mclo/strong_typedef/scalable.hpp"
-#include "mclo/strong_typedef/semiregular.hpp"
-#include "mclo/strong_typedef/streamable.hpp"
-#include "mclo/strong_typedef/strong_typedef.hpp"
+#include "mclo/strong_type/arithmetic.hpp"
+#include "mclo/strong_type/bitwise.hpp"
+#include "mclo/strong_type/boolean.hpp"
+#include "mclo/strong_type/decrementable.hpp"
+#include "mclo/strong_type/default_initialized.hpp"
+#include "mclo/strong_type/difference.hpp"
+#include "mclo/strong_type/equality_comparable.hpp"
+#include "mclo/strong_type/formattable.hpp"
+#include "mclo/strong_type/hashable.hpp"
+#include "mclo/strong_type/immovable.hpp"
+#include "mclo/strong_type/implicitly_convertible.hpp"
+#include "mclo/strong_type/incrementable.hpp"
+#include "mclo/strong_type/indexed.hpp"
+#include "mclo/strong_type/invocable.hpp"
+#include "mclo/strong_type/move_only.hpp"
+#include "mclo/strong_type/ordered.hpp"
+#include "mclo/strong_type/pointer.hpp"
+#include "mclo/strong_type/range.hpp"
+#include "mclo/strong_type/regular.hpp"
+#include "mclo/strong_type/scalable.hpp"
+#include "mclo/strong_type/semiregular.hpp"
+#include "mclo/strong_type/streamable.hpp"
+#include "mclo/strong_type/type.hpp"
 
 #include "mclo/hash/fnv1a_hasher.hpp"
 #include "mclo/hash/std_types.hpp"
@@ -55,7 +55,7 @@ namespace
 
 // --- Core construction and access ---------------------------------------------------------------
 
-using plain_int = mclo::strong_typedef<int, struct plain_int_tag>;
+using plain_int = mclo::strong_type::type<int, struct plain_int_tag>;
 
 static_assert( std::is_constructible_v<plain_int, int> );
 static_assert( !std::is_default_constructible_v<plain_int> );
@@ -64,13 +64,13 @@ static_assert( !std::is_convertible_v<plain_int, int> ); // no implicit conversi
 static_assert( sizeof( plain_int ) == sizeof( int ) );
 static_assert( std::is_same_v<plain_int::value_type, int> );
 
-TEST_CASE( "strong_typedef explicit construction stores the value", "[strong_typedef]" )
+TEST_CASE( "strong_type explicit construction stores the value", "[strong_type]" )
 {
 	const plain_int object{ 42 };
 	CHECK( object.value == 42 );
 }
 
-TEST_CASE( "strong_typedef value is mutable", "[strong_typedef]" )
+TEST_CASE( "strong_type value is mutable", "[strong_type]" )
 {
 	plain_int object{ 1 };
 	object.value = 2;
@@ -88,18 +88,20 @@ namespace
 							std::is_trivially_copyable_v<Strong> == std::is_trivially_copyable_v<Underlying>;
 }
 
-using overhead_plain = mclo::strong_typedef<int, struct overhead_plain_tag>;
-using overhead_arithmetic = mclo::strong_typedef<int, struct overhead_arithmetic_tag, mclo::arithmetic>;
-using overhead_ordered = mclo::strong_typedef<int, struct overhead_ordered_tag, mclo::ordered>;
-using overhead_equality = mclo::strong_typedef<int, struct overhead_equality_tag, mclo::equality_comparable>;
-using overhead_semiregular = mclo::strong_typedef<int, struct overhead_semiregular_tag, mclo::semiregular>;
-using overhead_regular = mclo::strong_typedef<int, struct overhead_regular_tag, mclo::regular>;
-using overhead_composed = mclo::strong_typedef<int,
-											   struct overhead_composed_tag,
-											   mclo::arithmetic,
-											   mclo::ordered,
-											   mclo::semiregular,
-											   mclo::hashable>;
+using overhead_plain = mclo::strong_type::type<int, struct overhead_plain_tag>;
+using overhead_arithmetic = mclo::strong_type::type<int, struct overhead_arithmetic_tag, mclo::strong_type::arithmetic>;
+using overhead_ordered = mclo::strong_type::type<int, struct overhead_ordered_tag, mclo::strong_type::ordered>;
+using overhead_equality =
+	mclo::strong_type::type<int, struct overhead_equality_tag, mclo::strong_type::equality_comparable>;
+using overhead_semiregular =
+	mclo::strong_type::type<int, struct overhead_semiregular_tag, mclo::strong_type::semiregular>;
+using overhead_regular = mclo::strong_type::type<int, struct overhead_regular_tag, mclo::strong_type::regular>;
+using overhead_composed = mclo::strong_type::type<int,
+												  struct overhead_composed_tag,
+												  mclo::strong_type::arithmetic,
+												  mclo::strong_type::ordered,
+												  mclo::strong_type::semiregular,
+												  mclo::strong_type::hashable>;
 
 static_assert( zero_overhead<overhead_plain, int> );
 static_assert( zero_overhead<overhead_arithmetic, int> );
@@ -111,13 +113,13 @@ static_assert( zero_overhead<overhead_composed, int> );
 
 // --- Default construction marker ----------------------------------------------------------------
 
-using default_int = mclo::strong_typedef<int, struct default_int_tag, mclo::default_initialized>;
+using default_int = mclo::strong_type::type<int, struct default_int_tag, mclo::strong_type::default_initialized>;
 
 static_assert( std::is_default_constructible_v<default_int> );
 static_assert( std::is_trivially_default_constructible_v<default_int> );
 static_assert( sizeof( default_int ) == sizeof( int ) );
 
-TEST_CASE( "strong_typedef default_initialized value initialises the underlying", "[strong_typedef]" )
+TEST_CASE( "strong_type default_initialized value initialises the underlying", "[strong_type]" )
 {
 	const default_int object{};
 	CHECK( object.value == 0 );
@@ -125,8 +127,9 @@ TEST_CASE( "strong_typedef default_initialized value initialises the underlying"
 
 // --- Copy/move propagation ----------------------------------------------------------------------
 
-using trivial_int = mclo::strong_typedef<int, struct trivial_int_tag, mclo::default_initialized>;
-using string_type = mclo::strong_typedef<std::string, struct string_type_tag, mclo::default_initialized>;
+using trivial_int = mclo::strong_type::type<int, struct trivial_int_tag, mclo::strong_type::default_initialized>;
+using string_type =
+	mclo::strong_type::type<std::string, struct string_type_tag, mclo::strong_type::default_initialized>;
 
 static_assert( std::is_trivially_copyable_v<trivial_int> );
 static_assert( std::is_trivially_copy_constructible_v<trivial_int> );
@@ -137,23 +140,23 @@ static_assert( std::is_copy_constructible_v<string_type> );
 static_assert( std::is_move_constructible_v<string_type> );
 static_assert( std::is_nothrow_move_constructible_v<string_type> );
 
-using move_only_string =
-	mclo::strong_typedef<std::string, struct move_only_tag, mclo::default_initialized, mclo::move_only>;
+using move_only_string = mclo::strong_type::
+	type<std::string, struct move_only_tag, mclo::strong_type::default_initialized, mclo::strong_type::move_only>;
 
 static_assert( !std::is_copy_constructible_v<move_only_string> );
 static_assert( !std::is_copy_assignable_v<move_only_string> );
 static_assert( std::is_move_constructible_v<move_only_string> );
 static_assert( std::is_move_assignable_v<move_only_string> );
 
-using immovable_string =
-	mclo::strong_typedef<std::string, struct immovable_tag, mclo::default_initialized, mclo::immovable>;
+using immovable_string = mclo::strong_type::
+	type<std::string, struct immovable_tag, mclo::strong_type::default_initialized, mclo::strong_type::immovable>;
 
 static_assert( !std::is_copy_constructible_v<immovable_string> );
 static_assert( !std::is_move_constructible_v<immovable_string> );
 
 // --- Swap ---------------------------------------------------------------------------------------
 
-TEST_CASE( "strong_typedef swap exchanges values", "[strong_typedef]" )
+TEST_CASE( "strong_type swap exchanges values", "[strong_type]" )
 {
 	string_type lhs{ std::string{ "hello" } };
 	string_type rhs{ std::string{ "world" } };
@@ -167,19 +170,19 @@ TEST_CASE( "strong_typedef swap exchanges values", "[strong_typedef]" )
 
 // --- Implicit conversion mixin ------------------------------------------------------------------
 
-using convertible_int = mclo::strong_typedef<int, struct convertible_tag, mclo::implicitly_convertible>;
+using convertible_int = mclo::strong_type::type<int, struct convertible_tag, mclo::strong_type::implicitly_convertible>;
 
 static_assert( std::is_convertible_v<convertible_int, int> );
 static_assert( std::is_nothrow_convertible_v<convertible_int, const int&> );
 
-TEST_CASE( "strong_typedef implicitly_convertible converts to the underlying", "[strong_typedef]" )
+TEST_CASE( "strong_type implicitly_convertible converts to the underlying", "[strong_type]" )
 {
 	const convertible_int object{ 7 };
 	const int converted = object;
 	CHECK( converted == 7 );
 }
 
-TEST_CASE( "strong_typedef implicitly_convertible exposes a mutable reference", "[strong_typedef]" )
+TEST_CASE( "strong_type implicitly_convertible exposes a mutable reference", "[strong_type]" )
 {
 	convertible_int object{ 7 };
 	int& ref = object;
@@ -187,13 +190,14 @@ TEST_CASE( "strong_typedef implicitly_convertible exposes a mutable reference", 
 	CHECK( object.value == 9 );
 }
 
-using convertible_to_long = mclo::strong_typedef<int, struct convertible_to_tag, mclo::implicitly_convertible_to<long>>;
+using convertible_to_long =
+	mclo::strong_type::type<int, struct convertible_to_tag, mclo::strong_type::implicitly_convertible_to<long>>;
 
 static_assert( std::is_convertible_v<convertible_to_long, long> );
 static_assert( std::is_nothrow_convertible_v<convertible_to_long, long> );
 static_assert( !std::is_convertible_v<convertible_to_long, std::string> );
 
-TEST_CASE( "strong_typedef implicitly_convertible_to converts to a specific type", "[strong_typedef]" )
+TEST_CASE( "strong_type implicitly_convertible_to converts to a specific type", "[strong_type]" )
 {
 	const convertible_to_long object{ 7 };
 	const long converted = object;
@@ -202,12 +206,12 @@ TEST_CASE( "strong_typedef implicitly_convertible_to converts to a specific type
 
 // --- Difference mixin ---------------------------------------------------------------------------
 
-using offset = mclo::strong_typedef<std::ptrdiff_t, struct offset_tag>;
-using position = mclo::strong_typedef<std::ptrdiff_t, struct position_tag, mclo::difference<offset>>;
+using offset = mclo::strong_type::type<std::ptrdiff_t, struct offset_tag>;
+using position = mclo::strong_type::type<std::ptrdiff_t, struct position_tag, mclo::strong_type::difference<offset>>;
 
 static_assert( noexcept( std::declval<position>() - std::declval<position>() ) );
 
-TEST_CASE( "strong_typedef difference subtracts to a distinct type", "[strong_typedef]" )
+TEST_CASE( "strong_type difference subtracts to a distinct type", "[strong_type]" )
 {
 	const position a{ 10 };
 	const position b{ 4 };
@@ -218,8 +222,8 @@ TEST_CASE( "strong_typedef difference subtracts to a distinct type", "[strong_ty
 
 // --- Comparison mixins --------------------------------------------------------------------------
 
-using equatable_int = mclo::strong_typedef<int, struct equatable_tag, mclo::equality_comparable>;
-using ordered_int = mclo::strong_typedef<int, struct ordered_tag, mclo::ordered>;
+using equatable_int = mclo::strong_type::type<int, struct equatable_tag, mclo::strong_type::equality_comparable>;
+using ordered_int = mclo::strong_type::type<int, struct ordered_tag, mclo::strong_type::ordered>;
 
 static_assert( std::equality_comparable<equatable_int> );
 static_assert( !std::three_way_comparable<equatable_int> );
@@ -229,13 +233,13 @@ static_assert( noexcept( std::declval<equatable_int>() == std::declval<equatable
 static_assert( noexcept( std::declval<ordered_int>() == std::declval<ordered_int>() ) );
 static_assert( noexcept( std::declval<ordered_int>() <=> std::declval<ordered_int>() ) );
 
-TEST_CASE( "strong_typedef equality_comparable compares equality", "[strong_typedef]" )
+TEST_CASE( "strong_type equality_comparable compares equality", "[strong_type]" )
 {
 	CHECK( equatable_int{ 1 } == equatable_int{ 1 } );
 	CHECK( equatable_int{ 1 } != equatable_int{ 2 } );
 }
 
-TEST_CASE( "strong_typedef ordered compares relationally", "[strong_typedef]" )
+TEST_CASE( "strong_type ordered compares relationally", "[strong_type]" )
 {
 	CHECK( ordered_int{ 1 } < ordered_int{ 2 } );
 	CHECK( ordered_int{ 2 } <= ordered_int{ 2 } );
@@ -261,12 +265,12 @@ namespace
 	};
 }
 
-using synth_ordered = mclo::strong_typedef<only_less_than, struct synth_ordered_tag, mclo::ordered>;
+using synth_ordered = mclo::strong_type::type<only_less_than, struct synth_ordered_tag, mclo::strong_type::ordered>;
 
 static_assert( std::three_way_comparable<synth_ordered> );
 static_assert( std::is_same_v<std::compare_three_way_result_t<synth_ordered>, std::weak_ordering> );
 
-TEST_CASE( "strong_typedef ordered synthesises ordering for less-than-only types", "[strong_typedef]" )
+TEST_CASE( "strong_type ordered synthesises ordering for less-than-only types", "[strong_type]" )
 {
 	const synth_ordered a{ only_less_than{ 1 } };
 	const synth_ordered b{ only_less_than{ 2 } };
@@ -281,8 +285,9 @@ TEST_CASE( "strong_typedef ordered synthesises ordering for less-than-only types
 
 // --- Heterogeneous comparison mixins ------------------------------------------------------------
 
-using equatable_with_int = mclo::strong_typedef<int, struct equatable_with_tag, mclo::equality_comparable_with<int>>;
-using ordered_with_int = mclo::strong_typedef<int, struct ordered_with_tag, mclo::ordered_with<int>>;
+using equatable_with_int =
+	mclo::strong_type::type<int, struct equatable_with_tag, mclo::strong_type::equality_comparable_with<int>>;
+using ordered_with_int = mclo::strong_type::type<int, struct ordered_with_tag, mclo::strong_type::ordered_with<int>>;
 
 // The std cross-type comparison concepts additionally require homogeneous comparability and a common reference, which a
 // strong type and its underlying do not share, so assert the heterogeneous operators directly instead.
@@ -298,7 +303,7 @@ static_assert( requires( const ordered_with_int a, const int b ) {
 	a <=> b;
 } );
 
-TEST_CASE( "strong_typedef equality_comparable_with compares against another type", "[strong_typedef]" )
+TEST_CASE( "strong_type equality_comparable_with compares against another type", "[strong_type]" )
 {
 	const equatable_with_int object{ 5 };
 
@@ -308,7 +313,7 @@ TEST_CASE( "strong_typedef equality_comparable_with compares against another typ
 	CHECK( 6 != object );
 }
 
-TEST_CASE( "strong_typedef ordered_with compares against another type", "[strong_typedef]" )
+TEST_CASE( "strong_type ordered_with compares against another type", "[strong_type]" )
 {
 	const ordered_with_int object{ 5 };
 
@@ -326,24 +331,32 @@ TEST_CASE( "strong_typedef ordered_with compares against another type", "[strong
 
 // --- Arithmetic mixins (isolated) ---------------------------------------------------------------
 
-using add_int = mclo::strong_typedef<int, struct add_tag, mclo::addable>;
-using sub_int = mclo::strong_typedef<int, struct sub_tag, mclo::subtractable>;
-using mul_int = mclo::strong_typedef<int, struct mul_tag, mclo::multipliable>;
-using div_int = mclo::strong_typedef<int, struct div_tag, mclo::dividable>;
-using mod_int = mclo::strong_typedef<int, struct mod_tag, mclo::modulable>;
-using neg_int = mclo::strong_typedef<int, struct neg_tag, mclo::negatable>;
-using inc_int = mclo::strong_typedef<int, struct inc_tag, mclo::incrementable>;
-using dec_int = mclo::strong_typedef<int, struct dec_tag, mclo::decrementable>;
+using add_int = mclo::strong_type::type<int, struct add_tag, mclo::strong_type::addable>;
+using sub_int = mclo::strong_type::type<int, struct sub_tag, mclo::strong_type::subtractable>;
+using mul_int = mclo::strong_type::type<int, struct mul_tag, mclo::strong_type::multipliable>;
+using div_int = mclo::strong_type::type<int, struct div_tag, mclo::strong_type::dividable>;
+using mod_int = mclo::strong_type::type<int, struct mod_tag, mclo::strong_type::modulable>;
+using neg_int = mclo::strong_type::type<int, struct neg_tag, mclo::strong_type::negatable>;
+using inc_int = mclo::strong_type::type<int, struct inc_tag, mclo::strong_type::incrementable>;
+using dec_int = mclo::strong_type::type<int, struct dec_tag, mclo::strong_type::decrementable>;
 
 // Each component mixin contributes only its own behaviour and composes nothing else.
-static_assert( mclo::has_mixin<add_int, mclo::addable> && !mclo::has_mixin<add_int, mclo::subtractable> );
-static_assert( mclo::has_mixin<sub_int, mclo::subtractable> && !mclo::has_mixin<sub_int, mclo::addable> );
-static_assert( mclo::has_mixin<mul_int, mclo::multipliable> && !mclo::has_mixin<mul_int, mclo::dividable> );
-static_assert( mclo::has_mixin<div_int, mclo::dividable> && !mclo::has_mixin<div_int, mclo::multipliable> );
-static_assert( mclo::has_mixin<mod_int, mclo::modulable> && !mclo::has_mixin<mod_int, mclo::addable> );
-static_assert( mclo::has_mixin<neg_int, mclo::negatable> && !mclo::has_mixin<neg_int, mclo::subtractable> );
-static_assert( mclo::has_mixin<inc_int, mclo::incrementable> && !mclo::has_mixin<inc_int, mclo::decrementable> );
-static_assert( mclo::has_mixin<dec_int, mclo::decrementable> && !mclo::has_mixin<dec_int, mclo::incrementable> );
+static_assert( mclo::strong_type::has_mixin<add_int, mclo::strong_type::addable> &&
+			   !mclo::strong_type::has_mixin<add_int, mclo::strong_type::subtractable> );
+static_assert( mclo::strong_type::has_mixin<sub_int, mclo::strong_type::subtractable> &&
+			   !mclo::strong_type::has_mixin<sub_int, mclo::strong_type::addable> );
+static_assert( mclo::strong_type::has_mixin<mul_int, mclo::strong_type::multipliable> &&
+			   !mclo::strong_type::has_mixin<mul_int, mclo::strong_type::dividable> );
+static_assert( mclo::strong_type::has_mixin<div_int, mclo::strong_type::dividable> &&
+			   !mclo::strong_type::has_mixin<div_int, mclo::strong_type::multipliable> );
+static_assert( mclo::strong_type::has_mixin<mod_int, mclo::strong_type::modulable> &&
+			   !mclo::strong_type::has_mixin<mod_int, mclo::strong_type::addable> );
+static_assert( mclo::strong_type::has_mixin<neg_int, mclo::strong_type::negatable> &&
+			   !mclo::strong_type::has_mixin<neg_int, mclo::strong_type::subtractable> );
+static_assert( mclo::strong_type::has_mixin<inc_int, mclo::strong_type::incrementable> &&
+			   !mclo::strong_type::has_mixin<inc_int, mclo::strong_type::decrementable> );
+static_assert( mclo::strong_type::has_mixin<dec_int, mclo::strong_type::decrementable> &&
+			   !mclo::strong_type::has_mixin<dec_int, mclo::strong_type::incrementable> );
 
 // noexcept propagates from the underlying int operations.
 static_assert( noexcept( std::declval<add_int>() + std::declval<add_int>() ) );
@@ -359,7 +372,7 @@ static_assert( noexcept( std::declval<inc_int&>()++ ) );
 static_assert( noexcept( --std::declval<dec_int&>() ) );
 static_assert( noexcept( std::declval<dec_int&>()-- ) );
 
-TEST_CASE( "strong_typedef addable adds and compound adds", "[strong_typedef]" )
+TEST_CASE( "strong_type addable adds and compound adds", "[strong_type]" )
 {
 	CHECK( ( add_int{ 12 } + add_int{ 4 } ).value == 16 );
 	add_int a{ 10 };
@@ -367,7 +380,7 @@ TEST_CASE( "strong_typedef addable adds and compound adds", "[strong_typedef]" )
 	CHECK( a.value == 15 );
 }
 
-TEST_CASE( "strong_typedef subtractable subtracts and compound subtracts", "[strong_typedef]" )
+TEST_CASE( "strong_type subtractable subtracts and compound subtracts", "[strong_type]" )
 {
 	CHECK( ( sub_int{ 12 } - sub_int{ 4 } ).value == 8 );
 	sub_int a{ 12 };
@@ -375,7 +388,7 @@ TEST_CASE( "strong_typedef subtractable subtracts and compound subtracts", "[str
 	CHECK( a.value == 9 );
 }
 
-TEST_CASE( "strong_typedef multipliable multiplies and compound multiplies", "[strong_typedef]" )
+TEST_CASE( "strong_type multipliable multiplies and compound multiplies", "[strong_type]" )
 {
 	CHECK( ( mul_int{ 12 } * mul_int{ 4 } ).value == 48 );
 	mul_int a{ 6 };
@@ -383,7 +396,7 @@ TEST_CASE( "strong_typedef multipliable multiplies and compound multiplies", "[s
 	CHECK( a.value == 12 );
 }
 
-TEST_CASE( "strong_typedef dividable divides and compound divides", "[strong_typedef]" )
+TEST_CASE( "strong_type dividable divides and compound divides", "[strong_type]" )
 {
 	CHECK( ( div_int{ 12 } / div_int{ 4 } ).value == 3 );
 	div_int a{ 24 };
@@ -391,7 +404,7 @@ TEST_CASE( "strong_typedef dividable divides and compound divides", "[strong_typ
 	CHECK( a.value == 6 );
 }
 
-TEST_CASE( "strong_typedef modulable mods and compound mods", "[strong_typedef]" )
+TEST_CASE( "strong_type modulable mods and compound mods", "[strong_type]" )
 {
 	CHECK( ( mod_int{ 13 } % mod_int{ 4 } ).value == 1 );
 	mod_int a{ 14 };
@@ -399,13 +412,13 @@ TEST_CASE( "strong_typedef modulable mods and compound mods", "[strong_typedef]"
 	CHECK( a.value == 2 );
 }
 
-TEST_CASE( "strong_typedef negatable negates", "[strong_typedef]" )
+TEST_CASE( "strong_type negatable negates", "[strong_type]" )
 {
 	CHECK( ( -neg_int{ 5 } ).value == -5 );
 	CHECK( ( -neg_int{ -3 } ).value == 3 );
 }
 
-TEST_CASE( "strong_typedef incrementable pre and post increments", "[strong_typedef]" )
+TEST_CASE( "strong_type incrementable pre and post increments", "[strong_type]" )
 {
 	inc_int a{ 5 };
 	CHECK( ( ++a ).value == 6 );
@@ -413,7 +426,7 @@ TEST_CASE( "strong_typedef incrementable pre and post increments", "[strong_type
 	CHECK( a.value == 7 );
 }
 
-TEST_CASE( "strong_typedef decrementable pre and post decrements", "[strong_typedef]" )
+TEST_CASE( "strong_type decrementable pre and post decrements", "[strong_type]" )
 {
 	dec_int a{ 5 };
 	CHECK( ( --a ).value == 4 );
@@ -423,21 +436,21 @@ TEST_CASE( "strong_typedef decrementable pre and post decrements", "[strong_type
 
 // --- Arithmetic bundle --------------------------------------------------------------------------
 
-using math_int = mclo::strong_typedef<int, struct math_tag, mclo::arithmetic>;
+using math_int = mclo::strong_type::type<int, struct math_tag, mclo::strong_type::arithmetic>;
 
 // The bundle composes every component mixin; validate the composition structurally via has_mixin.
-static_assert( mclo::has_mixin<math_int, mclo::addable> );
-static_assert( mclo::has_mixin<math_int, mclo::subtractable> );
-static_assert( mclo::has_mixin<math_int, mclo::multipliable> );
-static_assert( mclo::has_mixin<math_int, mclo::dividable> );
-static_assert( mclo::has_mixin<math_int, mclo::modulable> );
-static_assert( mclo::has_mixin<math_int, mclo::negatable> );
-static_assert( mclo::has_mixin<math_int, mclo::incrementable> );
-static_assert( mclo::has_mixin<math_int, mclo::decrementable> );
-static_assert( mclo::has_mixin<math_int, mclo::arithmetic> );
-static_assert( !mclo::has_mixin<plain_int, mclo::addable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::addable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::subtractable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::multipliable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::dividable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::modulable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::negatable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::incrementable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::decrementable> );
+static_assert( mclo::strong_type::has_mixin<math_int, mclo::strong_type::arithmetic> );
+static_assert( !mclo::strong_type::has_mixin<plain_int, mclo::strong_type::addable> );
 
-TEST_CASE( "strong_typedef arithmetic bundle exposes the full operator set", "[strong_typedef]" )
+TEST_CASE( "strong_type arithmetic bundle exposes the full operator set", "[strong_type]" )
 {
 	math_int a{ 12 };
 	const math_int b{ 4 };
@@ -484,7 +497,8 @@ namespace
 	};
 }
 
-using throwing_strong = mclo::strong_typedef<throwing_int, struct throwing_tag, mclo::addable, mclo::ordered>;
+using throwing_strong =
+	mclo::strong_type::type<throwing_int, struct throwing_tag, mclo::strong_type::addable, mclo::strong_type::ordered>;
 
 static_assert( !noexcept( std::declval<throwing_strong>() + std::declval<throwing_strong>() ) );
 static_assert( !noexcept( std::declval<throwing_strong>() == std::declval<throwing_strong>() ) );
@@ -492,14 +506,14 @@ static_assert( !noexcept( std::declval<throwing_strong>() <=> std::declval<throw
 
 // --- Bitwise and shift mixins -------------------------------------------------------------------
 
-using bits = mclo::strong_typedef<unsigned, struct bits_tag, mclo::bitwise>;
+using bits = mclo::strong_type::type<unsigned, struct bits_tag, mclo::strong_type::bitwise>;
 
 static_assert( noexcept( std::declval<bits>() & std::declval<bits>() ) );
 static_assert( noexcept( std::declval<bits>() | std::declval<bits>() ) );
 static_assert( noexcept( std::declval<bits>() ^ std::declval<bits>() ) );
 static_assert( noexcept( ~std::declval<bits>() ) );
 
-TEST_CASE( "strong_typedef bitwise operations", "[strong_typedef]" )
+TEST_CASE( "strong_type bitwise operations", "[strong_type]" )
 {
 	const bits x{ 0b1100u };
 	const bits y{ 0b1010u };
@@ -518,9 +532,9 @@ TEST_CASE( "strong_typedef bitwise operations", "[strong_typedef]" )
 	CHECK( z.value == 0b0110u );
 }
 
-using shift_int = mclo::strong_typedef<unsigned, struct shift_tag, mclo::bitwise>;
+using shift_int = mclo::strong_type::type<unsigned, struct shift_tag, mclo::strong_type::bitwise>;
 
-TEST_CASE( "strong_typedef bitwise shift operations", "[strong_typedef]" )
+TEST_CASE( "strong_type bitwise shift operations", "[strong_type]" )
 {
 	CHECK( ( shift_int{ 1u } << 3 ).value == 8u );
 	CHECK( ( shift_int{ 16u } >> 2 ).value == 4u );
@@ -534,20 +548,20 @@ TEST_CASE( "strong_typedef bitwise shift operations", "[strong_typedef]" )
 
 // --- Hashable mixin -----------------------------------------------------------------------------
 
-using hashable_int = mclo::strong_typedef<int, struct hashable_tag, mclo::hashable>;
+using hashable_int = mclo::strong_type::type<int, struct hashable_tag, mclo::strong_type::hashable>;
 
 static_assert( std_hashable<hashable_int> );
 static_assert( !std_hashable<plain_int> );
 static_assert( mclo_hashable<hashable_int> );
 static_assert( noexcept( std::hash<hashable_int>{}( std::declval<hashable_int>() ) ) );
-static_assert( mclo::has_mixin<hashable_int, mclo::hashable> );
+static_assert( mclo::strong_type::has_mixin<hashable_int, mclo::strong_type::hashable> );
 
-TEST_CASE( "strong_typedef hashable matches the underlying std::hash", "[strong_typedef]" )
+TEST_CASE( "strong_type hashable matches the underlying std::hash", "[strong_type]" )
 {
 	CHECK( std::hash<hashable_int>{}( hashable_int{ 13 } ) == std::hash<int>{}( 13 ) );
 }
 
-TEST_CASE( "strong_typedef hashable hash_append matches the underlying", "[strong_typedef]" )
+TEST_CASE( "strong_type hashable hash_append matches the underlying", "[strong_type]" )
 {
 	mclo::fnv1a_hasher object_hasher;
 	hash_append( object_hasher, hashable_int{ 13 } );
@@ -560,27 +574,27 @@ TEST_CASE( "strong_typedef hashable hash_append matches the underlying", "[stron
 
 // --- Formattable and streamable mixins ----------------------------------------------------------
 
-using formattable_int = mclo::strong_typedef<int, struct formattable_tag, mclo::formattable>;
+using formattable_int = mclo::strong_type::type<int, struct formattable_tag, mclo::strong_type::formattable>;
 
 static_assert( noexcept( format_as( std::declval<formattable_int>() ) ) );
 
-TEST_CASE( "strong_typedef formattable exposes value via format_as", "[strong_typedef]" )
+TEST_CASE( "strong_type formattable exposes value via format_as", "[strong_type]" )
 {
 	CHECK( format_as( formattable_int{ 99 } ) == 99 );
 }
 
-using ostreamable_int = mclo::strong_typedef<int, struct ostreamable_tag, mclo::ostreamable>;
+using ostreamable_int = mclo::strong_type::type<int, struct ostreamable_tag, mclo::strong_type::ostreamable>;
 
-TEST_CASE( "strong_typedef ostreamable inserts the value into a stream", "[strong_typedef]" )
+TEST_CASE( "strong_type ostreamable inserts the value into a stream", "[strong_type]" )
 {
 	std::ostringstream stream;
 	stream << ostreamable_int{ 42 };
 	CHECK( stream.str() == "42" );
 }
 
-using istreamable_int = mclo::strong_typedef<int, struct istreamable_tag, mclo::istreamable>;
+using istreamable_int = mclo::strong_type::type<int, struct istreamable_tag, mclo::strong_type::istreamable>;
 
-TEST_CASE( "strong_typedef istreamable extracts the value from a stream", "[strong_typedef]" )
+TEST_CASE( "strong_type istreamable extracts the value from a stream", "[strong_type]" )
 {
 	std::istringstream stream{ "42" };
 	istreamable_int object{ 0 };
@@ -588,13 +602,13 @@ TEST_CASE( "strong_typedef istreamable extracts the value from a stream", "[stro
 	CHECK( object.value == 42 );
 }
 
-using iostreamable_int = mclo::strong_typedef<int, struct iostreamable_tag, mclo::iostreamable>;
+using iostreamable_int = mclo::strong_type::type<int, struct iostreamable_tag, mclo::strong_type::iostreamable>;
 
-static_assert( mclo::has_mixin<iostreamable_int, mclo::istreamable> );
-static_assert( mclo::has_mixin<iostreamable_int, mclo::ostreamable> );
-static_assert( mclo::has_mixin<iostreamable_int, mclo::iostreamable> );
+static_assert( mclo::strong_type::has_mixin<iostreamable_int, mclo::strong_type::istreamable> );
+static_assert( mclo::strong_type::has_mixin<iostreamable_int, mclo::strong_type::ostreamable> );
+static_assert( mclo::strong_type::has_mixin<iostreamable_int, mclo::strong_type::iostreamable> );
 
-TEST_CASE( "strong_typedef iostreamable round trips through a stream", "[strong_typedef]" )
+TEST_CASE( "strong_type iostreamable round trips through a stream", "[strong_type]" )
 {
 	std::stringstream stream;
 	stream << iostreamable_int{ 7 };
@@ -606,8 +620,12 @@ TEST_CASE( "strong_typedef iostreamable round trips through a stream", "[strong_
 
 // --- Preset bundles -----------------------------------------------------------------------------
 
-using number = mclo::
-	strong_typedef<int, struct number_tag, mclo::arithmetic, mclo::ordered, mclo::hashable, mclo::default_initialized>;
+using number = mclo::strong_type::type<int,
+									   struct number_tag,
+									   mclo::strong_type::arithmetic,
+									   mclo::strong_type::ordered,
+									   mclo::strong_type::hashable,
+									   mclo::strong_type::default_initialized>;
 
 static_assert( std::three_way_comparable<number> );
 static_assert( std_hashable<number> );
@@ -616,7 +634,7 @@ static_assert( std::numeric_limits<number>::is_specialized );
 static_assert( std::numeric_limits<number>::is_signed == std::numeric_limits<int>::is_signed );
 static_assert( std::numeric_limits<number>::digits == std::numeric_limits<int>::digits );
 
-TEST_CASE( "strong_typedef composes arithmetic, ordering and hashing", "[strong_typedef]" )
+TEST_CASE( "strong_type composes arithmetic, ordering and hashing", "[strong_type]" )
 {
 	const number a{ 3 };
 	const number b{ 4 };
@@ -626,36 +644,36 @@ TEST_CASE( "strong_typedef composes arithmetic, ordering and hashing", "[strong_
 	CHECK( std::hash<number>{}( a ) == std::hash<int>{}( 3 ) );
 }
 
-TEST_CASE( "strong_typedef arithmetic specialises std::numeric_limits", "[strong_typedef]" )
+TEST_CASE( "strong_type arithmetic specialises std::numeric_limits", "[strong_type]" )
 {
 	CHECK( std::numeric_limits<number>::min() == number{ std::numeric_limits<int>::min() } );
 	CHECK( std::numeric_limits<number>::max() == number{ std::numeric_limits<int>::max() } );
 	CHECK( std::numeric_limits<number>::lowest() == number{ std::numeric_limits<int>::lowest() } );
 }
 
-using semiregular_string = mclo::strong_typedef<std::string, struct semiregular_tag, mclo::semiregular>;
+using semiregular_string = mclo::strong_type::type<std::string, struct semiregular_tag, mclo::strong_type::semiregular>;
 
 static_assert( std::is_default_constructible_v<semiregular_string> );
 static_assert( std::is_copy_constructible_v<semiregular_string> );
 static_assert( std::is_move_constructible_v<semiregular_string> );
 static_assert( !std::equality_comparable<semiregular_string> );
 
-TEST_CASE( "strong_typedef semiregular bundle enables default construction", "[strong_typedef]" )
+TEST_CASE( "strong_type semiregular bundle enables default construction", "[strong_type]" )
 {
 	const semiregular_string object{};
 	CHECK( object.value.empty() );
 }
 
-using regular_string = mclo::strong_typedef<std::string, struct regular_tag, mclo::regular>;
+using regular_string = mclo::strong_type::type<std::string, struct regular_tag, mclo::strong_type::regular>;
 
 static_assert( std::is_default_constructible_v<regular_string> );
 static_assert( std::equality_comparable<regular_string> );
 static_assert( !std_hashable<regular_string> );
-static_assert( mclo::has_mixin<regular_string, mclo::semiregular> );
-static_assert( mclo::has_mixin<regular_string, mclo::equality_comparable> );
-static_assert( mclo::has_mixin<regular_string, mclo::regular> );
+static_assert( mclo::strong_type::has_mixin<regular_string, mclo::strong_type::semiregular> );
+static_assert( mclo::strong_type::has_mixin<regular_string, mclo::strong_type::equality_comparable> );
+static_assert( mclo::strong_type::has_mixin<regular_string, mclo::strong_type::regular> );
 
-TEST_CASE( "strong_typedef regular bundle composes default construction and equality", "[strong_typedef]" )
+TEST_CASE( "strong_type regular bundle composes default construction and equality", "[strong_type]" )
 {
 	CHECK( regular_string{} == regular_string{ std::string{} } );
 	CHECK( regular_string{ std::string{ "a" } } == regular_string{ std::string{ "a" } } );
@@ -664,13 +682,13 @@ TEST_CASE( "strong_typedef regular bundle composes default construction and equa
 
 // --- Boolean mixin ------------------------------------------------------------------------------
 
-using boolean_int = mclo::strong_typedef<int, struct boolean_tag, mclo::boolean>;
+using boolean_int = mclo::strong_type::type<int, struct boolean_tag, mclo::strong_type::boolean>;
 
 static_assert( !std::is_convertible_v<boolean_int, bool> ); // explicit only
 static_assert( std::is_constructible_v<bool, boolean_int> );
 static_assert( noexcept( static_cast<bool>( std::declval<boolean_int>() ) ) );
 
-TEST_CASE( "strong_typedef boolean exposes explicit operator bool", "[strong_typedef]" )
+TEST_CASE( "strong_type boolean exposes explicit operator bool", "[strong_type]" )
 {
 	CHECK( static_cast<bool>( boolean_int{ 5 } ) );
 	CHECK_FALSE( static_cast<bool>( boolean_int{ 0 } ) );
@@ -688,11 +706,11 @@ TEST_CASE( "strong_typedef boolean exposes explicit operator bool", "[strong_typ
 
 // --- Pointer mixin ------------------------------------------------------------------------------
 
-using int_pointer = mclo::strong_typedef<int*, struct int_pointer_tag, mclo::pointer>;
+using int_pointer = mclo::strong_type::type<int*, struct int_pointer_tag, mclo::strong_type::pointer>;
 
 static_assert( noexcept( std::declval<int_pointer>() == nullptr ) );
 
-TEST_CASE( "strong_typedef pointer exposes dereference, arrow and nullptr comparison", "[strong_typedef]" )
+TEST_CASE( "strong_type pointer exposes dereference, arrow and nullptr comparison", "[strong_type]" )
 {
 	int storage = 42;
 	const int_pointer object{ &storage };
@@ -710,9 +728,10 @@ TEST_CASE( "strong_typedef pointer exposes dereference, arrow and nullptr compar
 
 // --- Invocable mixin ----------------------------------------------------------------------------
 
-using int_adder = mclo::strong_typedef<std::function<int( int, int )>, struct int_adder_tag, mclo::invocable>;
+using int_adder =
+	mclo::strong_type::type<std::function<int( int, int )>, struct int_adder_tag, mclo::strong_type::invocable>;
 
-TEST_CASE( "strong_typedef invocable forwards to the wrapped callable", "[strong_typedef]" )
+TEST_CASE( "strong_type invocable forwards to the wrapped callable", "[strong_type]" )
 {
 	const int_adder object{ std::function<int( int, int )>{ []( int a, int b ) { return a + b; } } };
 	CHECK( object( 2, 3 ) == 5 );
@@ -741,17 +760,17 @@ namespace
 	};
 }
 
-using counter_fn = mclo::strong_typedef<mutable_counter, struct counter_fn_tag, mclo::invocable>;
-using sink_fn = mclo::strong_typedef<sink, struct sink_fn_tag, mclo::invocable>;
+using counter_fn = mclo::strong_type::type<mutable_counter, struct counter_fn_tag, mclo::strong_type::invocable>;
+using sink_fn = mclo::strong_type::type<sink, struct sink_fn_tag, mclo::strong_type::invocable>;
 
-TEST_CASE( "strong_typedef invocable forwards through the non-const overload", "[strong_typedef]" )
+TEST_CASE( "strong_type invocable forwards through the non-const overload", "[strong_type]" )
 {
 	counter_fn object{ mutable_counter{} };
 	CHECK( object( 3 ) == 3 );
 	CHECK( object( 4 ) == 7 );
 }
 
-TEST_CASE( "strong_typedef invocable perfectly forwards arguments", "[strong_typedef]" )
+TEST_CASE( "strong_type invocable perfectly forwards arguments", "[strong_type]" )
 {
 	const sink_fn object{ sink{} };
 	CHECK( object( std::make_unique<int>( 42 ) ) == 42 );
@@ -759,9 +778,10 @@ TEST_CASE( "strong_typedef invocable perfectly forwards arguments", "[strong_typ
 
 // --- Indexed mixin ------------------------------------------------------------------------------
 
-using indexed_array = mclo::strong_typedef<std::array<int, 3>, struct indexed_array_tag, mclo::indexed<std::size_t>>;
+using indexed_array =
+	mclo::strong_type::type<std::array<int, 3>, struct indexed_array_tag, mclo::strong_type::indexed<std::size_t>>;
 
-TEST_CASE( "strong_typedef indexed exposes a subscript operator", "[strong_typedef]" )
+TEST_CASE( "strong_type indexed exposes a subscript operator", "[strong_type]" )
 {
 	indexed_array object{
 		std::array<int, 3>{ 10, 20, 30 }
@@ -780,17 +800,17 @@ TEST_CASE( "strong_typedef indexed exposes a subscript operator", "[strong_typed
 
 // --- Scalable mixin -----------------------------------------------------------------------------
 
-using meters = mclo::strong_typedef<double, struct meters_tag, mclo::scalable_with<double>>;
+using meters = mclo::strong_type::type<double, struct meters_tag, mclo::strong_type::scalable_with<double>>;
 
-static_assert( mclo::has_mixin<meters, mclo::scalable_with<double>> );
+static_assert( mclo::strong_type::has_mixin<meters, mclo::strong_type::scalable_with<double>> );
 static_assert( noexcept( std::declval<meters>() * std::declval<double>() ) );
 static_assert( noexcept( std::declval<double>() * std::declval<meters>() ) );
 static_assert( noexcept( std::declval<meters>() / std::declval<double>() ) );
 
 // Scaling is only against the scalar; it does not introduce a strong * strong product.
-static_assert( !mclo::has_mixin<meters, mclo::multipliable> );
+static_assert( !mclo::strong_type::has_mixin<meters, mclo::strong_type::multipliable> );
 
-TEST_CASE( "strong_typedef scalable_with scales by a scalar on either side", "[strong_typedef]" )
+TEST_CASE( "strong_type scalable_with scales by a scalar on either side", "[strong_type]" )
 {
 	CHECK( ( meters{ 3.0 } * 2.0 ).value == 6.0 );
 	CHECK( ( 2.0 * meters{ 3.0 } ).value == 6.0 );
@@ -805,9 +825,10 @@ TEST_CASE( "strong_typedef scalable_with scales by a scalar on either side", "[s
 
 // --- Range mixin --------------------------------------------------------------------------------
 
-using int_vector = mclo::strong_typedef<std::vector<int>, struct int_vector_tag, mclo::range, mclo::semiregular>;
-using fixed_ints = mclo::strong_typedef<std::array<int, 3>, struct fixed_ints_tag, mclo::range>;
-using int_list = mclo::strong_typedef<std::forward_list<int>, struct int_list_tag, mclo::range>;
+using int_vector = mclo::strong_type::
+	type<std::vector<int>, struct int_vector_tag, mclo::strong_type::range, mclo::strong_type::semiregular>;
+using fixed_ints = mclo::strong_type::type<std::array<int, 3>, struct fixed_ints_tag, mclo::strong_type::range>;
+using int_list = mclo::strong_type::type<std::forward_list<int>, struct int_list_tag, mclo::strong_type::range>;
 
 static_assert( std::ranges::range<int_vector> );
 static_assert( std::ranges::range<const int_vector> );
@@ -817,7 +838,7 @@ static_assert( std::ranges::sized_range<int_vector> );
 static_assert( std::ranges::range<int_list> );
 static_assert( !std::ranges::sized_range<int_list> );
 
-TEST_CASE( "strong_typedef range iterates and dispatches to ranges algorithms", "[strong_typedef]" )
+TEST_CASE( "strong_type range iterates and dispatches to ranges algorithms", "[strong_type]" )
 {
 	int_vector object{
 		std::vector<int>{ 1, 2, 3, 4 }
@@ -836,7 +857,7 @@ TEST_CASE( "strong_typedef range iterates and dispatches to ranges algorithms", 
 	CHECK( *std::ranges::max_element( object ) == 4 );
 }
 
-TEST_CASE( "strong_typedef range exposes size and empty for sized ranges", "[strong_typedef]" )
+TEST_CASE( "strong_type range exposes size and empty for sized ranges", "[strong_type]" )
 {
 	const fixed_ints object{
 		std::array<int, 3>{ 5, 6, 7 }
@@ -868,12 +889,12 @@ namespace
 	};
 }
 
-using squared = mclo::strong_typedef<int, struct squared_tag, squarable>;
+using squared = mclo::strong_type::type<int, struct squared_tag, squarable>;
 
-static_assert( mclo::has_mixin<squared, squarable> );
-static_assert( !mclo::has_mixin<plain_int, squarable> );
+static_assert( mclo::strong_type::has_mixin<squared, squarable> );
+static_assert( !mclo::strong_type::has_mixin<plain_int, squarable> );
 
-TEST_CASE( "strong_typedef supports user-defined mixins", "[strong_typedef]" )
+TEST_CASE( "strong_type supports user-defined mixins", "[strong_type]" )
 {
 	CHECK( squared{ 7 }.square() == 49 );
 }

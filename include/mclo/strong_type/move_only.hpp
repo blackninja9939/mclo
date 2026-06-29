@@ -1,8 +1,8 @@
 #pragma once
 
-namespace mclo
+namespace mclo::strong_type
 {
-	/// @brief Mixin that makes a strong_typedef move-only by deleting its copy operations.
+	/// @brief Mixin that makes a strong type move-only by deleting its copy operations.
 	struct move_only
 	{
 		template <typename Derived>

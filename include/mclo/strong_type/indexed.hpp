@@ -1,10 +1,10 @@
 #pragma once
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Parameterised mixin that adds a subscript operator taking an index of type Index.
-	/// @details Supply the parameterised tag directly, e.g. mclo::strong_typedef<std::array<int, 4>, struct tag,
-	/// mclo::indexed<std::size_t>>.
+	/// @details Supply the parameterised tag directly, e.g. mclo::strong_type::type<std::array<int, 4>, struct tag,
+	/// mclo::strong_type::indexed<std::size_t>>.
 	/// @tparam Index The index type accepted by the generated subscript operator.
 	template <typename Index>
 	struct indexed

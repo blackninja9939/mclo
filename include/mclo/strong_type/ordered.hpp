@@ -2,7 +2,7 @@
 
 #include "mclo/utility/synth_three_way.hpp"
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds homogeneous ordering via operator<=> along with equality.
 	/// @details Provides the full set of relational operators and equality. The spaceship operator is synthesised via

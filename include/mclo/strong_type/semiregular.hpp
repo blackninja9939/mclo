@@ -1,8 +1,8 @@
 #pragma once
 
-#include "mclo/strong_typedef/default_initialized.hpp"
+#include "mclo/strong_type/default_initialized.hpp"
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Marker mixin for semiregular value types: enables default construction and asserts the value type
 	/// satisfies the std::semiregular concept.

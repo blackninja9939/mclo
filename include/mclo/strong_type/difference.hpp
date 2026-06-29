@@ -1,6 +1,6 @@
 #pragma once
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Parameterised mixin that adds subtraction of two objects yielding a distinct Difference type.
 	/// @details Models pointer or iterator style differences where subtracting two strong values produces a separate

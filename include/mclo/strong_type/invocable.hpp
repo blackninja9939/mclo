@@ -2,10 +2,10 @@
 
 #include <utility>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds a call operator forwarding to the wrapped value.
-	/// @details Intended for strong_typedefs whose value_type is itself callable. Arguments are perfectly forwarded.
+	/// @details Intended for strong types whose value_type is itself callable. Arguments are perfectly forwarded.
 	struct invocable
 	{
 		template <typename Derived>

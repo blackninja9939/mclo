@@ -2,10 +2,10 @@
 
 #include <utility>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds an implicit conversion to the underlying value_type.
-	/// @details By default a strong_typedef only exposes its value via the public value member. This mixin opts back
+	/// @details By default a strong type only exposes its value via the public value member. This mixin opts back
 	/// into the implicit conversion of the wrapped value, trading type safety for convenience.
 	struct implicitly_convertible
 	{

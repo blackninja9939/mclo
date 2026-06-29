@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds an explicit conversion to bool based on the truthiness of the wrapped value.
 	struct boolean

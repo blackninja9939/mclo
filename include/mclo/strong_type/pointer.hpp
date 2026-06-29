@@ -3,10 +3,10 @@
 #include <cstddef>
 #include <memory>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds pointer-like access (operator*, operator->) and comparison against nullptr.
-	/// @details Intended for strong_typedefs whose value_type is a raw or smart pointer. The arrow operator yields the
+	/// @details Intended for strong types whose value_type is a raw or smart pointer. The arrow operator yields the
 	/// underlying raw pointer via std::to_address.
 	struct pointer
 	{

@@ -2,7 +2,7 @@
 
 #include <concepts>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds homogeneous bitwise operators (&, |, ^, ~), shifts by an integral amount (<<, >>) and
 	/// their compound assignments.

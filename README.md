@@ -19,7 +19,7 @@ It grew out of code written for game development, so the components lean towards
 
 ## What's inside
 
-The public API is organised by domain under `include/mclo/`, each directory grouping a related family of components: `container/`, `enum/`, `hash/`, `memory/`, `numeric/`, `random/`, `strong_typedef/`, `string/`, `threading/`, and `utility/`. Browse the headers for the full set, a few highlights from each:
+The public API is organised by domain under `include/mclo/`, each directory grouping a related family of components: `container/`, `enum/`, `hash/`, `memory/`, `numeric/`, `random/`, `strong_type/`, `string/`, `threading/`, and `utility/`. Browse the headers for the full set, a few highlights from each:
 
 - **Containers** - `bitset`, `dynamic_bitset`, `small_vector`, `dense_slot_map`, and packed integer storage.
 - **Enum** - `enum_map`, `enum_set`, and `enum_range` for treating enums as keys and iterables.
@@ -27,7 +27,7 @@ The public API is organised by domain under `include/mclo/`, each directory grou
 - **Memory** - value-semantic `indirect` / `polymorphic`, `copy_on_write`, `tagged_ptr`, and `intrusive_ptr`.
 - **Numeric** - `fixed_point`, `log2` / `pow2` helpers, and checked/saturated/overflowing math.
 - **Random** - `chacha` and `xoshiro` generators you can use directly, plus `random_generator`, a wrapper around any generator for convenient RNG operations.
-- **Strong typedef** - compose strong type aliases from mixins, opting into only the operations a type should support.
+- **Strong type** - compose strong type aliases from mixins, opting into only the operations a type should support.
 - **String** - case-insensitive operations, efficient concat/join/append, and `string_flyweight`.
 - **Threading** - `atomic_shared_ptr`, `spin_mutex`, instanced thread locals, and a work-stealing deque.
 - **Utility** - `expected`, `small_optional`, `state_machine`, and `uuid`.

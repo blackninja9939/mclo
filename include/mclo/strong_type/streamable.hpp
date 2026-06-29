@@ -4,9 +4,9 @@
 
 #include <iosfwd>
 
-namespace mclo
+namespace mclo::strong_type
 {
-	/// @brief Mixin that opts a strong_typedef into stream extraction via operator>>.
+	/// @brief Mixin that opts a strong type into stream extraction via operator>>.
 	struct istreamable
 	{
 		template <typename Derived>
@@ -21,7 +21,7 @@ namespace mclo
 		};
 	};
 
-	/// @brief Mixin that opts a strong_typedef into stream insertion via operator<<.
+	/// @brief Mixin that opts a strong type into stream insertion via operator<<.
 	struct ostreamable
 	{
 		template <typename Derived>
@@ -36,7 +36,7 @@ namespace mclo
 		};
 	};
 
-	/// @brief Preset bundle that opts a strong_typedef into both stream insertion and extraction.
+	/// @brief Preset bundle that opts a strong type into both stream insertion and extraction.
 	struct iostreamable
 	{
 		template <typename Derived>

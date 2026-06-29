@@ -1,14 +1,14 @@
 #pragma once
 
-#include "mclo/strong_typedef/decrementable.hpp"
-#include "mclo/strong_typedef/incrementable.hpp"
-#include "mclo/strong_typedef/strong_typedef.hpp"
+#include "mclo/strong_type/decrementable.hpp"
+#include "mclo/strong_type/incrementable.hpp"
+#include "mclo/strong_type/type.hpp"
 
 #include "mclo/platform/attributes.hpp"
 
 #include <limits>
 
-namespace mclo
+namespace mclo::strong_type
 {
 	/// @brief Mixin that adds homogeneous addition (operator+ and operator+=).
 	struct addable
@@ -144,46 +144,47 @@ namespace mclo
 namespace std
 {
 	template <typename Wrapped, typename Tag, typename... Mixins>
-		requires mclo::has_mixin<mclo::strong_typedef<Wrapped, Tag, Mixins...>, mclo::arithmetic>
-	struct numeric_limits<mclo::strong_typedef<Wrapped, Tag, Mixins...>> : numeric_limits<Wrapped>
+		requires mclo::strong_type::has_mixin<mclo::strong_type::type<Wrapped, Tag, Mixins...>,
+											  mclo::strong_type::arithmetic>
+	struct numeric_limits<mclo::strong_type::type<Wrapped, Tag, Mixins...>> : numeric_limits<Wrapped>
 	{
-		using strong_type = mclo::strong_typedef<Wrapped, Tag, Mixins...>;
+		using st = mclo::strong_type::type<Wrapped, Tag, Mixins...>;
 
-		[[nodiscard]] static constexpr strong_type min() noexcept
+		[[nodiscard]] static constexpr st min() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::min() );
+			return st( numeric_limits<Wrapped>::min() );
 		}
-		[[nodiscard]] static constexpr strong_type lowest() noexcept
+		[[nodiscard]] static constexpr st lowest() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::lowest() );
+			return st( numeric_limits<Wrapped>::lowest() );
 		}
-		[[nodiscard]] static constexpr strong_type max() noexcept
+		[[nodiscard]] static constexpr st max() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::max() );
+			return st( numeric_limits<Wrapped>::max() );
 		}
-		[[nodiscard]] static constexpr strong_type epsilon() noexcept
+		[[nodiscard]] static constexpr st epsilon() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::epsilon() );
+			return st( numeric_limits<Wrapped>::epsilon() );
 		}
-		[[nodiscard]] static constexpr strong_type round_error() noexcept
+		[[nodiscard]] static constexpr st round_error() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::round_error() );
+			return st( numeric_limits<Wrapped>::round_error() );
 		}
-		[[nodiscard]] static constexpr strong_type infinity() noexcept
+		[[nodiscard]] static constexpr st infinity() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::infinity() );
+			return st( numeric_limits<Wrapped>::infinity() );
 		}
-		[[nodiscard]] static constexpr strong_type quiet_NaN() noexcept
+		[[nodiscard]] static constexpr st quiet_NaN() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::quiet_NaN() );
+			return st( numeric_limits<Wrapped>::quiet_NaN() );
 		}
-		[[nodiscard]] static constexpr strong_type signaling_NaN() noexcept
+		[[nodiscard]] static constexpr st signaling_NaN() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::signaling_NaN() );
+			return st( numeric_limits<Wrapped>::signaling_NaN() );
 		}
-		[[nodiscard]] static constexpr strong_type denorm_min() noexcept
+		[[nodiscard]] static constexpr st denorm_min() noexcept
 		{
-			return strong_type( numeric_limits<Wrapped>::denorm_min() );
+			return st( numeric_limits<Wrapped>::denorm_min() );
 		}
 	};
 }

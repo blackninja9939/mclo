@@ -1,8 +1,8 @@
 #pragma once
 
-namespace mclo
+namespace mclo::strong_type
 {
-	/// @brief Mixin that opts a strong_typedef into formatting by exposing its value via format_as.
+	/// @brief Mixin that opts a strong type into formatting by exposing its value via format_as.
 	struct formattable
 	{
 		template <typename Derived>
