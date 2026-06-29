@@ -67,7 +67,7 @@ namespace mclo::detail
 		mclo::breakpoint_if_debugging();
 
 		std::string arg_string;
-		arg_string.reserve( sizeof...( args ) * 24 );
+		arg_string.reserve( sizeof...( Args ) * 24 );
 
 		std::size_t index = 0;
 		( format_assert_arg( arg_string, index++, args ), ... );
