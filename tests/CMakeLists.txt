@@ -27,6 +27,7 @@ add_executable( tests
 	"chacha_tests.cpp"
 	"random_generator_tests.cpp"
 	"weighted_random_tests.cpp"
+	"weighted_vector_tests.cpp"
 	"mutex_tests.cpp"
 	"sem_version_tests.cpp"
 	"synchronized_tests.cpp"
