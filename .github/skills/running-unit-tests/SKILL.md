@@ -1,9 +1,17 @@
 ---
 name: running-unit-tests
-description: "Use when running, executing, or debugging Catch2 unit tests for the mclo library. Covers CTest, preset-based test execution, filtering, and troubleshooting."
+description: "Use when running, executing, or debugging Catch2 unit tests for the mclo library. Covers building the test executables and running directly via Catch2's command line."
 ---
 
 # Running Unit Tests
+
+## Policy: Always Run via the Executable, Never CTest
+
+**Never run tests via CTest** (`ctest`, `ctest --preset ...`, etc.). Always build the
+module's test executable and run it directly through Catch2's own command line
+infrastructure. Running the exe directly executes all of a module's test cases in a
+single process, which is far lower overhead than CTest launching a process per test
+case, and gives direct access to Catch2's filtering, listing, and reporting flags.
 
 ## Prerequisites
 
@@ -17,21 +25,13 @@ See the **compile-files** skill. The test target is `tests`:
 cmake --build build/<preset> --target tests
 ```
 
-## Run All Tests via CTest
-
-```powershell
-ctest --preset <preset>
-```
-
-Available test presets:
+Available presets:
 - `msvc-debug`, `msvc-release`, `msvc-relwithdebinfo`
 - `clang-debug`, `clang-release`, `clang-relwithdebinfo`
 
-All test presets output on failure by default.
+## Run All Tests
 
-## Run Tests Directly
-
-Run the test executable for more control:
+Run the test executable directly:
 
 ```powershell
 ./build/<preset>/tests.exe
@@ -61,23 +61,21 @@ Run the test executable for more control:
 ./build/<preset>/tests.exe --list-tags
 ```
 
-## Verbose Output
+### Verbose Output
+
+Show successful assertions too:
 
 ```powershell
-ctest --preset <preset> --output-on-failure -V
+./build/<preset>/tests.exe --success
 ```
 
-## Run a Single CTest Test
-
-```powershell
-ctest --preset <preset> -R "test name pattern"
-```
+See `./build/<preset>/tests.exe --help` for the full set of Catch2 command line options.
 
 ## Common Workflow
 
 1. Configure: `cmake --preset msvc-debug`
-2. Build: `cmake --build --preset msvc-debug`
-3. Test: `ctest --preset msvc-debug`
+2. Build tests: `cmake --build build/msvc-debug --target tests`
+3. Run the tests: `./build/msvc-debug/tests.exe`
 
 Or for targeted testing during development:
 
