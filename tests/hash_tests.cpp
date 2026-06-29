@@ -57,8 +57,6 @@ namespace
 
 	static_assert( mclo::meta::all_of_v<std::has_unique_object_representations, mclo::meta::integers> );
 
-	static_assert( mclo::default_hashable<std::string> );
-
 	using hasher_types = mclo::meta::
 		type_list<mclo::fnv1a_hasher, mclo::murmur_hash_3, mclo::rapidhash, mclo::xxhash_64, mclo::xxhash_3>;
 

@@ -58,26 +58,6 @@ target_link_libraries(${LIBRARY_TARGET_NAME} PRIVATE ${CMAKE_DL_LIBS})
 # Require C++20 for consumers
 target_compile_features(${LIBRARY_TARGET_NAME} PUBLIC cxx_std_20)
 
-# Configurable default hasher (mclo::default_hasher) and random engine (mclo::default_random_generator).
-# These are queried unconditionally by the headers; the cache variables below supply the defaults but a consuming
-# project may override them, including pointing at a type/header that is not part of mclo.
-set(MCLO_DEFAULT_HASHER "mclo::rapidhash" CACHE STRING
-    "Fully qualified type name used by mclo::default_hasher")
-set(MCLO_DEFAULT_HASHER_HEADER "mclo/hash/rapidhash.hpp" CACHE STRING
-    "Include path of the header declaring MCLO_DEFAULT_HASHER")
-set(MCLO_DEFAULT_RANDOM_ENGINE "mclo::xoshiro256plusplus" CACHE STRING
-    "Fully qualified type name used by mclo::default_random_generator")
-set(MCLO_DEFAULT_RANDOM_ENGINE_HEADER "mclo/random/xoshiro256plusplus.hpp" CACHE STRING
-    "Include path of the header declaring MCLO_DEFAULT_RANDOM_ENGINE")
-
-# PUBLIC so every consuming translation unit observes the same definitions, avoiding ODR mismatches.
-target_compile_definitions(${LIBRARY_TARGET_NAME} PUBLIC
-    MCLO_CONFIG_DEFAULT_HASHER=${MCLO_DEFAULT_HASHER}
-    MCLO_CONFIG_DEFAULT_HASHER_HEADER="${MCLO_DEFAULT_HASHER_HEADER}"
-    MCLO_CONFIG_DEFAULT_RANDOM_ENGINE=${MCLO_DEFAULT_RANDOM_ENGINE}
-    MCLO_CONFIG_DEFAULT_RANDOM_ENGINE_HEADER="${MCLO_DEFAULT_RANDOM_ENGINE_HEADER}"
-)
-
 # Automatically include all public headers from the include folder
 target_include_directories( ${LIBRARY_TARGET_NAME}
     PUBLIC

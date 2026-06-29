@@ -9,7 +9,7 @@ namespace mclo
 {
 	/// @brief A hasher implementing the 64-bit rapidhash algorithm.
 	/// @details Satisfies the @ref hasher concept and offers excellent speed and distribution, making it a strong
-	/// general-purpose choice for the @ref default_hasher.
+	/// general-purpose choice.
 	class rapidhash
 	{
 	public:

@@ -2,7 +2,8 @@
 
 #include "mclo/threading/work_stealing_deque.hpp"
 
-#include "mclo/random/default_random_generator.hpp"
+#include "mclo/random/random_generator.hpp"
+#include "mclo/random/xoshiro256plusplus.hpp"
 
 #include <thread>
 
@@ -14,7 +15,7 @@ namespace
 	{
 		std::thread m_thread;
 		std::vector<int> m_stolen_values;
-		mclo::default_random_generator m_rng;
+		mclo::random_generator<mclo::xoshiro256plusplus> m_rng;
 	};
 
 	void test_with_thieves( const std::size_t num_thieves )

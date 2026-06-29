@@ -11,7 +11,8 @@
 
 #include "mclo/hash/std_types.hpp"
 
-#include "mclo/random/default_random_generator.hpp"
+#include "mclo/random/random_generator.hpp"
+#include "mclo/random/xoshiro256plusplus.hpp"
 
 namespace
 {
@@ -96,7 +97,7 @@ namespace
 	template <typename Helper>
 	void hash_benchmark( benchmark::State& state )
 	{
-		mclo::default_random_generator random;
+		mclo::random_generator<mclo::xoshiro256plusplus> random;
 
 		std::vector<int> vec( 50 );
 		random.generate( vec );

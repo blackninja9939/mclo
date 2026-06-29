@@ -3,7 +3,8 @@
 #include "consteval_check.hpp"
 
 #include "mclo/hash/hash.hpp"
-#include "mclo/random/default_random_generator.hpp"
+#include "mclo/random/random_generator.hpp"
+#include "mclo/random/xoshiro256plusplus.hpp"
 #include "mclo/utility/sem_version.hpp"
 
 namespace
@@ -63,7 +64,7 @@ TEST_CASE( "sem_version hash", "[sem_version]" )
 
 TEST_CASE( "sem_version to_string", "[sem_version]" )
 {
-	mclo::default_random_generator rng( 42 );
+	mclo::random_generator<mclo::xoshiro256plusplus> rng( 42 );
 	for ( int i = 0; i < 100; ++i )
 	{
 		const auto major = static_cast<std::uint8_t>( rng.uniform( 0, 255 ) );

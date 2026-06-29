@@ -1,7 +1,8 @@
 #include <benchmark/benchmark.h>
 
 #include "mclo/container/dense_slot_map.hpp"
-#include "mclo/random/default_random_generator.hpp"
+#include "mclo/random/random_generator.hpp"
+#include "mclo/random/xoshiro256plusplus.hpp"
 
 #include <unordered_map>
 
@@ -11,7 +12,7 @@ namespace
 	{
 		std::unordered_map<int, int> map;
 		int next_key = 0;
-		mclo::default_random_generator generator;
+		mclo::random_generator<mclo::xoshiro256plusplus> generator;
 		while ( next_key < 100 )
 		{
 			map.emplace( next_key++, generator.uniform( 0, 100 ) );
@@ -30,7 +31,7 @@ namespace
 	void BM_IterateDenseSlotMap( benchmark::State& state )
 	{
 		mclo::dense_slot_map<int> map;
-		mclo::default_random_generator generator;
+		mclo::random_generator<mclo::xoshiro256plusplus> generator;
 		for ( int i = 0; i < 100; ++i )
 		{
 			( void )map.insert( generator.uniform( 0, 100 ) );

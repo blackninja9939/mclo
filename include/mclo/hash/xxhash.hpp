@@ -13,7 +13,7 @@ namespace mclo
 {
 	/// @brief A hasher implementing the 64-bit XXH64 algorithm.
 	/// @details Satisfies the @ref hasher concept. The hash state lives on the stack, making this preferable for
-	/// hashing small amounts of data such as the @ref default_hasher use case.
+	/// hashing small amounts of data.
 	class xxhash_64
 	{
 	public:

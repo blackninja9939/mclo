@@ -595,7 +595,6 @@ TEMPLATE_LIST_TEST_CASE( "dense_slot_map handle type, hash different handles, di
 						 test_types )
 {
 	using handle_type = typename TestType::handle_type;
-	STATIC_CHECK( mclo::default_hashable<handle_type> );
 	TestType map;
 	const handle_type handle = map.insert( "42" );
 	const handle_type handle2 = map.insert( "16" );
