@@ -10,12 +10,14 @@
 #include "mclo/debug/breakpoint.hpp"
 #include "mclo/debug/unreachable.hpp"
 #include "mclo/platform/compiler_detection.hpp"
+#include "mclo/platform/pretty_function.hpp"
 
 #include <format>
 
 namespace mclo::detail
 {
 	[[noreturn]] void assert_failed( const char* expression,
+									 const char* function,
 									 const char* file,
 									 const unsigned line,
 									 const char* message,
@@ -24,19 +26,20 @@ namespace mclo::detail
 	// We breakpoint before calling the core assert_failed in case the assertion failure itself throws bad_alloc when
 	// formatting the message. This allows the user to inspect the assertion in a debugger before the program aborts.
 
-	[[noreturn]] inline void assert_failed( const char* expression, const char* file, unsigned line ) noexcept
+	[[noreturn]] inline void assert_failed( const char* expression,
+											const char* function,
+											const char* file,
+											unsigned line ) noexcept
 	{
 		mclo::breakpoint_if_debugging();
-		assert_failed( expression, file, line, nullptr, nullptr );
+		assert_failed( expression, function, file, line, nullptr, nullptr );
 	}
 
-	[[noreturn]] inline void assert_failed( const char* expression,
-											const char* file,
-											unsigned line,
-											const char* message ) noexcept
+	[[noreturn]] inline void assert_failed(
+		const char* expression, const char* function, const char* file, unsigned line, const char* message ) noexcept
 	{
 		mclo::breakpoint_if_debugging();
-		assert_failed( expression, file, line, message, nullptr );
+		assert_failed( expression, function, file, line, message, nullptr );
 	}
 
 	template <typename T>
@@ -54,8 +57,12 @@ namespace mclo::detail
 
 	template <typename... Args>
 		requires( sizeof...( Args ) > 0 )
-	[[noreturn]] void assert_failed(
-		const char* expression, const char* file, unsigned line, const char* message, const Args&... args ) noexcept
+	[[noreturn]] void assert_failed( const char* expression,
+									 const char* function,
+									 const char* file,
+									 unsigned line,
+									 const char* message,
+									 const Args&... args ) noexcept
 	{
 		mclo::breakpoint_if_debugging();
 
@@ -65,7 +72,7 @@ namespace mclo::detail
 		std::size_t index = 0;
 		( format_assert_arg( arg_string, index++, args ), ... );
 
-		assert_failed( expression, file, line, message, arg_string.c_str() );
+		assert_failed( expression, function, file, line, message, arg_string.c_str() );
 	}
 }
 
@@ -78,7 +85,7 @@ namespace mclo::detail
 	{                                                                                                                  \
 		if ( !( EXPR ) ) [[unlikely]]                                                                                  \
 		{                                                                                                              \
-			mclo::detail::assert_failed( #EXPR, __FILE__, __LINE__ __VA_OPT__(, __VA_ARGS__ ) );                       \
+			mclo::detail::assert_failed( #EXPR, MCLO_PRETTY_FUNCTION, __FILE__, __LINE__ __VA_OPT__(, __VA_ARGS__ ) ); \
 		}                                                                                                              \
 	}                                                                                                                  \
 	while ( 0 )
@@ -91,7 +98,7 @@ namespace mclo::detail
 	{                                                                                                                  \
 		if ( !( EXPR ) ) [[unlikely]]                                                                                  \
 		{                                                                                                              \
-			mclo::detail::assert_failed( #EXPR, __FILE__, __LINE__ __VA_OPT__(, __VA_ARGS__ ) );                       \
+			mclo::detail::assert_failed( #EXPR, MCLO_PRETTY_FUNCTION, __FILE__, __LINE__ __VA_OPT__(, __VA_ARGS__ ) ); \
 		}                                                                                                              \
 	}                                                                                                                  \
 	while ( 0 )
@@ -117,7 +124,7 @@ namespace mclo::detail
 	{                                                                                                                  \
 		if ( !( EXPR ) ) [[unlikely]]                                                                                  \
 		{                                                                                                              \
-			mclo::detail::assert_failed( #EXPR, __FILE__, __LINE__ __VA_OPT__(, __VA_ARGS__ ) );                       \
+			mclo::detail::assert_failed( #EXPR, MCLO_PRETTY_FUNCTION, __FILE__, __LINE__ __VA_OPT__(, __VA_ARGS__ ) ); \
 		}                                                                                                              \
 	}                                                                                                                  \
 	while ( 0 )
@@ -128,7 +135,7 @@ namespace mclo::detail
 #define MCLO_PANIC( ... )                                                                                              \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		mclo::detail::assert_failed( "PANIC", __FILE__, __LINE__, __VA_ARGS__ );                                       \
+		mclo::detail::assert_failed( "PANIC", MCLO_PRETTY_FUNCTION, __FILE__, __LINE__, __VA_ARGS__ );                 \
 	}                                                                                                                  \
 	while ( 0 )
 #endif
@@ -140,7 +147,7 @@ namespace mclo::detail
 #define MCLO_UNREACHABLE( ... )                                                                                        \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		mclo::detail::assert_failed( "UNREACHABLE", __FILE__, __LINE__, __VA_ARGS__ );                                 \
+		mclo::detail::assert_failed( "UNREACHABLE", MCLO_PRETTY_FUNCTION, __FILE__, __LINE__, __VA_ARGS__ );           \
 	}                                                                                                                  \
 	while ( 0 )
 #endif
