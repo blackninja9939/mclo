@@ -71,6 +71,22 @@ namespace mclo
 		return 0;
 	}
 
+	/// @brief Compares two strings for equality, ignoring ASCII case.
+	/// @details Checks the sizes first and only performs a character comparison when they match. Uses a SIMD
+	/// implementation at runtime and a scalar one during constant evaluation. Only ASCII letters are case-folded.
+	/// @param lhs The first string.
+	/// @param rhs The second string.
+	/// @return @c true if the strings are case-insensitively equal, otherwise @c false.
+	[[nodiscard]] constexpr bool equal_ignore_case( const std::string_view lhs, const std::string_view rhs ) noexcept
+	{
+		const std::size_t size = lhs.size();
+		if ( size != rhs.size() )
+		{
+			return false;
+		}
+		return detail::compare_ignore_case( lhs.data(), rhs.data(), size ) == 0;
+	}
+
 	namespace detail
 	{
 		template <typename BaseOp>
@@ -84,12 +100,24 @@ namespace mclo
 				return BaseOp{}( mclo::compare_ignore_case( lhs, rhs ), 0 );
 			}
 		};
+
+		template <bool Equal>
+		struct string_equal_ignore_case_t
+		{
+			using is_transparent = void;
+
+			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr bool operator()(
+				const std::string_view lhs, const std::string_view rhs ) MCLO_CONST_CALL_OPERATOR noexcept
+			{
+				return mclo::equal_ignore_case( lhs, rhs ) == Equal;
+			}
+		};
 	}
 
-	/// @brief Transparent functor comparing strings for case-insensitive equality. See @ref compare_ignore_case.
-	using string_equal_to_ignore_case = detail::string_compare_ignore_case_t<std::equal_to<>>;
-	/// @brief Transparent functor comparing strings for case-insensitive inequality. See @ref compare_ignore_case.
-	using string_not_equal_to_ignore_case = detail::string_compare_ignore_case_t<std::not_equal_to<>>;
+	/// @brief Transparent functor comparing strings for case-insensitive equality. See @ref equal_ignore_case.
+	using string_equal_to_ignore_case = detail::string_equal_ignore_case_t<true>;
+	/// @brief Transparent functor comparing strings for case-insensitive inequality. See @ref equal_ignore_case.
+	using string_not_equal_to_ignore_case = detail::string_equal_ignore_case_t<false>;
 	/// @brief Transparent functor for a case-insensitive less-than ordering of strings. See @ref compare_ignore_case.
 	using string_less_ignore_case = detail::string_compare_ignore_case_t<std::less<>>;
 	/// @brief Transparent functor for a case-insensitive greater-than ordering of strings. See @ref

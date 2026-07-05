@@ -244,6 +244,40 @@ TEST_CASE( "compare_ignore_case", "[string]" )
 	}
 }
 
+TEST_CASE( "equal_ignore_case", "[string]" )
+{
+	{
+		constexpr std::string_view upper = "45 HELLO WORLD! 123!!!!!!!!!!!!!!!!!!!!!!";
+		constexpr std::string_view lower = "45 hello world! 123!!!!!!!!!!!!!!!!!!!!!!";
+		CONSTEVAL_CHECK( mclo::equal_ignore_case( upper, lower ) );
+	}
+	{
+		constexpr std::string_view upper = "HELLO WORLD!!!!!!!!!!!!!!!!!!!!!!!";
+		constexpr std::string_view lower = "hello world?!!!!!!!!!!!!!!!!!!!!!!";
+		CONSTEVAL_CHECK_FALSE( mclo::equal_ignore_case( upper, lower ) );
+	}
+	{
+		constexpr std::string_view longer = "hello world";
+		constexpr std::string_view shorter = "hello";
+		CONSTEVAL_CHECK_FALSE( mclo::equal_ignore_case( longer, shorter ) );
+		CONSTEVAL_CHECK_FALSE( mclo::equal_ignore_case( shorter, longer ) );
+	}
+	{
+		constexpr std::string_view empty;
+		CONSTEVAL_CHECK( mclo::equal_ignore_case( empty, empty ) );
+	}
+}
+
+TEST_CASE( "string_equal_to_ignore_case functor", "[string]" )
+{
+	constexpr mclo::string_equal_to_ignore_case equal;
+	constexpr mclo::string_not_equal_to_ignore_case not_equal;
+	CONSTEVAL_CHECK( equal( "HELLO", "hello" ) );
+	CONSTEVAL_CHECK_FALSE( equal( "HELLO", "world" ) );
+	CONSTEVAL_CHECK_FALSE( not_equal( "HELLO", "hello" ) );
+	CONSTEVAL_CHECK( not_equal( "HELLO", "world" ) );
+}
+
 TEMPLATE_LIST_TEST_CASE( "replace_all", "[string]", char_types )
 {
 	constexpr auto initial = mclo::transcode_ascii_literal<TestType>( "1.2.14.9" );
