@@ -3,6 +3,7 @@
 #include "mclo/concepts/always_false.hpp"
 #include "mclo/container/bitset.hpp"
 #include "mclo/enum/enum_size.hpp"
+#include "mclo/utility/to_underlying.hpp"
 
 #include <concepts>
 #include <initializer_list>
@@ -20,8 +21,7 @@ namespace mclo
 	template <typename TEnum, TEnum SizeEnum = enum_size<TEnum>>
 	class enum_set
 	{
-		static_assert( static_cast<std::underlying_type_t<TEnum>>( SizeEnum ) > 0,
-					   "SizeEnum should be a positive value" );
+		static_assert( mclo::to_underlying( SizeEnum ) > 0, "SizeEnum should be a positive value" );
 		static constexpr std::size_t size_max = static_cast<std::size_t>( SizeEnum );
 
 	public:

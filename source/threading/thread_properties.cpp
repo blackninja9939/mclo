@@ -2,10 +2,11 @@
 
 #include "mclo/enum/enum_size.hpp"
 #include "mclo/platform/os_detection.hpp"
+#include "mclo/utility/to_underlying.hpp"
 
 template <>
-constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> = static_cast<mclo::thread_priority>(
-	static_cast<std::underlying_type_t<mclo::thread_priority>>( mclo::thread_priority::high ) + 1 );
+constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> =
+	static_cast<mclo::thread_priority>( mclo::to_underlying( mclo::thread_priority::high ) + 1 );
 
 #ifdef MCLO_OS_WINDOWS
 

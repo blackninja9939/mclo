@@ -2,6 +2,7 @@
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_size.hpp"
+#include "mclo/utility/to_underlying.hpp"
 
 #include <concepts>
 #include <iterator>
@@ -32,8 +33,7 @@ namespace mclo
 		template <typename TEnum>
 		constexpr TEnum enum_add( const TEnum value, const std::ptrdiff_t amount ) noexcept
 		{
-			using underlying_t = std::underlying_type_t<TEnum>;
-			const auto underlying = static_cast<underlying_t>( value );
+			const auto underlying = mclo::to_underlying( value );
 			MCLO_DEBUG_ASSERT( is_safe_addition( underlying, amount ), "Addition would overflow" );
 			return static_cast<TEnum>( underlying + amount );
 		}
