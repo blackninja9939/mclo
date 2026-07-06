@@ -13,7 +13,7 @@ constexpr mclo::thread_priority mclo::enum_size<mclo::thread_priority> =
 #include <limits>
 #include <string>
 
-#include "mclo/platform/windows_wrapper.h"
+#include "mclo/platform/windows_wrapper.hpp"
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_map.hpp"

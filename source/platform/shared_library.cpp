@@ -26,7 +26,7 @@ namespace mclo
 
 #ifdef MCLO_OS_WINDOWS
 
-#include "mclo/platform/windows_wrapper.h"
+#include "mclo/platform/windows_wrapper.hpp"
 
 namespace
 {

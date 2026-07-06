@@ -3,7 +3,7 @@
 #include "mclo/platform/os_detection.hpp"
 
 #ifdef MCLO_OS_WINDOWS
-#include "mclo/platform/windows_wrapper.h"
+#include "mclo/platform/windows_wrapper.hpp"
 #else
 #include <cwchar>
 #endif
