@@ -14,6 +14,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "hash/murmur_hash_3.cpp"
     "hash/rapidhash.cpp"
     "hash/xxhash.cpp"
+    "memory/page_size.cpp"
     "random/xoshiro256plusplus.cpp"
     "random/splitmix64.cpp"
     "random/chacha.cpp"
