@@ -47,3 +47,43 @@ std::wstring mclo::to_wstring( const std::string_view str )
 	return result;
 #endif
 }
+
+std::string mclo::from_wstring( const std::wstring_view str )
+{
+	if ( str.empty() )
+	{
+		return {};
+	}
+
+#ifdef MCLO_OS_WINDOWS
+	if ( str.size() > std::numeric_limits<int>::max() )
+	{
+		throw std::length_error( "String size exceeds maximum length for conversion to narrow string" );
+	}
+
+	const int size_needed =
+		WideCharToMultiByte( CP_UTF8, 0, str.data(), static_cast<int>( str.size() ), nullptr, 0, nullptr, nullptr );
+	if ( size_needed <= 0 )
+	{
+		throw std::system_error( last_error_code(), "Failed to convert wide string to string" );
+	}
+
+	std::string result( size_needed, '\0' );
+	WideCharToMultiByte(
+		CP_UTF8, 0, str.data(), static_cast<int>( str.size() ), result.data(), size_needed, nullptr, nullptr );
+	return result;
+#else
+	std::mbstate_t state{};
+	const wchar_t* src = str.data();
+	const int size = std::wcsrtombs( nullptr, &src, 0, &state );
+	if ( size < 0 )
+	{
+		throw std::system_error( std::make_error_code( errno ),
+								 "Failed to determine size for conversion to narrow string" );
+	}
+
+	std::string result( size, '\0' );
+	std::wcsrtombs( result.data(), &src, size, &state );
+	return result;
+#endif
+}
