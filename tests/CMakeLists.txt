@@ -71,6 +71,8 @@ add_executable( tests
 	"atomic128_tests.cpp"
 	"atomic_shared_ptr_tests.cpp"
 	"state_machine_tests.cpp"
+	"function_ref_tests.cpp"
+	"move_only_function_tests.cpp"
 )
 
 target_compile_definitions( 
