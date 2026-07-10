@@ -24,6 +24,7 @@ add_library( ${LIBRARY_TARGET_NAME}
     "threading/condition_variable.cpp"
     "threading/thread_local_key.cpp"
     "threading/thread_properties.cpp"
+    "threading/cpu_topology.cpp"
     "platform/windows_wrapper.cpp"
     "platform/shared_library.cpp"
     "allocator/arena_allocator.cpp"

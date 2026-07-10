@@ -58,6 +58,7 @@ namespace
 
 #include <cstring>
 #include <pthread.h>
+#include <sched.h>
 
 #include "mclo/debug/assert.hpp"
 #include "mclo/enum/enum_map.hpp"
@@ -95,8 +96,19 @@ namespace
 		pthread_setschedparam( thread, policy, &sch );
 	}
 
-	void set_thread_affinity_platform( std::thread::native_handle_type, const std::uint64_t )
+	void set_thread_affinity_platform( std::thread::native_handle_type thread, const std::uint64_t affinity )
 	{
+		cpu_set_t cpu_set;
+		CPU_ZERO( &cpu_set );
+		for ( std::uint64_t cpu = 0; cpu < 64; ++cpu )
+		{
+			if ( affinity & ( std::uint64_t{ 1 } << cpu ) )
+			{
+				CPU_SET( cpu, &cpu_set );
+			}
+		}
+		[[maybe_unused]] const int result = pthread_setaffinity_np( thread, sizeof( cpu_set ), &cpu_set );
+		MCLO_DEBUG_ASSERT( result == 0, "Failed to set thread affinity" );
 	}
 }
 
