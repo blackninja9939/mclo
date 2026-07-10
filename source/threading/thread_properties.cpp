@@ -49,8 +49,9 @@ namespace
 
 	void set_thread_affinity_platform( std::thread::native_handle_type thread, const std::uint64_t affinity )
 	{
+		// SetThreadAffinityMask returns the thread's previous affinity mask on success, or zero on failure.
 		[[maybe_unused]] const DWORD_PTR result = SetThreadAffinityMask( thread, affinity );
-		MCLO_DEBUG_ASSERT( result == affinity, "Failed to set thread affinity", mclo::last_error_code() );
+		MCLO_DEBUG_ASSERT( result != 0, "Failed to set thread affinity", mclo::last_error_code() );
 	}
 }
 
