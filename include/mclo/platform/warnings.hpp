@@ -65,3 +65,6 @@
 
 /// @brief Using a moved from object, which is in a valid but unspecified state.
 #define MCLO_WARNING_USING_MOVED_FROM_OBJECT MCLO_DETAIL_MSVC_DISABLE_WARNING( 26800 )
+
+/// @brief Code is unreachable.
+#define MCLO_WARNING_UNREACHABLE_CODE MCLO_DETAIL_MSVC_DISABLE_WARNING( 4702 )
