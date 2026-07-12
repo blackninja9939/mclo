@@ -134,27 +134,31 @@ namespace mclo
 			return *this;
 		}
 
-		[[nodiscard]] constexpr friend circular_buffer_iterator operator+( const circular_buffer_iterator& it,
-																		   const difference_type diff ) noexcept
+		[[nodiscard]] constexpr friend circular_buffer_iterator operator+(
+			const circular_buffer_iterator& it, const difference_type diff
+		) noexcept
 		{
 			auto temp = it;
 			temp += diff;
 			return temp;
 		}
-		[[nodiscard]] constexpr friend circular_buffer_iterator operator+( const difference_type diff,
-																		   const circular_buffer_iterator& it ) noexcept
+		[[nodiscard]] constexpr friend circular_buffer_iterator operator+(
+			const difference_type diff, const circular_buffer_iterator& it
+		) noexcept
 		{
 			return it + diff;
 		}
-		[[nodiscard]] constexpr friend circular_buffer_iterator operator-( const circular_buffer_iterator& it,
-																		   const difference_type diff ) noexcept
+		[[nodiscard]] constexpr friend circular_buffer_iterator operator-(
+			const circular_buffer_iterator& it, const difference_type diff
+		) noexcept
 		{
 			auto temp = it;
 			temp -= diff;
 			return temp;
 		}
-		[[nodiscard]] constexpr friend difference_type operator-( const circular_buffer_iterator& lhs,
-																  const circular_buffer_iterator& rhs ) noexcept
+		[[nodiscard]] constexpr friend difference_type operator-(
+			const circular_buffer_iterator& lhs, const circular_buffer_iterator& rhs
+		) noexcept
 		{
 			MCLO_DEBUG_ASSERT( lhs.m_buffer == rhs.m_buffer, "Iterators are not comparable" );
 			return lhs.contiguous_ptr() - rhs.contiguous_ptr();

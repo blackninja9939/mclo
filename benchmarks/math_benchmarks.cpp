@@ -114,8 +114,9 @@ namespace
 	{
 		for ( auto _ : state )
 		{
-			auto value = mclo::ceil_divide( static_cast<std::uint64_t>( state.range( 0 ) ),
-											static_cast<std::uint64_t>( state.range( 1 ) ) );
+			auto value = mclo::ceil_divide(
+				static_cast<std::uint64_t>( state.range( 0 ) ), static_cast<std::uint64_t>( state.range( 1 ) )
+			);
 			benchmark::DoNotOptimize( value );
 		}
 	}

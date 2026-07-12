@@ -36,11 +36,14 @@ public:
 	}
 
 	// allow explicit conversion from fancy_pointer<cv void> to fancy_pointer<T>
-	template <typename UVal,
-			  std::enable_if_t<std::conjunction_v<std::negation<std::is_convertible<UVal*, Val*>>,
-												  std::is_void<UVal>,
-												  std::negation<std::is_void<Val>>>,
-							   int> = 0>
+	template <
+		typename UVal,
+		std::enable_if_t<
+			std::conjunction_v<
+				std::negation<std::is_convertible<UVal*, Val*>>,
+				std::is_void<UVal>,
+				std::negation<std::is_void<Val>>>,
+			int> = 0>
 	explicit fancy_pointer( const fancy_pointer<UVal>& other )
 		: rep( static_cast<Val*>( other.rep ) )
 	{

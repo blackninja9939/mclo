@@ -212,9 +212,11 @@ namespace mclo
 	class small_optional : private small_optional_storage<T>
 	{
 		using base = small_optional_storage<T>;
-		static_assert( detail::small_optional_storage_type<base, T>,
-					   "The specialization of small_optional_storage for T should model the requirements of "
-					   "small_optional_storage_type" );
+		static_assert(
+			detail::small_optional_storage_type<base, T>,
+			"The specialization of small_optional_storage for T should model the requirements of "
+			"small_optional_storage_type"
+		);
 
 		static constexpr auto natvis_type = detail::natvis_type_for<base>;
 
@@ -351,8 +353,9 @@ namespace mclo
 	/// optionals are equal if their values are equal.
 	/// @return @c true if the optionals are equal.
 	template <typename T, std::equality_comparable_with<T> U>
-	[[nodiscard]] constexpr bool operator==( const mclo::small_optional<T> lhs,
-											 const mclo::small_optional<U> rhs ) noexcept
+	[[nodiscard]] constexpr bool operator==(
+		const mclo::small_optional<T> lhs, const mclo::small_optional<U> rhs
+	) noexcept
 	{
 		const bool lhs_has_value = lhs.has_value();
 		const bool rhs_has_value = rhs.has_value();
@@ -369,7 +372,8 @@ namespace mclo
 	/// @return The ordering of @p lhs relative to @p rhs.
 	template <typename T, std::three_way_comparable_with<T> U>
 	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>(
-		const mclo::small_optional<T> lhs, const mclo::small_optional<U> rhs ) noexcept
+		const mclo::small_optional<T> lhs, const mclo::small_optional<U> rhs
+	) noexcept
 	{
 		const bool lhs_has_value = lhs.has_value();
 		const bool rhs_has_value = rhs.has_value();
@@ -393,8 +397,9 @@ namespace mclo
 	/// @details An empty optional is equivalent to @c std::nullopt; a non-empty optional orders after it.
 	/// @return The ordering of @p lhs relative to @c std::nullopt.
 	template <typename T>
-	[[nodiscard]] constexpr std::strong_ordering operator<=>( const mclo::small_optional<T> lhs,
-															  const std::nullopt_t rhs ) noexcept
+	[[nodiscard]] constexpr std::strong_ordering operator<=>(
+		const mclo::small_optional<T> lhs, const std::nullopt_t rhs
+	) noexcept
 	{
 		return lhs.has_value() <=> false;
 	}
@@ -419,8 +424,9 @@ namespace mclo
 	/// @return The ordering of @p lhs relative to @p rhs.
 	template <typename T, typename U>
 		requires( !mclo::derived_from_specialization<U, mclo::small_optional> && std::three_way_comparable_with<T, U> )
-	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>( const mclo::small_optional<T> lhs,
-																			   const U& rhs ) noexcept
+	[[nodiscard]] constexpr std::compare_three_way_result_t<T, U> operator<=>(
+		const mclo::small_optional<T> lhs, const U& rhs
+	) noexcept
 	{
 		if ( lhs )
 		{

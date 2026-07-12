@@ -111,7 +111,8 @@ namespace mclo
 				if ( top == bottom )
 				{
 					if ( !m_top.compare_exchange_strong(
-							 top, top + 1, std::memory_order_seq_cst, std::memory_order_relaxed ) )
+							 top, top + 1, std::memory_order_seq_cst, std::memory_order_relaxed
+						 ) )
 					{
 						// We lost the race, clear out the result
 						result.reset();
@@ -149,7 +150,8 @@ namespace mclo
 
 				// Can race with pop
 				if ( !m_top.compare_exchange_strong(
-						 top, top + 1, std::memory_order_seq_cst, std::memory_order_relaxed ) )
+						 top, top + 1, std::memory_order_seq_cst, std::memory_order_relaxed
+					 ) )
 				{
 					// We lost the race, clear out the result
 					result.reset();
@@ -201,12 +203,14 @@ namespace mclo
 			T* data() noexcept
 			{
 				return std::launder(
-					reinterpret_cast<T*>( reinterpret_cast<std::byte*>( this ) + ring_storage_data_offset ) );
+					reinterpret_cast<T*>( reinterpret_cast<std::byte*>( this ) + ring_storage_data_offset )
+				);
 			}
 			const T* data() const noexcept
 			{
-				return std::launder( reinterpret_cast<const T*>( reinterpret_cast<const std::byte*>( this ) +
-																 ring_storage_data_offset ) );
+				return std::launder(
+					reinterpret_cast<const T*>( reinterpret_cast<const std::byte*>( this ) + ring_storage_data_offset )
+				);
 			}
 
 			std::size_t m_mask{ 0 };

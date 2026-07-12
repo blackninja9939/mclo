@@ -63,16 +63,19 @@ namespace
 	static_assert( std::is_same_v<join<type_list<int>, type_list<float>, type_list<bool>>, test_list> );
 	static_assert( std::is_same_v<join<test_list>, test_list> );
 	static_assert( std::is_same_v<join<test_list, test_list>, type_list<int, float, bool, int, float, bool>> );
-	static_assert( std::is_same_v<join<test_list, test_list, test_list>,
-								  type_list<int, float, bool, int, float, bool, int, float, bool>> );
+	static_assert( std::is_same_v<
+				   join<test_list, test_list, test_list>,
+				   type_list<int, float, bool, int, float, bool, int, float, bool>> );
 
 	static_assert(
-		std::is_same_v<transform<std::add_const, test_list>, type_list<const int, const float, const bool>> );
+		std::is_same_v<transform<std::add_const, test_list>, type_list<const int, const float, const bool>>
+	);
 
 	static_assert( std::is_same_v<filter<std::is_integral, test_list>, type_list<int, bool>> );
 
 	static_assert(
-		std::is_same_v<repeat<3, test_list>, type_list<int, float, bool, int, float, bool, int, float, bool>> );
+		std::is_same_v<repeat<3, test_list>, type_list<int, float, bool, int, float, bool, int, float, bool>>
+	);
 	static_assert( std::is_same_v<repeat<1, test_list>, test_list> );
 	static_assert( std::is_same_v<repeat<0, test_list>, type_list<>> );
 

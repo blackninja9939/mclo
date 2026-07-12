@@ -16,28 +16,33 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator*( const Derived& lhs, const Scalar& rhs ) noexcept(
-				noexcept( Derived( lhs.value * rhs ) ) )
+				noexcept( Derived( lhs.value * rhs ) )
+			)
 			{
 				return Derived( lhs.value * rhs );
 			}
 			[[nodiscard]] friend constexpr Derived operator*( const Scalar& lhs, const Derived& rhs ) noexcept(
-				noexcept( Derived( lhs * rhs.value ) ) )
+				noexcept( Derived( lhs * rhs.value ) )
+			)
 			{
 				return Derived( lhs * rhs.value );
 			}
 			[[nodiscard]] friend constexpr Derived operator/( const Derived& lhs, const Scalar& rhs ) noexcept(
-				noexcept( Derived( lhs.value / rhs ) ) )
+				noexcept( Derived( lhs.value / rhs ) )
+			)
 			{
 				return Derived( lhs.value / rhs );
 			}
-			friend constexpr Derived& operator*=( Derived& lhs,
-												  const Scalar& rhs ) noexcept( noexcept( lhs.value *= rhs ) )
+			friend constexpr Derived& operator*=( Derived& lhs, const Scalar& rhs ) noexcept(
+				noexcept( lhs.value *= rhs )
+			)
 			{
 				lhs.value *= rhs;
 				return lhs;
 			}
-			friend constexpr Derived& operator/=( Derived& lhs,
-												  const Scalar& rhs ) noexcept( noexcept( lhs.value /= rhs ) )
+			friend constexpr Derived& operator/=( Derived& lhs, const Scalar& rhs ) noexcept(
+				noexcept( lhs.value /= rhs )
+			)
 			{
 				lhs.value /= rhs;
 				return lhs;

@@ -43,10 +43,9 @@ namespace mclo
 			}
 		}
 
-		inline void append_dot_edge( std::string& out,
-									 const std::string_view from,
-									 const std::string_view label,
-									 const std::string_view to )
+		inline void append_dot_edge(
+			std::string& out, const std::string_view from, const std::string_view label, const std::string_view to
+		)
 		{
 			out += "    \"";
 			out += from;
@@ -71,10 +70,12 @@ namespace mclo
 	{
 		std::string out = "digraph state_machine {\n";
 		visit_state_machine_transitions<Machine>( [ &out ]<typename Edge>( Edge ) {
-			detail::append_dot_edge( out,
-									 detail::state_display_name<typename Edge::from_state>(),
-									 detail::transition_display_name<typename Edge::transition>(),
-									 detail::state_display_name<typename Edge::to_state>() );
+			detail::append_dot_edge(
+				out,
+				detail::state_display_name<typename Edge::from_state>(),
+				detail::transition_display_name<typename Edge::transition>(),
+				detail::state_display_name<typename Edge::to_state>()
+			);
 		} );
 		out += "}\n";
 		return out;

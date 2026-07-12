@@ -53,29 +53,25 @@ namespace mclo
 		constexpr bool is_expected_specialization = mclo::is_specialization_of_v<T, expected>;
 
 		template <typename T>
-		concept trivially_copy_assignable_expected =
-			std::is_trivially_copy_constructible_v<T> && std::is_trivially_copy_assignable_v<T> &&
-			std::is_trivially_destructible_v<T>;
+		concept trivially_copy_assignable_expected = std::is_trivially_copy_constructible_v<T>
+			&& std::is_trivially_copy_assignable_v<T> && std::is_trivially_destructible_v<T>;
 
 		template <typename T>
-		concept trivially_move_assignable_expected =
-			std::is_trivially_move_constructible_v<T> && std::is_trivially_move_assignable_v<T> &&
-			std::is_trivially_destructible_v<T>;
+		concept trivially_move_assignable_expected = std::is_trivially_move_constructible_v<T>
+			&& std::is_trivially_move_assignable_v<T> && std::is_trivially_destructible_v<T>;
 
 		template <typename T, typename E>
-		concept copy_assignable_expected =
-			std::is_copy_assignable_v<T> && std::is_copy_constructible_v<T> && std::is_copy_assignable_v<E> &&
-			std::is_copy_constructible_v<E> &&
-			( std::is_nothrow_move_constructible_v<T> || std::is_nothrow_move_constructible_v<E> );
+		concept copy_assignable_expected = std::is_copy_assignable_v<T> && std::is_copy_constructible_v<T>
+			&& std::is_copy_assignable_v<E> && std::is_copy_constructible_v<E>
+			&& ( std::is_nothrow_move_constructible_v<T> || std::is_nothrow_move_constructible_v<E> );
 
 		template <typename E>
 		concept copy_assignable_expected_void = std::is_copy_assignable_v<E> && std::is_copy_constructible_v<E>;
 
 		template <typename T, typename E>
-		concept move_assignable_expected =
-			std::is_move_assignable_v<T> && std::is_move_constructible_v<T> && std::is_move_assignable_v<E> &&
-			std::is_move_constructible_v<E> &&
-			( std::is_nothrow_move_constructible_v<T> || std::is_nothrow_move_constructible_v<E> );
+		concept move_assignable_expected = std::is_move_assignable_v<T> && std::is_move_constructible_v<T>
+			&& std::is_move_assignable_v<E> && std::is_move_constructible_v<E>
+			&& ( std::is_nothrow_move_constructible_v<T> || std::is_nothrow_move_constructible_v<E> );
 
 		template <typename E>
 		concept move_assignable_expected_void = std::is_move_assignable_v<E> && std::is_move_constructible_v<E>;
@@ -195,8 +191,10 @@ namespace mclo
 		}
 
 		template <typename Err = E>
-			requires( !std::is_same_v<std::remove_cvref_t<Err>, unexpected> &&
-					  !std::is_same_v<std::remove_cvref_t<Err>, std::in_place_t> && std::is_constructible_v<E, Err> )
+			requires(
+				!std::is_same_v<std::remove_cvref_t<Err>, unexpected>
+				&& !std::is_same_v<std::remove_cvref_t<Err>, std::in_place_t> && std::is_constructible_v<E, Err>
+			)
 		constexpr explicit unexpected( Err&& error ) noexcept( std::is_nothrow_constructible_v<E, Err> )
 			: m_error( std::forward<Err>( error ) )
 		{
@@ -204,16 +202,18 @@ namespace mclo
 
 		template <typename... Args>
 			requires std::is_constructible_v<E, Args...>
-		constexpr explicit unexpected( std::in_place_t,
-									   Args&&... args ) noexcept( std::is_nothrow_constructible_v<E, Args...> )
+		constexpr explicit unexpected(
+			std::in_place_t, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<E, Args...> )
 			: m_error( std::forward<Args>( args )... )
 		{
 		}
 
 		template <typename U, typename... Args>
 			requires( std::is_constructible_v<E, std::initializer_list<U>&, Args...> )
-		constexpr explicit unexpected( std::in_place_t, std::initializer_list<U> ilist, Args&&... args ) noexcept(
-			std::is_nothrow_constructible_v<E, std::initializer_list<U>&, Args...> )
+		constexpr explicit unexpected(
+			std::in_place_t, std::initializer_list<U> ilist, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<E, std::initializer_list<U>&, Args...> )
 			: m_error( ilist, std::forward<Args>( args )... )
 		{
 		}
@@ -255,8 +255,9 @@ namespace mclo
 		}
 
 		template <typename E2>
-		friend constexpr bool operator==( const unexpected& lhs,
-										  const unexpected<E2>& rhs ) noexcept( noexcept( lhs.error() == rhs.error() ) )
+		friend constexpr bool operator==( const unexpected& lhs, const unexpected<E2>& rhs ) noexcept(
+			noexcept( lhs.error() == rhs.error() )
+		)
 		{
 			return lhs.error() == rhs.error();
 		}
@@ -298,8 +299,10 @@ namespace mclo
 		= default;
 
 		constexpr expected( const expected& other )
-			requires( std::is_copy_constructible_v<T> && std::is_copy_constructible_v<E> &&
-					  !( std::is_trivially_copy_constructible_v<T> && std::is_trivially_copy_constructible_v<E> ))
+			requires(
+				std::is_copy_constructible_v<T> && std::is_copy_constructible_v<E>
+				&& !( std::is_trivially_copy_constructible_v<T> && std::is_trivially_copy_constructible_v<E> )
+			)
 			: m_has_value( other.m_has_value )
 		{
 			if ( m_has_value )
@@ -316,10 +319,13 @@ namespace mclo
 			requires( std::is_trivially_move_constructible_v<T> && std::is_trivially_move_constructible_v<E> )
 		= default;
 
-		constexpr expected( expected&& other ) noexcept( std::is_nothrow_move_constructible_v<T> &&
-														 std::is_nothrow_move_constructible_v<E> )
-			requires( std::is_move_constructible_v<T> && std::is_move_constructible_v<E> &&
-					  !( std::is_trivially_move_constructible_v<T> && std::is_trivially_move_constructible_v<E> ))
+		constexpr expected(
+			expected&& other
+		) noexcept( std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E> )
+			requires(
+				std::is_move_constructible_v<T> && std::is_move_constructible_v<E>
+				&& !( std::is_trivially_move_constructible_v<T> && std::is_trivially_move_constructible_v<E> )
+			)
 			: m_has_value( other.m_has_value )
 		{
 			if ( m_has_value )
@@ -333,10 +339,13 @@ namespace mclo
 		}
 
 		template <typename U, typename G>
-			requires( std::is_constructible_v<T, const U&> && std::is_constructible_v<E, const G&> &&
-					  converting_constructor_constraint<U, G>() )
-		constexpr explicit( !std::is_convertible_v<const U&, T> || !std::is_convertible_v<const G&, E> )
-			expected( const expected<U, G>& other )
+			requires(
+				std::is_constructible_v<T, const U&> && std::is_constructible_v<E, const G&>
+				&& converting_constructor_constraint<U, G>()
+			)
+		constexpr explicit( !std::is_convertible_v<const U&, T> || !std::is_convertible_v<const G&, E> ) expected(
+			const expected<U, G>& other
+		)
 			: m_has_value( other.has_value() )
 		{
 			if ( m_has_value )
@@ -350,10 +359,13 @@ namespace mclo
 		}
 
 		template <typename U, typename G>
-			requires( std::is_constructible_v<T, U> && std::is_constructible_v<E, G> &&
-					  converting_constructor_constraint<U, G>() )
-		constexpr explicit( !std::is_convertible_v<U, T> || !std::is_convertible_v<G, E> )
-			expected( expected<U, G>&& other )
+			requires(
+				std::is_constructible_v<T, U> && std::is_constructible_v<E, G>
+				&& converting_constructor_constraint<U, G>()
+			)
+		constexpr explicit( !std::is_convertible_v<U, T> || !std::is_convertible_v<G, E> ) expected(
+			expected<U, G>&& other
+		)
 			: m_has_value( other.has_value() )
 		{
 			if ( m_has_value )
@@ -367,13 +379,14 @@ namespace mclo
 		}
 
 		template <typename U = std::remove_cv_t<T>>
-			requires( !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> &&
-					  !std::is_same_v<expected, std::remove_cvref_t<U>> &&
-					  !detail::is_unexpected_specialization<std::remove_cvref_t<U>> && std::is_constructible_v<T, U> &&
-					  ( !std::is_same_v<std::remove_cv_t<T>, bool> ||
-						!detail::is_expected_specialization<std::remove_cvref_t<U>> ))
-		constexpr explicit( !std::is_convertible_v<U, T> )
-			expected( U&& v ) noexcept( std::is_nothrow_constructible_v<T, U> )
+			requires( !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t>
+					  && !std::is_same_v<expected, std::remove_cvref_t<U>>
+					  && !detail::is_unexpected_specialization<std::remove_cvref_t<U>> && std::is_constructible_v<T, U>
+					  && ( !std::is_same_v<std::remove_cv_t<T>, bool>
+						   || !detail::is_expected_specialization<std::remove_cvref_t<U>> ))
+		constexpr explicit( !std::is_convertible_v<U, T> ) expected(
+			U&& v
+		) noexcept( std::is_nothrow_constructible_v<T, U> )
 			: m_value( std::forward<U>( v ) )
 			, m_has_value( true )
 		{
@@ -381,8 +394,9 @@ namespace mclo
 
 		template <typename G>
 			requires std::is_constructible_v<E, const G&>
-		constexpr explicit( !std::is_convertible_v<const G&, E> )
-			expected( const unexpected<G>& e ) noexcept( std::is_nothrow_constructible_v<E, const G&> )
+		constexpr explicit( !std::is_convertible_v<const G&, E> ) expected(
+			const unexpected<G>& e
+		) noexcept( std::is_nothrow_constructible_v<E, const G&> )
 			: m_error( e.error() )
 			, m_has_value( false )
 		{
@@ -390,8 +404,9 @@ namespace mclo
 
 		template <typename G>
 			requires std::is_constructible_v<E, G>
-		constexpr explicit( !std::is_convertible_v<G, E> )
-			expected( unexpected<G>&& e ) noexcept( std::is_nothrow_constructible_v<E, G> )
+		constexpr explicit( !std::is_convertible_v<G, E> ) expected(
+			unexpected<G>&& e
+		) noexcept( std::is_nothrow_constructible_v<E, G> )
 			: m_error( std::move( e ).error() )
 			, m_has_value( false )
 		{
@@ -399,8 +414,9 @@ namespace mclo
 
 		template <typename... Args>
 			requires std::is_constructible_v<T, Args...>
-		constexpr explicit expected( std::in_place_t,
-									 Args&&... args ) noexcept( std::is_nothrow_constructible_v<T, Args...> )
+		constexpr explicit expected(
+			std::in_place_t, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<T, Args...> )
 			: m_value( std::forward<Args>( args )... )
 			, m_has_value( true )
 		{
@@ -408,8 +424,9 @@ namespace mclo
 
 		template <typename U, typename... Args>
 			requires std::is_constructible_v<T, std::initializer_list<U>&, Args...>
-		constexpr explicit expected( std::in_place_t, std::initializer_list<U> il, Args&&... args ) noexcept(
-			std::is_nothrow_constructible_v<T, std::initializer_list<U>&, Args...> )
+		constexpr explicit expected(
+			std::in_place_t, std::initializer_list<U> il, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<T, std::initializer_list<U>&, Args...> )
 			: m_value( il, std::forward<Args>( args )... )
 			, m_has_value( true )
 		{
@@ -417,8 +434,9 @@ namespace mclo
 
 		template <typename... Args>
 			requires std::is_constructible_v<E, Args...>
-		constexpr explicit expected( unexpect_t,
-									 Args&&... args ) noexcept( std::is_nothrow_constructible_v<E, Args...> )
+		constexpr explicit expected(
+			unexpect_t, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<E, Args...> )
 			: m_error( std::forward<Args>( args )... )
 			, m_has_value( false )
 		{
@@ -426,8 +444,9 @@ namespace mclo
 
 		template <typename U, typename... Args>
 			requires std::is_constructible_v<E, std::initializer_list<U>&, Args...>
-		constexpr explicit expected( unexpect_t, std::initializer_list<U> il, Args&&... args ) noexcept(
-			std::is_nothrow_constructible_v<E, std::initializer_list<U>&, Args...> )
+		constexpr explicit expected(
+			unexpect_t, std::initializer_list<U> il, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<E, std::initializer_list<U>&, Args...> )
 			: m_error( il, std::forward<Args>( args )... )
 			, m_has_value( false )
 		{
@@ -454,8 +473,8 @@ namespace mclo
 		expected& operator=( const expected& ) = delete;
 
 		constexpr expected& operator=( const expected& )
-			requires( detail::copy_assignable_expected<T, E> && detail::trivially_copy_assignable_expected<T> &&
-					  detail::trivially_copy_assignable_expected<E> )
+			requires( detail::copy_assignable_expected<T, E> && detail::trivially_copy_assignable_expected<T>
+					  && detail::trivially_copy_assignable_expected<E> )
 		= default;
 
 		constexpr expected& operator=( const expected& other )
@@ -485,14 +504,14 @@ namespace mclo
 		expected& operator=( expected&& ) = delete;
 
 		constexpr expected& operator=( expected&& )
-			requires( detail::move_assignable_expected<T, E> && detail::trivially_move_assignable_expected<T> &&
-					  detail::trivially_move_assignable_expected<E> )
+			requires( detail::move_assignable_expected<T, E> && detail::trivially_move_assignable_expected<T>
+					  && detail::trivially_move_assignable_expected<E> )
 		= default;
 
-		constexpr expected& operator=( expected&& other ) noexcept( std::is_nothrow_move_constructible_v<T> &&
-																	std::is_nothrow_move_assignable_v<T> &&
-																	std::is_nothrow_move_constructible_v<E> &&
-																	std::is_nothrow_move_assignable_v<E> )
+		constexpr expected& operator=( expected&& other ) noexcept(
+			std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_assignable_v<T>
+			&& std::is_nothrow_move_constructible_v<E> && std::is_nothrow_move_assignable_v<E>
+		)
 			requires detail::move_assignable_expected<T, E>
 		{
 			if ( m_has_value && other.m_has_value )
@@ -517,13 +536,16 @@ namespace mclo
 		}
 
 		template <typename U = std::remove_cv_t<T>>
-			requires( !std::is_same_v<expected, std::remove_cvref_t<U>> &&
-					  !detail::is_unexpected_specialization<std::remove_cvref_t<U>> && std::is_constructible_v<T, U> &&
-					  std::is_assignable_v<T&, U> &&
-					  ( std::is_nothrow_constructible_v<T, U> || std::is_nothrow_move_constructible_v<T> ||
-						std::is_nothrow_move_constructible_v<E> ))
-		constexpr expected& operator=( U&& v ) noexcept( std::is_nothrow_constructible_v<T, U> &&
-														 std::is_nothrow_assignable_v<T&, U> )
+			requires(
+				!std::is_same_v<expected, std::remove_cvref_t<U>>
+				&& !detail::is_unexpected_specialization<std::remove_cvref_t<U>> && std::is_constructible_v<T, U>
+				&& std::is_assignable_v<T&, U>
+				&& ( std::is_nothrow_constructible_v<T, U> || std::is_nothrow_move_constructible_v<T>
+					 || std::is_nothrow_move_constructible_v<E> )
+			)
+		constexpr expected& operator=(
+			U&& v
+		) noexcept( std::is_nothrow_constructible_v<T, U> && std::is_nothrow_assignable_v<T&, U> )
 		{
 			if ( m_has_value )
 			{
@@ -538,9 +560,11 @@ namespace mclo
 		}
 
 		template <typename G>
-			requires( std::is_constructible_v<E, const G&> && std::is_assignable_v<E&, const G&> &&
-					  ( std::is_nothrow_constructible_v<E, const G&> || std::is_nothrow_move_constructible_v<T> ||
-						std::is_nothrow_move_constructible_v<E> ))
+			requires(
+				std::is_constructible_v<E, const G&> && std::is_assignable_v<E&, const G&>
+				&& ( std::is_nothrow_constructible_v<E, const G&> || std::is_nothrow_move_constructible_v<T>
+					 || std::is_nothrow_move_constructible_v<E> )
+			)
 		constexpr expected& operator=( const unexpected<G>& e )
 		{
 			if ( m_has_value )
@@ -556,9 +580,11 @@ namespace mclo
 		}
 
 		template <typename G>
-			requires( std::is_constructible_v<E, G> && std::is_assignable_v<E&, G> &&
-					  ( std::is_nothrow_constructible_v<E, G> || std::is_nothrow_move_constructible_v<T> ||
-						std::is_nothrow_move_constructible_v<E> ))
+			requires(
+				std::is_constructible_v<E, G> && std::is_assignable_v<E&, G>
+				&& ( std::is_nothrow_constructible_v<E, G> || std::is_nothrow_move_constructible_v<T>
+					 || std::is_nothrow_move_constructible_v<E> )
+			)
 		constexpr expected& operator=( unexpected<G>&& e )
 		{
 			if ( m_has_value )
@@ -681,11 +707,14 @@ namespace mclo
 		}
 
 		template <typename U = std::remove_cv_t<T>>
-		constexpr T value_or( U&& default_value ) const& noexcept( std::is_nothrow_copy_constructible_v<T> &&
-																   std::is_nothrow_convertible_v<U, T> )
+		constexpr T value_or(
+			U&& default_value
+		) const& noexcept( std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_convertible_v<U, T> )
 		{
-			static_assert( std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>,
-						   "Value type must be copy constructible and constructible from the default value type" );
+			static_assert(
+				std::is_copy_constructible_v<T> && std::is_convertible_v<U, T>,
+				"Value type must be copy constructible and constructible from the default value type"
+			);
 			if ( has_value() )
 			{
 				return m_value;
@@ -697,11 +726,14 @@ namespace mclo
 		}
 
 		template <typename U = std::remove_cv_t<T>>
-		constexpr T value_or( U&& default_value ) && noexcept( std::is_nothrow_move_constructible_v<T> &&
-															   std::is_nothrow_convertible_v<U, T> )
+		constexpr T value_or(
+			U&& default_value
+		) && noexcept( std::is_nothrow_move_constructible_v<T> && std::is_nothrow_convertible_v<U, T> )
 		{
-			static_assert( std::is_move_constructible_v<T> && std::is_convertible_v<U, T>,
-						   "Value type must be move constructible and constructible from the default value type" );
+			static_assert(
+				std::is_move_constructible_v<T> && std::is_convertible_v<U, T>,
+				"Value type must be move constructible and constructible from the default value type"
+			);
 			if ( has_value() )
 			{
 				return std::move( m_value );
@@ -713,11 +745,14 @@ namespace mclo
 		}
 
 		template <typename G = E>
-		constexpr G error_or( G&& default_value ) const& noexcept( std::is_nothrow_copy_constructible_v<E> &&
-																   std::is_nothrow_convertible_v<G, E> )
+		constexpr G error_or(
+			G&& default_value
+		) const& noexcept( std::is_nothrow_copy_constructible_v<E> && std::is_nothrow_convertible_v<G, E> )
 		{
-			static_assert( std::is_copy_constructible_v<E> && std::is_convertible_v<G, E>,
-						   "Error type must be copy constructible and constructible from the default error type" );
+			static_assert(
+				std::is_copy_constructible_v<E> && std::is_convertible_v<G, E>,
+				"Error type must be copy constructible and constructible from the default error type"
+			);
 			if ( has_value() )
 			{
 				return std::forward<G>( default_value );
@@ -729,11 +764,14 @@ namespace mclo
 		}
 
 		template <typename G = E>
-		constexpr G error_or( G&& default_value ) && noexcept( std::is_nothrow_move_constructible_v<E> &&
-															   std::is_nothrow_convertible_v<G, E> )
+		constexpr G error_or(
+			G&& default_value
+		) && noexcept( std::is_nothrow_move_constructible_v<E> && std::is_nothrow_convertible_v<G, E> )
 		{
-			static_assert( std::is_move_constructible_v<E> && std::is_convertible_v<G, E>,
-						   "Error type must be move constructible and constructible from the default error type" );
+			static_assert(
+				std::is_move_constructible_v<E> && std::is_convertible_v<G, E>,
+				"Error type must be move constructible and constructible from the default error type"
+			);
 			if ( has_value() )
 			{
 				return std::forward<G>( default_value );
@@ -883,13 +921,15 @@ namespace mclo
 		}
 
 		// Modifiers
-		constexpr void swap( expected& other ) noexcept( std::is_nothrow_move_constructible_v<T> &&
-														 std::is_nothrow_swappable_v<T> &&
-														 std::is_nothrow_move_constructible_v<E> &&
-														 std::is_nothrow_swappable_v<E> )
-			requires( std::is_swappable_v<T> && std::is_swappable_v<E> && std::is_move_constructible_v<T> &&
-					  std::is_move_constructible_v<E> &&
-					  ( std::is_nothrow_move_constructible_v<T> || std::is_nothrow_move_constructible_v<E> ))
+		constexpr void swap( expected& other ) noexcept(
+			std::is_nothrow_move_constructible_v<T> && std::is_nothrow_swappable_v<T>
+			&& std::is_nothrow_move_constructible_v<E> && std::is_nothrow_swappable_v<E>
+		)
+			requires(
+				std::is_swappable_v<T> && std::is_swappable_v<E> && std::is_move_constructible_v<T>
+				&& std::is_move_constructible_v<E>
+				&& ( std::is_nothrow_move_constructible_v<T> || std::is_nothrow_move_constructible_v<E> )
+			)
 		{
 			if ( m_has_value && other.m_has_value )
 			{
@@ -964,34 +1004,34 @@ namespace mclo
 	private:
 		[[noreturn]] void throw_bad_expected_const() const
 		{
-			static_assert( std::is_copy_constructible_v<E>,
-						   "Error type must be copy constructible to throw bad_expected_access" );
+			static_assert(
+				std::is_copy_constructible_v<E>, "Error type must be copy constructible to throw bad_expected_access"
+			);
 			throw bad_expected_access<std::decay_t<E>>( std::as_const( m_error ) );
 		}
 
 		[[noreturn]] void throw_bad_expected_move()
 		{
-			static_assert( std::is_copy_constructible_v<E> ||
-							   std::is_constructible_v<E, decltype( std::move( m_error ) )>,
-						   "Error type must be copy constructible or move constructible to throw bad_expected_access" );
+			static_assert(
+				std::is_copy_constructible_v<E> || std::is_constructible_v<E, decltype( std::move( m_error ) )>,
+				"Error type must be copy constructible or move constructible to throw bad_expected_access"
+			);
 			throw bad_expected_access<std::decay_t<E>>( std::move( m_error ) );
 		}
 
 		template <typename U, typename G>
 		[[nodiscard]] static constexpr bool converting_constructor_constraint() noexcept
 		{
-			constexpr bool value_constructible =
-				std::is_same_v<std::remove_cv_t<T>, bool> ||
-				( !std::is_constructible_v<T, expected<U, G>&> && !std::is_constructible_v<T, expected<U, G>> &&
-				  !std::is_constructible_v<T, const expected<U, G>&> &&
-				  !std::is_constructible_v<T, const expected<U, G>> && !std::is_convertible_v<expected<U, G>&, T> &&
-				  !std::is_convertible_v<expected<U, G>, T> && !std::is_convertible_v<const expected<U, G>&, T> &&
-				  !std::is_convertible_v<const expected<U, G>, T> );
-			constexpr bool unexpected_not_constructible =
-				!std::is_constructible_v<unexpected<E>, expected<U, G>&> &&
-				!std::is_constructible_v<unexpected<E>, expected<U, G>> &&
-				!std::is_constructible_v<unexpected<E>, const expected<U, G>&> &&
-				!std::is_constructible_v<unexpected<E>, const expected<U, G>>;
+			constexpr bool value_constructible = std::is_same_v<std::remove_cv_t<T>, bool>
+				|| ( !std::is_constructible_v<T, expected<U, G>&> && !std::is_constructible_v<T, expected<U, G>>
+					 && !std::is_constructible_v<T, const expected<U, G>&>
+					 && !std::is_constructible_v<T, const expected<U, G>> && !std::is_convertible_v<expected<U, G>&, T>
+					 && !std::is_convertible_v<expected<U, G>, T> && !std::is_convertible_v<const expected<U, G>&, T>
+					 && !std::is_convertible_v<const expected<U, G>, T> );
+			constexpr bool unexpected_not_constructible = !std::is_constructible_v<unexpected<E>, expected<U, G>&>
+				&& !std::is_constructible_v<unexpected<E>, expected<U, G>>
+				&& !std::is_constructible_v<unexpected<E>, const expected<U, G>&>
+				&& !std::is_constructible_v<unexpected<E>, const expected<U, G>>;
 			return value_constructible && unexpected_not_constructible;
 		}
 
@@ -1038,10 +1078,14 @@ namespace mclo
 		static constexpr auto and_then_impl( Self&& self, F&& f )
 		{
 			using U = std::remove_cvref_t<std::invoke_result_t<F, decltype( ( std::forward<Self>( self ).m_value ) )>>;
-			static_assert( detail::is_expected_specialization<U>,
-						   "The function passed to and_then must return a specialization of expected" );
-			static_assert( std::is_same_v<typename U::error_type, E>,
-						   "The function passed to and_then must return an expected with the same error type" );
+			static_assert(
+				detail::is_expected_specialization<U>,
+				"The function passed to and_then must return a specialization of expected"
+			);
+			static_assert(
+				std::is_same_v<typename U::error_type, E>,
+				"The function passed to and_then must return an expected with the same error type"
+			);
 			if ( self.has_value() )
 			{
 				return std::invoke( std::forward<F>( f ), std::forward<Self>( self ).m_value );
@@ -1056,10 +1100,14 @@ namespace mclo
 		static constexpr auto or_else_impl( Self&& self, F&& f )
 		{
 			using G = std::remove_cvref_t<std::invoke_result_t<F, decltype( ( std::forward<Self>( self ).m_error ) )>>;
-			static_assert( detail::is_expected_specialization<G>,
-						   "The function passed to or_else must return a specialization of expected" );
-			static_assert( std::is_same_v<typename G::value_type, T>,
-						   "The function passed to or_else must return an expected with the same value type" );
+			static_assert(
+				detail::is_expected_specialization<G>,
+				"The function passed to or_else must return a specialization of expected"
+			);
+			static_assert(
+				std::is_same_v<typename G::value_type, T>,
+				"The function passed to or_else must return an expected with the same value type"
+			);
 			if ( self.has_value() )
 			{
 				return G( std::in_place, std::forward<Self>( self ).m_value );
@@ -1084,8 +1132,9 @@ namespace mclo
 				}
 				else
 				{
-					return result_type( std::in_place,
-										std::invoke( std::forward<F>( f ), std::forward<Self>( self ).m_value ) );
+					return result_type(
+						std::in_place, std::invoke( std::forward<F>( f ), std::forward<Self>( self ).m_value )
+					);
 				}
 			}
 			else
@@ -1165,8 +1214,9 @@ namespace mclo
 		}
 
 		template <typename U, typename G>
-			requires( std::is_void_v<U> && std::is_constructible_v<E, const G&> &&
-					  converting_constructor_constraint<U, G>() )
+			requires(
+				std::is_void_v<U> && std::is_constructible_v<E, const G&> && converting_constructor_constraint<U, G>()
+			)
 		constexpr explicit( !std::is_convertible_v<const G&, E> ) expected( const expected<U, G>& other )
 			: m_has_value( other.has_value() )
 		{
@@ -1189,8 +1239,9 @@ namespace mclo
 
 		template <typename G>
 			requires std::is_constructible_v<E, const G&>
-		constexpr explicit( !std::is_convertible_v<const G&, E> )
-			expected( const unexpected<G>& e ) noexcept( std::is_nothrow_constructible_v<E, const G&> )
+		constexpr explicit( !std::is_convertible_v<const G&, E> ) expected(
+			const unexpected<G>& e
+		) noexcept( std::is_nothrow_constructible_v<E, const G&> )
 			: m_error( e.error() )
 			, m_has_value( false )
 		{
@@ -1198,8 +1249,9 @@ namespace mclo
 
 		template <typename G>
 			requires std::is_constructible_v<E, G>
-		constexpr explicit( !std::is_convertible_v<G, E> )
-			expected( unexpected<G>&& e ) noexcept( std::is_nothrow_constructible_v<E, G> )
+		constexpr explicit( !std::is_convertible_v<G, E> ) expected(
+			unexpected<G>&& e
+		) noexcept( std::is_nothrow_constructible_v<E, G> )
 			: m_error( std::move( e ).error() )
 			, m_has_value( false )
 		{
@@ -1212,8 +1264,9 @@ namespace mclo
 
 		template <typename... Args>
 			requires std::is_constructible_v<E, Args...>
-		constexpr explicit expected( unexpect_t,
-									 Args&&... args ) noexcept( std::is_nothrow_constructible_v<E, Args...> )
+		constexpr explicit expected(
+			unexpect_t, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<E, Args...> )
 			: m_error( std::forward<Args>( args )... )
 			, m_has_value( false )
 		{
@@ -1221,8 +1274,9 @@ namespace mclo
 
 		template <typename U, typename... Args>
 			requires std::is_constructible_v<E, std::initializer_list<U>&, Args...>
-		constexpr explicit expected( unexpect_t, std::initializer_list<U> il, Args&&... args ) noexcept(
-			std::is_nothrow_constructible_v<E, std::initializer_list<U>&, Args...> )
+		constexpr explicit expected(
+			unexpect_t, std::initializer_list<U> il, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<E, std::initializer_list<U>&, Args...> )
 			: m_error( il, std::forward<Args>( args )... )
 			, m_has_value( false )
 		{
@@ -1278,8 +1332,9 @@ namespace mclo
 			requires( detail::move_assignable_expected_void<E> && detail::trivially_move_assignable_expected<E> )
 		= default;
 
-		constexpr expected& operator=( expected&& other ) noexcept( std::is_nothrow_move_constructible_v<E> &&
-																	std::is_nothrow_move_assignable_v<E> )
+		constexpr expected& operator=(
+			expected&& other
+		) noexcept( std::is_nothrow_move_constructible_v<E> && std::is_nothrow_move_assignable_v<E> )
 			requires detail::move_assignable_expected_void<E>
 		{
 			if ( m_has_value && other.m_has_value )
@@ -1392,11 +1447,14 @@ namespace mclo
 		}
 
 		template <typename G = E>
-		constexpr G error_or( G&& default_value ) const& noexcept( std::is_nothrow_copy_constructible_v<E> &&
-																   std::is_nothrow_convertible_v<G, E> )
+		constexpr G error_or(
+			G&& default_value
+		) const& noexcept( std::is_nothrow_copy_constructible_v<E> && std::is_nothrow_convertible_v<G, E> )
 		{
-			static_assert( std::is_copy_constructible_v<E> && std::is_convertible_v<G, E>,
-						   "Error type must be copy constructible and constructible from the default error type" );
+			static_assert(
+				std::is_copy_constructible_v<E> && std::is_convertible_v<G, E>,
+				"Error type must be copy constructible and constructible from the default error type"
+			);
 			if ( has_value() )
 			{
 				return std::forward<G>( default_value );
@@ -1408,11 +1466,14 @@ namespace mclo
 		}
 
 		template <typename G = E>
-		constexpr G error_or( G&& default_value ) && noexcept( std::is_nothrow_move_constructible_v<E> &&
-															   std::is_nothrow_convertible_v<G, E> )
+		constexpr G error_or(
+			G&& default_value
+		) && noexcept( std::is_nothrow_move_constructible_v<E> && std::is_nothrow_convertible_v<G, E> )
 		{
-			static_assert( std::is_move_constructible_v<E> && std::is_convertible_v<G, E>,
-						   "Error type must be move constructible and constructible from the default error type" );
+			static_assert(
+				std::is_move_constructible_v<E> && std::is_convertible_v<G, E>,
+				"Error type must be move constructible and constructible from the default error type"
+			);
 			if ( has_value() )
 			{
 				return std::forward<G>( default_value );
@@ -1547,8 +1608,9 @@ namespace mclo
 		}
 
 		// Modifiers
-		constexpr void swap( expected& other ) noexcept( std::is_nothrow_move_constructible_v<E> &&
-														 std::is_nothrow_swappable_v<E> )
+		constexpr void swap(
+			expected& other
+		) noexcept( std::is_nothrow_move_constructible_v<E> && std::is_nothrow_swappable_v<E> )
 			requires( std::is_swappable_v<E> && std::is_move_constructible_v<E> )
 		{
 			if ( m_has_value && other.m_has_value )
@@ -1594,35 +1656,41 @@ namespace mclo
 	private:
 		[[noreturn]] void throw_bad_expected_const() const
 		{
-			static_assert( std::is_copy_constructible_v<E>,
-						   "Error type must be copy constructible to throw bad_expected_access" );
+			static_assert(
+				std::is_copy_constructible_v<E>, "Error type must be copy constructible to throw bad_expected_access"
+			);
 			throw bad_expected_access<std::decay_t<E>>( std::as_const( m_error ) );
 		}
 
 		[[noreturn]] void throw_bad_expected_move()
 		{
-			static_assert( std::is_move_constructible_v<E>,
-						   "Error type must be move constructible to throw bad_expected_access" );
+			static_assert(
+				std::is_move_constructible_v<E>, "Error type must be move constructible to throw bad_expected_access"
+			);
 			throw bad_expected_access<std::decay_t<E>>( std::move( m_error ) );
 		}
 
 		template <typename U, typename G>
 		[[nodiscard]] static constexpr bool converting_constructor_constraint() noexcept
 		{
-			return !std::is_constructible_v<unexpected<E>, expected<U, G>&> &&
-				   !std::is_constructible_v<unexpected<E>, expected<U, G>> &&
-				   !std::is_constructible_v<unexpected<E>, const expected<U, G>&> &&
-				   !std::is_constructible_v<unexpected<E>, const expected<U, G>>;
+			return !std::is_constructible_v<unexpected<E>, expected<U, G>&>
+				&& !std::is_constructible_v<unexpected<E>, expected<U, G>>
+				&& !std::is_constructible_v<unexpected<E>, const expected<U, G>&>
+				&& !std::is_constructible_v<unexpected<E>, const expected<U, G>>;
 		}
 
 		template <typename Self, typename F>
 		static constexpr auto and_then_impl( Self&& self, F&& f )
 		{
 			using U = std::remove_cvref_t<std::invoke_result_t<F>>;
-			static_assert( detail::is_expected_specialization<U>,
-						   "The function passed to and_then must return a specialization of expected" );
-			static_assert( std::is_same_v<typename U::error_type, E>,
-						   "The function passed to and_then must return an expected with the same error type" );
+			static_assert(
+				detail::is_expected_specialization<U>,
+				"The function passed to and_then must return a specialization of expected"
+			);
+			static_assert(
+				std::is_same_v<typename U::error_type, E>,
+				"The function passed to and_then must return an expected with the same error type"
+			);
 			if ( self.has_value() )
 			{
 				return std::invoke( std::forward<F>( f ) );
@@ -1637,10 +1705,14 @@ namespace mclo
 		static constexpr auto or_else_impl( Self&& self, F&& f )
 		{
 			using G = std::remove_cvref_t<std::invoke_result_t<F, decltype( ( std::forward<Self>( self ).m_error ) )>>;
-			static_assert( detail::is_expected_specialization<G>,
-						   "The function passed to or_else must return a specialization of expected" );
-			static_assert( std::is_same_v<typename G::value_type, T>,
-						   "The function passed to or_else must return an expected with the same value type" );
+			static_assert(
+				detail::is_expected_specialization<G>,
+				"The function passed to or_else must return a specialization of expected"
+			);
+			static_assert(
+				std::is_same_v<typename G::value_type, T>,
+				"The function passed to or_else must return an expected with the same value type"
+			);
 			if ( self.has_value() )
 			{
 				return G();

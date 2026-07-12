@@ -19,8 +19,9 @@ namespace mclo
 		struct identity
 		{
 			template <typename T>
-			[[nodiscard]] [[msvc::intrinsic]] MCLO_STATIC_CALL_OPERATOR constexpr T&& operator()( T&& value )
-				MCLO_CONST_CALL_OPERATOR noexcept
+			[[nodiscard]] [[msvc::intrinsic]] MCLO_STATIC_CALL_OPERATOR constexpr T&& operator()(
+				T&& value
+			) MCLO_CONST_CALL_OPERATOR noexcept
 			{
 				return std::forward<T>( value );
 			}
@@ -45,10 +46,9 @@ namespace mclo
 	/// @param transform The per-element transform to apply before hashing.
 	/// @return The computed hash.
 	template <typename T, detail::constexpr_hash_transform<T> Transform = detail::identity>
-	[[nodiscard]] constexpr std::size_t constexpr_hash( const T* data,
-														const std::size_t size,
-														const std::size_t salt = 0,
-														Transform transform = {} ) noexcept
+	[[nodiscard]] constexpr std::size_t constexpr_hash(
+		const T* data, const std::size_t size, const std::size_t salt = 0, Transform transform = {}
+	) noexcept
 	{
 		// Implemented as constexpr safe simple fnv-1a hash
 		std::size_t hash = detail::fnva1_offset_basis;

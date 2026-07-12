@@ -340,8 +340,10 @@ TEST_CASE( "join_string char* iterators", "[string]" )
 
 TEMPLATE_LIST_TEST_CASE( "string_hash", "[string][hash]", char_types )
 {
-	CONSTEVAL_CHECK( mclo::string_hash( mclo::transcode_ascii_literal<TestType>( "hello" ) ) !=
-					 mclo::string_hash( mclo::transcode_ascii_literal<TestType>( "Hello" ) ) );
+	CONSTEVAL_CHECK(
+		mclo::string_hash( mclo::transcode_ascii_literal<TestType>( "hello" ) )
+		!= mclo::string_hash( mclo::transcode_ascii_literal<TestType>( "Hello" ) )
+	);
 }
 
 TEST_CASE( "string_hash literals", "[string][hash]" )

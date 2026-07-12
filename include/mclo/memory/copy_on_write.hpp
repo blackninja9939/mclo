@@ -39,14 +39,14 @@ namespace mclo
 		static_assert( std::is_object_v<T>, "T must be an object type" );
 		static_assert( !std::is_array_v<T>, "T must not be an array type" );
 		static_assert( !std::is_same_v<T, std::in_place_t>, "T cannot be std::in_place_t" );
-		static_assert( !mclo::specialization_of<T, std::in_place_type_t>,
-					   "T cannot be a specialization of std::in_place_type_t" );
+		static_assert(
+			!mclo::specialization_of<T, std::in_place_type_t>, "T cannot be a specialization of std::in_place_type_t"
+		);
 		static_assert( std::is_same_v<T, std::remove_cv_t<T>>, "T cannot be cv qualified" );
 
 		template <typename U>
-		static constexpr bool is_convertible_from =
-			!std::is_same_v<std::remove_cvref_t<U>, copy_on_write> &&
-			!std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U>;
+		static constexpr bool is_convertible_from = !std::is_same_v<std::remove_cvref_t<U>, copy_on_write>
+			&& !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U>;
 
 	public:
 		/// @brief The type of the contained value.
@@ -78,7 +78,8 @@ namespace mclo
 		/// @brief Copy constructor. Shares storage with @p other if allocators are compatible.
 		copy_on_write( const copy_on_write& other )
 			: copy_on_write(
-				  std::allocator_arg, alloc_traits::select_on_container_copy_construction( other.m_alloc ), other )
+				  std::allocator_arg, alloc_traits::select_on_container_copy_construction( other.m_alloc ), other
+			  )
 		{
 			static_assert( std::is_copy_constructible_v<T>, "T must be copy constructible" );
 		}
@@ -120,9 +121,9 @@ namespace mclo
 		/// @param alloc The allocator to use.
 		/// @param other The instance to move from.
 		/// @post @p other is valueless.
-		copy_on_write( std::allocator_arg_t,
-					   const Allocator& alloc,
-					   copy_on_write&& other ) noexcept( alloc_traits::is_always_equal::value )
+		copy_on_write( std::allocator_arg_t, const Allocator& alloc, copy_on_write&& other ) noexcept(
+			alloc_traits::is_always_equal::value
+		)
 			: m_alloc( alloc )
 		{
 			using std::swap;
@@ -189,8 +190,10 @@ namespace mclo
 		/// @param init_list The initializer list.
 		/// @param us Additional arguments to forward to the constructor of @p T.
 		template <typename I, typename... Us>
-			requires( std::is_constructible_v<T, std::initializer_list<I>&, Us...> &&
-					  std::is_default_constructible_v<allocator_type> )
+			requires(
+				std::is_constructible_v<T, std::initializer_list<I>&, Us...>
+				&& std::is_default_constructible_v<allocator_type>
+			)
 		explicit copy_on_write( std::in_place_t, std::initializer_list<I> init_list, Us&&... us )
 			: copy_on_write( std::allocator_arg, allocator_type{}, std::in_place, init_list, std::forward<Us>( us )... )
 		{
@@ -202,11 +205,13 @@ namespace mclo
 		/// @param us Additional arguments to forward to the constructor of @p T.
 		template <typename I, typename... Us>
 			requires( std::is_constructible_v<T, std::initializer_list<I>&, Us...> )
-		explicit copy_on_write( std::allocator_arg_t,
-								const Allocator& alloc,
-								std::in_place_t,
-								std::initializer_list<I> init_list,
-								Us&&... us )
+		explicit copy_on_write(
+			std::allocator_arg_t,
+			const Allocator& alloc,
+			std::in_place_t,
+			std::initializer_list<I> init_list,
+			Us&&... us
+		)
 			: m_alloc( alloc )
 		{
 			m_ptr = create( m_alloc, init_list, std::forward<Us>( us )... );
@@ -266,7 +271,8 @@ namespace mclo
 		/// and leaves @p other valueless.
 		/// @post @p other is valueless.
 		copy_on_write& operator=( copy_on_write&& other ) noexcept(
-			alloc_traits::propagate_on_container_move_assignment::value || alloc_traits::is_always_equal::value )
+			alloc_traits::propagate_on_container_move_assignment::value || alloc_traits::is_always_equal::value
+		)
 		{
 			static_assert( std::is_copy_constructible_v<T>, "T must be copy constructible" );
 
@@ -305,8 +311,10 @@ namespace mclo
 		/// @details If unique, assigns the value in place. If shared or valueless, creates new storage.
 		/// @param other The value to assign.
 		template <typename U = T>
-			requires( !std::is_same_v<std::remove_cvref_t<U>, copy_on_write> && std::is_constructible_v<T, U> &&
-					  std::is_assignable_v<T&, U> )
+			requires(
+				!std::is_same_v<std::remove_cvref_t<U>, copy_on_write> && std::is_constructible_v<T, U>
+				&& std::is_assignable_v<T&, U>
+			)
 		copy_on_write& operator=( U&& other )
 		{
 			if ( valueless_after_move() || m_ptr->m_counter.load( std::memory_order_acquire ) != 1 )
@@ -334,8 +342,9 @@ namespace mclo
 		/// @pre The instance must not be valueless.
 		[[nodiscard]] const_pointer operator->() const noexcept
 		{
-			MCLO_DEBUG_ASSERT( !valueless_after_move(),
-							   "Getting pointer for copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT(
+				!valueless_after_move(), "Getting pointer for copy_on_write that is valueless_after_move"
+			);
 			return std::addressof( m_ptr->m_value );
 		}
 
@@ -357,8 +366,9 @@ namespace mclo
 		/// code. Do not use it for synchronization decisions.
 		[[nodiscard]] long use_count() const noexcept
 		{
-			MCLO_DEBUG_ASSERT( !valueless_after_move(),
-							   "Getting use_count for copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT(
+				!valueless_after_move(), "Getting use_count for copy_on_write that is valueless_after_move"
+			);
 			return m_ptr->m_counter.load( std::memory_order_relaxed );
 		}
 
@@ -366,8 +376,10 @@ namespace mclo
 		/// @pre Neither instance may be valueless.
 		[[nodiscard]] bool identical_to( const copy_on_write& other ) const noexcept
 		{
-			MCLO_DEBUG_ASSERT( !valueless_after_move() && !other.valueless_after_move(),
-							   "Checking identical_to for copy_on_write that is valueless_after_move" );
+			MCLO_DEBUG_ASSERT(
+				!valueless_after_move() && !other.valueless_after_move(),
+				"Checking identical_to for copy_on_write that is valueless_after_move"
+			);
 			return m_ptr == other.m_ptr;
 		}
 
@@ -431,8 +443,9 @@ namespace mclo
 
 		/// @brief Swaps the contents with @p other.
 		/// @warning Swapping instances with unequal, non-propagating allocators is undefined behaviour.
-		void swap( copy_on_write& other ) noexcept( alloc_traits::propagate_on_container_swap::value ||
-													alloc_traits::is_always_equal::value )
+		void swap( copy_on_write& other ) noexcept(
+			alloc_traits::propagate_on_container_swap::value || alloc_traits::is_always_equal::value
+		)
 		{
 			using std::swap;
 
@@ -461,8 +474,9 @@ namespace mclo
 		}
 
 		template <class U, class AA>
-		[[nodiscard]] friend bool operator==( const copy_on_write& lhs,
-											  const copy_on_write<U, AA>& rhs ) noexcept( noexcept( *lhs == *rhs ) )
+		[[nodiscard]] friend bool operator==( const copy_on_write& lhs, const copy_on_write<U, AA>& rhs ) noexcept(
+			noexcept( *lhs == *rhs )
+		)
 		{
 			if ( lhs.valueless_after_move() )
 			{
@@ -486,9 +500,9 @@ namespace mclo
 		}
 
 		template <class U, class AA>
-		[[nodiscard]] friend auto operator<=>( const copy_on_write& lhs,
-											   const copy_on_write<U, AA>& rhs ) noexcept( noexcept( *lhs <=> *rhs ) )
-			-> mclo::synth_three_way_result<T, U>
+		[[nodiscard]] friend auto operator<=>( const copy_on_write& lhs, const copy_on_write<U, AA>& rhs ) noexcept(
+			noexcept( *lhs <=> *rhs )
+		) -> mclo::synth_three_way_result<T, U>
 		{
 			if ( lhs.valueless_after_move() || rhs.valueless_after_move() )
 			{
@@ -508,8 +522,9 @@ namespace mclo
 		}
 
 		template <class U>
-		[[nodiscard]] friend bool operator==( const copy_on_write& lhs,
-											  const U& rhs ) noexcept( noexcept( *lhs == rhs ) )
+		[[nodiscard]] friend bool operator==( const copy_on_write& lhs, const U& rhs ) noexcept(
+			noexcept( *lhs == rhs )
+		)
 		{
 			if ( lhs.valueless_after_move() )
 			{
@@ -522,9 +537,9 @@ namespace mclo
 		}
 
 		template <class U>
-		[[nodiscard]] friend auto operator<=>( const copy_on_write& lhs,
-											   const U& rhs ) noexcept( noexcept( *lhs <=> rhs ) )
-			-> mclo::synth_three_way_result<T, U>
+		[[nodiscard]] friend auto operator<=>( const copy_on_write& lhs, const U& rhs ) noexcept(
+			noexcept( *lhs <=> rhs )
+		) -> mclo::synth_three_way_result<T, U>
 		{
 			if ( lhs.valueless_after_move() )
 			{

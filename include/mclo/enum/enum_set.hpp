@@ -270,8 +270,9 @@ namespace mclo
 		/// @param func The callable invoked with every set enumerator.
 		constexpr void for_each_set( std::invocable<value_type> auto func ) const noexcept
 		{
-			m_container.for_each_set(
-				[ func = std::move( func ) ]( const size_type index ) { func( static_cast<value_type>( index ) ); } );
+			m_container.for_each_set( [ func = std::move( func ) ]( const size_type index ) {
+				func( static_cast<value_type>( index ) );
+			} );
 		}
 
 		/// @brief Swaps the contents of this set with @p other.

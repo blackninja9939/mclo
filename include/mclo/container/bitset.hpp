@@ -47,8 +47,9 @@ namespace mclo
 		/// @brief Construct the bitset from a copy underlying container
 		/// @details The container will trim set bits outside of the maximum size
 		/// @param container to copy from
-		constexpr bitset( const underlying_container& container ) noexcept(
-			std::is_nothrow_copy_constructible_v<underlying_container> )
+		constexpr bitset(
+			const underlying_container& container
+		) noexcept( std::is_nothrow_copy_constructible_v<underlying_container> )
 			: base( container )
 		{
 			derived_trim();
@@ -57,8 +58,9 @@ namespace mclo
 		/// @brief Construct the bitset from a moved from underlying container
 		/// @details The container will trim set bits outside of the maximum size
 		/// @param container to move from
-		constexpr bitset( underlying_container&& container ) noexcept(
-			std::is_nothrow_move_constructible_v<underlying_container> )
+		constexpr bitset(
+			underlying_container&& container
+		) noexcept( std::is_nothrow_move_constructible_v<underlying_container> )
 			: base( std::move( container ) )
 		{
 			derived_trim();
@@ -74,9 +76,9 @@ namespace mclo
 		/// @brief Construct from a string like type of unset_char and set_char
 		template <typename StringLike, typename CharT = typename StringLike::value_type>
 			requires std::convertible_to<StringLike, std::basic_string_view<CharT, typename StringLike::traits_type>>
-		constexpr explicit bitset( const StringLike& str,
-								   const CharT unset_char = CharT( '0' ),
-								   const CharT set_char = CharT( '1' ) )
+		constexpr explicit bitset(
+			const StringLike& str, const CharT unset_char = CharT( '0' ), const CharT set_char = CharT( '1' )
+		)
 		{
 			using view = std::basic_string_view<CharT, typename StringLike::traits_type>;
 			base::init_from_string( view( str ), unset_char, set_char );

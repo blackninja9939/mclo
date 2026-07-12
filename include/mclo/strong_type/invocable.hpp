@@ -12,14 +12,16 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			template <typename... Args>
-			constexpr decltype( auto ) operator()( Args&&... args ) const
-				noexcept( noexcept( std::declval<const Derived&>().value( std::declval<Args>()... ) ) )
+			constexpr decltype( auto ) operator()( Args&&... args ) const noexcept(
+				noexcept( std::declval<const Derived&>().value( std::declval<Args>()... ) )
+			)
 			{
 				return static_cast<const Derived&>( *this ).value( std::forward<Args>( args )... );
 			}
 			template <typename... Args>
 			constexpr decltype( auto ) operator()( Args&&... args ) noexcept(
-				noexcept( std::declval<Derived&>().value( std::declval<Args>()... ) ) )
+				noexcept( std::declval<Derived&>().value( std::declval<Args>()... ) )
+			)
 			{
 				return static_cast<Derived&>( *this ).value( std::forward<Args>( args )... );
 			}

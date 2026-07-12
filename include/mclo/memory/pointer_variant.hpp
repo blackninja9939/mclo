@@ -59,8 +59,9 @@ namespace mclo
 			: m_ptr( ptr, Index )
 		{
 			static_assert( Index < size, "Index out of range of alternatives" );
-			static_assert( std::is_same_v<std::decay_t<T>, alternative_t<Index>>,
-						   "Type at index is not type of the pointer" );
+			static_assert(
+				std::is_same_v<std::decay_t<T>, alternative_t<Index>>, "Type at index is not type of the pointer"
+			);
 		}
 
 		/// @brief Stores @p ptr, switching the active alternative to @p T.
@@ -85,7 +86,8 @@ namespace mclo
 		{
 			static_assert(
 				meta::count_v<T, ptr_alternatives> == 1,
-				"holds_alternative is only valid to use if T appears in the alternative types exactly once" );
+				"holds_alternative is only valid to use if T appears in the alternative types exactly once"
+			);
 			return index() == tag_v<T>;
 		}
 
@@ -114,8 +116,10 @@ namespace mclo
 		template <typename T>
 		[[nodiscard]] T* get() noexcept
 		{
-			static_assert( meta::count_v<T, ptr_alternatives> == 1,
-						   "Type based get is only valid to use if T appears in the alternative types exactly once" );
+			static_assert(
+				meta::count_v<T, ptr_alternatives> == 1,
+				"Type based get is only valid to use if T appears in the alternative types exactly once"
+			);
 			MCLO_DEBUG_ASSERT( index() == tag_v<T>, "Variant does not currently hold altnerative" );
 			return cast_to<T>( get_raw() );
 		}
@@ -125,8 +129,10 @@ namespace mclo
 		template <typename T>
 		[[nodiscard]] const T* get() const noexcept
 		{
-			static_assert( meta::count_v<T, ptr_alternatives> == 1,
-						   "Type based get is only valid to use if T appears in the alternative types exactly once" );
+			static_assert(
+				meta::count_v<T, ptr_alternatives> == 1,
+				"Type based get is only valid to use if T appears in the alternative types exactly once"
+			);
 			MCLO_DEBUG_ASSERT( index() == tag_v<T>, "Variant does not currently hold altnerative" );
 			return cast_to<const T>( get_raw() );
 		}

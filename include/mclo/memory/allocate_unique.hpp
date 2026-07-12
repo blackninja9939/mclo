@@ -92,6 +92,7 @@ namespace mclo
 		static_assert( !std::is_array_v<T>, "allocate_unique does not support array types" );
 		using alloc = typename std::allocator_traits<Allocator>::template rebind_alloc<T>;
 		return std::unique_ptr<T, allocation_deleter<alloc>>(
-			allocator_new<T>( allocator, std::forward<Args>( args )... ), allocator );
+			allocator_new<T>( allocator, std::forward<Args>( args )... ), allocator
+		);
 	}
 }

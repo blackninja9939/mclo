@@ -10,8 +10,10 @@
 
 namespace mclo
 {
-	static_assert( sizeof( thread_local_key::native_handle_type ) == sizeof( DWORD ),
-				   "DWORD is not std::uint32_t size is not the correct size" );
+	static_assert(
+		sizeof( thread_local_key::native_handle_type ) == sizeof( DWORD ),
+		"DWORD is not std::uint32_t size is not the correct size"
+	);
 
 	thread_local_key::thread_local_key()
 		: m_key( TlsAlloc() )

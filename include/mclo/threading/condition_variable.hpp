@@ -25,7 +25,8 @@ namespace mclo
 
 		template <typename Rep, typename Period>
 		[[nodiscard]] static constexpr unsigned long clamp_wait_time_to_ms(
-			const std::chrono::duration<Rep, Period>& relative_time ) noexcept
+			const std::chrono::duration<Rep, Period>& relative_time
+		) noexcept
 		{
 			if ( relative_time > max_wait_time )
 			{
@@ -59,8 +60,9 @@ namespace mclo
 		}
 
 		template <typename Rep, typename Period>
-		std::cv_status wait_for( std::unique_lock<mclo::mutex>& lock,
-								 const std::chrono::duration<Rep, Period> relative_time )
+		std::cv_status wait_for(
+			std::unique_lock<mclo::mutex>& lock, const std::chrono::duration<Rep, Period> relative_time
+		)
 		{
 			if ( relative_time <= std::chrono::duration<Rep, Period>::zero() )
 			{
@@ -70,16 +72,17 @@ namespace mclo
 		}
 
 		template <typename Rep, typename Period, typename Predicate>
-		bool wait_for( std::unique_lock<mclo::mutex>& lock,
-					   const std::chrono::duration<Rep, Period> relative_time,
-					   Predicate pred )
+		bool wait_for(
+			std::unique_lock<mclo::mutex>& lock, const std::chrono::duration<Rep, Period> relative_time, Predicate pred
+		)
 		{
 			return wait_until( lock, std::chrono::steady_clock::now() + relative_time, pred );
 		}
 
 		template <typename Clock, typename Duration>
-		std::cv_status wait_until( std::unique_lock<mclo::mutex>& lock,
-								   const std::chrono::time_point<Clock, Duration> absolute_time )
+		std::cv_status wait_until(
+			std::unique_lock<mclo::mutex>& lock, const std::chrono::time_point<Clock, Duration> absolute_time
+		)
 		{
 			static_assert( std::chrono::is_clock_v<Clock>, "Clock must be a clock type" );
 			MCLO_DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );
@@ -102,9 +105,11 @@ namespace mclo
 		}
 
 		template <typename Clock, typename Duration, typename Predicate>
-		bool wait_until( std::unique_lock<mclo::mutex>& lock,
-						 const std::chrono::time_point<Clock, Duration> absolute_time,
-						 Predicate pred )
+		bool wait_until(
+			std::unique_lock<mclo::mutex>& lock,
+			const std::chrono::time_point<Clock, Duration> absolute_time,
+			Predicate pred
+		)
 		{
 			static_assert( std::chrono::is_clock_v<Clock>, "Clock must be a clock type" );
 			MCLO_DEBUG_ASSERT( lock.owns_lock(), "lock must be held" );

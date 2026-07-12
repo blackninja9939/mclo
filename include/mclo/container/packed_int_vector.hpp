@@ -15,23 +15,27 @@ namespace mclo
 	/// @tparam BitWidth Number of bits per virtual integer, must be in range [1, bits per UnderlyingType]
 	/// @tparam UnderlyingType Unsigned integer type used for physical storage
 	/// @tparam UnderlyingContainer Vector-like container of UnderlyingType used for storage
-	template <std::size_t BitWidth,
-			  std::unsigned_integral UnderlyingType = std::size_t,
-			  std::ranges::contiguous_range UnderlyingContainer = std::vector<UnderlyingType>>
-	class packed_int_vector
-		: public detail::packed_int_base<BitWidth,
-										 UnderlyingType,
-										 typename UnderlyingContainer::size_type,
-										 packed_int_vector<BitWidth, UnderlyingType, UnderlyingContainer>>
+	template <
+		std::size_t BitWidth,
+		std::unsigned_integral UnderlyingType = std::size_t,
+		std::ranges::contiguous_range UnderlyingContainer = std::vector<UnderlyingType>>
+	class packed_int_vector : public detail::packed_int_base<
+								  BitWidth,
+								  UnderlyingType,
+								  typename UnderlyingContainer::size_type,
+								  packed_int_vector<BitWidth, UnderlyingType, UnderlyingContainer>>
 	{
-		using base = detail::packed_int_base<BitWidth,
-											 UnderlyingType,
-											 typename UnderlyingContainer::size_type,
-											 packed_int_vector<BitWidth, UnderlyingType, UnderlyingContainer>>;
+		using base = detail::packed_int_base<
+			BitWidth,
+			UnderlyingType,
+			typename UnderlyingContainer::size_type,
+			packed_int_vector<BitWidth, UnderlyingType, UnderlyingContainer>>;
 		friend base;
 
-		static_assert( std::is_same_v<UnderlyingType, typename UnderlyingContainer::value_type>,
-					   "UnderlyingType must match the container's value_type" );
+		static_assert(
+			std::is_same_v<UnderlyingType, typename UnderlyingContainer::value_type>,
+			"UnderlyingType must match the container's value_type"
+		);
 
 	public:
 		using typename base::size_type;
@@ -124,8 +128,9 @@ namespace mclo
 			{
 				return 0;
 			}
-			return static_cast<size_type>( ( ( cap - base::padding ) * sizeof( underlying_type ) * CHAR_BIT ) /
-										   bit_width );
+			return static_cast<size_type>(
+				( ( cap - base::padding ) * sizeof( underlying_type ) * CHAR_BIT ) / bit_width
+			);
 		}
 
 		/// @brief Get the maximum number of virtual integers this container could hold
@@ -133,7 +138,8 @@ namespace mclo
 		{
 			static constexpr size_type max_virtual_size = std::numeric_limits<size_type>::max() / bit_width;
 			const size_type container_limit = static_cast<size_type>(
-				( m_container.max_size() - base::padding ) * sizeof( underlying_type ) * CHAR_BIT / bit_width );
+				( m_container.max_size() - base::padding ) * sizeof( underlying_type ) * CHAR_BIT / bit_width
+			);
 			return max_virtual_size < container_limit ? max_virtual_size : container_limit;
 		}
 

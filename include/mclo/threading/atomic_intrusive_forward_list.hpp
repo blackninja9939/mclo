@@ -118,7 +118,8 @@ namespace mclo
 			hook_type& hook = value;
 			hook.m_next = m_head.load( std::memory_order_relaxed );
 			while ( !m_head.compare_exchange_weak(
-				hook.m_next, &hook, std::memory_order_release, std::memory_order_relaxed ) )
+				hook.m_next, &hook, std::memory_order_release, std::memory_order_relaxed
+			) )
 			{
 			}
 		}

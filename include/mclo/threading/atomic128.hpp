@@ -65,12 +65,13 @@ namespace mclo
 #endif
 
 #if defined( MCLO_COMPILER_MSVC )
-		[[nodiscard]] constexpr std::memory_order strongest_memory_order( const std::memory_order success,
-																		  const std::memory_order failure ) noexcept
+		[[nodiscard]] constexpr std::memory_order strongest_memory_order(
+			const std::memory_order success, const std::memory_order failure
+		) noexcept
 		{
 			constexpr auto is_acquire = []( const std::memory_order order ) {
-				return order == std::memory_order_consume || order == std::memory_order_acquire ||
-					   order == std::memory_order_acq_rel;
+				return order == std::memory_order_consume || order == std::memory_order_acquire
+					|| order == std::memory_order_acq_rel;
 			};
 			constexpr auto is_release = []( const std::memory_order order ) {
 				return order == std::memory_order_release || order == std::memory_order_acq_rel;
@@ -98,10 +99,12 @@ namespace mclo
 		}
 
 		// Returns non-zero on success. On failure @p expected is updated with the current value.
-		[[nodiscard]] inline unsigned char atomic128_compare_exchange( storage128* const destination,
-																	   const storage128 desired,
-																	   storage128* const expected,
-																	   const std::memory_order order ) noexcept
+		[[nodiscard]] inline unsigned char atomic128_compare_exchange(
+			storage128* const destination,
+			const storage128 desired,
+			storage128* const expected,
+			const std::memory_order order
+		) noexcept
 		{
 			__int64* const target = reinterpret_cast<__int64*>( destination );
 			__int64* const comparand = reinterpret_cast<__int64*>( expected );
@@ -141,8 +144,9 @@ namespace mclo
 	template <typename T>
 	class atomic128
 	{
-		static_assert( MCLO_HAS_ATOMIC128,
-					   "atomic128 requires a 128-bit compare exchange, only x86-64 and ARM64 are supported" );
+		static_assert(
+			MCLO_HAS_ATOMIC128, "atomic128 requires a 128-bit compare exchange, only x86-64 and ARM64 are supported"
+		);
 		static_assert( std::is_trivially_copyable_v<T>, "atomic128 requires a trivially copyable type" );
 		static_assert( sizeof( T ) == 16, "atomic128 requires a 16 byte type" );
 		static_assert( alignof( T ) <= 16, "atomic128 requires an alignment of at most 16 bytes" );
@@ -179,8 +183,10 @@ namespace mclo
 		/// @return The value currently held.
 		[[nodiscard]] T load( const std::memory_order order = std::memory_order_seq_cst ) const noexcept
 		{
-			MCLO_DEBUG_ASSERT( order != std::memory_order_release && order != std::memory_order_acq_rel,
-							   "Invalid memory order for atomic load" );
+			MCLO_DEBUG_ASSERT(
+				order != std::memory_order_release && order != std::memory_order_acq_rel,
+				"Invalid memory order for atomic load"
+			);
 			return std::bit_cast<T>( load_storage( order ) );
 		}
 
@@ -190,9 +196,11 @@ namespace mclo
 		/// @c memory_order_acq_rel.
 		void store( const T desired, const std::memory_order order = std::memory_order_seq_cst ) noexcept
 		{
-			MCLO_DEBUG_ASSERT( order != std::memory_order_consume && order != std::memory_order_acquire &&
-								   order != std::memory_order_acq_rel,
-							   "Invalid memory order for atomic store" );
+			MCLO_DEBUG_ASSERT(
+				order != std::memory_order_consume && order != std::memory_order_acquire
+					&& order != std::memory_order_acq_rel,
+				"Invalid memory order for atomic store"
+			);
 			store_storage( std::bit_cast<detail::storage128>( desired ), order );
 		}
 
@@ -212,14 +220,14 @@ namespace mclo
 		/// @param success The memory order to use if the comparison succeeds.
 		/// @param failure The memory order to use if the comparison fails, must not be stronger than @p success.
 		/// @return @c true if the value was exchanged, @c false otherwise.
-		bool compare_exchange_strong( T& expected,
-									  const T desired,
-									  const std::memory_order success,
-									  const std::memory_order failure ) noexcept
+		bool compare_exchange_strong(
+			T& expected, const T desired, const std::memory_order success, const std::memory_order failure
+		) noexcept
 		{
 			detail::storage128 expected_storage = std::bit_cast<detail::storage128>( expected );
 			const bool succeeded = compare_exchange_storage(
-				expected_storage, std::bit_cast<detail::storage128>( desired ), success, failure );
+				expected_storage, std::bit_cast<detail::storage128>( desired ), success, failure
+			);
 			if ( !succeeded )
 			{
 				expected = std::bit_cast<T>( expected_storage );
@@ -233,9 +241,9 @@ namespace mclo
 		/// @param desired The value to store if the comparison succeeds.
 		/// @param order The memory order to use for both the success and failure cases.
 		/// @return @c true if the value was exchanged, @c false otherwise.
-		bool compare_exchange_strong( T& expected,
-									  const T desired,
-									  const std::memory_order order = std::memory_order_seq_cst ) noexcept
+		bool compare_exchange_strong(
+			T& expected, const T desired, const std::memory_order order = std::memory_order_seq_cst
+		) noexcept
 		{
 			return compare_exchange_strong( expected, desired, order, fail_order( order ) );
 		}
@@ -246,10 +254,9 @@ namespace mclo
 		/// @param success The memory order to use if the comparison succeeds.
 		/// @param failure The memory order to use if the comparison fails, must not be stronger than @p success.
 		/// @return @c true if the value was exchanged, @c false otherwise.
-		bool compare_exchange_weak( T& expected,
-									const T desired,
-									const std::memory_order success,
-									const std::memory_order failure ) noexcept
+		bool compare_exchange_weak(
+			T& expected, const T desired, const std::memory_order success, const std::memory_order failure
+		) noexcept
 		{
 			return compare_exchange_strong( expected, desired, success, failure );
 		}
@@ -259,9 +266,9 @@ namespace mclo
 		/// @param desired The value to store if the comparison succeeds.
 		/// @param order The memory order to use for both the success and failure cases.
 		/// @return @c true if the value was exchanged, @c false otherwise.
-		bool compare_exchange_weak( T& expected,
-									const T desired,
-									const std::memory_order order = std::memory_order_seq_cst ) noexcept
+		bool compare_exchange_weak(
+			T& expected, const T desired, const std::memory_order order = std::memory_order_seq_cst
+		) noexcept
 		{
 			return compare_exchange_strong( expected, desired, order, fail_order( order ) );
 		}
@@ -286,21 +293,24 @@ namespace mclo
 		}
 
 		MCLO_ATOMIC128_TARGET [[nodiscard]] detail::storage128 load_storage(
-			const std::memory_order order ) const noexcept
+			const std::memory_order order
+		) const noexcept
 		{
 #ifdef MCLO_COMPILER_MSVC
 			detail::storage128 expected{ 0, 0 };
 			// A compare against zero never modifies the storage, it just reads the current value into expected.
 			( void )detail::atomic128_compare_exchange(
-				platform_storage(), detail::storage128{ 0, 0 }, &expected, order );
+				platform_storage(), detail::storage128{ 0, 0 }, &expected, order
+			);
 			return expected;
 #else
 			return __atomic_load_n( platform_storage(), detail::to_builtin_memory_order( order ) );
 #endif
 		}
 
-		MCLO_ATOMIC128_TARGET void store_storage( const detail::storage128 desired,
-												  const std::memory_order order ) noexcept
+		MCLO_ATOMIC128_TARGET void store_storage(
+			const detail::storage128 desired, const std::memory_order order
+		) noexcept
 		{
 #ifdef MCLO_COMPILER_MSVC
 			detail::storage128 expected = load_storage( std::memory_order_relaxed );
@@ -313,7 +323,8 @@ namespace mclo
 		}
 
 		MCLO_ATOMIC128_TARGET [[nodiscard]] detail::storage128 exchange_storage(
-			const detail::storage128 desired, const std::memory_order order ) noexcept
+			const detail::storage128 desired, const std::memory_order order
+		) noexcept
 		{
 #ifdef MCLO_COMPILER_MSVC
 			detail::storage128 expected = load_storage( std::memory_order_relaxed );
@@ -326,22 +337,27 @@ namespace mclo
 #endif
 		}
 
-		MCLO_ATOMIC128_TARGET bool compare_exchange_storage( detail::storage128& expected,
-															 const detail::storage128 desired,
-															 const std::memory_order success,
-															 const std::memory_order failure ) noexcept
+		MCLO_ATOMIC128_TARGET bool compare_exchange_storage(
+			detail::storage128& expected,
+			const detail::storage128 desired,
+			const std::memory_order success,
+			const std::memory_order failure
+		) noexcept
 		{
 #ifdef MCLO_COMPILER_MSVC
 			return detail::atomic128_compare_exchange(
-					   platform_storage(), desired, &expected, detail::strongest_memory_order( success, failure ) ) !=
-				   0;
+					   platform_storage(), desired, &expected, detail::strongest_memory_order( success, failure )
+				   )
+				!= 0;
 #else
-			return __atomic_compare_exchange_n( platform_storage(),
-												&expected,
-												desired,
-												false,
-												detail::to_builtin_memory_order( success ),
-												detail::to_builtin_memory_order( failure ) );
+			return __atomic_compare_exchange_n(
+				platform_storage(),
+				&expected,
+				desired,
+				false,
+				detail::to_builtin_memory_order( success ),
+				detail::to_builtin_memory_order( failure )
+			);
 #endif
 		}
 

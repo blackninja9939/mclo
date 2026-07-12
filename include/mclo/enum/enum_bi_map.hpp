@@ -83,8 +83,9 @@ namespace mclo
 		struct pair_second
 		{
 			template <typename T, typename U>
-			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr const U& operator()( const std::pair<T, U>& pair )
-				MCLO_CONST_CALL_OPERATOR
+			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr const U& operator()(
+				const std::pair<T, U>& pair
+			) MCLO_CONST_CALL_OPERATOR
 			{
 				return pair.second;
 			}
@@ -116,7 +117,8 @@ namespace mclo
 			[[nodiscard]] static constexpr auto search( Range&& range, const Find& find )
 			{
 				return std::ranges::lower_bound(
-					std::forward<Range>( range ), find, std::ranges::less{}, pair_second{} );
+					std::forward<Range>( range ), find, std::ranges::less{}, pair_second{}
+				);
 			}
 		};
 	}
@@ -135,7 +137,8 @@ namespace mclo
 	/// @details Resolves to @ref enum_bi_map_binary for 20 or more enumerators and @ref enum_bi_map_linear otherwise,
 	/// giving a sensible default for the common case.
 	template <typename TEnum, typename TValue, TEnum SizeEnum = mclo::enum_size<TEnum>>
-	using enum_bi_map = std::conditional_t<( static_cast<std::size_t>( SizeEnum ) >= 20 ),
-										   enum_bi_map_binary<TEnum, TValue, SizeEnum>,
-										   enum_bi_map_linear<TEnum, TValue, SizeEnum>>;
+	using enum_bi_map = std::conditional_t<
+		( static_cast<std::size_t>( SizeEnum ) >= 20 ),
+		enum_bi_map_binary<TEnum, TValue, SizeEnum>,
+		enum_bi_map_linear<TEnum, TValue, SizeEnum>>;
 }

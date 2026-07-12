@@ -26,8 +26,9 @@ namespace
 		template <std::ranges::input_range Range>
 		constexpr enum_bi_map_unordered_map( Range&& init_data )
 		{
-			MCLO_DEBUG_ASSERT( std::ranges::size( init_data ) == max_size,
-							   "Invalid size for enum_bi_map_unordered_map" );
+			MCLO_DEBUG_ASSERT(
+				std::ranges::size( init_data ) == max_size, "Invalid size for enum_bi_map_unordered_map"
+			);
 			m_data_to_enum.reserve( max_size );
 			m_enum_to_data.reserve( max_size );
 			for ( const auto& [ e, str ] : init_data )

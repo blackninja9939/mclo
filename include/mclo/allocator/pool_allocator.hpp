@@ -24,9 +24,9 @@ namespace mclo
 		memory_pool& operator=( memory_pool&& other ) noexcept = delete;
 
 		void* allocate( const std::size_t size, const std::size_t alignment = alignof( std::max_align_t ) );
-		void deallocate( void* ptr,
-						 const std::size_t size,
-						 const std::size_t alignment = alignof( std::max_align_t ) ) noexcept;
+		void deallocate(
+			void* ptr, const std::size_t size, const std::size_t alignment = alignof( std::max_align_t )
+		) noexcept;
 
 	private:
 		using free_list_node = mclo::intrusive_forward_list_hook<>;

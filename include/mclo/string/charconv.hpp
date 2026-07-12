@@ -38,10 +38,9 @@ namespace mclo
 	/// @param args Extra arguments forwarded to @c std::to_chars (such as a base, @c std::chars_format, or precision).
 	/// @return A view of the written characters, or an empty view if the buffer was too small.
 	template <typename T, typename... ToCharArgs>
-	[[nodiscard]] std::string_view to_string( char* const first,
-											  char* const last,
-											  const T value,
-											  ToCharArgs&&... args ) noexcept
+	[[nodiscard]] std::string_view to_string(
+		char* const first, char* const last, const T value, ToCharArgs&&... args
+	) noexcept
 	{
 		const auto [ ptr, ec ] = std::to_chars( first, last, value, std::forward<ToCharArgs>( args )... );
 
@@ -62,9 +61,11 @@ namespace mclo
 		requires( std::ranges::contiguous_range<Range> )
 	[[nodiscard]] std::string_view to_string( Range&& buffer, const T value, ToCharArgs&&... args ) noexcept
 	{
-		return to_string( std::ranges::data( buffer ),
-						  std::ranges::data( buffer ) + std::ranges::size( buffer ),
-						  value,
-						  std::forward<ToCharArgs>( args )... );
+		return to_string(
+			std::ranges::data( buffer ),
+			std::ranges::data( buffer ) + std::ranges::size( buffer ),
+			value,
+			std::forward<ToCharArgs>( args )...
+		);
 	}
 }

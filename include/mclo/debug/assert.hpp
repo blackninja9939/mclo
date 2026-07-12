@@ -16,27 +16,29 @@
 
 namespace mclo::detail
 {
-	[[noreturn]] void assert_failed( const char* expression,
-									 const char* function,
-									 const char* file,
-									 const unsigned line,
-									 const char* message,
-									 const char* formatted_args ) noexcept;
+	[[noreturn]] void assert_failed(
+		const char* expression,
+		const char* function,
+		const char* file,
+		const unsigned line,
+		const char* message,
+		const char* formatted_args
+	) noexcept;
 
 	// We breakpoint before calling the core assert_failed in case the assertion failure itself throws bad_alloc when
 	// formatting the message. This allows the user to inspect the assertion in a debugger before the program aborts.
 
-	[[noreturn]] inline void assert_failed( const char* expression,
-											const char* function,
-											const char* file,
-											unsigned line ) noexcept
+	[[noreturn]] inline void assert_failed(
+		const char* expression, const char* function, const char* file, unsigned line
+	) noexcept
 	{
 		mclo::breakpoint_if_debugging();
 		assert_failed( expression, function, file, line, nullptr, nullptr );
 	}
 
 	[[noreturn]] inline void assert_failed(
-		const char* expression, const char* function, const char* file, unsigned line, const char* message ) noexcept
+		const char* expression, const char* function, const char* file, unsigned line, const char* message
+	) noexcept
 	{
 		mclo::breakpoint_if_debugging();
 		assert_failed( expression, function, file, line, message, nullptr );
@@ -57,12 +59,14 @@ namespace mclo::detail
 
 	template <typename... Args>
 		requires( sizeof...( Args ) > 0 )
-	[[noreturn]] void assert_failed( const char* expression,
-									 const char* function,
-									 const char* file,
-									 unsigned line,
-									 const char* message,
-									 const Args&... args ) noexcept
+	[[noreturn]] void assert_failed(
+		const char* expression,
+		const char* function,
+		const char* file,
+		unsigned line,
+		const char* message,
+		const Args&... args
+	) noexcept
 	{
 		mclo::breakpoint_if_debugging();
 

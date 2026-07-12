@@ -5,10 +5,12 @@
 
 namespace mclo
 {
-	static_assert( sizeof( CONDITION_VARIABLE ) == sizeof( mclo::condition_variable ),
-				   "CONDITION_VARIABLE size mismatch" );
-	static_assert( alignof( CONDITION_VARIABLE ) == alignof( mclo::condition_variable ),
-				   "CONDITION_VARIABLE alignment mismatch" );
+	static_assert(
+		sizeof( CONDITION_VARIABLE ) == sizeof( mclo::condition_variable ), "CONDITION_VARIABLE size mismatch"
+	);
+	static_assert(
+		alignof( CONDITION_VARIABLE ) == alignof( mclo::condition_variable ), "CONDITION_VARIABLE alignment mismatch"
+	);
 
 #define CAST_COND_VAR reinterpret_cast<PCONDITION_VARIABLE>( &m_buffer )
 #define CAST_LOCK( BUFF ) reinterpret_cast<PSRWLOCK>( BUFF )

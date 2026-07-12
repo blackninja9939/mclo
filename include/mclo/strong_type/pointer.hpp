@@ -29,9 +29,9 @@ namespace mclo::strong_type
 			{
 				return std::to_address( static_cast<Derived&>( *this ).value );
 			}
-			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs,
-															std::nullptr_t ) noexcept( noexcept( lhs.value ==
-																								 nullptr ) )
+			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs, std::nullptr_t ) noexcept(
+				noexcept( lhs.value == nullptr )
+			)
 			{
 				return lhs.value == nullptr;
 			}

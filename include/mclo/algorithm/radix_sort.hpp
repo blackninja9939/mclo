@@ -56,11 +56,12 @@ namespace mclo
 		template <typename KeyExtractor, typename It>
 		using extracted_key_t = std::decay_t<std::indirect_result_t<KeyExtractor, It>>;
 
-		template <std::unsigned_integral CountT,
-				  std::random_access_iterator It,
-				  std::sentinel_for<It> Sentinel,
-				  std::output_iterator<std::iter_value_t<It>> OutIt,
-				  std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
+		template <
+			std::unsigned_integral CountT,
+			std::random_access_iterator It,
+			std::sentinel_for<It> Sentinel,
+			std::output_iterator<std::iter_value_t<It>> OutIt,
+			std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
 		void counting_sort_bool_impl( It first, Sentinel last, OutIt out, KeyExtractor key_extractor = {} )
 		{
 			CountT num_false{ 0 };
@@ -86,11 +87,12 @@ namespace mclo
 			}
 		}
 
-		template <std::unsigned_integral CountT,
-				  std::random_access_iterator It,
-				  std::sentinel_for<It> Sentinel,
-				  std::output_iterator<std::iter_value_t<It>> OutIt,
-				  std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
+		template <
+			std::unsigned_integral CountT,
+			std::random_access_iterator It,
+			std::sentinel_for<It> Sentinel,
+			std::output_iterator<std::iter_value_t<It>> OutIt,
+			std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
 		void counting_sort_impl( It first, Sentinel last, OutIt out, KeyExtractor key_extractor = {} )
 		{
 			std::array<CountT, 256> count{};
@@ -115,15 +117,15 @@ namespace mclo
 			}
 		}
 
-		template <std::unsigned_integral CountT,
-				  std::random_access_iterator It,
-				  std::sentinel_for<It> Sentinel,
-				  std::random_access_iterator OutIt,
-				  std::indirectly_unary_invocable<It> KeyExtractor>
-		[[nodiscard]] radix_sort_result radix_sort_impl( It first,
-														 Sentinel last,
-														 OutIt out,
-														 KeyExtractor key_extractor )
+		template <
+			std::unsigned_integral CountT,
+			std::random_access_iterator It,
+			std::sentinel_for<It> Sentinel,
+			std::random_access_iterator OutIt,
+			std::indirectly_unary_invocable<It> KeyExtractor>
+		[[nodiscard]] radix_sort_result radix_sort_impl(
+			It first, Sentinel last, OutIt out, KeyExtractor key_extractor
+		)
 		{
 			using key_type = extracted_key_t<KeyExtractor, It>;
 			constexpr std::size_t key_bytes = sizeof( decltype( to_radix_key( std::declval<key_type>() ) ) );
@@ -209,10 +211,11 @@ namespace mclo
 	/// @param key_extractor Functor that extracts the sort key from each element.
 	/// @pre The destination range must be at least as large as the source range.
 	/// @pre The source and destination ranges must not overlap.
-	template <std::random_access_iterator It,
-			  std::sentinel_for<It> Sentinel,
-			  std::output_iterator<std::iter_value_t<It>> OutIt,
-			  std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
+	template <
+		std::random_access_iterator It,
+		std::sentinel_for<It> Sentinel,
+		std::output_iterator<std::iter_value_t<It>> OutIt,
+		std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
 	void counting_sort( It first, Sentinel last, OutIt out, KeyExtractor key_extractor = {} )
 	{
 		using key_type = detail::extracted_key_t<KeyExtractor, It>;
@@ -282,10 +285,11 @@ namespace mclo
 	/// @pre The destination range must be at least as large as the source range.
 	/// @pre The source and destination ranges must not overlap.
 	/// @warning The source range is modified regardless of the returned result.
-	template <std::random_access_iterator It,
-			  std::sentinel_for<It> Sentinel,
-			  std::random_access_iterator OutIt,
-			  std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
+	template <
+		std::random_access_iterator It,
+		std::sentinel_for<It> Sentinel,
+		std::random_access_iterator OutIt,
+		std::indirectly_unary_invocable<It> KeyExtractor = std::identity>
 	[[nodiscard]] radix_sort_result radix_sort( It first, Sentinel last, OutIt out, KeyExtractor key_extractor = {} )
 	{
 		using key_type = detail::extracted_key_t<KeyExtractor, It>;

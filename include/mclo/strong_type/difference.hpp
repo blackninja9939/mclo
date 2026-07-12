@@ -14,7 +14,8 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Difference operator-( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( Difference( lhs.value - rhs.value ) ) )
+				noexcept( Difference( lhs.value - rhs.value ) )
+			)
 			{
 				return Difference( lhs.value - rhs.value );
 			}

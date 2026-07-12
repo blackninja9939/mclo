@@ -31,12 +31,13 @@ namespace mclo::strong_type
 namespace std
 {
 	template <typename Wrapped, typename Tag, typename... Mixins>
-		requires mclo::strong_type::has_mixin<mclo::strong_type::type<Wrapped, Tag, Mixins...>,
-											  mclo::strong_type::hashable>
-	struct hash<mclo::strong_type::type<Wrapped, Tag, Mixins...>>
+		requires mclo::strong_type::
+			has_mixin<mclo::strong_type::type<Wrapped, Tag, Mixins...>, mclo::strong_type::hashable>
+		struct hash<mclo::strong_type::type<Wrapped, Tag, Mixins...>>
 	{
 		MCLO_STATIC_CALL_OPERATOR std::size_t operator()(
-			const mclo::strong_type::type<Wrapped, Tag, Mixins...>& object ) MCLO_CONST_CALL_OPERATOR noexcept
+			const mclo::strong_type::type<Wrapped, Tag, Mixins...>& object
+		) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			return std::hash<Wrapped>{}( object.value );
 		}

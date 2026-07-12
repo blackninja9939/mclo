@@ -37,8 +37,9 @@ namespace mclo
 		static_assert( std::is_object_v<T>, "T must be an object type" );
 		static_assert( !std::is_array_v<T>, "T must not be an array type" );
 		static_assert( !std::is_same_v<T, std::in_place_t>, "T cannot be std::in_place_t" );
-		static_assert( !mclo::specialization_of<T, std::in_place_type_t>,
-					   "T cannot be a specialization of std::in_place_type_t" );
+		static_assert(
+			!mclo::specialization_of<T, std::in_place_type_t>, "T cannot be a specialization of std::in_place_type_t"
+		);
 		static_assert( std::is_same_v<T, std::remove_cv_t<T>>, "T cannot be cv qualified" );
 
 		// todo(mc) the specification allows for using an inline buffer of memory like std::any, maybe I should do that?
@@ -130,16 +131,14 @@ namespace mclo
 		};
 
 		template <typename U>
-		static constexpr bool is_convertible_from =
-			!std::is_same_v<std::remove_cvref_t<U>, polymorphic> && std::derived_from<std::remove_cvref_t<U>, T> &&
-			std::is_constructible_v<std::remove_cvref_t<U>, U> &&
-			std::is_copy_constructible_v<std::remove_cvref_t<U>> &&
-			!mclo::specialization_of<std::remove_cvref_t<U>, std::in_place_type_t>;
+		static constexpr bool is_convertible_from = !std::is_same_v<std::remove_cvref_t<U>, polymorphic>
+			&& std::derived_from<std::remove_cvref_t<U>, T> && std::is_constructible_v<std::remove_cvref_t<U>, U>
+			&& std::is_copy_constructible_v<std::remove_cvref_t<U>>
+			&& !mclo::specialization_of<std::remove_cvref_t<U>, std::in_place_type_t>;
 
 		template <typename U, typename... Ts>
-		static constexpr bool is_constructible_from =
-			std::is_same_v<std::remove_cvref_t<U>, U> && std::derived_from<U, T> && std::is_constructible_v<U, Ts...> &&
-			std::is_copy_constructible_v<U>;
+		static constexpr bool is_constructible_from = std::is_same_v<std::remove_cvref_t<U>, U>
+			&& std::derived_from<U, T> && std::is_constructible_v<U, Ts...> && std::is_copy_constructible_v<U>;
 
 	public:
 		using value_type = T;
@@ -165,7 +164,8 @@ namespace mclo
 
 		constexpr polymorphic( const polymorphic& other )
 			: polymorphic(
-				  std::allocator_arg, alloc_traits::select_on_container_copy_construction( other.m_alloc ), other )
+				  std::allocator_arg, alloc_traits::select_on_container_copy_construction( other.m_alloc ), other
+			  )
 		{
 		}
 
@@ -184,9 +184,9 @@ namespace mclo
 		{
 		}
 
-		constexpr polymorphic( std::allocator_arg_t,
-							   const Allocator& alloc,
-							   polymorphic&& other ) noexcept( alloc_traits::is_always_equal::value )
+		constexpr polymorphic( std::allocator_arg_t, const Allocator& alloc, polymorphic&& other ) noexcept(
+			alloc_traits::is_always_equal::value
+		)
 			: m_alloc( alloc )
 		{
 			using std::swap;
@@ -233,31 +233,35 @@ namespace mclo
 
 		template <typename U, typename... Us>
 			requires( is_constructible_from<U, Us...> )
-		explicit constexpr polymorphic( std::allocator_arg_t,
-										const Allocator& alloc,
-										std::in_place_type_t<U>,
-										Us&&... us )
+		explicit constexpr polymorphic(
+			std::allocator_arg_t, const Allocator& alloc, std::in_place_type_t<U>, Us&&... us
+		)
 			: m_alloc( alloc )
 		{
 			m_control_block = create<U>( m_alloc, std::forward<Us>( us )... );
 		}
 
 		template <typename U, typename I, typename... Us>
-			requires( is_constructible_from<U, std::initializer_list<I>&, Us...> &&
-					  std::is_default_constructible_v<allocator_type> )
+			requires(
+				is_constructible_from<U, std::initializer_list<I>&, Us...>
+				&& std::is_default_constructible_v<allocator_type>
+			)
 		explicit constexpr polymorphic( std::in_place_type_t<U>, std::initializer_list<I> init_list, Us&&... us )
 			: polymorphic(
-				  std::allocator_arg, allocator_type{}, std::in_place_type<U>, init_list, std::forward<Us>( us )... )
+				  std::allocator_arg, allocator_type{}, std::in_place_type<U>, init_list, std::forward<Us>( us )...
+			  )
 		{
 		}
 
 		template <typename U, typename I, typename... Us>
 			requires( is_constructible_from<U, std::initializer_list<I>&, Us...> )
-		explicit constexpr polymorphic( std::allocator_arg_t,
-										const Allocator& alloc,
-										std::in_place_type_t<U>,
-										std::initializer_list<I> init_list,
-										Us&&... us )
+		explicit constexpr polymorphic(
+			std::allocator_arg_t,
+			const Allocator& alloc,
+			std::in_place_type_t<U>,
+			std::initializer_list<I> init_list,
+			Us&&... us
+		)
 			: m_alloc( alloc )
 		{
 			m_control_block = create<U>( m_alloc, init_list, std::forward<Us>( us )... );
@@ -297,7 +301,8 @@ namespace mclo
 		}
 
 		constexpr polymorphic& operator=( polymorphic&& other ) noexcept(
-			alloc_traits::propagate_on_container_move_assignment::value || alloc_traits::is_always_equal::value )
+			alloc_traits::propagate_on_container_move_assignment::value || alloc_traits::is_always_equal::value
+		)
 		{
 			if ( this == &other )
 			{
@@ -376,8 +381,9 @@ namespace mclo
 			return m_alloc;
 		}
 
-		constexpr void swap( polymorphic& other ) noexcept( alloc_traits::propagate_on_container_swap::value ||
-															alloc_traits::is_always_equal::value )
+		constexpr void swap( polymorphic& other ) noexcept(
+			alloc_traits::propagate_on_container_swap::value || alloc_traits::is_always_equal::value
+		)
 		{
 			using std::swap;
 

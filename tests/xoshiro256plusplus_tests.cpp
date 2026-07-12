@@ -8,8 +8,10 @@ namespace
 {
 	constexpr std::uint64_t test_seed = 1234567;
 
-	static_assert( std::uniform_random_bit_generator<mclo::xoshiro256plusplus>,
-				   "xoshiro256plusplus is should model the uniform random bit generator concept" );
+	static_assert(
+		std::uniform_random_bit_generator<mclo::xoshiro256plusplus>,
+		"xoshiro256plusplus is should model the uniform random bit generator concept"
+	);
 }
 
 TEST_CASE( "xoshiro256plusplus expected output", "[random]" )

@@ -16,9 +16,9 @@ namespace
 	struct std_sort_algo
 	{
 		template <typename T, typename KeyExtractor>
-		static mclo::radix_sort_result sort( std::vector<T>& source,
-											 std::vector<T>& /*output*/,
-											 KeyExtractor key_extractor )
+		static mclo::radix_sort_result sort(
+			std::vector<T>& source, std::vector<T>& /*output*/, KeyExtractor key_extractor
+		)
 		{
 			std::sort( source.begin(), source.end(), [ & ]( const T& a, const T& b ) {
 				return std::invoke( key_extractor, a ) < std::invoke( key_extractor, b );
@@ -30,9 +30,9 @@ namespace
 	struct radix_sort_algo
 	{
 		template <typename T, typename KeyExtractor>
-		static mclo::radix_sort_result sort( std::vector<T>& source,
-											 std::vector<T>& output,
-											 KeyExtractor key_extractor )
+		static mclo::radix_sort_result sort(
+			std::vector<T>& source, std::vector<T>& output, KeyExtractor key_extractor
+		)
 		{
 			return mclo::radix_sort( source.begin(), source.end(), output.begin(), key_extractor );
 		}

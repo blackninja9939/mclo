@@ -116,6 +116,9 @@ TEST_CASE( "active pointer_variant, visit const, calls correct overload", "[poin
 	float i = 42.42f;
 	const test_variant var( &i );
 
-	var.visit( mclo::overloaded{ []( const float* ptr ) { CHECK( *ptr == 42.42f ); },
-								 []( const auto* ) { FAIL( "Should not reach" ); } } );
+	var.visit(
+		mclo::overloaded{
+			[]( const float* ptr ) { CHECK( *ptr == 42.42f ); }, []( const auto* ) { FAIL( "Should not reach" ); }
+		}
+	);
 }

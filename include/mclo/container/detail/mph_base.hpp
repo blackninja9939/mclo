@@ -28,8 +28,9 @@ namespace mclo
 		requires( std::is_integral_v<T> || std::is_enum_v<T> )
 	struct mph_hash<T>
 	{
-		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t salt )
-			MCLO_CONST_CALL_OPERATOR noexcept
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+			const T& value, const std::size_t salt
+		) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			std::size_t key = salt ^ static_cast<std::size_t>( value );
 			key = ( ~key ) + ( key << 21 );
@@ -47,8 +48,9 @@ namespace mclo
 		requires( std::convertible_to<T, std::string_view> )
 	struct mph_hash<T>
 	{
-		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const T& value, const std::size_t salt )
-			MCLO_CONST_CALL_OPERATOR noexcept
+		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+			const T& value, const std::size_t salt
+		) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			const std::string_view view( value );
 			return mclo::constexpr_hash( view.data(), view.size(), salt );
@@ -59,7 +61,8 @@ namespace mclo
 	struct mph_hash<std::optional<T>>
 	{
 		MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
-			const std::optional<T>& value, const std::size_t salt ) MCLO_CONST_CALL_OPERATOR noexcept
+			const std::optional<T>& value, const std::size_t salt
+		) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			if ( value )
 			{
@@ -175,11 +178,13 @@ namespace mclo::detail
 			sized_array<std::size_t> sorted_bucket_indices{};
 			std::iota( sorted_bucket_indices.begin(), sorted_bucket_indices.end(), 0 );
 
-			std::sort( sorted_bucket_indices.begin(),
-					   sorted_bucket_indices.end(),
-					   [ &buckets ]( const std::size_t lhs_index, const std::size_t rhs_index ) {
-						   return buckets[ lhs_index ].m_size > buckets[ rhs_index ].m_size;
-					   } );
+			std::sort(
+				sorted_bucket_indices.begin(),
+				sorted_bucket_indices.end(),
+				[ &buckets ]( const std::size_t lhs_index, const std::size_t rhs_index ) {
+					return buckets[ lhs_index ].m_size > buckets[ rhs_index ].m_size;
+				}
+			);
 
 			// Stores data index + 1, 0 means unused
 			sized_array<std::size_t> slot_data_index{};

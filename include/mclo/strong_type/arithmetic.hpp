@@ -17,12 +17,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator+( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( Derived( lhs.value + rhs.value ) ) )
+				noexcept( Derived( lhs.value + rhs.value ) )
+			)
 			{
 				return Derived( lhs.value + rhs.value );
 			}
-			friend constexpr Derived& operator+=( Derived& lhs,
-												  const Derived& rhs ) noexcept( noexcept( lhs.value += rhs.value ) )
+			friend constexpr Derived& operator+=( Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value += rhs.value )
+			)
 			{
 				lhs.value += rhs.value;
 				return lhs;
@@ -37,12 +39,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator-( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( Derived( lhs.value - rhs.value ) ) )
+				noexcept( Derived( lhs.value - rhs.value ) )
+			)
 			{
 				return Derived( lhs.value - rhs.value );
 			}
-			friend constexpr Derived& operator-=( Derived& lhs,
-												  const Derived& rhs ) noexcept( noexcept( lhs.value -= rhs.value ) )
+			friend constexpr Derived& operator-=( Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value -= rhs.value )
+			)
 			{
 				lhs.value -= rhs.value;
 				return lhs;
@@ -57,12 +61,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator*( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( Derived( lhs.value * rhs.value ) ) )
+				noexcept( Derived( lhs.value * rhs.value ) )
+			)
 			{
 				return Derived( lhs.value * rhs.value );
 			}
-			friend constexpr Derived& operator*=( Derived& lhs,
-												  const Derived& rhs ) noexcept( noexcept( lhs.value *= rhs.value ) )
+			friend constexpr Derived& operator*=( Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value *= rhs.value )
+			)
 			{
 				lhs.value *= rhs.value;
 				return lhs;
@@ -77,12 +83,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator/( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( Derived( lhs.value / rhs.value ) ) )
+				noexcept( Derived( lhs.value / rhs.value ) )
+			)
 			{
 				return Derived( lhs.value / rhs.value );
 			}
-			friend constexpr Derived& operator/=( Derived& lhs,
-												  const Derived& rhs ) noexcept( noexcept( lhs.value /= rhs.value ) )
+			friend constexpr Derived& operator/=( Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value /= rhs.value )
+			)
 			{
 				lhs.value /= rhs.value;
 				return lhs;
@@ -97,12 +105,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator%( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( Derived( lhs.value % rhs.value ) ) )
+				noexcept( Derived( lhs.value % rhs.value ) )
+			)
 			{
 				return Derived( lhs.value % rhs.value );
 			}
-			friend constexpr Derived& operator%=( Derived& lhs,
-												  const Derived& rhs ) noexcept( noexcept( lhs.value %= rhs.value ) )
+			friend constexpr Derived& operator%=( Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value %= rhs.value )
+			)
 			{
 				lhs.value %= rhs.value;
 				return lhs;
@@ -117,7 +127,8 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr Derived operator-( const Derived& self ) noexcept(
-				noexcept( Derived( -self.value ) ) )
+				noexcept( Derived( -self.value ) )
+			)
 			{
 				return Derived( -self.value );
 			}
@@ -144,9 +155,9 @@ namespace mclo::strong_type
 namespace std
 {
 	template <typename Wrapped, typename Tag, typename... Mixins>
-		requires mclo::strong_type::has_mixin<mclo::strong_type::type<Wrapped, Tag, Mixins...>,
-											  mclo::strong_type::arithmetic>
-	struct numeric_limits<mclo::strong_type::type<Wrapped, Tag, Mixins...>> : numeric_limits<Wrapped>
+		requires mclo::strong_type::
+			has_mixin<mclo::strong_type::type<Wrapped, Tag, Mixins...>, mclo::strong_type::arithmetic>
+		struct numeric_limits<mclo::strong_type::type<Wrapped, Tag, Mixins...>> : numeric_limits<Wrapped>
 	{
 		using st = mclo::strong_type::type<Wrapped, Tag, Mixins...>;
 

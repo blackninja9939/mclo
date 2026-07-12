@@ -45,8 +45,9 @@ namespace mclo
 		using buffer_allocator = typename alloc_traits::template rebind_alloc<aligned_buffer>;
 		using buffer_alloc_traits = std::allocator_traits<buffer_allocator>;
 
-		static_assert( std::is_same_v<typename alloc_traits::pointer, T*>,
-					   "flexible_array does not support fancy pointers" );
+		static_assert(
+			std::is_same_v<typename alloc_traits::pointer, T*>, "flexible_array does not support fancy pointers"
+		);
 
 	public:
 		/// @brief The element type.
@@ -109,8 +110,8 @@ namespace mclo
 		/// @param range The forward range to copy elements from.
 		/// @param allocator The allocator to use.
 		template <std::ranges::forward_range Range>
-			requires( !std::same_as<std::remove_cvref_t<Range>, flexible_array> ) &&
-					std::constructible_from<T, std::ranges::range_reference_t<Range>>
+			requires( !std::same_as<std::remove_cvref_t<Range>, flexible_array> )
+			&& std::constructible_from<T, std::ranges::range_reference_t<Range>>
 		flexible_array( Range&& range, const Allocator& allocator = Allocator() )
 			: m_allocator( allocator )
 		{
@@ -118,8 +119,9 @@ namespace mclo
 			if ( count > 0 )
 			{
 				allocate_header( count );
-				std::ranges::uninitialized_copy( range,
-												 std::ranges::subrange( element_data(), element_data() + count ) );
+				std::ranges::uninitialized_copy(
+					range, std::ranges::subrange( element_data(), element_data() + count )
+				);
 			}
 		}
 
@@ -174,8 +176,9 @@ namespace mclo
 				}
 				else
 				{
-					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator,
-									   "Containers incompatible for move assignment" );
+					MCLO_DEBUG_ASSERT(
+						m_allocator == other.m_allocator, "Containers incompatible for move assignment"
+					);
 				}
 				m_header = std::exchange( other.m_header, nullptr );
 			}
@@ -262,7 +265,8 @@ namespace mclo
 		[[nodiscard]] const T* element_data() const noexcept
 		{
 			return std::launder(
-				reinterpret_cast<const T*>( reinterpret_cast<const std::byte*>( m_header ) + data_offset ) );
+				reinterpret_cast<const T*>( reinterpret_cast<const std::byte*>( m_header ) + data_offset )
+			);
 		}
 
 		[[nodiscard]] static constexpr std::size_t total_buffer_count( const Size size ) noexcept

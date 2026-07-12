@@ -36,9 +36,9 @@ TEST_CASE( "packed_int_array max_value is correct", "[packed_int_array]" )
 	static_assert( mclo::packed_int_array<18, 16, std::size_t>::max_value == 0x3FFFF );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array default constructed, all elements are zero",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array default constructed, all elements are zero", "[packed_int_array]", test_types
+)
 {
 	TestType arr;
 
@@ -66,9 +66,9 @@ TEST_CASE( "packed_int_array with zero size, is empty", "[packed_int_array]" )
 	CHECK( arr.empty() );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array fill constructed, all elements have value",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array fill constructed, all elements have value", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;
@@ -119,9 +119,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, set then get, round trips", "[packed
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, set called twice, overwrites previous value",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array, set called twice, overwrites previous value", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;
@@ -138,9 +138,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, set called twice, overwrites previou
 	CHECK( arr.get( 3 ) == 1 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, set one element, does not affect neighbors",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array, set one element, does not affect neighbors", "[packed_int_array]", test_types
+)
 {
 	constexpr auto max_val = TestType::max_value;
 
@@ -153,9 +153,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, set one element, does not affect nei
 	CHECK( arr.get( 8 ) == 0 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, set ascending pattern, get returns correct values",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array, set ascending pattern, get returns correct values", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;
@@ -247,9 +247,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, for_each, visits all elements in ord
 	CHECK( index == test_size );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, exchange, returns old value and sets new",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array, exchange, returns old value and sets new", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;
@@ -401,9 +401,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, equality, filled containers are equa
 	CHECK_FALSE( a != b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, equality, same values set individually are equal",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array, equality, same values set individually are equal", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;
@@ -420,9 +420,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, equality, same values set individual
 	CHECK( a == b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array filled, single element differs, not equal",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array filled, single element differs, not equal", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;
@@ -494,9 +494,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_array, spaceship, first element differs", "
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_array, spaceship, later element determines ordering",
-						 "[packed_int_array]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_array, spaceship, later element determines ordering", "[packed_int_array]", test_types
+)
 {
 	using value_type = typename TestType::value_type;
 	constexpr auto max_val = TestType::max_value;

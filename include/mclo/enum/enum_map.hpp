@@ -114,43 +114,49 @@ namespace mclo
 		}
 
 		/// @brief Orders two iterators by their position.
-		[[nodiscard]] constexpr friend std::strong_ordering operator<=>( const enum_map_iterator& lhs,
-																		 const enum_map_iterator& rhs ) noexcept
+		[[nodiscard]] constexpr friend std::strong_ordering operator<=>(
+			const enum_map_iterator& lhs, const enum_map_iterator& rhs
+		) noexcept
 		{
 			return lhs.m_index <=> rhs.m_index;
 		}
 		/// @brief Compares two iterators for equality by position.
-		[[nodiscard]] constexpr friend bool operator==( const enum_map_iterator& lhs,
-														const enum_map_iterator& rhs ) noexcept
+		[[nodiscard]] constexpr friend bool operator==(
+			const enum_map_iterator& lhs, const enum_map_iterator& rhs
+		) noexcept
 		{
 			return lhs.m_index == rhs.m_index;
 		}
 
 		/// @brief Returns an iterator advanced @p diff entries from @p it.
-		[[nodiscard]] constexpr friend enum_map_iterator operator+( const enum_map_iterator& it,
-																	const difference_type diff ) noexcept
+		[[nodiscard]] constexpr friend enum_map_iterator operator+(
+			const enum_map_iterator& it, const difference_type diff
+		) noexcept
 		{
 			auto temp = it;
 			temp += diff;
 			return temp;
 		}
 		/// @brief Returns an iterator advanced @p diff entries from @p it.
-		[[nodiscard]] constexpr friend enum_map_iterator operator+( const difference_type diff,
-																	const enum_map_iterator& it ) noexcept
+		[[nodiscard]] constexpr friend enum_map_iterator operator+(
+			const difference_type diff, const enum_map_iterator& it
+		) noexcept
 		{
 			return it + diff;
 		}
 		/// @brief Returns an iterator retreated @p diff entries from @p it.
-		[[nodiscard]] constexpr friend enum_map_iterator operator-( const enum_map_iterator& it,
-																	const difference_type diff ) noexcept
+		[[nodiscard]] constexpr friend enum_map_iterator operator-(
+			const enum_map_iterator& it, const difference_type diff
+		) noexcept
 		{
 			auto temp = it;
 			temp -= diff;
 			return temp;
 		}
 		/// @brief Returns the number of entries between @p lhs and @p rhs.
-		[[nodiscard]] constexpr friend difference_type operator-( const enum_map_iterator& lhs,
-																  const enum_map_iterator& rhs ) noexcept
+		[[nodiscard]] constexpr friend difference_type operator-(
+			const enum_map_iterator& lhs, const enum_map_iterator& rhs
+		) noexcept
 		{
 			return lhs.m_index - rhs.m_index;
 		}
@@ -202,8 +208,9 @@ namespace mclo
 
 		/// @brief Constructs a map with every value initialised to a copy of @p fill_value.
 		/// @param fill_value The value broadcast to every key.
-		constexpr explicit enum_map( const_reference fill_value ) noexcept(
-			std::is_nothrow_copy_constructible_v<value_type> )
+		constexpr explicit enum_map(
+			const_reference fill_value
+		) noexcept( std::is_nothrow_copy_constructible_v<value_type> )
 			requires( max_size != 1 )
 			: m_container( mclo::broadcast_array<max_size>( fill_value ) )
 		{
@@ -250,8 +257,10 @@ namespace mclo
 			requires( std::convertible_to<std::iter_reference_t<It>, value_type> )
 		constexpr enum_map( It first, Sentinel last )
 		{
-			MCLO_DEBUG_ASSERT( std::ranges::distance( first, last ) <= max_size,
-							   "Iterator pair is over a range larger than this container's max size" );
+			MCLO_DEBUG_ASSERT(
+				std::ranges::distance( first, last ) <= max_size,
+				"Iterator pair is over a range larger than this container's max size"
+			);
 			std::ranges::copy( first, last, m_container.begin() );
 		}
 
@@ -262,8 +271,9 @@ namespace mclo
 			requires( std::convertible_to<std::ranges::range_reference_t<Range>, value_type> )
 		constexpr explicit enum_map( Range&& range )
 		{
-			MCLO_DEBUG_ASSERT( std::ranges::distance( range ) <= max_size,
-							   "Range size is larger than this container's max size" );
+			MCLO_DEBUG_ASSERT(
+				std::ranges::distance( range ) <= max_size, "Range size is larger than this container's max size"
+			);
 			std::ranges::copy( range, m_container.begin() );
 		}
 

@@ -13,9 +13,11 @@ namespace mclo
 	/// @param find The substring to search for.
 	/// @param replace The text to substitute for each occurrence of @p find.
 	template <typename CharT>
-	void replace_all( std::basic_string<CharT>& string,
-					  const std::basic_string_view<std::type_identity_t<CharT>> find,
-					  const std::basic_string_view<std::type_identity_t<CharT>> replace ) noexcept
+	void replace_all(
+		std::basic_string<CharT>& string,
+		const std::basic_string_view<std::type_identity_t<CharT>> find,
+		const std::basic_string_view<std::type_identity_t<CharT>> replace
+	) noexcept
 	{
 		const std::size_t find_size = find.size();
 		if ( find_size == 0 )

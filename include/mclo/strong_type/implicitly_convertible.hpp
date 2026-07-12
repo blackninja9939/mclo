@@ -33,8 +33,9 @@ namespace mclo::strong_type
 		template <typename Derived>
 		struct mixin
 		{
-			[[nodiscard]] constexpr operator Target() const
-				noexcept( noexcept( static_cast<Target>( std::declval<const Derived&>().value ) ) )
+			[[nodiscard]] constexpr operator Target() const noexcept(
+				noexcept( static_cast<Target>( std::declval<const Derived&>().value ) )
+			)
 			{
 				return static_cast<Target>( static_cast<const Derived&>( *this ).value );
 			}

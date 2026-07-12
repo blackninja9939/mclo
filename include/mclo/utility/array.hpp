@@ -12,7 +12,8 @@ namespace mclo
 	{
 		template <std::size_t size, typename T, std::size_t... indices>
 		[[nodiscard]] constexpr std::array<T, size> broadcast_array_internal(
-			const T& value, std::index_sequence<indices...> ) noexcept( std::is_nothrow_copy_constructible_v<T> )
+			const T& value, std::index_sequence<indices...>
+		) noexcept( std::is_nothrow_copy_constructible_v<T> )
 		{
 			return { ( ( void )indices, value )... };
 		}
@@ -24,8 +25,9 @@ namespace mclo
 	/// @param value The value copied into every element of the array.
 	/// @return A @c std::array<T, size> with each element equal to @p value.
 	template <std::size_t size, typename T>
-	[[nodiscard]] constexpr std::array<T, size> broadcast_array( const T& value ) noexcept(
-		std::is_nothrow_copy_constructible_v<T> )
+	[[nodiscard]] constexpr std::array<T, size> broadcast_array(
+		const T& value
+	) noexcept( std::is_nothrow_copy_constructible_v<T> )
 	{
 		return detail::broadcast_array_internal<size>( value, std::make_index_sequence<size>{} );
 	}
@@ -33,8 +35,9 @@ namespace mclo
 	namespace detail
 	{
 		template <typename OutputIt, typename T, std::size_t... size>
-		constexpr void join_arrays_internal( OutputIt out, const std::array<T, size>&... arrays ) noexcept(
-			std::is_nothrow_copy_assignable_v<T> )
+		constexpr void join_arrays_internal(
+			OutputIt out, const std::array<T, size>&... arrays
+		) noexcept( std::is_nothrow_copy_assignable_v<T> )
 		{
 			( ( out = std::copy( arrays.begin(), arrays.end(), out ) ), ... );
 		}
@@ -46,8 +49,9 @@ namespace mclo
 	/// @param arrays The arrays to concatenate, in order.
 	/// @return A @c std::array<T, (size + ...)> containing the elements of each input array end to end.
 	template <typename T, std::size_t... size>
-	[[nodiscard]] constexpr auto join_arrays( const std::array<T, size>&... arrays ) noexcept(
-		std::is_nothrow_default_constructible_v<T> && std::is_nothrow_copy_assignable_v<T> )
+	[[nodiscard]] constexpr auto join_arrays(
+		const std::array<T, size>&... arrays
+	) noexcept( std::is_nothrow_default_constructible_v<T> && std::is_nothrow_copy_assignable_v<T> )
 	{
 		using result_type = std::array<T, ( size + ... )>;
 		if ( std::is_constant_evaluated() )
@@ -68,8 +72,8 @@ namespace mclo
 	{
 		template <typename T, std::size_t size, std::size_t... indices>
 		[[nodiscard]] constexpr std::array<T, size> to_array_internal(
-			const mclo::span<const T, size> data,
-			std::index_sequence<indices...> ) noexcept( std::is_nothrow_copy_constructible_v<T> )
+			const mclo::span<const T, size> data, std::index_sequence<indices...>
+		) noexcept( std::is_nothrow_copy_constructible_v<T> )
 		{
 			return { ( data[ indices ] )... };
 		}
@@ -81,8 +85,9 @@ namespace mclo
 	/// @param data The span whose elements are copied into the array.
 	/// @return A @c std::array<T, size> containing copies of the span's elements.
 	template <typename T, std::size_t size>
-	[[nodiscard]] constexpr std::array<T, size> to_array( const mclo::span<const T, size> data ) noexcept(
-		std::is_nothrow_copy_constructible_v<T> )
+	[[nodiscard]] constexpr std::array<T, size> to_array(
+		const mclo::span<const T, size> data
+	) noexcept( std::is_nothrow_copy_constructible_v<T> )
 	{
 		return detail::to_array_internal( data, std::make_index_sequence<size>{} );
 	}

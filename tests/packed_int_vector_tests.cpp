@@ -43,8 +43,9 @@ TEST_CASE( "packed_int_vector max_value is correct for specific configurations",
 	// 7-bit max = 0b1111111 = 127
 	static_assert( mclo::packed_int_vector<7, std::uint8_t>::max_value == 0b1111111 );
 	static_assert( mclo::packed_int_vector<7, std::size_t>::max_value == 0b1111111 );
-	static_assert( mclo::packed_int_vector<7, std::size_t, mclo::small_vector<std::size_t, 4>>::max_value ==
-				   0b1111111 );
+	static_assert(
+		mclo::packed_int_vector<7, std::size_t, mclo::small_vector<std::size_t, 4>>::max_value == 0b1111111
+	);
 
 	// 18-bit max = 0x3FFFF = 262143
 	static_assert( mclo::packed_int_vector<18, std::uint32_t>::max_value == 0x3FFFF );
@@ -52,9 +53,9 @@ TEST_CASE( "packed_int_vector max_value is correct for specific configurations",
 	static_assert( mclo::packed_int_vector<18, std::size_t, mclo::small_vector<std::size_t, 4>>::max_value == 0x3FFFF );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector constructed with size, has correct size",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector constructed with size, has correct size", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 
@@ -118,9 +119,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set then get, round trips", "[packe
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set called twice, overwrites previous value",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, set called twice, overwrites previous value", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -138,9 +139,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set called twice, overwrites previo
 	CHECK( vec.get( 3 ) == 1 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set one element, does not affect neighbors",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, set one element, does not affect neighbors", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	constexpr auto max_val = vec_type::max_value;
@@ -154,9 +155,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set one element, does not affect ne
 	CHECK( vec.get( 8 ) == 0 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set ascending pattern, get returns correct values",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, set ascending pattern, get returns correct values", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -167,14 +168,18 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, set ascending pattern, get returns 
 
 	for ( std::size_t i = 0; i < count; ++i )
 	{
-		vec.set( static_cast<typename vec_type::size_type>( i ),
-				 static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		vec.set(
+			static_cast<typename vec_type::size_type>( i ),
+			static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 
 	for ( std::size_t i = 0; i < count; ++i )
 	{
-		CHECK( vec.get( static_cast<typename vec_type::size_type>( i ) ) ==
-			   static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		CHECK(
+			vec.get( static_cast<typename vec_type::size_type>( i ) )
+			== static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 }
 
@@ -345,9 +350,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector default constructed, is empty", "[pa
 	CHECK( vec.size() == 0 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector constructed with size and value, all elements have value",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector constructed with size and value, all elements have value", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	constexpr auto max_val = vec_type::max_value;
@@ -395,9 +400,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, push_back, appends elements", "[pac
 	CHECK( vec.get( 1 ) == max_val );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, push_back many elements, preserves values",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, push_back many elements, preserves values", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -414,8 +419,10 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, push_back many elements, preserves 
 	CHECK( vec.size() == count );
 	for ( std::size_t i = 0; i < count; ++i )
 	{
-		CHECK( vec.get( static_cast<typename vec_type::size_type>( i ) ) ==
-			   static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		CHECK(
+			vec.get( static_cast<typename vec_type::size_type>( i ) )
+			== static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 }
 
@@ -439,9 +446,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, pop_back, removes last element", "[
 	CHECK( vec.get( 2 ) == 0 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector constructed, capacity reflects physical storage",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector constructed, capacity reflects physical storage", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 
@@ -478,9 +485,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, resize from empty, fills with zero"
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, resize from empty with value, fills with value",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, resize from empty with value, fills with value", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	constexpr auto max_val = vec_type::max_value;
@@ -603,9 +610,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, shrink_to_fit, reduces capacity", "
 	CHECK( vec.get( 0 ) == 1 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, clear, empties without changing capacity",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, clear, empties without changing capacity", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	constexpr auto max_val = vec_type::max_value;
@@ -620,9 +627,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, clear, empties without changing cap
 	CHECK( vec.capacity() >= cap_before );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, for_each, visits all elements in order",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, for_each, visits all elements in order", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename vec_type::value_type;
@@ -657,9 +664,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, for_each on empty, is a no-op", "[p
 	CHECK_FALSE( called );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, initializer list constructed, has correct values",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, initializer list constructed, has correct values", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -688,7 +695,8 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, initializer list constructed, has c
 
 TEST_CASE(
 	"packed_int_vector<3, uint8_t>, set values crossing physical boundary, underlying matches expected representation",
-	"[packed_int_vector]" )
+	"[packed_int_vector]"
+)
 {
 	mclo::packed_int_vector<3, std::uint8_t> vec{ 0b010, 0b011, 0b101, 0b111 };
 
@@ -699,9 +707,9 @@ TEST_CASE(
 	CHECK( data[ 1 ] == 0b00001111 ); // padding | v[3] | v[2] high bit
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, exchange, returns old value and sets new",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, exchange, returns old value and sets new", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -733,9 +741,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, exchange, does not affect neighbors
 
 // Comparison tests
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, default constructed are equal",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, equality, default constructed are equal", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 
@@ -758,9 +766,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, filled containers are equ
 	CHECK_FALSE( a != b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, same values set individually are equal",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, equality, same values set individually are equal", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -778,9 +786,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, same values set individua
 	CHECK( a == b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector filled, single element differs, not equal",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector filled, single element differs, not equal", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -820,9 +828,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, empty containers are equa
 	CHECK_FALSE( a != b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, different sizes compare not equal",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, equality, different sizes compare not equal", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 
@@ -833,9 +841,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, different sizes compare n
 	CHECK( a != b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, resize down ignores trailing bits",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, equality, resize down ignores trailing bits", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -860,9 +868,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, resize down ignores trail
 	CHECK( a == b );
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, resize down then compare with fresh container",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, equality, resize down then compare with fresh container", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -872,8 +880,10 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, resize down then compare 
 	vec_type a( 32 );
 	for ( std::size_t i = 0; i < 32; ++i )
 	{
-		a.set( static_cast<typename vec_type::size_type>( i ),
-			   static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		a.set(
+			static_cast<typename vec_type::size_type>( i ),
+			static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 	a.resize( 16 );
 
@@ -881,8 +891,10 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, equality, resize down then compare 
 	vec_type b( 16 );
 	for ( std::size_t i = 0; i < 16; ++i )
 	{
-		b.set( static_cast<typename vec_type::size_type>( i ),
-			   static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		b.set(
+			static_cast<typename vec_type::size_type>( i ),
+			static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 
 	CHECK( a == b );
@@ -935,9 +947,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, spaceship, first element differs", 
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, spaceship, later element determines ordering",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, spaceship, later element determines ordering", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -995,9 +1007,9 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, spaceship, different sizes", "[pack
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "packed_int_vector, spaceship, resize down ignores trailing bits",
-						 "[packed_int_vector]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"packed_int_vector, spaceship, resize down ignores trailing bits", "[packed_int_vector]", test_types
+)
 {
 	using vec_type = typename TestType::vec_type;
 	using value_type = typename TestType::value_type;
@@ -1007,8 +1019,10 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, spaceship, resize down ignores trai
 	vec_type a( 16 );
 	for ( std::size_t i = 0; i < 16; ++i )
 	{
-		a.set( static_cast<typename vec_type::size_type>( i ),
-			   static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		a.set(
+			static_cast<typename vec_type::size_type>( i ),
+			static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 	a.resize( 8 );
 
@@ -1016,8 +1030,10 @@ TEMPLATE_LIST_TEST_CASE( "packed_int_vector, spaceship, resize down ignores trai
 	vec_type b( 8 );
 	for ( std::size_t i = 0; i < 8; ++i )
 	{
-		b.set( static_cast<typename vec_type::size_type>( i ),
-			   static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) ) );
+		b.set(
+			static_cast<typename vec_type::size_type>( i ),
+			static_cast<value_type>( i % ( static_cast<std::size_t>( max_val ) + 1 ) )
+		);
 	}
 
 	CHECK( a == b );

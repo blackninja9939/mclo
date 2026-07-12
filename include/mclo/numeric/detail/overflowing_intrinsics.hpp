@@ -41,8 +41,8 @@ namespace mclo::detail
 		{
 			using uint_type = std::make_unsigned_t<T>;
 			result = static_cast<T>( static_cast<uint_type>( x ) - static_cast<uint_type>( y ) );
-			return ( y > 0 && x < std::numeric_limits<T>::min() + y ) ||
-				   ( y < 0 && x > std::numeric_limits<T>::max() + y );
+			return ( y > 0 && x < std::numeric_limits<T>::min() + y )
+				|| ( y < 0 && x > std::numeric_limits<T>::max() + y );
 		}
 	}
 

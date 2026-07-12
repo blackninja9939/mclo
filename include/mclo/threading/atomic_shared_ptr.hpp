@@ -40,8 +40,9 @@ namespace mclo
 			atomic128<counted_ptr>& m_slot;
 			counted_ptr m_val;
 
-			local_access( atomic128<counted_ptr>& slot,
-						  const std::memory_order order = std::memory_order_relaxed ) noexcept
+			local_access(
+				atomic128<counted_ptr>& slot, const std::memory_order order = std::memory_order_relaxed
+			) noexcept
 				: m_slot( slot )
 				, m_val( slot.load( order ) )
 			{
@@ -212,8 +213,9 @@ namespace mclo
 		/// @param desired The strong reference to store; its ownership is transferred into the slot.
 		/// @param order The memory order for the read-modify-write operation.
 		/// @return The strong reference previously held, or an empty @c intrusive_ptr if none was held.
-		[[nodiscard]] intrusive_ptr<T> exchange( intrusive_ptr<T> desired,
-												 const std::memory_order order = std::memory_order_seq_cst ) noexcept
+		[[nodiscard]] intrusive_ptr<T> exchange(
+			intrusive_ptr<T> desired, const std::memory_order order = std::memory_order_seq_cst
+		) noexcept
 		{
 			const counted_ptr newval{ desired.get(), 0 };
 			const counted_ptr old = m_slot.exchange( newval, order );
@@ -235,10 +237,12 @@ namespace mclo
 		/// @param success The memory order to use if the comparison succeeds.
 		/// @param failure The memory order to use if the comparison fails.
 		/// @return @c true if the exchange took place, @c false otherwise.
-		bool compare_exchange_weak( intrusive_ptr<T>& expected,
-									intrusive_ptr<T> desired,
-									const std::memory_order success = std::memory_order_seq_cst,
-									const std::memory_order failure = std::memory_order_seq_cst ) noexcept
+		bool compare_exchange_weak(
+			intrusive_ptr<T>& expected,
+			intrusive_ptr<T> desired,
+			const std::memory_order success = std::memory_order_seq_cst,
+			const std::memory_order failure = std::memory_order_seq_cst
+		) noexcept
 		{
 			local_access guard( m_slot, failure );
 			if ( guard.get_ptr() != expected.get() )
@@ -278,10 +282,12 @@ namespace mclo
 		/// @param success The memory order to use if the comparison succeeds.
 		/// @param failure The memory order to use if the comparison fails.
 		/// @return @c true if the exchange took place, @c false otherwise.
-		bool compare_exchange_strong( intrusive_ptr<T>& expected,
-									  intrusive_ptr<T> desired,
-									  const std::memory_order success = std::memory_order_seq_cst,
-									  const std::memory_order failure = std::memory_order_seq_cst ) noexcept
+		bool compare_exchange_strong(
+			intrusive_ptr<T>& expected,
+			intrusive_ptr<T> desired,
+			const std::memory_order success = std::memory_order_seq_cst,
+			const std::memory_order failure = std::memory_order_seq_cst
+		) noexcept
 		{
 			const intrusive_ptr<T> local_expected = expected;
 			do
@@ -298,6 +304,6 @@ namespace mclo
 	private:
 		mutable atomic128<counted_ptr> m_slot{
 			counted_ptr{ nullptr, 0 }
-        };
+		};
 	};
 }

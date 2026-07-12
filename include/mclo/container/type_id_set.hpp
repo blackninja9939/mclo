@@ -27,8 +27,9 @@ namespace mclo
 		using iterator = typename Container::iterator;
 		using const_iterator = typename Container::const_iterator;
 
-		static_assert( std::is_same_v<key_type, meta::type_id_t>,
-					   "type_id_set's key type must be mclo::meta::type_id_t" );
+		static_assert(
+			std::is_same_v<key_type, meta::type_id_t>, "type_id_set's key type must be mclo::meta::type_id_t"
+		);
 
 		/// @brief Inserts the identity of type @p T into the set.
 		/// @tparam T The type whose identity to insert.

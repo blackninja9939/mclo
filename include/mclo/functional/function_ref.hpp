@@ -122,10 +122,12 @@ namespace mclo::detail
 		}
 
 		template <typename F>
-			requires( !std::is_same_v<std::remove_cvref_t<F>, function_ref_impl> &&
-					  !detail::nontype_specialization<std::remove_cvref_t<F>> &&
-					  !std::is_member_pointer_v<std::remove_reference_t<F>> &&
-					  is_invocable_using<target_ref<std::remove_reference_t<F>>> )
+			requires(
+				!std::is_same_v<std::remove_cvref_t<F>, function_ref_impl>
+				&& !detail::nontype_specialization<std::remove_cvref_t<F>>
+				&& !std::is_member_pointer_v<std::remove_reference_t<F>>
+				&& is_invocable_using<target_ref<std::remove_reference_t<F>>>
+			)
 		function_ref_impl( F&& f ) noexcept
 		{
 			using T = std::remove_reference_t<F>;
@@ -166,8 +168,10 @@ namespace mclo::detail
 		}
 
 		template <auto f, typename U>
-			requires( !std::is_rvalue_reference_v<U &&> &&
-					  is_invocable_using<decltype( f ), target_ref<std::remove_reference_t<U>>> )
+			requires(
+				!std::is_rvalue_reference_v<U &&>
+				&& is_invocable_using<decltype( f ), target_ref<std::remove_reference_t<U>>>
+			)
 		function_ref_impl( nontype_t<f>, U&& obj ) noexcept
 		{
 			using F = decltype( f );
@@ -217,8 +221,8 @@ namespace mclo::detail
 		constexpr function_ref_impl& operator=( const function_ref_impl& ) noexcept = default;
 
 		template <typename T>
-			requires( !std::is_same_v<std::remove_cvref_t<T>, function_ref_impl> && !std::is_pointer_v<T> &&
-					  !detail::nontype_specialization<T> )
+			requires( !std::is_same_v<std::remove_cvref_t<T>, function_ref_impl> && !std::is_pointer_v<T>
+					  && !detail::nontype_specialization<T> )
 		function_ref_impl& operator=( T ) = delete;
 
 		R operator()( Args... args ) const noexcept( IsNoexcept )

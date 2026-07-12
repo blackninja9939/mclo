@@ -1,10 +1,13 @@
 ---
 BasedOnStyle: Microsoft
 AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
 AlignArrayOfStructures: Right
+AlignOperands: DontAlign
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
+BreakBeforeBinaryOperators: NonAssignment
 BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true

@@ -79,9 +79,9 @@ namespace mclo::detail
 		static constexpr underlying_type one = underlying_type{ 1 };
 
 		template <typename CharT, typename Traits>
-		constexpr void init_from_string( std::basic_string_view<CharT, Traits> str,
-										 const CharT unset_char,
-										 const CharT set_char )
+		constexpr void init_from_string(
+			std::basic_string_view<CharT, Traits> str, const CharT unset_char, const CharT set_char
+		)
 		{
 			if ( const size_type max_size = this->size(); str.size() > max_size )
 			{
@@ -452,8 +452,8 @@ namespace mclo::detail
 			}
 			else
 			{
-				return std::memcmp( m_container.data(), other.m_container.data(), size * sizeof( underlying_type ) ) ==
-					   0;
+				return std::memcmp( m_container.data(), other.m_container.data(), size * sizeof( underlying_type ) )
+					== 0;
 			}
 		}
 
@@ -551,8 +551,8 @@ namespace mclo::detail
 				{
 					const size_type type_index = static_cast<size_type>( index );
 					m_container[ type_index ] = static_cast<std::ptrdiff_t>( value_shift ) <= index
-													? m_container[ type_index - value_shift ]
-													: 0;
+						? m_container[ type_index - value_shift ]
+						: 0;
 				}
 			}
 
@@ -562,8 +562,8 @@ namespace mclo::detail
 				for ( std::ptrdiff_t index = size; 0 < index; --index )
 				{
 					const size_type type_index = static_cast<size_type>( index );
-					m_container[ type_index ] = ( m_container[ type_index ] << pos ) |
-												( m_container[ type_index - 1 ] >> ( bits_per_value - pos ) );
+					m_container[ type_index ] = ( m_container[ type_index ] << pos )
+						| ( m_container[ type_index - 1 ] >> ( bits_per_value - pos ) );
 				}
 
 				m_container[ 0 ] <<= pos;
@@ -588,8 +588,8 @@ namespace mclo::detail
 				{
 					const size_type type_index = static_cast<size_type>( index );
 					m_container[ type_index ] = static_cast<std::ptrdiff_t>( value_shift ) <= size - index
-													? m_container[ type_index + value_shift ]
-													: 0;
+						? m_container[ type_index + value_shift ]
+						: 0;
 				}
 			}
 
@@ -599,8 +599,8 @@ namespace mclo::detail
 				for ( std::ptrdiff_t index = 0; index < size; ++index )
 				{
 					const size_type type_index = static_cast<size_type>( index );
-					m_container[ type_index ] = ( m_container[ type_index ] >> pos ) |
-												( m_container[ type_index + 1 ] << ( bits_per_value - pos ) );
+					m_container[ type_index ] = ( m_container[ type_index ] >> pos )
+						| ( m_container[ type_index + 1 ] << ( bits_per_value - pos ) );
 				}
 
 				m_container[ static_cast<size_type>( size ) ] >>= pos;
@@ -637,11 +637,13 @@ namespace mclo::detail
 		/// @param set_char Character for set bits, defaults to CharT( '1' )
 		/// @return std::basic_string<CharT, Traits, Allocator> of size(), with each character being unset_char or
 		/// set_char for every position in the set
-		template <typename CharT = char,
-				  typename Traits = std::char_traits<CharT>,
-				  typename Allocator = std::allocator<CharT>>
-		constexpr std::basic_string<CharT, Traits, Allocator> to_string( CharT unset_char = CharT( '0' ),
-																		 CharT set_char = CharT( '1' ) ) const
+		template <
+			typename CharT = char,
+			typename Traits = std::char_traits<CharT>,
+			typename Allocator = std::allocator<CharT>>
+		constexpr std::basic_string<CharT, Traits, Allocator> to_string(
+			CharT unset_char = CharT( '0' ), CharT set_char = CharT( '1' )
+		) const
 		{
 			const size_type length = size();
 			std::basic_string<CharT, Traits, Allocator> result( length, unset_char );
@@ -687,14 +689,16 @@ namespace mclo::detail
 		// Construct from undelying container, no trimming is performed, derived class should expose
 		// with its own trimming logic
 
-		constexpr bitset_base( const underlying_container& container ) noexcept(
-			std::is_nothrow_copy_constructible_v<underlying_container> )
+		constexpr bitset_base(
+			const underlying_container& container
+		) noexcept( std::is_nothrow_copy_constructible_v<underlying_container> )
 			: m_container( container )
 		{
 		}
 
-		constexpr bitset_base( underlying_container&& container ) noexcept(
-			std::is_nothrow_move_constructible_v<underlying_container> )
+		constexpr bitset_base(
+			underlying_container&& container
+		) noexcept( std::is_nothrow_move_constructible_v<underlying_container> )
 			: m_container( std::move( container ) )
 		{
 		}

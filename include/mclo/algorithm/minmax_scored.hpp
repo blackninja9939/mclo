@@ -18,10 +18,11 @@ namespace mclo
 	/// @param compare Comparator returning true when the first score orders before the second.
 	/// @return Iterator to the lowest-scored element, or @p last if the range is empty. The first
 	/// such element is returned on ties.
-	template <std::forward_iterator It,
-			  std::sentinel_for<It> Sentinel,
-			  std::invocable<std::iter_reference_t<It>> Scorer,
-			  typename Compare = std::less<>>
+	template <
+		std::forward_iterator It,
+		std::sentinel_for<It> Sentinel,
+		std::invocable<std::iter_reference_t<It>> Scorer,
+		typename Compare = std::less<>>
 	[[nodiscard]] constexpr It min_scored( It first, Sentinel last, Scorer score, Compare compare = {} )
 	{
 		if ( first == last )
@@ -59,10 +60,11 @@ namespace mclo
 	/// @param compare Comparator returning true when the first score orders before the second.
 	/// @return Iterator to the highest-scored element, or @p last if the range is empty. The first
 	/// such element is returned on ties.
-	template <std::forward_iterator It,
-			  std::sentinel_for<It> Sentinel,
-			  std::invocable<std::iter_reference_t<It>> Scorer,
-			  typename Compare = std::less<>>
+	template <
+		std::forward_iterator It,
+		std::sentinel_for<It> Sentinel,
+		std::invocable<std::iter_reference_t<It>> Scorer,
+		typename Compare = std::less<>>
 	[[nodiscard]] constexpr It max_scored( It first, Sentinel last, Scorer score, Compare compare = {} )
 	{
 		if ( first == last )
@@ -100,14 +102,14 @@ namespace mclo
 	/// @param compare Comparator returning true when the first score orders before the second.
 	/// @return A pair of iterators to the lowest- and highest-scored elements respectively, or
 	/// { last, last } if the range is empty.
-	template <std::forward_iterator It,
-			  std::sentinel_for<It> Sentinel,
-			  std::invocable<std::iter_reference_t<It>> Scorer,
-			  typename Compare = std::less<>>
-	[[nodiscard]] constexpr std::pair<It, It> minmax_scored( It first,
-															 Sentinel last,
-															 Scorer score,
-															 Compare compare = {} )
+	template <
+		std::forward_iterator It,
+		std::sentinel_for<It> Sentinel,
+		std::invocable<std::iter_reference_t<It>> Scorer,
+		typename Compare = std::less<>>
+	[[nodiscard]] constexpr std::pair<It, It> minmax_scored(
+		It first, Sentinel last, Scorer score, Compare compare = {}
+	)
 	{
 		if ( first == last )
 		{

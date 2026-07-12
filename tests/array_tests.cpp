@@ -17,7 +17,8 @@ namespace
 TEST_CASE( "broadcast_array", "[array]" )
 {
 	constexpr std::array<int, 5> manual{
-		broadcast_value, broadcast_value, broadcast_value, broadcast_value, broadcast_value };
+		broadcast_value, broadcast_value, broadcast_value, broadcast_value, broadcast_value
+	};
 
 	constexpr std::array arr = mclo::broadcast_array<5>( broadcast_value );
 	STATIC_CHECK( are_equal( arr, manual ) );

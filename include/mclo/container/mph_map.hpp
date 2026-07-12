@@ -9,8 +9,9 @@ namespace mclo
 		struct pair_key
 		{
 			template <typename T, typename U>
-			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr const T& operator()( const std::pair<const T, U>& pair )
-				MCLO_CONST_CALL_OPERATOR noexcept
+			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr const T& operator()(
+				const std::pair<const T, U>& pair
+			) MCLO_CONST_CALL_OPERATOR noexcept
 			{
 				return pair.first;
 			}
@@ -29,11 +30,12 @@ namespace mclo
 	/// @tparam Size The exact number of key/value pairs.
 	/// @tparam Hash The salted hash functor for keys.
 	/// @tparam KeyEquals The key equality comparator.
-	template <typename Key,
-			  typename Value,
-			  std::size_t Size,
-			  typename Hash = mph_hash<Key>,
-			  typename KeyEquals = std::equal_to<Key>>
+	template <
+		typename Key,
+		typename Value,
+		std::size_t Size,
+		typename Hash = mph_hash<Key>,
+		typename KeyEquals = std::equal_to<Key>>
 	class mph_map : public detail::mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>
 	{
 		using base = detail::mph_base<Key, std::pair<const Key, Value>, Hash, KeyEquals, detail::pair_key, Size>;

@@ -228,8 +228,9 @@ TEST_CASE( "TwoSetsWithDifferentValues_Merge_ResultHasAll", "[enum_set]" )
 
 	const auto result = set1.merge( set2 );
 
-	_expectSetContains( result,
-						std::array{ test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
+	_expectSetContains(
+		result, std::array{ test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth }
+	);
 }
 
 TEST_CASE( "SetWithValues_MergeInPlaceWithEmpty_ResultUnchanged", "[enum_set]" )
@@ -397,7 +398,8 @@ TEST_CASE( "EmptySet_ComplementInPlace_ResultIsFull", "[enum_set]" )
 	set.complement();
 
 	_expectSetContains(
-		set, std::array{ test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
+		set, std::array{ test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth }
+	);
 }
 
 TEST_CASE( "EmptySet_Complement_ResultIsFull", "[enum_set]" )
@@ -407,14 +409,15 @@ TEST_CASE( "EmptySet_Complement_ResultIsFull", "[enum_set]" )
 	const auto result = set.complement();
 
 	_expectSetContains(
-		result,
-		std::array{ test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth } );
+		result, std::array{ test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth }
+	);
 }
 
 TEST_CASE( "FullSet_ComplementInPlace_ResultIsEmpty", "[enum_set]" )
 {
 	mclo::enum_set<test_enum> set{
-		test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth };
+		test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth
+	};
 
 	set.complement();
 
@@ -424,7 +427,8 @@ TEST_CASE( "FullSet_ComplementInPlace_ResultIsEmpty", "[enum_set]" )
 TEST_CASE( "FullSet_Complement_ResultIsEmpty", "[enum_set]" )
 {
 	const mclo::enum_set<test_enum> set{
-		test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth };
+		test_enum::first, test_enum::second, test_enum::third, test_enum::fourth, test_enum::fifth
+	};
 
 	const auto result = set.complement();
 

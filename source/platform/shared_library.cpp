@@ -14,8 +14,9 @@ namespace mclo
 		impl( const impl& ) = delete;
 		impl& operator=( const impl& ) = delete;
 
-		virtual std::error_code load( const std::filesystem::path& module_path,
-									  const shared_library_load_flags flags ) = 0;
+		virtual std::error_code load(
+			const std::filesystem::path& module_path, const shared_library_load_flags flags
+		) = 0;
 		virtual void unload() noexcept = 0;
 		[[nodiscard]] virtual void* get( const char* const name ) const noexcept = 0;
 
@@ -88,8 +89,9 @@ namespace
 			this->unload();
 		}
 
-		std::error_code load( const std::filesystem::path& module_path,
-							  const mclo::shared_library_load_flags flags ) override
+		std::error_code load(
+			const std::filesystem::path& module_path, const mclo::shared_library_load_flags flags
+		) override
 		{
 			int mode = flags.contains( mclo::shared_library_load_flag::lazy ) ? RTLD_LAZY : RTLD_NOW;
 			mode |= flags.contains( mclo::shared_library_load_flag::global ) ? RTLD_GLOBAL : RTLD_LOCAL;
@@ -143,8 +145,9 @@ namespace mclo
 		}
 	}
 
-	expected<void, std::error_code> shared_library::load( const std::filesystem::path& path,
-														  const shared_library_load_flags flags )
+	expected<void, std::error_code> shared_library::load(
+		const std::filesystem::path& path, const shared_library_load_flags flags
+	)
 	{
 		std::shared_ptr<impl> new_impl = make_shared_library_impl();
 		const std::error_code error = new_impl->load( path, flags );

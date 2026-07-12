@@ -23,8 +23,8 @@ namespace mclo
 	/// @brief True if @p c is an ASCII punctuation character.
 	[[nodiscard]] constexpr bool is_punct( const char c ) noexcept
 	{
-		return ( c >= '!' && c <= '/' ) || ( c >= ':' && c <= '@' ) || ( c >= '[' && c <= '`' ) ||
-			   ( c >= '{' && c <= '~' );
+		return ( c >= '!' && c <= '/' ) || ( c >= ':' && c <= '@' ) || ( c >= '[' && c <= '`' )
+			|| ( c >= '{' && c <= '~' );
 	}
 	/// @brief True if @p c is a decimal digit (@c '0' to @c '9').
 	[[nodiscard]] constexpr bool is_digit( const char c ) noexcept

@@ -33,9 +33,9 @@ namespace mclo
 		/// @return The result of @c lhs <=> rhs if available, otherwise a @c std::weak_ordering synthesised from
 		/// @c operator<.
 		template <typename T, typename U>
-		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr auto operator()( const T& lhs,
-																		   const U& rhs ) MCLO_CONST_CALL_OPERATOR
-			noexcept( noexcept( lhs < rhs ) && noexcept( rhs < lhs ) )
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr auto operator()(
+			const T& lhs, const U& rhs
+		) MCLO_CONST_CALL_OPERATOR noexcept( noexcept( lhs < rhs ) && noexcept( rhs < lhs ) )
 			requires requires {
 				{ lhs < rhs } -> detail::BooleanTestable;
 				{ rhs < lhs } -> detail::BooleanTestable;

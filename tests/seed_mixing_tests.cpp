@@ -58,6 +58,8 @@ TEST_CASE( "mix_seed accepts signed and mixed integral positions", "[random][see
 {
 	CONSTEVAL_CHECK( mclo::mix_seed( -1 ) == mclo::mix_seed( -1 ) );
 	CONSTEVAL_CHECK( mclo::mix_seed( -1 ) != mclo::mix_seed( 1 ) );
-	CONSTEVAL_CHECK( mclo::mix_seed( std::int32_t{ 2 }, std::uint64_t{ 3 } ) ==
-					 mclo::mix_seed( std::int32_t{ 2 }, std::uint64_t{ 3 } ) );
+	CONSTEVAL_CHECK(
+		mclo::mix_seed( std::int32_t{ 2 }, std::uint64_t{ 3 } )
+		== mclo::mix_seed( std::int32_t{ 2 }, std::uint64_t{ 3 } )
+	);
 }

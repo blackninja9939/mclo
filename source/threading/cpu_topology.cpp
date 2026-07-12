@@ -21,8 +21,8 @@ namespace
 		mclo::cpu_topology topology;
 
 		DWORD length = 0;
-		if ( GetLogicalProcessorInformationEx( RelationProcessorCore, nullptr, &length ) ||
-			 GetLastError() != ERROR_INSUFFICIENT_BUFFER )
+		if ( GetLogicalProcessorInformationEx( RelationProcessorCore, nullptr, &length )
+			 || GetLastError() != ERROR_INSUFFICIENT_BUFFER )
 		{
 			return topology;
 		}

@@ -28,8 +28,9 @@ namespace mclo
 		/// @param seed The running seed accumulator.
 		/// @param position The next position to fold in.
 		/// @return The updated seed.
-		[[nodiscard]] constexpr std::uint64_t mix_seed_into( const std::uint64_t seed,
-															 const std::uint64_t position ) noexcept
+		[[nodiscard]] constexpr std::uint64_t mix_seed_into(
+			const std::uint64_t seed, const std::uint64_t position
+		) noexcept
 		{
 			// Multiplied by a golden-ratio derived odd constant to advance the running seed between positions.
 			return avalanche_bits( seed * UINT64_C( 0x9e3779b97f4a7c15 ) + avalanche_bits( position ) );

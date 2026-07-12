@@ -43,8 +43,9 @@ TEST_CASE( "lazy_convert_construct constructible from lambda with capture and ca
 	CHECK( value == 2 );
 }
 
-TEST_CASE( "lazy_convert_construct used with unordered_map::try_emplace calls lazy only on success insert",
-		   "[utility]" )
+TEST_CASE(
+	"lazy_convert_construct used with unordered_map::try_emplace calls lazy only on success insert", "[utility]"
+)
 {
 	int calls = 0;
 	std::unordered_map<int, int> map;

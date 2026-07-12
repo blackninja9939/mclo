@@ -42,12 +42,14 @@ namespace mclo
 	/// @param salt An optional seed mixed into the hash.
 	/// @return The case-insensitive hash value, equal for strings differing only in ASCII case.
 	template <typename String>
-	[[nodiscard]] constexpr std::size_t string_hash_ignore_case( const String& string,
-																 const std::size_t salt = 0 ) noexcept
+	[[nodiscard]] constexpr std::size_t string_hash_ignore_case(
+		const String& string, const std::size_t salt = 0
+	) noexcept
 	{
 		const string_view_t<String> view{ string };
 		return mclo::constexpr_hash(
-			view.data(), view.size(), salt, static_cast<char ( * )( char ) noexcept>( to_lower ) );
+			view.data(), view.size(), salt, static_cast<char ( * )( char ) noexcept>( to_lower )
+		);
 	}
 
 	/// @brief Transparent hash functor wrapping @ref string_hash, suitable for heterogeneous string lookup.
@@ -56,8 +58,9 @@ namespace mclo
 		using is_transparent = void;
 
 		template <typename String>
-		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const String& string )
-			MCLO_CONST_CALL_OPERATOR noexcept
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+			const String& string
+		) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			return mclo::string_hash( string );
 		}
@@ -69,8 +72,9 @@ namespace mclo
 		using is_transparent = void;
 
 		template <typename String>
-		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()( const String& string )
-			MCLO_CONST_CALL_OPERATOR noexcept
+		[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
+			const String& string
+		) MCLO_CONST_CALL_OPERATOR noexcept
 		{
 			return mclo::string_hash_ignore_case( string );
 		}

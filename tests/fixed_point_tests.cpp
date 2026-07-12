@@ -372,8 +372,9 @@ TEST_CASE( "fixed_point format default is exact and trimmed", "[math][fixed_poin
 {
 	CHECK( std::format( "{}", binary( 1.5 ) ) == "1.5" );
 	CHECK( std::format( "{}", decimal( 3 ) ) == "3" );
-	CHECK( std::format( "{}", mclo::fixed_d64( mclo::from_underlying, 9223372036854775807LL ) ) ==
-		   "9223372036.854775807" );
+	CHECK(
+		std::format( "{}", mclo::fixed_d64( mclo::from_underlying, 9223372036854775807LL ) ) == "9223372036.854775807"
+	);
 }
 
 TEST_CASE( "fixed_point format with precision rounds half away from zero", "[math][fixed_point]" )

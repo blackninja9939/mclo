@@ -41,7 +41,8 @@ TEMPLATE_LIST_TEST_CASE( "lookup_ref_or with present key returns reference to va
 	static_assert(
 		!requires( const TestType& m, const typename TestType::key_type& k ) {
 			mclo::lookup_ref_or( m, k, typename TestType::mapped_type{} );
-		}, "lookup_ref_or should not accept an rvalue default" );
+		}, "lookup_ref_or should not accept an rvalue default"
+	);
 
 	TestType map;
 	const auto& mapValue = map[ 1 ] = "found";

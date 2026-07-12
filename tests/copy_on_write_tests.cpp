@@ -60,8 +60,9 @@ TEST_CASE( "in place constructed copy_on_write, dereference, stores constructed 
 	CHECK_FALSE( cow.valueless_after_move() );
 }
 
-TEST_CASE( "in place constructed copy_on_write with initializer list, dereference, stores constructed value",
-		   "[copy_on_write]" )
+TEST_CASE(
+	"in place constructed copy_on_write with initializer list, dereference, stores constructed value", "[copy_on_write]"
+)
 {
 	const mclo::copy_on_write<std::string> cow( std::in_place, { 'a', 'b', 'c', 'd', 'e' } );
 
@@ -102,18 +103,21 @@ TEST_CASE( "copy_on_write, allocator in place construct, stores constructed valu
 {
 	mclo::memory_arena arena( 256 );
 	const mclo::copy_on_write<std::string, mclo::arena_allocator<std::string>> cow(
-		std::allocator_arg, arena, std::in_place, 5, 'a' );
+		std::allocator_arg, arena, std::in_place, 5, 'a'
+	);
 
 	CHECK( *cow == "aaaaa" );
 	CHECK( cow.get_allocator() == arena );
 }
 
-TEST_CASE( "copy_on_write, allocator in place construct with initializer list, stores constructed value",
-		   "[copy_on_write]" )
+TEST_CASE(
+	"copy_on_write, allocator in place construct with initializer list, stores constructed value", "[copy_on_write]"
+)
 {
 	mclo::memory_arena arena( 256 );
 	const mclo::copy_on_write<std::string, mclo::arena_allocator<std::string>> cow(
-		std::allocator_arg, arena, std::in_place, { 'a', 'b', 'c' } );
+		std::allocator_arg, arena, std::in_place, { 'a', 'b', 'c' }
+	);
 
 	CHECK( *cow == "abc" );
 	CHECK( cow.get_allocator() == arena );
@@ -446,7 +450,8 @@ TEST_CASE( "shared copy_on_write, two-arg modify, does not modify in place", "[c
 		[ & ]( const std::string& s ) -> std::string {
 			constructed_new = true;
 			return s + " world";
-		} );
+		}
+	);
 
 	CHECK( *cow1 == "hello world" );
 	CHECK( *cow2 == "hello" );
@@ -469,7 +474,8 @@ TEST_CASE( "unique copy_on_write, two-arg modify, modifies in place", "[copy_on_
 		[ & ]( const std::string& s ) -> std::string {
 			constructed_new = true;
 			return s + " world";
-		} );
+		}
+	);
 
 	CHECK( *cow == "hello world" );
 	CHECK( modified_in_place );

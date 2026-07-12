@@ -83,7 +83,8 @@ TEST_CASE( "atomic128 concurrent increments do not tear", "[atomic128]" )
 					desired = pair{ expected.a + 1, expected.b + 1 };
 				}
 				while ( !value.compare_exchange_weak(
-					expected, desired, std::memory_order_relaxed, std::memory_order_relaxed ) );
+					expected, desired, std::memory_order_relaxed, std::memory_order_relaxed
+				) );
 			}
 		} );
 	}

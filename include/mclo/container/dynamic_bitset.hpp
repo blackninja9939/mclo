@@ -11,8 +11,9 @@ namespace mclo
 	/// @brief Bitset with a dynamic size set at run time
 	/// @tparam UnderlyingContainer Container for the underlying dynamic set, must be a contiguous range
 	/// @tparam UnderlyingType Type of integer to store in the vector for the bitset
-	template <std::unsigned_integral UnderlyingType = std::size_t,
-			  std::ranges::contiguous_range UnderlyingContainer = std::vector<UnderlyingType>>
+	template <
+		std::unsigned_integral UnderlyingType = std::size_t,
+		std::ranges::contiguous_range UnderlyingContainer = std::vector<UnderlyingType>>
 	class dynamic_bitset
 		: public detail::bitset_base<dynamic_bitset<UnderlyingType, UnderlyingContainer>, UnderlyingContainer>
 	{
@@ -31,13 +32,16 @@ namespace mclo
 		/// @param size how many bits in the container are used, that is set or unset, must be <= container size *
 		/// CHAR_BIT
 		/// @param container to copy from
-		constexpr dynamic_bitset( const size_type size, const underlying_container& container ) noexcept(
-			std::is_nothrow_copy_constructible_v<underlying_container> )
+		constexpr dynamic_bitset(
+			const size_type size, const underlying_container& container
+		) noexcept( std::is_nothrow_copy_constructible_v<underlying_container> )
 			: base( container )
 			, m_size( size )
 		{
-			MCLO_DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
-							   "Size greater than max bits per value in container" );
+			MCLO_DEBUG_ASSERT(
+				m_size <= base::m_container.size() * base::bits_per_value,
+				"Size greater than max bits per value in container"
+			);
 			derived_trim();
 		}
 
@@ -46,13 +50,16 @@ namespace mclo
 		/// @param size how many bits in the container are used, that is set or unset, must be <= container size *
 		/// CHAR_BIT
 		/// @param container to move from
-		constexpr dynamic_bitset( const size_type size, underlying_container&& container ) noexcept(
-			std::is_nothrow_move_constructible_v<underlying_container> )
+		constexpr dynamic_bitset(
+			const size_type size, underlying_container&& container
+		) noexcept( std::is_nothrow_move_constructible_v<underlying_container> )
 			: base( std::move( container ) )
 			, m_size( size )
 		{
-			MCLO_DEBUG_ASSERT( m_size <= base::m_container.size() * base::bits_per_value,
-							   "Size greater than max bits per value in container" );
+			MCLO_DEBUG_ASSERT(
+				m_size <= base::m_container.size() * base::bits_per_value,
+				"Size greater than max bits per value in container"
+			);
 			derived_trim();
 		}
 
@@ -66,9 +73,9 @@ namespace mclo
 		/// @brief Construct from a string like type of unset_char and set_char
 		template <typename StringLike, typename CharT = typename StringLike::value_type>
 			requires std::convertible_to<StringLike, std::basic_string_view<CharT, typename StringLike::traits_type>>
-		constexpr explicit dynamic_bitset( const StringLike& str,
-										   const CharT unset_char = CharT( '0' ),
-										   const CharT set_char = CharT( '1' ) )
+		constexpr explicit dynamic_bitset(
+			const StringLike& str, const CharT unset_char = CharT( '0' ), const CharT set_char = CharT( '1' )
+		)
 			: dynamic_bitset( static_cast<size_type>( str.size() ) )
 		{
 			using view = std::basic_string_view<CharT, typename StringLike::traits_type>;

@@ -32,7 +32,8 @@ namespace mclo::detail
 	{
 		static constexpr std::size_t bits_per_underlying = sizeof( UnderlyingType ) * CHAR_BIT;
 		static constexpr UnderlyingType mask = static_cast<UnderlyingType>(
-			std::numeric_limits<UnderlyingType>::max() >> ( bits_per_underlying - BitWidth ) );
+			std::numeric_limits<UnderlyingType>::max() >> ( bits_per_underlying - BitWidth )
+		);
 
 		// Branchless single unaligned load get() at byte_offset = bit_offset / 8, then shift right by
 		// sub_bit = bit_offset % 8. Valid when the loaded sizeof(UnderlyingType) window always
@@ -66,8 +67,9 @@ namespace mclo::detail
 
 	public:
 		static_assert( BitWidth > 0, "BitWidth must be at least 1" );
-		static_assert( BitWidth <= bits_per_underlying,
-					   "BitWidth must not exceed the number of bits in UnderlyingType" );
+		static_assert(
+			BitWidth <= bits_per_underlying, "BitWidth must not exceed the number of bits in UnderlyingType"
+		);
 
 		using value_type = uint_least_t<BitWidth>;
 		using size_type = SizeType;
@@ -145,8 +147,10 @@ namespace mclo::detail
 				const std::size_t bits_in_first = bits_per_underlying - bit_index;
 				if ( bits_in_first < bit_width )
 				{
-					MCLO_DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
-									   "Physical index out of bounds on boundary crossing" );
+					MCLO_DEBUG_ASSERT(
+						physical_index + 1 < as_derived().derived_physical_size(),
+						"Physical index out of bounds on boundary crossing"
+					);
 					const std::size_t remaining_bits = bit_width - bits_in_first;
 					auto& next_physical = data[ physical_index + 1 ];
 					next_physical &=
@@ -183,8 +187,10 @@ namespace mclo::detail
 				const std::size_t bits_in_first = bits_per_underlying - bit_index;
 				if ( bits_in_first < bit_width )
 				{
-					MCLO_DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
-									   "Physical index out of bounds on boundary crossing" );
+					MCLO_DEBUG_ASSERT(
+						physical_index + 1 < as_derived().derived_physical_size(),
+						"Physical index out of bounds on boundary crossing"
+					);
 					auto& next_physical = data[ physical_index + 1 ];
 
 					old_val |= static_cast<underlying_type>( next_physical << bits_in_first );
@@ -359,8 +365,9 @@ namespace mclo::detail
 		/// falls back to element-wise get() only from the first differing physical element onward.
 		/// Raw physical comparison cannot determine ordering (lower logical indices occupy less
 		/// significant bits), but matching physical elements guarantee matching logical elements.
-		[[nodiscard]] friend constexpr std::strong_ordering operator<=>( const Derived& lhs,
-																		 const Derived& rhs ) noexcept
+		[[nodiscard]] friend constexpr std::strong_ordering operator<=>(
+			const Derived& lhs, const Derived& rhs
+		) noexcept
 		{
 			const size_type common = lhs.size() < rhs.size() ? lhs.size() : rhs.size();
 			const std::size_t common_bits = static_cast<std::size_t>( common ) * BitWidth;
@@ -400,8 +407,10 @@ namespace mclo::detail
 				const std::size_t bits_in_first = bits_per_underlying - bit_index;
 				if ( bits_in_first < BitWidth )
 				{
-					MCLO_DEBUG_ASSERT( physical_index + 1 < as_derived().derived_physical_size(),
-									   "Physical index out of bounds on boundary crossing" );
+					MCLO_DEBUG_ASSERT(
+						physical_index + 1 < as_derived().derived_physical_size(),
+						"Physical index out of bounds on boundary crossing"
+					);
 					value |= static_cast<underlying_type>( data[ physical_index + 1 ] << bits_in_first );
 				}
 			}

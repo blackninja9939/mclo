@@ -40,14 +40,18 @@ namespace mclo
 		template <typename State, typename StateVariant, typename... Transitions>
 		struct validate_state_transitions<State, StateVariant, std::variant<Transitions...>>
 		{
-			static_assert( ( std::is_invocable_v<const Transitions&, State&&> && ... ),
-						   "Every transition a state authors must be invocable with that state as an rvalue." );
+			static_assert(
+				( std::is_invocable_v<const Transitions&, State&&> && ... ),
+				"Every transition a state authors must be invocable with that state as an rvalue."
+			);
 
 			static_assert(
-				( is_state_alternative<std::remove_cvref_t<std::invoke_result_t<const Transitions&, State&&>>,
-									   StateVariant> &&
-				  ... ),
-				"Every transition must return one of the state machine's state types." );
+				( is_state_alternative<
+					  std::remove_cvref_t<std::invoke_result_t<const Transitions&, State&&>>,
+					  StateVariant>
+				  && ... ),
+				"Every transition must return one of the state machine's state types."
+			);
 
 			static constexpr bool value = true;
 		};
@@ -70,8 +74,9 @@ namespace mclo
 
 		using variant_type = std::variant<States...>;
 
-		static_assert( ( detail::validate_state_transitions<States, variant_type, state_transitions_t<States>>::value &&
-						 ... ) );
+		static_assert(
+			( detail::validate_state_transitions<States, variant_type, state_transitions_t<States>>::value && ... )
+		);
 
 	public:
 		/// @brief Constructs the machine in its first state, value-initialised.
@@ -110,11 +115,14 @@ namespace mclo
 							using next_state = std::remove_cvref_t<
 								std::invoke_result_t<decltype( chosen ), std::remove_reference_t<decltype( state )>>>;
 							m_state.template emplace<next_state>(
-								std::forward<decltype( chosen )>( chosen )( std::move( state ) ) );
+								std::forward<decltype( chosen )>( chosen )( std::move( state ) )
+							);
 						},
-						std::move( transition ) );
+						std::move( transition )
+					);
 				},
-				m_state );
+				m_state
+			);
 			return old_index != m_state.index();
 		}
 
@@ -221,9 +229,11 @@ namespace mclo
 			static constexpr void emit( Visitor& visitor )
 			{
 				( visitor(
-					  state_machine_edge<State,
-										 Transitions,
-										 std::remove_cvref_t<std::invoke_result_t<const Transitions&, State&&>>>{} ),
+					  state_machine_edge<
+						  State,
+						  Transitions,
+						  std::remove_cvref_t<std::invoke_result_t<const Transitions&, State&&>>>{}
+				  ),
 				  ... );
 			}
 		};

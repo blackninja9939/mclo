@@ -205,7 +205,8 @@ TEMPLATE_LIST_TEST_CASE( "tagged_unique_ptr", "[tagged_ptr]", test_types )
 TEMPLATE_LIST_TEST_CASE( "tagged_unique_ptr piecewise", "[tagged_ptr]", test_types )
 {
 	mclo::tagged_unique_ptr ptr = mclo::make_tagged_unique<int, TestType>(
-		std::piecewise_construct, std::forward_as_tuple( 42 ), std::forward_as_tuple( 6 ) );
+		std::piecewise_construct, std::forward_as_tuple( 42 ), std::forward_as_tuple( 6 )
+	);
 
 	CHECK( ptr.tag() == 6 );
 
@@ -263,7 +264,8 @@ TEST_CASE( "tagged_unique_ptr piecewise throw", "[tagged_ptr]" )
 	try
 	{
 		const mclo::tagged_unique_ptr ptr = mclo::make_tagged_unique<const allocation_tracker, throwing_tester>(
-			std::piecewise_construct, std::forward_as_tuple( allocation_active ), std::forward_as_tuple( 5 ) );
+			std::piecewise_construct, std::forward_as_tuple( allocation_active ), std::forward_as_tuple( 5 )
+		);
 	}
 	catch ( ... )
 	{

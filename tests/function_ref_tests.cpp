@@ -55,8 +55,10 @@ TEST_CASE( "function_ref referring to a lambda, when invoked, then forwards the 
 	CHECK( ref( 4 ) == 7 );
 }
 
-TEST_CASE( "function_ref referring to a stateful callable, when the callable mutates, then it observes changes",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref referring to a stateful callable, when the callable mutates, then it observes changes",
+	"[function_ref]"
+)
 {
 	// Given
 	int total = 0;
@@ -80,8 +82,9 @@ TEST_CASE( "function_ref referring to a function pointer, when invoked, then cal
 	CHECK( ref( 8 ) == -8 );
 }
 
-TEST_CASE( "function_ref with a noexcept signature bound to a noexcept function, when invoked, then calls it",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref with a noexcept signature bound to a noexcept function, when invoked, then calls it", "[function_ref]"
+)
 {
 	// Given
 	const mclo::function_ref<int( int, int ) noexcept> ref = &free_add;
@@ -91,8 +94,10 @@ TEST_CASE( "function_ref with a noexcept signature bound to a noexcept function,
 	static_assert( std::is_nothrow_invocable_r_v<int, decltype( ref ), int, int> );
 }
 
-TEST_CASE( "function_ref with a const signature bound to a const-callable object, when invoked, then calls it",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref with a const signature bound to a const-callable object, when invoked, then calls it",
+	"[function_ref]"
+)
 {
 	// Given
 	const multiplier times_three{ 3 };
@@ -102,8 +107,10 @@ TEST_CASE( "function_ref with a const signature bound to a const-callable object
 	CHECK( ref( 4 ) == 12 );
 }
 
-TEST_CASE( "function_ref bound to a member function via nontype and an object, when invoked, then calls the member",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref bound to a member function via nontype and an object, when invoked, then calls the member",
+	"[function_ref]"
+)
 {
 	// Given
 	counter object;
@@ -119,8 +126,10 @@ TEST_CASE( "function_ref bound to a member function via nontype and an object, w
 	CHECK( object.value == 5 );
 }
 
-TEST_CASE( "function_ref bound to a const member function via nontype and a pointer, when invoked, then calls it",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref bound to a const member function via nontype and a pointer, when invoked, then calls it",
+	"[function_ref]"
+)
 {
 	// Given
 	const counter object{ 42 };
@@ -130,8 +139,9 @@ TEST_CASE( "function_ref bound to a const member function via nontype and a poin
 	CHECK( ref() == 42 );
 }
 
-TEST_CASE( "function_ref bound to a free function via nontype, when invoked, then calls the function",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref bound to a free function via nontype, when invoked, then calls the function", "[function_ref]"
+)
 {
 	// Given
 	const mclo::function_ref<int( int )> ref( mclo::nontype<&free_negate> );
@@ -140,8 +150,9 @@ TEST_CASE( "function_ref bound to a free function via nontype, when invoked, the
 	CHECK( ref( 6 ) == -6 );
 }
 
-TEST_CASE( "function_ref referring to one callable, when copy-assigned from another, then it rebinds",
-		   "[function_ref]" )
+TEST_CASE(
+	"function_ref referring to one callable, when copy-assigned from another, then it rebinds", "[function_ref]"
+)
 {
 	// Given
 	auto first = []( const int value ) { return value + 1; };

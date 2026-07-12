@@ -12,9 +12,9 @@ namespace mclo
 	{
 		[[nodiscard]] int compare_ignore_case_simd( const char* lhs, const char* rhs, std::size_t size ) noexcept;
 
-		[[nodiscard]] constexpr int compare_ignore_case_scalar( const char* lhs,
-																const char* rhs,
-																std::size_t size ) noexcept
+		[[nodiscard]] constexpr int compare_ignore_case_scalar(
+			const char* lhs, const char* rhs, std::size_t size
+		) noexcept
 		{
 			while ( size-- > 0 )
 			{
@@ -95,7 +95,8 @@ namespace mclo
 			using is_transparent = void;
 
 			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr std::size_t operator()(
-				const std::string_view lhs, const std::string_view rhs ) MCLO_CONST_CALL_OPERATOR noexcept
+				const std::string_view lhs, const std::string_view rhs
+			) MCLO_CONST_CALL_OPERATOR noexcept
 			{
 				return BaseOp{}( mclo::compare_ignore_case( lhs, rhs ), 0 );
 			}
@@ -107,7 +108,8 @@ namespace mclo
 			using is_transparent = void;
 
 			[[nodiscard]] MCLO_STATIC_CALL_OPERATOR constexpr bool operator()(
-				const std::string_view lhs, const std::string_view rhs ) MCLO_CONST_CALL_OPERATOR noexcept
+				const std::string_view lhs, const std::string_view rhs
+			) MCLO_CONST_CALL_OPERATOR noexcept
 			{
 				return mclo::equal_ignore_case( lhs, rhs ) == Equal;
 			}

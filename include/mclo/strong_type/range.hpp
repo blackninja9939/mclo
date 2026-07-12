@@ -18,42 +18,48 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] constexpr auto begin() noexcept(
-				noexcept( std::ranges::begin( std::declval<typename Derived::value_type&>() ) ) )
+				noexcept( std::ranges::begin( std::declval<typename Derived::value_type&>() ) )
+			)
 				requires std::ranges::range<typename Derived::value_type>
 			{
 				return std::ranges::begin( static_cast<Derived&>( *this ).value );
 			}
 
-			[[nodiscard]] constexpr auto begin() const
-				noexcept( noexcept( std::ranges::begin( std::declval<const typename Derived::value_type&>() ) ) )
+			[[nodiscard]] constexpr auto begin() const noexcept(
+				noexcept( std::ranges::begin( std::declval<const typename Derived::value_type&>() ) )
+			)
 				requires std::ranges::range<const typename Derived::value_type>
 			{
 				return std::ranges::begin( static_cast<const Derived&>( *this ).value );
 			}
 
 			[[nodiscard]] constexpr auto end() noexcept(
-				noexcept( std::ranges::end( std::declval<typename Derived::value_type&>() ) ) )
+				noexcept( std::ranges::end( std::declval<typename Derived::value_type&>() ) )
+			)
 				requires std::ranges::range<typename Derived::value_type>
 			{
 				return std::ranges::end( static_cast<Derived&>( *this ).value );
 			}
 
-			[[nodiscard]] constexpr auto end() const
-				noexcept( noexcept( std::ranges::end( std::declval<const typename Derived::value_type&>() ) ) )
+			[[nodiscard]] constexpr auto end() const noexcept(
+				noexcept( std::ranges::end( std::declval<const typename Derived::value_type&>() ) )
+			)
 				requires std::ranges::range<const typename Derived::value_type>
 			{
 				return std::ranges::end( static_cast<const Derived&>( *this ).value );
 			}
 
-			[[nodiscard]] constexpr auto size() const
-				noexcept( noexcept( std::ranges::size( std::declval<const typename Derived::value_type&>() ) ) )
+			[[nodiscard]] constexpr auto size() const noexcept(
+				noexcept( std::ranges::size( std::declval<const typename Derived::value_type&>() ) )
+			)
 				requires std::ranges::sized_range<const typename Derived::value_type>
 			{
 				return std::ranges::size( static_cast<const Derived&>( *this ).value );
 			}
 
-			[[nodiscard]] constexpr bool empty() const
-				noexcept( noexcept( std::ranges::empty( std::declval<const typename Derived::value_type&>() ) ) )
+			[[nodiscard]] constexpr bool empty() const noexcept(
+				noexcept( std::ranges::empty( std::declval<const typename Derived::value_type&>() ) )
+			)
 				requires std::ranges::sized_range<const typename Derived::value_type>
 			{
 				return std::ranges::empty( static_cast<const Derived&>( *this ).value );

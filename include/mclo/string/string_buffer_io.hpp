@@ -10,7 +10,8 @@ namespace mclo
 	/// @brief Writes the contents of @p str to the output stream @p os.
 	template <typename CharT, std::size_t N>
 	std::basic_ostream<CharT, std::char_traits<CharT>>& operator<<(
-		std::basic_ostream<CharT, std::char_traits<CharT>>& os, const basic_string_buffer<CharT, N>& str )
+		std::basic_ostream<CharT, std::char_traits<CharT>>& os, const basic_string_buffer<CharT, N>& str
+	)
 	{
 		using view = typename basic_string_buffer<CharT, N>::view_type;
 		return os << view( str );
@@ -21,7 +22,8 @@ namespace mclo
 	/// and respects the stream's field width. Reading stops early if the buffer's capacity is reached.
 	template <typename CharT, std::size_t N>
 	std::basic_istream<CharT, std::char_traits<CharT>>& operator>>(
-		std::basic_istream<CharT, std::char_traits<CharT>>& is, basic_string_buffer<CharT, N>& str )
+		std::basic_istream<CharT, std::char_traits<CharT>>& is, basic_string_buffer<CharT, N>& str
+	)
 	{
 		using traits = std::char_traits<CharT>;
 		using istream_type = std::basic_istream<CharT, traits>;

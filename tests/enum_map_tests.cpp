@@ -80,7 +80,7 @@ TEST_CASE( "enum_map range constructor", "[enum_map]" )
          { test_enum::first, 1 },
          { test_enum::second, 2 },
 		 }
-    };
+	};
 	const mclo::enum_map<test_enum, int> map{ data };
 	CHECK( map.size() == 4 );
 	CHECK( map.front() == 1 );
@@ -200,7 +200,7 @@ TEST_CASE( "BiMap" )
          { test_enum::second, "second" },
          { test_enum::third, "third" },
          { test_enum::fourth, "fourth" } }
-    };
+	};
 	mclo::enum_bi_map<test_enum, std::string_view> map( arr );
 
 	const auto result = map.lookup_from_data( "second" );

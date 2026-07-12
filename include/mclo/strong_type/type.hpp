@@ -90,13 +90,15 @@ namespace mclo::strong_type
 		/// @brief The wrapped value.
 		value_type value;
 
-		static_assert( !detail::contains_mixin<semiregular, Mixins...> || std::semiregular<value_type>,
-					   "The semiregular and regular mixins require the value type to satisfy the std::semiregular "
-					   "concept" );
+		static_assert(
+			!detail::contains_mixin<semiregular, Mixins...> || std::semiregular<value_type>,
+			"The semiregular and regular mixins require the value type to satisfy the std::semiregular "
+			"concept"
+		);
 
 		constexpr type() noexcept( std::is_nothrow_default_constructible_v<value_type> )
-			requires( detail::contains_mixin<default_initialized, Mixins...> &&
-					  std::is_default_constructible_v<value_type> )
+			requires( detail::contains_mixin<default_initialized, Mixins...>
+					  && std::is_default_constructible_v<value_type> )
 		= default;
 
 		constexpr explicit type( const value_type& raw ) noexcept( std::is_nothrow_copy_constructible_v<value_type> )

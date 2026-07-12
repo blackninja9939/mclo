@@ -69,8 +69,9 @@ namespace mclo
 		static constexpr bool is_integer = std::is_integral_v<Tag> || std::is_enum_v<Tag>;
 
 		using tag_storage_type = mclo::uint_least_t<sizeof( Tag ) * CHAR_BIT>;
-		static_assert( std::is_convertible_v<tag_storage_type, packed_type>,
-					   "Tag type is too large to fit in a uintptr_t" );
+		static_assert(
+			std::is_convertible_v<tag_storage_type, packed_type>, "Tag type is too large to fit in a uintptr_t"
+		);
 
 		[[nodiscard]] static constexpr packed_type pack_tag_unchecked( const Tag tag ) noexcept
 		{
@@ -87,8 +88,9 @@ namespace mclo
 	public:
 		static_assert( std::is_trivially_destructible_v<tag_type>, "Tag type must be trivially destructible" );
 		static_assert( std::is_trivially_copyable_v<tag_type>, "Tag type must be trivially copyable" );
-		static_assert( detail::is_zero_initializeable_v<tag_type>,
-					   "Tag type must be able to be initialized with all bits zero" );
+		static_assert(
+			detail::is_zero_initializeable_v<tag_type>, "Tag type must be able to be initialized with all bits zero"
+		);
 
 		/// @brief Reports whether the given tag value fits in the available spare bits.
 		/// @param tag The tag value to test.
@@ -255,8 +257,10 @@ namespace mclo
 		[[nodiscard]] static packed_type pack_ptr( pointer ptr ) noexcept
 		{
 			const auto ptr_bits = reinterpret_cast<packed_type>( ptr );
-			MCLO_DEBUG_ASSERT( ( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ),
-							   "Ptr is too strictly aligned, it must be aligned to at least Alignment" );
+			MCLO_DEBUG_ASSERT(
+				( ptr_bits == 0 || std::bit_floor( ptr_bits ) >= free_lower_bits ),
+				"Ptr is too strictly aligned, it must be aligned to at least Alignment"
+			);
 			return ptr_bits << free_upper_bits;
 		}
 		[[nodiscard]] static pointer unpack_ptr( packed_type ptr ) noexcept
@@ -428,9 +432,9 @@ namespace mclo
 	/// @param tag_args A tuple of arguments forwarded to the constructor of @p Tag.
 	/// @return A @ref tagged_unique_ptr owning the new object with the constructed tag.
 	template <typename T, typename Tag, typename... TArgs, typename... TagArgs>
-	[[nodiscard]] tagged_unique_ptr<T, Tag> make_tagged_unique( std::piecewise_construct_t,
-																std::tuple<TArgs...> object_args,
-																std::tuple<TagArgs...> tag_args )
+	[[nodiscard]] tagged_unique_ptr<T, Tag> make_tagged_unique(
+		std::piecewise_construct_t, std::tuple<TArgs...> object_args, std::tuple<TagArgs...> tag_args
+	)
 	{
 		// If Tag construction throws we ensure we delete the allocated object despite not yet having constructed
 		// the owning tagged_unique_ptr

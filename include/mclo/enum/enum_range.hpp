@@ -124,30 +124,34 @@ namespace mclo
 		[[nodiscard]] constexpr std::strong_ordering operator<=>( const enum_iterator& other ) const noexcept = default;
 
 		/// @brief Returns an iterator advanced @p diff enumerators from @p it.
-		[[nodiscard]] constexpr friend enum_iterator operator+( const enum_iterator& it,
-																const difference_type diff ) noexcept
+		[[nodiscard]] constexpr friend enum_iterator operator+(
+			const enum_iterator& it, const difference_type diff
+		) noexcept
 		{
 			auto temp = it;
 			temp += diff;
 			return temp;
 		}
 		/// @brief Returns an iterator advanced @p diff enumerators from @p it.
-		[[nodiscard]] constexpr friend enum_iterator operator+( const difference_type diff,
-																const enum_iterator& it ) noexcept
+		[[nodiscard]] constexpr friend enum_iterator operator+(
+			const difference_type diff, const enum_iterator& it
+		) noexcept
 		{
 			return it + diff;
 		}
 		/// @brief Returns an iterator retreated @p diff enumerators from @p it.
-		[[nodiscard]] constexpr friend enum_iterator operator-( const enum_iterator& it,
-																const difference_type diff ) noexcept
+		[[nodiscard]] constexpr friend enum_iterator operator-(
+			const enum_iterator& it, const difference_type diff
+		) noexcept
 		{
 			auto temp = it;
 			temp -= diff;
 			return temp;
 		}
 		/// @brief Returns the number of enumerators between @p lhs and @p rhs.
-		[[nodiscard]] constexpr friend difference_type operator-( const enum_iterator& lhs,
-																  const enum_iterator& rhs ) noexcept
+		[[nodiscard]] constexpr friend difference_type operator-(
+			const enum_iterator& lhs, const enum_iterator& rhs
+		) noexcept
 		{
 			return static_cast<difference_type>( lhs.m_value ) - static_cast<difference_type>( rhs.m_value );
 		}
@@ -203,7 +207,8 @@ namespace mclo
 				MCLO_DEBUG_ASSERT(
 					last != enum_size<TEnum>,
 					"This constructor is inclusive to its arguments, so passing in EnumSize will include it in the "
-					"range, this is likely an error, either use the default or exclusive_enum_range constructor" );
+					"range, this is likely an error, either use the default or exclusive_enum_range constructor"
+				);
 			}
 		}
 

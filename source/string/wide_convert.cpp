@@ -38,8 +38,9 @@ std::wstring mclo::to_wstring( const std::string_view str )
 	const int size = std::mbsrtowcs( nullptr, &str.data(), 0, &state );
 	if ( size < 0 )
 	{
-		throw std::system_error( std::make_error_code( errno ),
-								 "Failed to determine size for conversion to wide string" );
+		throw std::system_error(
+			std::make_error_code( errno ), "Failed to determine size for conversion to wide string"
+		);
 	}
 
 	std::wstring result( size, L'\0' );
@@ -70,7 +71,8 @@ std::string mclo::from_wstring( const std::wstring_view str )
 
 	std::string result( size_needed, '\0' );
 	WideCharToMultiByte(
-		CP_UTF8, 0, str.data(), static_cast<int>( str.size() ), result.data(), size_needed, nullptr, nullptr );
+		CP_UTF8, 0, str.data(), static_cast<int>( str.size() ), result.data(), size_needed, nullptr, nullptr
+	);
 	return result;
 #else
 	std::mbstate_t state{};
@@ -78,8 +80,9 @@ std::string mclo::from_wstring( const std::wstring_view str )
 	const int size = std::wcsrtombs( nullptr, &src, 0, &state );
 	if ( size < 0 )
 	{
-		throw std::system_error( std::make_error_code( errno ),
-								 "Failed to determine size for conversion to narrow string" );
+		throw std::system_error(
+			std::make_error_code( errno ), "Failed to determine size for conversion to narrow string"
+		);
 	}
 
 	std::string result( size, '\0' );

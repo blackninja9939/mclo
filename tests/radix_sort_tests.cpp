@@ -141,13 +141,16 @@ TEST_CASE( "radix_sort random bool input, radix_sort, same result as std::stable
 
 	std::stable_sort( expected.get(), expected.get() + data_size );
 	const bool* const actual = result == mclo::radix_sort_result::in_output ? output.get() : source.get();
-	CHECK_THAT( mclo::span( actual, data_size ),
-				Catch::Matchers::RangeEquals( mclo::span( expected.get(), data_size ) ) );
+	CHECK_THAT(
+		mclo::span( actual, data_size ), Catch::Matchers::RangeEquals( mclo::span( expected.get(), data_size ) )
+	);
 }
 
-TEMPLATE_LIST_TEST_CASE( "radix_sort random input, radix_sort, same result as std::stable_sort",
-						 "[algorithm][radix_sort]",
-						 non_bool_test_cases )
+TEMPLATE_LIST_TEST_CASE(
+	"radix_sort random input, radix_sort, same result as std::stable_sort",
+	"[algorithm][radix_sort]",
+	non_bool_test_cases
+)
 {
 	using value_type = typename TestType::value_type;
 	using key_extractor = typename TestType::key_extractor;

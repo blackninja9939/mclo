@@ -43,8 +43,9 @@ TEST_CASE( "default constructed intrusive_forward_list, is empty", "[intrusive][
 	CHECK( std::ranges::distance( list ) == 0 );
 }
 
-TEST_CASE( "intrusive_forward_list constructed from iterator pair, contains elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list constructed from iterator pair, contains elements", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 4, 5 };
 
@@ -87,8 +88,10 @@ TEST_CASE( "empty intrusive_forward_list, push_front, contains element", "[intru
 	CHECK_THAT( list, RangeEquals( std::array{ object } ) );
 }
 
-TEST_CASE( "empty intrusive_forward_list, push_front multiple, contains elements in reverse insertion order",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"empty intrusive_forward_list, push_front multiple, contains elements in reverse insertion order",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
 	mclo::intrusive_forward_list<test_type> list;
@@ -136,8 +139,9 @@ TEST_CASE( "non-empty intrusive_forward_list, clear, is empty", "[intrusive][int
 	CHECK( std::ranges::distance( list ) == 0 );
 }
 
-TEST_CASE( "empty intrusive_forward_list, insert_after before_begin, contains element",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"empty intrusive_forward_list, insert_after before_begin, contains element", "[intrusive][intrusive_forward_list]"
+)
 {
 	test_type object{ 3 };
 	mclo::intrusive_forward_list<test_type> list;
@@ -149,8 +153,9 @@ TEST_CASE( "empty intrusive_forward_list, insert_after before_begin, contains el
 	CHECK_THAT( list, RangeEquals( std::array{ object } ) );
 }
 
-TEST_CASE( "non-empty intrusive_forward_list, insert_after begin, inserts after begin",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"non-empty intrusive_forward_list, insert_after begin, inserts after begin", "[intrusive][intrusive_forward_list]"
+)
 {
 	test_type object{ 3 };
 	test_type object2{ 4 };
@@ -164,8 +169,10 @@ TEST_CASE( "non-empty intrusive_forward_list, insert_after begin, inserts after 
 	CHECK_THAT( list, RangeEquals( std::array{ object, object2 } ) );
 }
 
-TEST_CASE( "empty intrusive_forward_list, insert_after range after before_begin, contains elements in order",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"empty intrusive_forward_list, insert_after range after before_begin, contains elements in order",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
 	mclo::intrusive_forward_list<test_type> list;
@@ -177,8 +184,9 @@ TEST_CASE( "empty intrusive_forward_list, insert_after range after before_begin,
 	CHECK_THAT( list, RangeEquals( objects ) );
 }
 
-TEST_CASE( "non-empty intrusive_forward_list, insert_after range, inserts after pos",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"non-empty intrusive_forward_list, insert_after range, inserts after pos", "[intrusive][intrusive_forward_list]"
+)
 {
 	test_type object{ 10 };
 	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
@@ -194,8 +202,9 @@ TEST_CASE( "non-empty intrusive_forward_list, insert_after range, inserts after 
 	CHECK_THAT( list, RangeEquals( check ) );
 }
 
-TEST_CASE( "non-empty intrusive_forward_list, reverse, contains reversed elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"non-empty intrusive_forward_list, reverse, contains reversed elements", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects{ 0, 1, 2, 3, 4 };
 	mclo::intrusive_forward_list<test_type> list( objects );
@@ -207,8 +216,9 @@ TEST_CASE( "non-empty intrusive_forward_list, reverse, contains reversed element
 	CHECK_THAT( list, RangeEquals( objects | std::views::reverse ) );
 }
 
-TEST_CASE( "two intrusive_forward_lists, splice_after entire list, moves all elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"two intrusive_forward_lists, splice_after entire list, moves all elements", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 4, 5, 6 };
 	mclo::intrusive_forward_list<test_type> fl1( objects.begin(), objects.begin() + 3 );
@@ -220,8 +230,9 @@ TEST_CASE( "two intrusive_forward_lists, splice_after entire list, moves all ele
 	CHECK_THAT( fl1, RangeEquals( std::vector<test_type>{ 4, 5, 6, 1, 2, 3 } ) );
 }
 
-TEST_CASE( "two intrusive_forward_lists, splice_after single element, moves one element",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"two intrusive_forward_lists, splice_after single element, moves one element", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 4, 5, 6 };
 	mclo::intrusive_forward_list<test_type> fl1( objects.begin(), objects.begin() + 3 );
@@ -234,8 +245,9 @@ TEST_CASE( "two intrusive_forward_lists, splice_after single element, moves one 
 	CHECK_THAT( fl2, RangeEquals( std::vector<test_type>{ 5, 6 } ) );
 }
 
-TEST_CASE( "two intrusive_forward_lists, splice_after range, moves range of elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"two intrusive_forward_lists, splice_after range, moves range of elements", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	mclo::intrusive_forward_list<test_type> fl1( objects.begin(), objects.begin() + 3 );
@@ -249,8 +261,10 @@ TEST_CASE( "two intrusive_forward_lists, splice_after range, moves range of elem
 	CHECK_THAT( fl2, RangeEquals( std::vector<test_type>{ 4, 7, 8 } ) );
 }
 
-TEST_CASE( "empty and non-empty intrusive_forward_list, splice_after entire list, moves all elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"empty and non-empty intrusive_forward_list, splice_after entire list, moves all elements",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 4, 5, 6 };
 	mclo::intrusive_forward_list<test_type> fl1;
@@ -284,8 +298,10 @@ TEST_CASE( "intrusive_forward_list with no duplicates, unique, unchanged", "[int
 	CHECK_THAT( list, RangeEquals( objects ) );
 }
 
-TEST_CASE( "intrusive_forward_list with all elements identical, unique, removes all but one",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list with all elements identical, unique, removes all but one",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects{ 1, 1, 1, 1, 1 };
 	mclo::intrusive_forward_list<test_type> list( objects );
@@ -296,8 +312,10 @@ TEST_CASE( "intrusive_forward_list with all elements identical, unique, removes 
 	CHECK_THAT( list, RangeEquals( std::vector<test_type>{ 1 } ) );
 }
 
-TEST_CASE( "intrusive_forward_list with consecutive duplicates, unique, removes duplicates",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list with consecutive duplicates, unique, removes duplicates",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects{ 1, 1, 2, 2, 3, 3, 3, 4, 5, 5 };
 	mclo::intrusive_forward_list<test_type> list( objects );
@@ -308,8 +326,9 @@ TEST_CASE( "intrusive_forward_list with consecutive duplicates, unique, removes 
 	CHECK_THAT( list, RangeEquals( std::vector<test_type>{ 1, 2, 3, 4, 5 } ) );
 }
 
-TEST_CASE( "intrusive_forward_list with non-consecutive duplicates, unique, unchanged",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list with non-consecutive duplicates, unique, unchanged", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects{ 1, 2, 1, 3, 2, 3, 4 };
 	mclo::intrusive_forward_list<test_type> list( objects );
@@ -382,8 +401,9 @@ TEST_CASE( "empty and single element intrusive_forward_list, sort, unchanged", "
 	CHECK_THAT( single, RangeEquals( objects ) );
 }
 
-TEST_CASE( "intrusive_forward_list, sort with custom comparator, is sorted descending",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list, sort with custom comparator, is sorted descending", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 3, 1, 4, 5, 2 };
 	mclo::intrusive_forward_list<test_type> fl( objects );
@@ -393,8 +413,9 @@ TEST_CASE( "intrusive_forward_list, sort with custom comparator, is sorted desce
 	CHECK_THAT( fl, RangeEquals( std::vector<test_type>{ 5, 4, 3, 2, 1 } ) );
 }
 
-TEST_CASE( "two sorted intrusive_forward_lists, merge, contains all elements in order",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"two sorted intrusive_forward_lists, merge, contains all elements in order", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> lhs_objects = { 1, 3, 5, 7 };
 	std::vector<test_type> rhs_objects = { 2, 4, 6, 8 };
@@ -407,8 +428,9 @@ TEST_CASE( "two sorted intrusive_forward_lists, merge, contains all elements in 
 	CHECK_THAT( lhs, RangeEquals( std::vector<test_type>{ 1, 2, 3, 4, 5, 6, 7, 8 } ) );
 }
 
-TEST_CASE( "intrusive_forward_list, merge with empty operands, preserves elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list, merge with empty operands, preserves elements", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3 };
 
@@ -423,8 +445,10 @@ TEST_CASE( "intrusive_forward_list, merge with empty operands, preserves element
 	CHECK_THAT( into_empty, RangeEquals( objects ) );
 }
 
-TEST_CASE( "two sorted intrusive_forward_lists of uneven length with duplicates, merge, contains all elements in order",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"two sorted intrusive_forward_lists of uneven length with duplicates, merge, contains all elements in order",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> lhs_objects = { 1, 2, 2, 9 };
 	std::vector<test_type> rhs_objects = { 2, 3 };
@@ -437,8 +461,9 @@ TEST_CASE( "two sorted intrusive_forward_lists of uneven length with duplicates,
 	CHECK_THAT( lhs, RangeEquals( std::vector<test_type>{ 1, 2, 2, 2, 3, 9 } ) );
 }
 
-TEST_CASE( "non-empty intrusive_forward_list, move construct, transfers elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"non-empty intrusive_forward_list, move construct, transfers elements", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 4, 5 };
 	mclo::intrusive_forward_list<test_type> source( objects );
@@ -481,8 +506,10 @@ TEST_CASE( "two intrusive_forward_lists, swap, exchanges contents", "[intrusive]
 	CHECK_THAT( rhs, RangeEquals( rhs_objects ) );
 }
 
-TEST_CASE( "intrusive_forward_list with matching elements, remove, erases matching elements",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list with matching elements, remove, erases matching elements",
+	"[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 2, 4, 2 };
 	mclo::intrusive_forward_list<test_type> list( objects );
@@ -493,8 +520,9 @@ TEST_CASE( "intrusive_forward_list with matching elements, remove, erases matchi
 	CHECK_THAT( list, RangeEquals( std::vector<test_type>{ 1, 3, 4 } ) );
 }
 
-TEST_CASE( "intrusive_forward_list, remove_if, erases elements matching predicate",
-		   "[intrusive][intrusive_forward_list]" )
+TEST_CASE(
+	"intrusive_forward_list, remove_if, erases elements matching predicate", "[intrusive][intrusive_forward_list]"
+)
 {
 	std::vector<test_type> objects = { 1, 2, 3, 4, 5, 6 };
 	mclo::intrusive_forward_list<test_type> list( objects );

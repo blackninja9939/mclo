@@ -41,7 +41,8 @@ TEMPLATE_LIST_TEST_CASE( "mph_map::find", "[mph]", test_types )
 {
 	static constexpr auto mk = &make<TestType>;
 	static constexpr mclo::mph_map<TestType, char, 3> map{
-		{ { { mk( "42" ), 'h' }, { mk( "109" ), 'g' }, { mk( "-32" ), 'j' } } } };
+		{ { { mk( "42" ), 'h' }, { mk( "109" ), 'g' }, { mk( "-32" ), 'j' } } }
+	};
 	static constexpr auto it = map.find( mk( "42" ) );
 	STATIC_REQUIRE( it != map.end() );
 	STATIC_CHECK( it->first == mk( "42" ) );
@@ -52,7 +53,8 @@ TEMPLATE_LIST_TEST_CASE( "mph_map::contains", "[mph]", test_types )
 {
 	static constexpr auto mk = &make<TestType>;
 	static constexpr mclo::mph_map<TestType, char, 3> map{
-		{ { { mk( "42" ), 'h' }, { mk( "109" ), 'g' }, { mk( "-32" ), 'j' } } } };
+		{ { { mk( "42" ), 'h' }, { mk( "109" ), 'g' }, { mk( "-32" ), 'j' } } }
+	};
 	STATIC_CHECK( map.contains( mk( "109" ) ) );
 }
 

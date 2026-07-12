@@ -57,9 +57,8 @@ namespace mclo
 		constexpr bool valid_pointer_conversion = std::is_convertible_v<From ( * )[], To ( * )[]>;
 
 		template <typename It, typename T>
-		concept span_compatible_iterator =
-			std::contiguous_iterator<It> &&
-			valid_pointer_conversion<std::remove_reference_t<std::iter_reference_t<It>>, T>;
+		concept span_compatible_iterator = std::contiguous_iterator<It>
+			&& valid_pointer_conversion<std::remove_reference_t<std::iter_reference_t<It>>, T>;
 
 		// clang-format off
 		template <typename Range, typename T>
@@ -108,14 +107,17 @@ namespace mclo
 		}
 
 		template <detail::span_compatible_iterator<T> It, std::sized_sentinel_for<It> Sentinel>
-		explicit( extent != dynamic_extent ) constexpr span( const It first,
-															 const Sentinel last ) noexcept( noexcept( last - first ) )
+		explicit( extent != dynamic_extent ) constexpr span( const It first, const Sentinel last ) noexcept(
+			noexcept( last - first )
+		)
 			: base( std::to_address( first ), static_cast<size_type>( last - first ) )
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				MCLO_DEBUG_ASSERT( static_cast<size_type>( last - first ) == extent,
-								   "Iterator pair distance was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT(
+					static_cast<size_type>( last - first ) == extent,
+					"Iterator pair distance was not actually equal to static extent"
+				);
 			}
 		}
 
@@ -134,8 +136,9 @@ namespace mclo
 		}
 
 		template <typename U, std::size_t N>
-			requires( ( extent == dynamic_extent || N == extent ) &&
-					  detail::valid_pointer_conversion<const U, element_type> )
+			requires(
+				( extent == dynamic_extent || N == extent ) && detail::valid_pointer_conversion<const U, element_type>
+			)
 		constexpr span( const std::array<U, N>& arr ) noexcept
 			: base( arr.data(), N )
 		{
@@ -147,8 +150,9 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				MCLO_DEBUG_ASSERT( std::ranges::size( range ) == extent,
-								   "Range distance was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT(
+					std::ranges::size( range ) == extent, "Range distance was not actually equal to static extent"
+				);
 			}
 		}
 
@@ -158,14 +162,17 @@ namespace mclo
 		{
 			if constexpr ( extent != dynamic_extent )
 			{
-				MCLO_DEBUG_ASSERT( init_list.size() == extent,
-								   "Range distance was not actually equal to static extent" );
+				MCLO_DEBUG_ASSERT(
+					init_list.size() == extent, "Range distance was not actually equal to static extent"
+				);
 			}
 		}
 
 		template <typename U, std::size_t N>
-			requires( ( extent == dynamic_extent || N == dynamic_extent || extent == N ) &&
-					  detail::valid_pointer_conversion<U, element_type> )
+			requires(
+				( extent == dynamic_extent || N == dynamic_extent || extent == N )
+				&& detail::valid_pointer_conversion<U, element_type>
+			)
 		explicit( extent != dynamic_extent && N == dynamic_extent ) constexpr span( const span<U, N>& other ) noexcept
 			: base( other.data(), other.size() )
 		{
@@ -272,14 +279,15 @@ namespace mclo
 					MCLO_DEBUG_ASSERT( Count <= m_size - Offset, "Count is out of range" );
 				}
 			}
-			using return_type =
-				span<element_type,
-					 Count != dynamic_extent ? Count : ( extent != dynamic_extent ? extent - Offset : dynamic_extent )>;
+			using return_type = span<
+				element_type,
+				Count != dynamic_extent ? Count : ( extent != dynamic_extent ? extent - Offset : dynamic_extent )>;
 			return return_type( m_data + Offset, Count == dynamic_extent ? m_size - Offset : Count );
 		}
 
-		[[nodiscard]] constexpr auto subspan( const size_type offset,
-											  const size_type count = dynamic_extent ) const noexcept
+		[[nodiscard]] constexpr auto subspan(
+			const size_type offset, const size_type count = dynamic_extent
+		) const noexcept
 		{
 			MCLO_DEBUG_ASSERT( offset <= m_size, "Offset is out of range" );
 			MCLO_DEBUG_ASSERT( count == dynamic_extent || count <= m_size - offset, "Count is out of range" );

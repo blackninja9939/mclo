@@ -19,8 +19,10 @@ namespace mclo
 	template <std::floating_point Float, std::unsigned_integral Underlying, std::unsigned_integral Intermediary>
 	class normalized_float
 	{
-		static_assert( sizeof( Intermediary ) > sizeof( Underlying ),
-					   "Intermediary must be larger than underlying to fit a multiplication result" );
+		static_assert(
+			sizeof( Intermediary ) > sizeof( Underlying ),
+			"Intermediary must be larger than underlying to fit a multiplication result"
+		);
 
 		static constexpr Underlying scale = std::numeric_limits<Underlying>::max();
 
@@ -68,44 +70,50 @@ namespace mclo
 			return m_value <=> other.m_value;
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator+( const normalized_float lhs,
-																   const normalized_float rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator+(
+			const normalized_float lhs, const normalized_float rhs
+		) noexcept
 		{
 			return { from_underlying, mclo::saturating_add( lhs.m_value, rhs.m_value ) };
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator-( const normalized_float lhs,
-																   const normalized_float rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator-(
+			const normalized_float lhs, const normalized_float rhs
+		) noexcept
 		{
 			return { from_underlying, mclo::saturating_sub( lhs.m_value, rhs.m_value ) };
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator*( const normalized_float lhs,
-																   const normalized_float rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator*(
+			const normalized_float lhs, const normalized_float rhs
+		) noexcept
 		{
 			// cast truncates overflow value back into saturated range directly
 			const auto full = static_cast<Intermediary>( lhs.m_value ) * static_cast<Intermediary>( rhs.m_value );
 			return { from_underlying, static_cast<Underlying>( full / scale ) };
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator*( const normalized_float lhs,
-																   const Underlying rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator*(
+			const normalized_float lhs, const Underlying rhs
+		) noexcept
 		{
 			// cast truncates overflow value back into saturated range directly
 			const auto full = static_cast<Intermediary>( lhs.m_value ) * static_cast<Intermediary>( rhs );
 			return { from_underlying, static_cast<Underlying>( full ) };
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator*( const Underlying lhs,
-																   const normalized_float rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator*(
+			const Underlying lhs, const normalized_float rhs
+		) noexcept
 		{
 			// cast truncates overflow value back into saturated range directly
 			const auto full = static_cast<Intermediary>( lhs ) * static_cast<Intermediary>( rhs.m_value );
 			return { from_underlying, static_cast<Underlying>( full ) };
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator/( const normalized_float lhs,
-																   const normalized_float rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator/(
+			const normalized_float lhs, const normalized_float rhs
+		) noexcept
 		{
 			// If lhs > rhs then division will result in a multiplication so we must saturate back
 			const auto full =
@@ -113,8 +121,9 @@ namespace mclo
 			return { from_underlying, mclo::saturating_cast<Underlying>( full ) };
 		}
 
-		[[nodiscard]] constexpr friend normalized_float operator/( const normalized_float lhs,
-																   const Underlying rhs ) noexcept
+		[[nodiscard]] constexpr friend normalized_float operator/(
+			const normalized_float lhs, const Underlying rhs
+		) noexcept
 		{
 			// Integer division truncates to zero and always results in a smaller value when rhs is an integer
 			// so we do not need to handle any saturation manually

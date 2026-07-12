@@ -33,9 +33,9 @@ TEMPLATE_LIST_TEST_CASE( "saturating_add performs saturated addition", "[math][s
 	CONSTEVAL_CHECK( mclo::saturating_add( T( 0 ), min ) == min );
 }
 
-TEMPLATE_LIST_TEST_CASE( "saturating_sub performs saturated subtraction",
-						 "[math][saturated_math]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE(
+	"saturating_sub performs saturated subtraction", "[math][saturated_math]", mclo::meta::integers
+)
 {
 	using T = TestType;
 	constexpr T max = std::numeric_limits<T>::max();
@@ -56,9 +56,9 @@ TEMPLATE_LIST_TEST_CASE( "saturating_sub performs saturated subtraction",
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "saturating_mul performs saturated multiplication",
-						 "[math][saturated_math]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE(
+	"saturating_mul performs saturated multiplication", "[math][saturated_math]", mclo::meta::integers
+)
 {
 	using T = TestType;
 	constexpr T max = std::numeric_limits<T>::max();

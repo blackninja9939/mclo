@@ -125,9 +125,11 @@ namespace mclo
 			}
 			else
 			{
-				set_data( std::exchange( other.m_data, nullptr ),
-						  std::exchange( other.m_capacity, 0 ),
-						  std::exchange( other.m_size, 0 ) );
+				set_data(
+					std::exchange( other.m_data, nullptr ),
+					std::exchange( other.m_capacity, 0 ),
+					std::exchange( other.m_size, 0 )
+				);
 			}
 
 			return *this;
@@ -288,7 +290,8 @@ namespace mclo
 				[ &value ]( const pointer ptr, const size_type amount ) {
 					return std::uninitialized_fill_n( ptr, amount, value );
 				},
-				[ &value ]( const pointer ptr, const size_type amount ) { return std::fill_n( ptr, amount, value ); } );
+				[ &value ]( const pointer ptr, const size_type amount ) { return std::fill_n( ptr, amount, value ); }
+			);
 		}
 
 		template <std::input_iterator It>
@@ -307,7 +310,8 @@ namespace mclo
 							ptr[ index ] = *first;
 						}
 						return ptr + amount;
-					} );
+					}
+				);
 			}
 			else
 			{
@@ -465,8 +469,9 @@ namespace mclo
 			return it;
 		}
 
-		iterator erase( const_iterator first,
-						const_iterator last ) noexcept( std::is_nothrow_move_assignable_v<value_type> )
+		iterator erase(
+			const_iterator first, const_iterator last
+		) noexcept( std::is_nothrow_move_assignable_v<value_type> )
 		{
 			MCLO_DEBUG_ASSERT( first >= begin() && first <= end(), "first must be an iterator in this container" );
 			MCLO_DEBUG_ASSERT( last >= begin() && last <= end(), "last must be an iterator in this container" );
@@ -651,8 +656,8 @@ namespace mclo
 		{
 			uninitialized_unique_ptr new_data = allocate_uninitialized( new_capacity );
 
-			if constexpr ( std::is_nothrow_move_constructible_v<value_type> ||
-						   !std::is_copy_constructible_v<value_type> )
+			if constexpr ( std::is_nothrow_move_constructible_v<value_type>
+						   || !std::is_copy_constructible_v<value_type> )
 			{
 				std::uninitialized_move( begin(), end(), new_data.get() );
 			}
@@ -704,8 +709,8 @@ namespace mclo
 
 			if ( insert_pos == end() )
 			{
-				if constexpr ( std::is_nothrow_move_constructible_v<value_type> ||
-							   !std::is_copy_constructible_v<value_type> )
+				if constexpr ( std::is_nothrow_move_constructible_v<value_type>
+							   || !std::is_copy_constructible_v<value_type> )
 				{
 					std::uninitialized_move( begin(), end(), new_data );
 				}
@@ -840,11 +845,12 @@ namespace mclo
 			}
 		}
 
-		template <std::invocable<pointer, size_type> UninitializedFunc,
-				  std::invocable<pointer, size_type> InitializedFunc>
-		void assign_internal( const size_type count,
-							  UninitializedFunc uninitialized_func,
-							  InitializedFunc initialized_func )
+		template <
+			std::invocable<pointer, size_type> UninitializedFunc,
+			std::invocable<pointer, size_type> InitializedFunc>
+		void assign_internal(
+			const size_type count, UninitializedFunc uninitialized_func, InitializedFunc initialized_func
+		)
 		{
 			if ( count > m_capacity )
 			{
@@ -923,11 +929,13 @@ namespace mclo
 	}
 
 	template <typename T>
-	[[nodiscard]] mclo::synth_three_way_result<T> operator<=>( const small_vector_base<T>& lhs,
-															   const small_vector_base<T>& rhs )
+	[[nodiscard]] mclo::synth_three_way_result<T> operator<=>(
+		const small_vector_base<T>& lhs, const small_vector_base<T>& rhs
+	)
 	{
 		return std::lexicographical_compare_three_way(
-			lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), mclo::synth_three_way{} );
+			lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), mclo::synth_three_way{}
+		);
 	}
 
 	namespace detail
@@ -938,11 +946,13 @@ namespace mclo
 
 		template <typename T>
 		constexpr std::uint32_t default_inline_capacity = [] {
-			static_assert( sizeof( T ) <= 256,
-						   "You are trying to use a default number of inlined elements for "
-						   "`small_vector<T>` but `sizeof(T)` is really big! Please use an "
-						   "explicit number of inlined elements with `small_vector<T, N>` to make "
-						   "sure you really want that much inline storage." );
+			static_assert(
+				sizeof( T ) <= 256,
+				"You are trying to use a default number of inlined elements for "
+				"`small_vector<T>` but `sizeof(T)` is really big! Please use an "
+				"explicit number of inlined elements with `small_vector<T, N>` to make "
+				"sure you really want that much inline storage."
+			);
 			// Give capacity for at least one element as long as static assert passes
 			// Allows a small_vector<small_vector<T>> to have at least one element which is
 			// not an unreasonable case. Any larger requires manual sizes so you think about it.

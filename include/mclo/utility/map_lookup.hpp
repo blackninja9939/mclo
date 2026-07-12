@@ -47,9 +47,9 @@ namespace mclo
 	/// create a dangling reference by passing a reference to an object that is destroyed after the call but before you
 	/// use the return value.
 	template <typename Map, typename Key>
-	[[nodiscard]] const typename Map::mapped_type& lookup_ref_or( const Map& map,
-																  const Key& key,
-																  const typename Map::mapped_type& default_value )
+	[[nodiscard]] const typename Map::mapped_type& lookup_ref_or(
+		const Map& map, const Key& key, const typename Map::mapped_type& default_value
+	)
 	{
 		const auto it = map.find( key );
 		if ( it == map.end() )
@@ -62,7 +62,6 @@ namespace mclo
 	/// @brief Deleted overload to prevent passing an rvalue as the default value to @c lookup_ref_or, which would
 	/// result in returning a reference to a destroyed temporary.
 	template <typename Map, typename Key, typename Value>
-	const typename Map::mapped_type& lookup_ref_or( const Map& map,
-													const Key& key,
-													const Value&& default_value ) = delete;
+	const typename Map::mapped_type& lookup_ref_or( const Map& map, const Key& key, const Value&& default_value ) =
+		delete;
 }

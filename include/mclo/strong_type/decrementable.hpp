@@ -13,8 +13,9 @@ namespace mclo::strong_type
 				--self.value;
 				return self;
 			}
-			friend constexpr Derived operator--( Derived& self, int ) noexcept( noexcept( Derived( self ) ) &&
-																				noexcept( --self.value ) )
+			friend constexpr Derived operator--( Derived& self, int ) noexcept(
+				noexcept( Derived( self ) ) && noexcept( --self.value )
+			)
 			{
 				Derived old( self );
 				--self.value;

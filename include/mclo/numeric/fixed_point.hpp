@@ -81,9 +81,11 @@ namespace mclo
 		using intermediary_type = detail::fixed_point_wider_t<Rep>;
 		using unsigned_type = std::make_unsigned_t<Rep>;
 
-		static_assert( detail::fixed_point_int_pow<intermediary_type>( radix, Fraction ) <=
-						   static_cast<intermediary_type>( std::numeric_limits<Rep>::max() ),
-					   "The scale base^Fraction overflows the representation type Rep" );
+		static_assert(
+			detail::fixed_point_int_pow<intermediary_type>( radix, Fraction )
+				<= static_cast<intermediary_type>( std::numeric_limits<Rep>::max() ),
+			"The scale base^Fraction overflows the representation type Rep"
+		);
 
 	public:
 		using underlying_type = Rep;
@@ -170,16 +172,22 @@ namespace mclo
 
 		[[nodiscard]] constexpr friend fixed_point operator+( const fixed_point lhs, const fixed_point rhs ) noexcept
 		{
-			return { from_underlying,
-					 static_cast<Rep>( static_cast<unsigned_type>( lhs.m_value ) +
-									   static_cast<unsigned_type>( rhs.m_value ) ) };
+			return {
+				from_underlying,
+				static_cast<Rep>(
+					static_cast<unsigned_type>( lhs.m_value ) + static_cast<unsigned_type>( rhs.m_value )
+				)
+			};
 		}
 
 		[[nodiscard]] constexpr friend fixed_point operator-( const fixed_point lhs, const fixed_point rhs ) noexcept
 		{
-			return { from_underlying,
-					 static_cast<Rep>( static_cast<unsigned_type>( lhs.m_value ) -
-									   static_cast<unsigned_type>( rhs.m_value ) ) };
+			return {
+				from_underlying,
+				static_cast<Rep>(
+					static_cast<unsigned_type>( lhs.m_value ) - static_cast<unsigned_type>( rhs.m_value )
+				)
+			};
 		}
 
 		[[nodiscard]] constexpr friend fixed_point operator*( const fixed_point lhs, const fixed_point rhs ) noexcept
@@ -201,7 +209,8 @@ namespace mclo
 		{
 			return {
 				from_underlying,
-				static_cast<Rep>( static_cast<unsigned_type>( lhs.m_value ) * static_cast<unsigned_type>( rhs ) ) };
+				static_cast<Rep>( static_cast<unsigned_type>( lhs.m_value ) * static_cast<unsigned_type>( rhs ) )
+			};
 		}
 
 		[[nodiscard]] constexpr friend fixed_point operator*( const Rep lhs, const fixed_point rhs ) noexcept
@@ -342,17 +351,17 @@ namespace mclo
 		}
 
 		/// @brief Linear interpolation, a + ( b - a ) * t, with t typically in the range zero to one
-		[[nodiscard]] constexpr friend fixed_point lerp( const fixed_point a,
-														 const fixed_point b,
-														 const fixed_point t ) noexcept
+		[[nodiscard]] constexpr friend fixed_point lerp(
+			const fixed_point a, const fixed_point b, const fixed_point t
+		) noexcept
 		{
 			return a + ( b - a ) * t;
 		}
 
 		/// @brief Clamp value into the inclusive range [ low, high ]
-		[[nodiscard]] constexpr friend fixed_point clamp( const fixed_point value,
-														  const fixed_point low,
-														  const fixed_point high ) noexcept
+		[[nodiscard]] constexpr friend fixed_point clamp(
+			const fixed_point value, const fixed_point low, const fixed_point high
+		) noexcept
 		{
 			MCLO_DEBUG_ASSERT( !( high < low ), "clamp: low must not be greater than high" );
 			return value < low ? low : high < value ? high : value;

@@ -42,9 +42,8 @@ namespace mclo::detail
 	// A target is stored inline only when it fits the buffer and its move constructor cannot throw, so that moving a
 	// move_only_function stays noexcept.
 	template <typename T>
-	inline constexpr bool move_only_function_stored_inline =
-		sizeof( T ) <= move_only_function_buffer_size && alignof( T ) <= alignof( move_only_function_storage ) &&
-		std::is_nothrow_move_constructible_v<T>;
+	inline constexpr bool move_only_function_stored_inline = sizeof( T ) <= move_only_function_buffer_size
+		&& alignof( T ) <= alignof( move_only_function_storage ) && std::is_nothrow_move_constructible_v<T>;
 
 	template <typename T>
 	[[nodiscard]] T* move_only_function_target( move_only_function_storage& storage ) noexcept
@@ -95,8 +94,9 @@ namespace mclo::detail
 	}
 
 	template <typename T>
-	inline constexpr move_only_function_vtable move_only_function_vtable_for = { &move_only_function_do_move<T>,
-																				 &move_only_function_do_destroy<T> };
+	inline constexpr move_only_function_vtable move_only_function_vtable_for = {
+		&move_only_function_do_move<T>, &move_only_function_do_destroy<T>
+	};
 
 	// Owns the storage, target lifetime, and move-only semantics; shared by every move_only_function_impl regardless of
 	// signature qualifiers.
@@ -196,16 +196,18 @@ namespace mclo::detail
 	class move_only_function_impl : public move_only_function_base
 	{
 		using base = move_only_function_base;
-		using invoke_ptr = std::conditional_t<IsNoexcept,
-											  R ( * )( move_only_function_storage&, Args&&... ) noexcept,
-											  R ( * )( move_only_function_storage&, Args&&... )>;
+		using invoke_ptr = std::conditional_t<
+			IsNoexcept,
+			R ( * )( move_only_function_storage&, Args&&... ) noexcept,
+			R ( * )( move_only_function_storage&, Args&&... )>;
 
 		// The inv-quals reference type: const if the signature is const-qualified, and an rvalue reference if the
 		// signature is &&-qualified, otherwise an lvalue reference.
 		template <typename VT>
-		using inv_quals_t = std::conditional_t<IsRvalue,
-											   std::conditional_t<IsConst, const VT&&, VT&&>,
-											   std::conditional_t<IsConst, const VT&, VT&>>;
+		using inv_quals_t = std::conditional_t<
+			IsRvalue,
+			std::conditional_t<IsConst, const VT&&, VT&&>,
+			std::conditional_t<IsConst, const VT&, VT&>>;
 
 		template <typename VT>
 		static constexpr bool is_callable_from = IsNoexcept ? std::is_nothrow_invocable_r_v<R, inv_quals_t<VT>, Args...>
@@ -250,14 +252,16 @@ namespace mclo::detail
 		move_only_function_impl& operator=( move_only_function_impl&& ) noexcept = default;
 
 		template <typename F>
-			requires( !std::is_same_v<std::remove_cvref_t<F>, move_only_function_impl> &&
-					  !mclo::specialization_of<std::remove_cvref_t<F>, std::in_place_type_t> &&
-					  is_callable_from<std::decay_t<F>> )
+			requires(
+				!std::is_same_v<std::remove_cvref_t<F>, move_only_function_impl>
+				&& !mclo::specialization_of<std::remove_cvref_t<F>, std::in_place_type_t>
+				&& is_callable_from<std::decay_t<F>>
+			)
 		move_only_function_impl( F&& f )
 		{
 			using VT = std::decay_t<F>;
-			if constexpr ( std::is_pointer_v<VT> || std::is_member_pointer_v<VT> ||
-						   mclo::specialization_of<VT, mclo::move_only_function> )
+			if constexpr ( std::is_pointer_v<VT> || std::is_member_pointer_v<VT>
+						   || mclo::specialization_of<VT, mclo::move_only_function> )
 			{
 				if ( f == nullptr )
 				{
@@ -268,8 +272,10 @@ namespace mclo::detail
 		}
 
 		template <typename T, typename... CtorArgs>
-			requires( std::is_constructible_v<std::decay_t<T>, CtorArgs...> && is_callable_from<std::decay_t<T>> &&
-					  std::is_same_v<std::decay_t<T>, T> )
+			requires(
+				std::is_constructible_v<std::decay_t<T>, CtorArgs...> && is_callable_from<std::decay_t<T>>
+				&& std::is_same_v<std::decay_t<T>, T>
+			)
 		explicit move_only_function_impl( std::in_place_type_t<T>, CtorArgs&&... args )
 		{
 			using VT = std::decay_t<T>;
@@ -277,13 +283,16 @@ namespace mclo::detail
 		}
 
 		template <typename T, typename U, typename... CtorArgs>
-			requires( std::is_constructible_v<std::decay_t<T>, std::initializer_list<U>&, CtorArgs...> &&
-					  is_callable_from<std::decay_t<T>> && std::is_same_v<std::decay_t<T>, T> )
+			requires(
+				std::is_constructible_v<std::decay_t<T>, std::initializer_list<U>&, CtorArgs...>
+				&& is_callable_from<std::decay_t<T>> && std::is_same_v<std::decay_t<T>, T>
+			)
 		explicit move_only_function_impl( std::in_place_type_t<T>, std::initializer_list<U> il, CtorArgs&&... args )
 		{
 			using VT = std::decay_t<T>;
 			construct_target<VT>(
-				reinterpret_cast<generic_fn>( &do_invoke<VT> ), il, std::forward<CtorArgs>( args )... );
+				reinterpret_cast<generic_fn>( &do_invoke<VT> ), il, std::forward<CtorArgs>( args )...
+			);
 		}
 
 		move_only_function_impl& operator=( std::nullptr_t ) noexcept

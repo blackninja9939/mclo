@@ -200,8 +200,9 @@ TEST_CASE( "work_stealing_deque with multiple values, steal values, takes from t
 	}
 }
 
-TEST_CASE( "work_stealing_deque with multiple threads, operations on threads, is expected values",
-		   "[work_stealing_deque]" )
+TEST_CASE(
+	"work_stealing_deque with multiple threads, operations on threads, is expected values", "[work_stealing_deque]"
+)
 {
 	test_queue queue( 1 );
 	queue.push( 42 );

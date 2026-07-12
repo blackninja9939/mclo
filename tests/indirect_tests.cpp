@@ -77,7 +77,8 @@ TEST_CASE( "mclo::indirect in place construction with allocator", "[indirect]" )
 {
 	mclo::memory_arena resource( 1 );
 	const mclo::indirect<std::string, mclo::arena_allocator<std::string>> object(
-		std::allocator_arg, resource, std::in_place, 5, 'a' );
+		std::allocator_arg, resource, std::in_place, 5, 'a'
+	);
 	CHECK( *object == "aaaaa" );
 	CHECK_FALSE( object.valueless_after_move() );
 	CHECK( object.get_allocator() == resource );
@@ -94,7 +95,8 @@ TEST_CASE( "mclo::indirect in place construction with initializer list and alloc
 {
 	mclo::memory_arena resource( 1 );
 	const mclo::indirect<std::string, mclo::arena_allocator<std::string>> object(
-		std::allocator_arg, resource, std::in_place, { 'a', 'b', 'c', 'd', 'e' } );
+		std::allocator_arg, resource, std::in_place, { 'a', 'b', 'c', 'd', 'e' }
+	);
 	CHECK( *object == "abcde" );
 	CHECK_FALSE( object.valueless_after_move() );
 	CHECK( object.get_allocator() == resource );

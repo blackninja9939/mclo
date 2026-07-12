@@ -48,7 +48,7 @@ TEST_CASE( "weighted_index precomputed total with projection", "[random][weighte
 	mclo::xoshiro256plusplus engine( test_seed );
 	const std::array<item, 3> items{
 		{ { 0 }, { 7 }, { 0 } }
-    };
+	};
 	for ( int i = 0; i < 100; ++i )
 	{
 		CHECK( mclo::weighted_index( engine, items, 7, &item::weight ) == 1 );
@@ -71,7 +71,7 @@ TEST_CASE( "weighted_index pointer to member", "[random][weighted_random]" )
 	mclo::xoshiro256plusplus engine( test_seed );
 	const std::array<item, 3> items{
 		{ { 0 }, { 0 }, { 7 } }
-    };
+	};
 	for ( int i = 0; i < 100; ++i )
 	{
 		CHECK( mclo::weighted_index( engine, items, &item::weight ) == 2 );

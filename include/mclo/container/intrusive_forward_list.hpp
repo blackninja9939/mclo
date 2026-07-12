@@ -15,9 +15,11 @@ namespace mclo
 		using hook_type = intrusive_forward_list_hook<Tag>;
 		static_assert( std::derived_from<T, hook_type>, "T must be derived from the intrusive list hook" );
 
-		static_assert( std::is_object_v<T>,
-					   "The C++ Standard forbids containers of non-object types "
-					   "because of [container.requirements]." );
+		static_assert(
+			std::is_object_v<T>,
+			"The C++ Standard forbids containers of non-object types "
+			"because of [container.requirements]."
+		);
 
 	public:
 		using value_type = T;
@@ -253,10 +255,9 @@ namespace mclo
 			splice_after( pos, other, it );
 		}
 
-		void splice_after( const_iterator pos,
-						   intrusive_forward_list&,
-						   const_iterator first,
-						   const_iterator last ) noexcept
+		void splice_after(
+			const_iterator pos, intrusive_forward_list&, const_iterator first, const_iterator last
+		) noexcept
 		{
 			if ( first == last )
 			{
@@ -290,10 +291,9 @@ namespace mclo
 			unwrapped_pos->m_next = extracted_head;
 		}
 
-		void splice_after( const_iterator pos,
-						   intrusive_forward_list&& other,
-						   const_iterator first,
-						   const_iterator last ) noexcept
+		void splice_after(
+			const_iterator pos, intrusive_forward_list&& other, const_iterator first, const_iterator last
+		) noexcept
 		{
 			splice_after( pos, other, first, last );
 		}
@@ -552,15 +552,17 @@ namespace mclo
 namespace std
 {
 	template <typename T, typename Tag, typename U = T>
-	typename mclo::intrusive_forward_list<T, Tag>::size_type erase( mclo::intrusive_forward_list<T, Tag>& list,
-																	const U& value )
+	typename mclo::intrusive_forward_list<T, Tag>::size_type erase(
+		mclo::intrusive_forward_list<T, Tag>& list, const U& value
+	)
 	{
 		return list.remove( value );
 	}
 
 	template <typename T, typename Tag, typename Pred>
-	typename mclo::intrusive_forward_list<T, Tag>::size_type erase_if( mclo::intrusive_forward_list<T, Tag>& list,
-																	   Pred pred )
+	typename mclo::intrusive_forward_list<T, Tag>::size_type erase_if(
+		mclo::intrusive_forward_list<T, Tag>& list, Pred pred
+	)
 	{
 		return list.remove_if( pred );
 	}

@@ -28,10 +28,10 @@ namespace mclo
 		/// @brief Maximum characters a fixed_point of this configuration can produce: a sign, the integer digits, a
 		/// decimal point and the larger of its own fractional digits or the formatter digit cap
 		template <std::integral Rep, int Fraction>
-		inline constexpr std::size_t fixed_point_max_chars =
-			1 + ( std::numeric_limits<std::make_unsigned_t<Rep>>::digits10 + 1 ) + 1 +
-			static_cast<std::size_t>( Fraction > fixed_point_max_print_digits ? Fraction
-																			  : fixed_point_max_print_digits );
+		inline constexpr std::size_t fixed_point_max_chars = 1
+			+ ( std::numeric_limits<std::make_unsigned_t<Rep>>::digits10 + 1 ) + 1
+			+ static_cast<std::size_t>( Fraction > fixed_point_max_print_digits ? Fraction
+																				: fixed_point_max_print_digits );
 
 		/// @brief Return the magnitude of a possibly negative value as its unsigned counterpart
 		///
@@ -70,8 +70,9 @@ namespace mclo
 		/// 2^F equals 5^F / 10^F and a decimal scale is already a power of ten), so long division by the scaling factor
 		/// reproduces those digits exactly for either base while only ever holding remainder * 10 in the wider type.
 		template <std::integral Rep, int Fraction, fixed_point_base Base>
-		void fixed_point_fill_fraction( std::array<char, Fraction>& digits,
-										const fixed_point<Rep, Fraction, Base> value ) noexcept
+		void fixed_point_fill_fraction(
+			std::array<char, Fraction>& digits, const fixed_point<Rep, Fraction, Base> value
+		) noexcept
 		{
 			using wide = fixed_point_wider_t<Rep>;
 			constexpr wide scale = static_cast<wide>( fixed_point<Rep, Fraction, Base>::scale );
@@ -92,9 +93,11 @@ namespace mclo
 		/// digits are requested than the value holds. The integer part is written with std::to_chars and the fractional
 		/// digits come from fixed_point_fill_fraction.
 		template <std::integral Rep, int Fraction, fixed_point_base Base>
-		[[nodiscard]] std::size_t fixed_point_to_chars( std::array<char, fixed_point_max_chars<Rep, Fraction>>& buffer,
-														const fixed_point<Rep, Fraction, Base> value,
-														const int precision ) noexcept
+		[[nodiscard]] std::size_t fixed_point_to_chars(
+			std::array<char, fixed_point_max_chars<Rep, Fraction>>& buffer,
+			const fixed_point<Rep, Fraction, Base> value,
+			const int precision
+		) noexcept
 		{
 			char* const last = buffer.data() + buffer.size();
 			char* out = buffer.data();
@@ -155,8 +158,9 @@ namespace mclo
 		/// digits are then scaled into the representation, rounding the result half away from zero. Digits beyond the
 		/// representation's resolution cannot change the stored value and are ignored.
 		template <std::integral Rep, int Fraction, fixed_point_base Base>
-		[[nodiscard]] bool fixed_point_from_chars( const std::string_view text,
-												   fixed_point<Rep, Fraction, Base>& out ) noexcept
+		[[nodiscard]] bool fixed_point_from_chars(
+			const std::string_view text, fixed_point<Rep, Fraction, Base>& out
+		) noexcept
 		{
 			using wide = fixed_point_wider_t<Rep>;
 			using unsigned_rep = std::make_unsigned_t<Rep>;
@@ -220,8 +224,9 @@ namespace mclo
 
 	/// @brief Write a fixed_point value to a stream as its exact decimal value, honouring field width and fill
 	template <typename CharT, typename Traits, std::integral Rep, int Fraction, fixed_point_base Base>
-	std::basic_ostream<CharT, Traits>& operator<<( std::basic_ostream<CharT, Traits>& os,
-												   const fixed_point<Rep, Fraction, Base> value )
+	std::basic_ostream<CharT, Traits>& operator<<(
+		std::basic_ostream<CharT, Traits>& os, const fixed_point<Rep, Fraction, Base> value
+	)
 	{
 		std::array<char, detail::fixed_point_max_chars<Rep, Fraction>> buffer;
 		const std::size_t length = detail::fixed_point_to_chars( buffer, value, -1 );
@@ -242,8 +247,9 @@ namespace mclo
 
 	/// @brief Read a fixed_point value from a stream, parsing the decimal text exactly into the representation
 	template <typename CharT, typename Traits, std::integral Rep, int Fraction, fixed_point_base Base>
-	std::basic_istream<CharT, Traits>& operator>>( std::basic_istream<CharT, Traits>& is,
-												   fixed_point<Rep, Fraction, Base>& value )
+	std::basic_istream<CharT, Traits>& operator>>(
+		std::basic_istream<CharT, Traits>& is, fixed_point<Rep, Fraction, Base>& value
+	)
 	{
 		std::basic_string<CharT, Traits> token;
 		if ( is >> token )
@@ -279,7 +285,8 @@ struct std::formatter<mclo::fixed_point<Rep, Fraction, Base>, CharT>
 	int precision = -1;
 
 	constexpr typename std::basic_format_parse_context<CharT>::iterator parse(
-		std::basic_format_parse_context<CharT>& ctx )
+		std::basic_format_parse_context<CharT>& ctx
+	)
 	{
 		auto it = ctx.begin();
 		const auto end = ctx.end();
@@ -309,8 +316,9 @@ struct std::formatter<mclo::fixed_point<Rep, Fraction, Base>, CharT>
 	}
 
 	template <typename FormatContext>
-	typename FormatContext::iterator format( const mclo::fixed_point<Rep, Fraction, Base> value,
-											 FormatContext& ctx ) const
+	typename FormatContext::iterator format(
+		const mclo::fixed_point<Rep, Fraction, Base> value, FormatContext& ctx
+	) const
 	{
 		std::array<char, mclo::detail::fixed_point_max_chars<Rep, Fraction>> buffer;
 		const std::size_t length = mclo::detail::fixed_point_to_chars( buffer, value, precision );

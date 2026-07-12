@@ -181,11 +181,13 @@ TEST_CASE( "state_machine self-loop keeps the state and reports no change", "[st
 {
 	traffic_light machine; // red
 
-	const bool changed = machine.step( mclo::overloaded{
-		[]( const red& ) -> red::transitions { return hold{}; },
-		[]( const green& ) -> green::transitions { return caution{}; },
-		[]( const yellow& ) -> yellow::transitions { return stop{}; },
-	} );
+	const bool changed = machine.step(
+		mclo::overloaded{
+			[]( const red& ) -> red::transitions { return hold{}; },
+			[]( const green& ) -> green::transitions { return caution{}; },
+			[]( const yellow& ) -> yellow::transitions { return stop{}; },
+		}
+	);
 
 	CHECK_FALSE( changed );
 	CHECK( machine.is_state<red>() );
@@ -231,10 +233,12 @@ TEST_CASE( "state_machine transition moves data into the next state", "[state_ma
 {
 	counter machine{ counting{ 7 } };
 
-	const bool changed = machine.step( mclo::overloaded{
-		[]( const counting& ) -> counting::transitions { return finish{}; },
-		[]( const done& ) -> done::transitions { return rest{}; },
-	} );
+	const bool changed = machine.step(
+		mclo::overloaded{
+			[]( const counting& ) -> counting::transitions { return finish{}; },
+			[]( const done& ) -> done::transitions { return rest{}; },
+		}
+	);
 
 	REQUIRE( changed );
 	REQUIRE( machine.is_state<done>() );
@@ -245,11 +249,13 @@ TEST_CASE( "state_machine visit observes the active state", "[state_machine]" )
 {
 	traffic_light machine{ yellow{} };
 
-	const std::string_view name = machine.visit( mclo::overloaded{
-		[]( const red& ) { return std::string_view{ "red" }; },
-		[]( const green& ) { return std::string_view{ "green" }; },
-		[]( const yellow& ) { return std::string_view{ "yellow" }; },
-	} );
+	const std::string_view name = machine.visit(
+		mclo::overloaded{
+			[]( const red& ) { return std::string_view{ "red" }; },
+			[]( const green& ) { return std::string_view{ "green" }; },
+			[]( const yellow& ) { return std::string_view{ "yellow" }; },
+		}
+	);
 
 	CHECK( name == "yellow" );
 }
@@ -272,10 +278,12 @@ TEST_CASE( "state_machine binds transitions via external trait specialization", 
 	external_machine machine; // plain_a
 	CHECK( machine.is_state<plain_a>() );
 
-	const bool changed = machine.step( mclo::overloaded{
-		[]( const plain_a& ) -> mclo::state_transitions_t<plain_a> { return a_to_b{}; },
-		[]( const plain_b& ) -> mclo::state_transitions_t<plain_b> { return b_stay{}; },
-	} );
+	const bool changed = machine.step(
+		mclo::overloaded{
+			[]( const plain_a& ) -> mclo::state_transitions_t<plain_a> { return a_to_b{}; },
+			[]( const plain_b& ) -> mclo::state_transitions_t<plain_b> { return b_stay{}; },
+		}
+	);
 
 	CHECK( changed );
 	CHECK( machine.is_state<plain_b>() );

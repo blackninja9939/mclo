@@ -64,8 +64,9 @@ namespace mclo
 		/// @param path The filesystem path of the module to load.
 		/// @param flags Options controlling how the module is loaded.
 		/// @return Nothing on success, or the platform error code describing why loading failed.
-		expected<void, std::error_code> load( const std::filesystem::path& path,
-											  const shared_library_load_flags flags = {} );
+		expected<void, std::error_code> load(
+			const std::filesystem::path& path, const shared_library_load_flags flags = {}
+		);
 
 		/// @brief Releases this object's reference to the owned module.
 		/// @details If this was the last owning reference the module is unloaded from the process. The object
@@ -90,8 +91,9 @@ namespace mclo
 			requires( std::is_function_v<T> || std::is_object_v<T> )
 		[[nodiscard]] expected<T*, std::error_code> get( const char* const name ) const noexcept
 		{
-			return get_symbol( name ).transform(
-				[]( void* const symbol ) noexcept { return reinterpret_cast<T*>( symbol ); } );
+			return get_symbol( name ).transform( []( void* const symbol ) noexcept {
+				return reinterpret_cast<T*>( symbol );
+			} );
 		}
 
 		/// @brief Retrieves an exported symbol bundled with shared ownership of the module that exports it.
@@ -109,8 +111,9 @@ namespace mclo
 			requires( std::is_function_v<T> || std::is_object_v<T> )
 		[[nodiscard]] expected<shared_symbol<T>, std::error_code> get_shared( const char* const name ) const
 		{
-			return get_symbol( name ).transform(
-				[ this ]( void* const symbol ) { return shared_symbol<T>( *this, reinterpret_cast<T*>( symbol ) ); } );
+			return get_symbol( name ).transform( [ this ]( void* const symbol ) {
+				return shared_symbol<T>( *this, reinterpret_cast<T*>( symbol ) );
+			} );
 		}
 
 		/// @brief Checks whether the loaded module exports a symbol with the given name.

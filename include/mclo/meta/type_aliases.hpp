@@ -23,13 +23,14 @@ namespace mclo::meta
 	using numeric_types = type_list<MCLO_SIGNED_INTEGERS_LIST, MCLO_UNSIGNED_INTEGERS_LIST, MCLO_FLOAT_LIST>;
 
 	/// @brief A @ref type_list of the standard character types, including @c char8_t where supported.
-	using char_types = type_list<char,
-								 wchar_t,
+	using char_types = type_list<
+		char,
+		wchar_t,
 #ifdef __cpp_char8_t
-								 char8_t,
+		char8_t,
 #endif
-								 char16_t,
-								 char32_t>;
+		char16_t,
+		char32_t>;
 }
 
 #undef MCLO_SIGNED_INTEGERS_LIST

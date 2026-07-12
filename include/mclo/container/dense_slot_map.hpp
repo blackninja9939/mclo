@@ -129,8 +129,9 @@ namespace mclo
 				}
 				else
 				{
-					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator,
-									   "containers incompatible for copy assignment" );
+					MCLO_DEBUG_ASSERT(
+						m_allocator == other.m_allocator, "containers incompatible for copy assignment"
+					);
 				}
 				copy_from( other );
 				return *this;
@@ -149,8 +150,9 @@ namespace mclo
 				}
 				else
 				{
-					MCLO_DEBUG_ASSERT( m_allocator == other.m_allocator,
-									   "containers incompatible for move assignment" );
+					MCLO_DEBUG_ASSERT(
+						m_allocator == other.m_allocator, "containers incompatible for move assignment"
+					);
 				}
 				m_data = std::exchange( other.m_data, nullptr );
 				m_data_reverse_map = std::exchange( other.m_data_reverse_map, nullptr );
@@ -165,9 +167,9 @@ namespace mclo
 				std::destroy_n( m_data_reverse_map, m_size );
 				const std::size_t buffer_count = size_in_aligned_buffers( m_capacity );
 				buffer_allocator_type buffer_allocator( m_allocator );
-				buffer_alloc_traits::deallocate( buffer_allocator,
-												 static_cast<buffer_pointer>( static_cast<void_pointer>( m_data ) ),
-												 buffer_count );
+				buffer_alloc_traits::deallocate(
+					buffer_allocator, static_cast<buffer_pointer>( static_cast<void_pointer>( m_data ) ), buffer_count
+				);
 			}
 
 			void swap( dense_slot_map_data& other ) noexcept
@@ -231,7 +233,8 @@ namespace mclo
 				reserve( m_size + 1 );
 				MCLO_DEBUG_ASSERT( m_size < m_capacity, "Size should be less than capacity" );
 				alloc_traits::construct(
-					m_allocator, std::addressof( m_data[ m_size ] ), std::forward<Args>( args )... );
+					m_allocator, std::addressof( m_data[ m_size ] ), std::forward<Args>( args )...
+				);
 				size_allocator_type size_allocator( m_allocator );
 				size_alloc_traits::construct( size_allocator, std::addressof( m_data_reverse_map[ m_size ] ), index );
 				++m_size;
@@ -287,14 +290,18 @@ namespace mclo
 				// way through, so we only need to handle deallocation in our guard not destruction here
 				std::uninitialized_move_n( m_data, m_size, new_data );
 
-				static_assert( std::is_nothrow_move_constructible_v<size_type>,
-							   "Moving size does not throw exceptions, if it does we need a guard object for our "
-							   "constructed objects" );
+				static_assert(
+					std::is_nothrow_move_constructible_v<size_type>,
+					"Moving size does not throw exceptions, if it does we need a guard object for our "
+					"constructed objects"
+				);
 				std::uninitialized_move_n( m_data_reverse_map, m_size, new_data_reverse_map );
 
-				buffer_alloc_traits::deallocate( buffer_allocator,
-												 static_cast<buffer_pointer>( static_cast<void_pointer>( m_data ) ),
-												 size_in_aligned_buffers( m_capacity ) );
+				buffer_alloc_traits::deallocate(
+					buffer_allocator,
+					static_cast<buffer_pointer>( static_cast<void_pointer>( m_data ) ),
+					size_in_aligned_buffers( m_capacity )
+				);
 
 				alloc_guard.release();
 
@@ -334,9 +341,11 @@ namespace mclo
 				MCLO_DEBUG_ASSERT( m_size == size_type( 0 ), "Size should be 0" );
 				reserve( other.m_size );
 				std::uninitialized_copy_n( other.m_data, other.m_size, m_data );
-				static_assert( std::is_nothrow_copy_constructible_v<size_type>,
-							   "Copying size does not throw exceptions, if it does we need a guard object for our "
-							   "constructed objects" );
+				static_assert(
+					std::is_nothrow_copy_constructible_v<size_type>,
+					"Copying size does not throw exceptions, if it does we need a guard object for our "
+					"constructed objects"
+				);
 				std::uninitialized_copy_n( other.m_data_reverse_map, other.m_size, m_data_reverse_map );
 				m_size = other.m_size;
 			}
@@ -389,10 +398,11 @@ namespace mclo
 	/// @tparam GenerationBits Number of the total bits in the handle representation type used for generation checking,
 	/// defaults to 1/4 of the total bits. More bits = lower max size but higher generation before wrapping
 	/// @tparam Allocator The allocator used by the backing vectors
-	template <typename T,
-			  std::size_t HandleTotalBits = sizeof( std::uint32_t ) * CHAR_BIT,
-			  std::size_t GenerationBits = HandleTotalBits / 4,
-			  typename Allocator = std::allocator<T>>
+	template <
+		typename T,
+		std::size_t HandleTotalBits = sizeof( std::uint32_t ) * CHAR_BIT,
+		std::size_t GenerationBits = HandleTotalBits / 4,
+		typename Allocator = std::allocator<T>>
 	class dense_slot_map
 	{
 	public:
@@ -459,9 +469,11 @@ namespace mclo
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-		static_assert( std::is_object_v<value_type>,
-					   "The C++ Standard forbids containers of non-object types "
-					   "because of [container.requirements]." );
+		static_assert(
+			std::is_object_v<value_type>,
+			"The C++ Standard forbids containers of non-object types "
+			"because of [container.requirements]."
+		);
 
 		dense_slot_map() noexcept( std::is_nothrow_default_constructible_v<allocator_type> ) = default;
 
@@ -621,8 +633,9 @@ namespace mclo
 		/// optional
 		/// @param handle The handle to move the data from then erase
 		/// @return Contains the data at the handle's location, else an empty optional
-		[[nodiscard]] std::optional<value_type> pop( const handle_type handle ) noexcept(
-			std::is_nothrow_move_constructible_v<T> )
+		[[nodiscard]] std::optional<value_type> pop(
+			const handle_type handle
+		) noexcept( std::is_nothrow_move_constructible_v<T> )
 		{
 			const pointer ptr = lookup( handle );
 			if ( !ptr ) [[unlikely]]
@@ -639,8 +652,9 @@ namespace mclo
 		/// optional
 		/// @param pos The iterator to move the data from then erase
 		/// @return Contains the data at the iterator's location, else an empty optional
-		[[nodiscard]] std::optional<value_type> pop( const const_iterator pos ) noexcept(
-			std::is_nothrow_move_constructible_v<T> )
+		[[nodiscard]] std::optional<value_type> pop(
+			const const_iterator pos
+		) noexcept( std::is_nothrow_move_constructible_v<T> )
 		{
 			if ( pos == end() ) [[unlikely]]
 			{
@@ -948,7 +962,7 @@ namespace mclo
 			// invalidating existing handles
 			return {
 				m_data.values()[ data_index ], { slot_index, handle.generation }
-            };
+			};
 		}
 
 		/// @brief Erase an entry in the slot map from its handle
@@ -1032,9 +1046,10 @@ namespace mclo
 
 	namespace pmr
 	{
-		template <typename T,
-				  std::size_t HandleTotalBits = sizeof( std::uint32_t ) * CHAR_BIT,
-				  std::size_t GenerationBits = HandleTotalBits / 4>
+		template <
+			typename T,
+			std::size_t HandleTotalBits = sizeof( std::uint32_t ) * CHAR_BIT,
+			std::size_t GenerationBits = HandleTotalBits / 4>
 		using dense_slot_map =
 			mclo::dense_slot_map<T, HandleTotalBits, GenerationBits, std::pmr::polymorphic_allocator<T>>;
 	}
@@ -1042,11 +1057,12 @@ namespace mclo
 
 namespace std
 {
-	template <typename T,
-			  std::size_t HandleTotalBits,
-			  std::size_t GenerationBits,
-			  typename Allocator,
-			  typename Predicate>
+	template <
+		typename T,
+		std::size_t HandleTotalBits,
+		std::size_t GenerationBits,
+		typename Allocator,
+		typename Predicate>
 	auto erase_if( mclo::dense_slot_map<T, HandleTotalBits, GenerationBits, Allocator>& map, Predicate pred )
 	{
 		auto first = map.begin();

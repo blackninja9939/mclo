@@ -23,11 +23,12 @@ namespace
 
 // We are testing overflow
 MCLO_DISABLE_WARNINGS(
-	MCLO_WARNING_CONSTANT_OVERFLOW MCLO_WARNING_CONSTANT_TRUNCATION MCLO_WARNING_ARITHMETIC_OVERFLOW )
+	MCLO_WARNING_CONSTANT_OVERFLOW MCLO_WARNING_CONSTANT_TRUNCATION MCLO_WARNING_ARITHMETIC_OVERFLOW
+)
 
-TEMPLATE_LIST_TEST_CASE( "overflowing_add performs overflowing addition",
-						 "[math][overflowing_math]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE(
+	"overflowing_add performs overflowing addition", "[math][overflowing_math]", mclo::meta::integers
+)
 {
 	using T = TestType;
 	using UnsignedT = std::make_unsigned_t<T>;
@@ -55,9 +56,9 @@ TEMPLATE_LIST_TEST_CASE( "overflowing_add performs overflowing addition",
 	CONSTEVAL_CHECK( mclo::overflowing_add( T( 0 ), min ) == no_overflow( min ) );
 }
 
-TEMPLATE_LIST_TEST_CASE( "overflowing_sub performs overflowing subtraction",
-						 "[math][overflowing_math]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE(
+	"overflowing_sub performs overflowing subtraction", "[math][overflowing_math]", mclo::meta::integers
+)
 {
 	using T = TestType;
 	using UnsignedT = std::make_unsigned_t<T>;
@@ -79,9 +80,9 @@ TEMPLATE_LIST_TEST_CASE( "overflowing_sub performs overflowing subtraction",
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "overflowing_mul performs overflowing multiplication",
-						 "[math][overflowing_math]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE(
+	"overflowing_mul performs overflowing multiplication", "[math][overflowing_math]", mclo::meta::integers
+)
 {
 	using T = TestType;
 	using UnsignedT = std::make_unsigned_t<T>;
@@ -104,9 +105,9 @@ TEMPLATE_LIST_TEST_CASE( "overflowing_mul performs overflowing multiplication",
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "overflowing_div performs overflowing division",
-						 "[math][overflowing_math]",
-						 mclo::meta::integers )
+TEMPLATE_LIST_TEST_CASE(
+	"overflowing_div performs overflowing division", "[math][overflowing_math]", mclo::meta::integers
+)
 {
 	using T = TestType;
 	using UnsignedT = std::make_unsigned_t<T>;

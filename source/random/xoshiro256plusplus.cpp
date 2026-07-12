@@ -47,7 +47,8 @@ void mclo::xoshiro256plusplus::discard( unsigned long long count ) noexcept
 void mclo::xoshiro256plusplus::jump() noexcept
 {
 	static constexpr std::uint64_t JUMP_TABLE[] = {
-		0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c };
+		0x180ec6d33cfd0aba, 0xd5a61266f0c9392c, 0xa9582618e03fc9aa, 0x39abdc4529b1661c
+	};
 
 	std::uint64_t s0 = 0;
 	std::uint64_t s1 = 0;
@@ -78,7 +79,8 @@ void mclo::xoshiro256plusplus::jump() noexcept
 void mclo::xoshiro256plusplus::long_jump() noexcept
 {
 	static constexpr std::uint64_t LONG_JUMP_TABLE[] = {
-		0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635 };
+		0x76e15d3efefdcbbf, 0xc5004e441c522fb3, 0x77710069854ee241, 0x39109bb02acbe635
+	};
 
 	std::uint64_t s0 = 0;
 	std::uint64_t s1 = 0;

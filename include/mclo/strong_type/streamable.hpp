@@ -13,8 +13,9 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			template <typename CharT, typename Traits>
-			friend std::basic_istream<CharT, Traits>& operator>>( std::basic_istream<CharT, Traits>& is,
-																  Derived& object )
+			friend std::basic_istream<CharT, Traits>& operator>>(
+				std::basic_istream<CharT, Traits>& is, Derived& object
+			)
 			{
 				return is >> object.value;
 			}
@@ -28,8 +29,9 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			template <typename CharT, typename Traits>
-			friend std::basic_ostream<CharT, Traits>& operator<<( std::basic_ostream<CharT, Traits>& os,
-																  const Derived& object )
+			friend std::basic_ostream<CharT, Traits>& operator<<(
+				std::basic_ostream<CharT, Traits>& os, const Derived& object
+			)
 			{
 				return os << object.value;
 			}

@@ -10,8 +10,9 @@ namespace mclo::strong_type
 		template <typename Derived>
 		struct mixin
 		{
-			[[nodiscard]] constexpr explicit operator bool() const
-				noexcept( noexcept( static_cast<bool>( std::declval<const Derived&>().value ) ) )
+			[[nodiscard]] constexpr explicit operator bool() const noexcept(
+				noexcept( static_cast<bool>( std::declval<const Derived&>().value ) )
+			)
 			{
 				return static_cast<bool>( static_cast<const Derived&>( *this ).value );
 			}

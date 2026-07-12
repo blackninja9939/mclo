@@ -16,12 +16,13 @@ namespace mclo
 	/// @brief Matches the standard unsigned integer types, excluding @c bool, character types, and extended integers.
 	/// @tparam T The type to test, with any cv-qualifiers removed before matching.
 	template <typename T>
-	concept standard_unsigned_integral = any_of_type<std::remove_cv_t<T>,
-													 unsigned char,
-													 unsigned short,
-													 unsigned int,
-													 unsigned long,
-													 unsigned long long>;
+	concept standard_unsigned_integral = any_of_type<
+		std::remove_cv_t<T>,
+		unsigned char,
+		unsigned short,
+		unsigned int,
+		unsigned long,
+		unsigned long long>;
 
 	/// @brief Matches the standard signed or unsigned integer types.
 	/// @details Unlike @c std::integral this excludes @c bool, character types, and extended integer types,

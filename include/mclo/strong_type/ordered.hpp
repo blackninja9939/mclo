@@ -15,13 +15,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr auto operator<=>( const Derived& lhs, const Derived& rhs ) noexcept(
-				noexcept( synth_three_way{}( lhs.value, rhs.value ) ) )
+				noexcept( synth_three_way{}( lhs.value, rhs.value ) )
+			)
 			{
 				return synth_three_way{}( lhs.value, rhs.value );
 			}
-			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs,
-															const Derived& rhs ) noexcept( noexcept( lhs.value ==
-																									 rhs.value ) )
+			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value == rhs.value )
+			)
 			{
 				return lhs.value == rhs.value;
 			}
@@ -42,12 +43,14 @@ namespace mclo::strong_type
 		struct mixin
 		{
 			[[nodiscard]] friend constexpr auto operator<=>( const Derived& lhs, const T& rhs ) noexcept(
-				noexcept( synth_three_way{}( lhs.value, rhs ) ) )
+				noexcept( synth_three_way{}( lhs.value, rhs ) )
+			)
 			{
 				return synth_three_way{}( lhs.value, rhs );
 			}
-			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs,
-															const T& rhs ) noexcept( noexcept( lhs.value == rhs ) )
+			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs, const T& rhs ) noexcept(
+				noexcept( lhs.value == rhs )
+			)
 			{
 				return lhs.value == rhs;
 			}

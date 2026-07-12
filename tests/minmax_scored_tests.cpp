@@ -86,7 +86,7 @@ TEST_CASE( "min_scored with custom scorer", "[minmax_scored]" )
         {3, 8},
         {4, 1},
         {5, 4}
-    };
+	};
 
 	const auto min_it = mclo::min_scored( values.begin(), values.end(), &pair_t::second );
 
@@ -103,7 +103,7 @@ TEST_CASE( "max_scored with custom scorer", "[minmax_scored]" )
         {3, 8},
         {4, 1},
         {5, 4}
-    };
+	};
 
 	const auto max_it = mclo::max_scored( values.begin(), values.end(), &pair_t::second );
 
@@ -120,7 +120,7 @@ TEST_CASE( "minmax_scored with custom scorer", "[minmax_scored]" )
         {3, 8},
         {4, 1},
         {5, 4}
-    };
+	};
 
 	const auto [ min_it, max_it ] = mclo::minmax_scored( values.begin(), values.end(), &pair_t::second );
 

@@ -36,16 +36,18 @@ namespace
 }
 
 template <std::size_t Rounds>
-mclo::chacha<Rounds>::chacha( const std::array<std::uint8_t, 32>& seed,
-							  const std::array<std::uint8_t, 12>& nonce ) noexcept
+mclo::chacha<Rounds>::chacha(
+	const std::array<std::uint8_t, 32>& seed, const std::array<std::uint8_t, 12>& nonce
+) noexcept
 	: state{ 0x61707865, 0x3320646e, 0x79622d32, 0x6b206574 } // "expand 32-byte k" constants
 {
 	this->seed( seed, nonce );
 }
 
 template <std::size_t Rounds>
-void mclo::chacha<Rounds>::seed( const std::array<std::uint8_t, 32>& seed,
-								 const std::array<std::uint8_t, 12>& nonce ) noexcept
+void mclo::chacha<Rounds>::seed(
+	const std::array<std::uint8_t, 32>& seed, const std::array<std::uint8_t, 12>& nonce
+) noexcept
 {
 	// Key
 	for ( std::size_t i = 0; i < 8; ++i )
@@ -148,9 +150,10 @@ template <std::size_t Rounds>
 bool mclo::chacha<Rounds>::operator==( const chacha<Rounds>& other ) const noexcept
 {
 	// Equality is defined by the future keystream, so already consumed buffer entries are ignored.
-	return state == other.state && keystream_index == other.keystream_index &&
-		   std::equal(
-			   keystream.begin() + keystream_index, keystream.end(), other.keystream.begin() + keystream_index );
+	return state == other.state && keystream_index == other.keystream_index
+		&& std::equal(
+			   keystream.begin() + keystream_index, keystream.end(), other.keystream.begin() + keystream_index
+		);
 }
 
 template class mclo::chacha<8>;

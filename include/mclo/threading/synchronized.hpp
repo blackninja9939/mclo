@@ -50,16 +50,18 @@ namespace mclo
 
 		/// @brief Copy constructs the guarded value.
 		/// @param value The value to copy into the guarded storage.
-		constexpr explicit synchronized( const value_type& value ) noexcept(
-			std::is_nothrow_copy_constructible_v<value_type> )
+		constexpr explicit synchronized(
+			const value_type& value
+		) noexcept( std::is_nothrow_copy_constructible_v<value_type> )
 			: m_data( value )
 		{
 		}
 
 		/// @brief Move constructs the guarded value.
 		/// @param value The value to move into the guarded storage.
-		constexpr explicit synchronized( value_type&& value ) noexcept(
-			std::is_nothrow_move_constructible_v<value_type> )
+		constexpr explicit synchronized(
+			value_type&& value
+		) noexcept( std::is_nothrow_move_constructible_v<value_type> )
 			: m_data( std::move( value ) )
 		{
 		}
@@ -68,8 +70,9 @@ namespace mclo
 		/// @tparam Args The argument types forwarded to the @p value_type constructor.
 		/// @param args The arguments forwarded to the @p value_type constructor.
 		template <typename... Args>
-		constexpr explicit synchronized( std::in_place_t, Args&&... args ) noexcept(
-			std::is_nothrow_constructible_v<value_type, Args...> )
+		constexpr explicit synchronized(
+			std::in_place_t, Args&&... args
+		) noexcept( std::is_nothrow_constructible_v<value_type, Args...> )
 			: m_data( std::forward<Args>( args )... )
 		{
 		}

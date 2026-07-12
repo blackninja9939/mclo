@@ -58,8 +58,10 @@ TEST_CASE( "move_only_function holding a small callable, when invoked, then call
 	CHECK( function( 5 ) == 15 );
 }
 
-TEST_CASE( "move_only_function holding a large callable, when invoked, then calls the heap-stored target",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function holding a large callable, when invoked, then calls the heap-stored target",
+	"[move_only_function]"
+)
 {
 	// Given a callable far larger than the inline buffer
 	std::array<int, 32> data;
@@ -82,8 +84,9 @@ TEST_CASE( "move_only_function holding a move-only target, when invoked, then ca
 	CHECK( function() == 7 );
 }
 
-TEST_CASE( "non-empty move_only_function, when move constructed from, then the source becomes empty",
-		   "[move_only_function]" )
+TEST_CASE(
+	"non-empty move_only_function, when move constructed from, then the source becomes empty", "[move_only_function]"
+)
 {
 	// Given
 	mclo::move_only_function<int()> source = []() { return 99; };
@@ -97,8 +100,9 @@ TEST_CASE( "non-empty move_only_function, when move constructed from, then the s
 	CHECK( destination() == 99 );
 }
 
-TEST_CASE( "non-empty move_only_function, when move assigned from, then it adopts the new target",
-		   "[move_only_function]" )
+TEST_CASE(
+	"non-empty move_only_function, when move assigned from, then it adopts the new target", "[move_only_function]"
+)
 {
 	// Given
 	mclo::move_only_function<int()> source = []() { return 1; };
@@ -124,8 +128,10 @@ TEST_CASE( "non-empty move_only_function, when assigned nullptr, then it becomes
 	CHECK_FALSE( static_cast<bool>( function ) );
 }
 
-TEST_CASE( "move_only_function constructed in place from arguments, when invoked, then uses the built target",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function constructed in place from arguments, when invoked, then uses the built target",
+	"[move_only_function]"
+)
 {
 	// Given
 	mclo::move_only_function<int( int )> function( std::in_place_type<multiplier>, 3 );
@@ -134,8 +140,10 @@ TEST_CASE( "move_only_function constructed in place from arguments, when invoked
 	CHECK( function( 4 ) == 12 );
 }
 
-TEST_CASE( "move_only_function constructed in place from an initializer list, when invoked, then uses the built target",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function constructed in place from an initializer list, when invoked, then uses the built target",
+	"[move_only_function]"
+)
 {
 	// Given
 	mclo::move_only_function<int()> function( std::in_place_type<sum_list>, { 1, 2, 3, 4 } );
@@ -144,8 +152,10 @@ TEST_CASE( "move_only_function constructed in place from an initializer list, wh
 	CHECK( function() == 10 );
 }
 
-TEST_CASE( "move_only_function with a const signature, when invoked through const access, then calls the target",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function with a const signature, when invoked through const access, then calls the target",
+	"[move_only_function]"
+)
 {
 	// Given
 	const mclo::move_only_function<int( int ) const> function = multiplier{ 5 };
@@ -154,8 +164,10 @@ TEST_CASE( "move_only_function with a const signature, when invoked through cons
 	CHECK( function( 6 ) == 30 );
 }
 
-TEST_CASE( "move_only_function with an rvalue-ref signature, when invoked on an rvalue, then calls the target",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function with an rvalue-ref signature, when invoked on an rvalue, then calls the target",
+	"[move_only_function]"
+)
 {
 	// Given
 	mclo::move_only_function<int() &&> function = []() { return 21; };
@@ -164,8 +176,10 @@ TEST_CASE( "move_only_function with an rvalue-ref signature, when invoked on an 
 	CHECK( std::move( function )() == 21 );
 }
 
-TEST_CASE( "move_only_function with a noexcept signature bound to a noexcept target, when invoked, then calls it",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function with a noexcept signature bound to a noexcept target, when invoked, then calls it",
+	"[move_only_function]"
+)
 {
 	// Given
 	mclo::move_only_function<int( int ) noexcept> function = []( const int value ) noexcept { return value * 2; };
@@ -189,8 +203,10 @@ TEST_CASE( "two move_only_functions, when swapped, then they exchange targets", 
 	CHECK( second() == 1 );
 }
 
-TEST_CASE( "move_only_function constructed from a null function pointer, when queried, then it is empty",
-		   "[move_only_function]" )
+TEST_CASE(
+	"move_only_function constructed from a null function pointer, when queried, then it is empty",
+	"[move_only_function]"
+)
 {
 	// Given
 	int ( *pointer )( int ) = nullptr;

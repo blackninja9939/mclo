@@ -10,13 +10,16 @@
 
 namespace mclo
 {
-	memory_pool::memory_pool( const std::size_t chunk_count,
-							  const std::size_t chunk_size,
-							  const std::size_t chunk_alignment )
+	memory_pool::memory_pool(
+		const std::size_t chunk_count, const std::size_t chunk_size, const std::size_t chunk_alignment
+	)
 		: m_chunk_alignment( std::max( chunk_alignment, alignof( free_list_node ) ) )
 		, m_chunk_size( mclo::align_up( std::max( chunk_size, sizeof( free_list_node ) ), m_chunk_alignment ) )
-		, m_data( static_cast<std::byte*>(
-			  ::operator new( m_chunk_size* chunk_count, std::align_val_t( m_chunk_alignment ) ) ) )
+		, m_data(
+			  static_cast<std::byte*>(
+				  ::operator new( m_chunk_size* chunk_count, std::align_val_t( m_chunk_alignment ) )
+			  )
+		  )
 	{
 		MCLO_DEBUG_ASSERT( mclo::is_pow2( m_chunk_alignment ), "Chunk alignment must be a power of 2" );
 		MCLO_DEBUG_ASSERT( m_chunk_size % m_chunk_alignment == 0, "Chunk size must be a multiple of chunk alignment" );
@@ -43,8 +46,10 @@ namespace mclo
 	{
 	}
 
-	void* memory_pool::allocate( [[maybe_unused]] const std::size_t size,
-								 [[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */ )
+	void* memory_pool::allocate(
+		[[maybe_unused]] const std::size_t size,
+		[[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */
+	)
 	{
 		MCLO_DEBUG_ASSERT( size <= m_chunk_size, "Requested size exceeds chunk size" );
 		MCLO_DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );
@@ -62,7 +67,8 @@ namespace mclo
 	void memory_pool::deallocate(
 		void* const ptr,
 		[[maybe_unused]] const std::size_t size,
-		[[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */ ) noexcept
+		[[maybe_unused]] const std::size_t alignment /*= alignof( std::max_align_t ) */
+	) noexcept
 	{
 		MCLO_DEBUG_ASSERT( size <= m_chunk_size, "Deallocated size exceeds chunk size" );
 		MCLO_DEBUG_ASSERT( alignment <= m_chunk_alignment, "Requested alignment exceeds chunk alignment" );

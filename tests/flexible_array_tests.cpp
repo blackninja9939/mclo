@@ -84,8 +84,9 @@ namespace
 }
 
 // Static assertions
-static_assert( sizeof( mclo::flexible_array<int> ) == sizeof( void* ),
-			   "Empty allocator should be optimized via no_unique_address" );
+static_assert(
+	sizeof( mclo::flexible_array<int> ) == sizeof( void* ), "Empty allocator should be optimized via no_unique_address"
+);
 
 // Default construction
 
@@ -542,7 +543,8 @@ TEST_CASE( "flexible_array iterator pair with allocator", "[flexible_array]" )
 	const std::array<int, 3> source = { 1, 2, 3 };
 
 	const mclo::flexible_array<int, std::size_t, mclo::arena_allocator<int>> arr(
-		source.begin(), source.end(), allocator );
+		source.begin(), source.end(), allocator
+	);
 
 	REQUIRE( arr.size() == 3 );
 	CHECK( arr[ 0 ] == 1 );

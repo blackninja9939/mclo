@@ -157,8 +157,8 @@ Maecenas a tellus congue, luctus nisi in, efficitur urna. Donec tellus massa, ph
 			string.reserve( 32 );
 			auto ptr = string.data();
 			benchmark::DoNotOptimize( ptr );
-			string = std::string( "hello world I am a" ) + "pretty big string" + std::to_string( 42 ) + "got nums" +
-					 "and stuff";
+			string = std::string( "hello world I am a" ) + "pretty big string" + std::to_string( 42 ) + "got nums"
+				+ "and stuff";
 			benchmark::ClobberMemory();
 		}
 	}

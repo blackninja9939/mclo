@@ -38,14 +38,14 @@ namespace mclo
 		static_assert( std::is_object_v<T>, "T must be an object type" );
 		static_assert( !std::is_array_v<T>, "T must not be an array type" );
 		static_assert( !std::is_same_v<T, std::in_place_t>, "T cannot be std::in_place_t" );
-		static_assert( !mclo::specialization_of<T, std::in_place_type_t>,
-					   "T cannot be a specialization of std::in_place_type_t" );
+		static_assert(
+			!mclo::specialization_of<T, std::in_place_type_t>, "T cannot be a specialization of std::in_place_type_t"
+		);
 		static_assert( std::is_same_v<T, std::remove_cv_t<T>>, "T cannot be cv qualified" );
 
 		template <typename U>
-		static constexpr bool is_convertible_from =
-			!std::is_same_v<std::remove_cvref_t<U>, indirect> &&
-			!std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U>;
+		static constexpr bool is_convertible_from = !std::is_same_v<std::remove_cvref_t<U>, indirect>
+			&& !std::is_same_v<std::remove_cvref_t<U>, std::in_place_t> && std::is_constructible_v<T, U>;
 
 	public:
 		using value_type = T;
@@ -69,7 +69,8 @@ namespace mclo
 
 		constexpr indirect( const indirect& other )
 			: indirect(
-				  std::allocator_arg, alloc_traits::select_on_container_copy_construction( other.m_alloc ), other )
+				  std::allocator_arg, alloc_traits::select_on_container_copy_construction( other.m_alloc ), other
+			  )
 		{
 			static_assert( std::is_copy_constructible_v<T>, "T must be copy constructible" );
 		}
@@ -90,9 +91,9 @@ namespace mclo
 		{
 		}
 
-		constexpr indirect( std::allocator_arg_t,
-							const Allocator& alloc,
-							indirect&& other ) noexcept( alloc_traits::is_always_equal::value )
+		constexpr indirect( std::allocator_arg_t, const Allocator& alloc, indirect&& other ) noexcept(
+			alloc_traits::is_always_equal::value
+		)
 			: m_alloc( alloc )
 		{
 			using std::swap;
@@ -146,8 +147,10 @@ namespace mclo
 		}
 
 		template <typename I, typename... Us>
-			requires( std::is_constructible_v<T, std::initializer_list<I>&, Us...> &&
-					  std::is_default_constructible_v<allocator_type> )
+			requires(
+				std::is_constructible_v<T, std::initializer_list<I>&, Us...>
+				&& std::is_default_constructible_v<allocator_type>
+			)
 		explicit constexpr indirect( std::in_place_t, std::initializer_list<I> init_list, Us&&... us )
 			: indirect( std::allocator_arg, allocator_type{}, std::in_place, init_list, std::forward<Us>( us )... )
 		{
@@ -155,11 +158,13 @@ namespace mclo
 
 		template <typename I, typename... Us>
 			requires( std::is_constructible_v<T, std::initializer_list<I>&, Us...> )
-		explicit constexpr indirect( std::allocator_arg_t,
-									 const Allocator& alloc,
-									 std::in_place_t,
-									 std::initializer_list<I> init_list,
-									 Us&&... us )
+		explicit constexpr indirect(
+			std::allocator_arg_t,
+			const Allocator& alloc,
+			std::in_place_t,
+			std::initializer_list<I> init_list,
+			Us&&... us
+		)
 			: m_alloc( alloc )
 		{
 			m_ptr = create( m_alloc, init_list, std::forward<Us>( us )... );
@@ -211,7 +216,8 @@ namespace mclo
 		}
 
 		constexpr indirect& operator=( indirect&& other ) noexcept(
-			alloc_traits::propagate_on_container_move_assignment::value || alloc_traits::is_always_equal::value )
+			alloc_traits::propagate_on_container_move_assignment::value || alloc_traits::is_always_equal::value
+		)
 		{
 			static_assert( std::is_copy_constructible_v<T>, "T must be copy constructible" );
 
@@ -247,8 +253,10 @@ namespace mclo
 		}
 
 		template <typename U = T>
-			requires( !std::is_same_v<std::remove_cvref_t<U>, indirect> && std::is_constructible_v<T, U> &&
-					  std::is_assignable_v<T&, U> )
+			requires(
+				!std::is_same_v<std::remove_cvref_t<U>, indirect> && std::is_constructible_v<T, U>
+				&& std::is_assignable_v<T&, U>
+			)
 		constexpr indirect& operator=( U&& other )
 		{
 			if ( valueless_after_move() )
@@ -308,8 +316,9 @@ namespace mclo
 			return m_alloc;
 		}
 
-		constexpr void swap( indirect& other ) noexcept( alloc_traits::propagate_on_container_swap::value ||
-														 alloc_traits::is_always_equal::value )
+		constexpr void swap( indirect& other ) noexcept(
+			alloc_traits::propagate_on_container_swap::value || alloc_traits::is_always_equal::value
+		)
 		{
 			using std::swap;
 
@@ -337,9 +346,9 @@ namespace mclo
 		}
 
 		template <class U, class AA>
-		[[nodiscard]] friend constexpr bool operator==( const indirect& lhs,
-														const indirect<U, AA>& rhs ) noexcept( noexcept( *lhs ==
-																										 *rhs ) )
+		[[nodiscard]] friend constexpr bool operator==( const indirect& lhs, const indirect<U, AA>& rhs ) noexcept(
+			noexcept( *lhs == *rhs )
+		)
 		{
 			if ( lhs.valueless_after_move() )
 			{
@@ -357,7 +366,8 @@ namespace mclo
 
 		template <class U, class AA>
 		[[nodiscard]] friend constexpr auto operator<=>( const indirect& lhs, const indirect<U, AA>& rhs ) noexcept(
-			noexcept( *lhs <=> *rhs ) ) -> mclo::synth_three_way_result<T, U>
+			noexcept( *lhs <=> *rhs )
+		) -> mclo::synth_three_way_result<T, U>
 		{
 			if ( lhs.valueless_after_move() || rhs.valueless_after_move() )
 			{
@@ -370,8 +380,9 @@ namespace mclo
 		}
 
 		template <class U>
-		[[nodiscard]] friend constexpr bool operator==( const indirect& lhs,
-														const U& rhs ) noexcept( noexcept( *lhs == rhs ) )
+		[[nodiscard]] friend constexpr bool operator==( const indirect& lhs, const U& rhs ) noexcept(
+			noexcept( *lhs == rhs )
+		)
 		{
 			if ( lhs.valueless_after_move() )
 			{
@@ -384,9 +395,9 @@ namespace mclo
 		}
 
 		template <class U>
-		[[nodiscard]] friend constexpr auto operator<=>( const indirect& lhs,
-														 const U& rhs ) noexcept( noexcept( *lhs <=> rhs ) )
-			-> mclo::synth_three_way_result<T, U>
+		[[nodiscard]] friend constexpr auto operator<=>( const indirect& lhs, const U& rhs ) noexcept(
+			noexcept( *lhs <=> rhs )
+		) -> mclo::synth_three_way_result<T, U>
 		{
 			if ( lhs.valueless_after_move() )
 			{

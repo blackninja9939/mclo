@@ -83,9 +83,9 @@ namespace
 {
 	// The empty mixin bases must collapse via EBO so the wrapper is layout-compatible with the underlying value.
 	template <typename Strong, typename Underlying>
-	concept zero_overhead = sizeof( Strong ) == sizeof( Underlying ) && alignof( Strong ) == alignof( Underlying ) &&
-							std::is_standard_layout_v<Strong> == std::is_standard_layout_v<Underlying> &&
-							std::is_trivially_copyable_v<Strong> == std::is_trivially_copyable_v<Underlying>;
+	concept zero_overhead = sizeof( Strong ) == sizeof( Underlying ) && alignof( Strong ) == alignof( Underlying )
+		&& std::is_standard_layout_v<Strong> == std::is_standard_layout_v<Underlying>
+		&& std::is_trivially_copyable_v<Strong> == std::is_trivially_copyable_v<Underlying>;
 }
 
 using overhead_plain = mclo::strong_type::type<int, struct overhead_plain_tag>;
@@ -96,12 +96,13 @@ using overhead_equality =
 using overhead_semiregular =
 	mclo::strong_type::type<int, struct overhead_semiregular_tag, mclo::strong_type::semiregular>;
 using overhead_regular = mclo::strong_type::type<int, struct overhead_regular_tag, mclo::strong_type::regular>;
-using overhead_composed = mclo::strong_type::type<int,
-												  struct overhead_composed_tag,
-												  mclo::strong_type::arithmetic,
-												  mclo::strong_type::ordered,
-												  mclo::strong_type::semiregular,
-												  mclo::strong_type::hashable>;
+using overhead_composed = mclo::strong_type::type<
+	int,
+	struct overhead_composed_tag,
+	mclo::strong_type::arithmetic,
+	mclo::strong_type::ordered,
+	mclo::strong_type::semiregular,
+	mclo::strong_type::hashable>;
 
 static_assert( zero_overhead<overhead_plain, int> );
 static_assert( zero_overhead<overhead_arithmetic, int> );
@@ -341,22 +342,38 @@ using inc_int = mclo::strong_type::type<int, struct inc_tag, mclo::strong_type::
 using dec_int = mclo::strong_type::type<int, struct dec_tag, mclo::strong_type::decrementable>;
 
 // Each component mixin contributes only its own behaviour and composes nothing else.
-static_assert( mclo::strong_type::has_mixin<add_int, mclo::strong_type::addable> &&
-			   !mclo::strong_type::has_mixin<add_int, mclo::strong_type::subtractable> );
-static_assert( mclo::strong_type::has_mixin<sub_int, mclo::strong_type::subtractable> &&
-			   !mclo::strong_type::has_mixin<sub_int, mclo::strong_type::addable> );
-static_assert( mclo::strong_type::has_mixin<mul_int, mclo::strong_type::multipliable> &&
-			   !mclo::strong_type::has_mixin<mul_int, mclo::strong_type::dividable> );
-static_assert( mclo::strong_type::has_mixin<div_int, mclo::strong_type::dividable> &&
-			   !mclo::strong_type::has_mixin<div_int, mclo::strong_type::multipliable> );
-static_assert( mclo::strong_type::has_mixin<mod_int, mclo::strong_type::modulable> &&
-			   !mclo::strong_type::has_mixin<mod_int, mclo::strong_type::addable> );
-static_assert( mclo::strong_type::has_mixin<neg_int, mclo::strong_type::negatable> &&
-			   !mclo::strong_type::has_mixin<neg_int, mclo::strong_type::subtractable> );
-static_assert( mclo::strong_type::has_mixin<inc_int, mclo::strong_type::incrementable> &&
-			   !mclo::strong_type::has_mixin<inc_int, mclo::strong_type::decrementable> );
-static_assert( mclo::strong_type::has_mixin<dec_int, mclo::strong_type::decrementable> &&
-			   !mclo::strong_type::has_mixin<dec_int, mclo::strong_type::incrementable> );
+static_assert(
+	mclo::strong_type::has_mixin<add_int, mclo::strong_type::addable>
+	&& !mclo::strong_type::has_mixin<add_int, mclo::strong_type::subtractable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<sub_int, mclo::strong_type::subtractable>
+	&& !mclo::strong_type::has_mixin<sub_int, mclo::strong_type::addable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<mul_int, mclo::strong_type::multipliable>
+	&& !mclo::strong_type::has_mixin<mul_int, mclo::strong_type::dividable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<div_int, mclo::strong_type::dividable>
+	&& !mclo::strong_type::has_mixin<div_int, mclo::strong_type::multipliable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<mod_int, mclo::strong_type::modulable>
+	&& !mclo::strong_type::has_mixin<mod_int, mclo::strong_type::addable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<neg_int, mclo::strong_type::negatable>
+	&& !mclo::strong_type::has_mixin<neg_int, mclo::strong_type::subtractable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<inc_int, mclo::strong_type::incrementable>
+	&& !mclo::strong_type::has_mixin<inc_int, mclo::strong_type::decrementable>
+);
+static_assert(
+	mclo::strong_type::has_mixin<dec_int, mclo::strong_type::decrementable>
+	&& !mclo::strong_type::has_mixin<dec_int, mclo::strong_type::incrementable>
+);
 
 // noexcept propagates from the underlying int operations.
 static_assert( noexcept( std::declval<add_int>() + std::declval<add_int>() ) );
@@ -620,12 +637,13 @@ TEST_CASE( "strong_type iostreamable round trips through a stream", "[strong_typ
 
 // --- Preset bundles -----------------------------------------------------------------------------
 
-using number = mclo::strong_type::type<int,
-									   struct number_tag,
-									   mclo::strong_type::arithmetic,
-									   mclo::strong_type::ordered,
-									   mclo::strong_type::hashable,
-									   mclo::strong_type::default_initialized>;
+using number = mclo::strong_type::type<
+	int,
+	struct number_tag,
+	mclo::strong_type::arithmetic,
+	mclo::strong_type::ordered,
+	mclo::strong_type::hashable,
+	mclo::strong_type::default_initialized>;
 
 static_assert( std::three_way_comparable<number> );
 static_assert( std_hashable<number> );
@@ -785,7 +803,7 @@ TEST_CASE( "strong_type indexed exposes a subscript operator", "[strong_type]" )
 {
 	indexed_array object{
 		std::array<int, 3>{ 10, 20, 30 }
-    };
+	};
 
 	CHECK( object[ 0 ] == 10 );
 	CHECK( object[ 2 ] == 30 );
@@ -842,7 +860,7 @@ TEST_CASE( "strong_type range iterates and dispatches to ranges algorithms", "[s
 {
 	int_vector object{
 		std::vector<int>{ 1, 2, 3, 4 }
-    };
+	};
 
 	int sum = 0;
 	for ( const int value : object )
@@ -861,7 +879,7 @@ TEST_CASE( "strong_type range exposes size and empty for sized ranges", "[strong
 {
 	const fixed_ints object{
 		std::array<int, 3>{ 5, 6, 7 }
-    };
+	};
 
 	CHECK( object.size() == 3 );
 	CHECK_FALSE( object.empty() );

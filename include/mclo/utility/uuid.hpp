@@ -14,7 +14,8 @@ namespace mclo
 	namespace detail
 	{
 		constexpr std::optional<std::array<std::byte, 16>> try_parse_uuid_from_string(
-			const std::string_view str ) noexcept
+			const std::string_view str
+		) noexcept
 		{
 			if ( str.size() != 36 )
 			{

@@ -12,8 +12,10 @@ namespace mclo
 		[[nodiscard]] T* allocate_from_tuple( Tuple&& tuple, std::index_sequence<Indices...> )
 		{
 			// construct T from the elements of tuple
-			static_assert( std::is_constructible_v<T, decltype( std::get<Indices>( std::forward<Tuple>( tuple ) ) )...>,
-						   "the target type must be constructible from the fields of the argument tuple." );
+			static_assert(
+				std::is_constructible_v<T, decltype( std::get<Indices>( std::forward<Tuple>( tuple ) ) )...>,
+				"the target type must be constructible from the fields of the argument tuple."
+			);
 			return new T( std::get<Indices>( std::forward<Tuple>( tuple ) )... );
 		}
 	}
@@ -29,7 +31,7 @@ namespace mclo
 	[[nodiscard]] T* allocate_from_tuple( Tuple&& tuple )
 	{
 		return detail::allocate_from_tuple<T>(
-			std::forward<Tuple>( tuple ),
-			std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{} );
+			std::forward<Tuple>( tuple ), std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<Tuple>>>{}
+		);
 	}
 }

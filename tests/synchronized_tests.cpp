@@ -18,9 +18,9 @@ namespace
 	using mutex_types = mclo::meta::type_list<mclo::mutex, mclo::spin_mutex, std::shared_mutex>;
 }
 
-TEMPLATE_LIST_TEST_CASE( "default constructed synchronized, copy, has value typed default",
-						 "[synchronized]",
-						 mutex_types )
+TEMPLATE_LIST_TEST_CASE(
+	"default constructed synchronized, copy, has value typed default", "[synchronized]", mutex_types
+)
 {
 	mclo::synchronized<std::string, TestType> sync;
 
@@ -29,9 +29,9 @@ TEMPLATE_LIST_TEST_CASE( "default constructed synchronized, copy, has value type
 	CHECK( value.empty() );
 }
 
-TEMPLATE_LIST_TEST_CASE( "synchronized constructed from value, copy, returns that value",
-						 "[synchronized]",
-						 mutex_types )
+TEMPLATE_LIST_TEST_CASE(
+	"synchronized constructed from value, copy, returns that value", "[synchronized]", mutex_types
+)
 {
 	mclo::synchronized<int, TestType> sync( 42 );
 
@@ -40,9 +40,9 @@ TEMPLATE_LIST_TEST_CASE( "synchronized constructed from value, copy, returns tha
 	CHECK( value == 42 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "synchronized constructed in place, copy, returns constructed value",
-						 "[synchronized]",
-						 mutex_types )
+TEMPLATE_LIST_TEST_CASE(
+	"synchronized constructed in place, copy, returns constructed value", "[synchronized]", mutex_types
+)
 {
 	mclo::synchronized<std::string, TestType> sync( std::in_place, 3, 'a' );
 
@@ -60,9 +60,9 @@ TEMPLATE_LIST_TEST_CASE( "synchronized, with_lock mutating value, mutation is ob
 	CHECK( sync.copy() == 42 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "synchronized, with_lock returning value, returns callable result",
-						 "[synchronized]",
-						 mutex_types )
+TEMPLATE_LIST_TEST_CASE(
+	"synchronized, with_lock returning value, returns callable result", "[synchronized]", mutex_types
+)
 {
 	mclo::synchronized<int, TestType> sync( 20 );
 
@@ -80,9 +80,9 @@ TEMPLATE_LIST_TEST_CASE( "synchronized, with_shared_lock reading value, returns 
 	CHECK( value == 7 );
 }
 
-TEMPLATE_LIST_TEST_CASE( "synchronized, with_shared_lock given member function pointer, invokes member",
-						 "[synchronized]",
-						 mutex_types )
+TEMPLATE_LIST_TEST_CASE(
+	"synchronized, with_shared_lock given member function pointer, invokes member", "[synchronized]", mutex_types
+)
 {
 	mclo::synchronized<std::string, TestType> sync( std::in_place, 3, 'a' );
 
@@ -167,8 +167,10 @@ TEST_CASE( "synchronized, concurrent with_lock increments, all increments are ap
 	CHECK( sync.copy() == num_threads * increments_per_thread );
 }
 
-TEST_CASE( "synchronized with mutex and condition variable, with_lock waits until notified, receives produced item",
-		   "[synchronized]" )
+TEST_CASE(
+	"synchronized with mutex and condition variable, with_lock waits until notified, receives produced item",
+	"[synchronized]"
+)
 {
 	mclo::synchronized<std::queue<int>, mclo::mutex> queue;
 	mclo::condition_variable not_empty;

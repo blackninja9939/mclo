@@ -141,9 +141,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Allocator Construct Is Empty With Expecte
 	CHECK( map.get_allocator() == allocator );
 }
 
-TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Reserve Slot Constructor Is Empty With Reserved Slots",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"DenseSlotMap Reserve Slot Constructor Is Empty With Reserved Slots", "[slot_map]", test_types
+)
 {
 	TestType map( 5 );
 	check_empty( map );
@@ -164,9 +164,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Null Handle Lookup Is Nullptr", "[slot_ma
 	CHECK( map.lookup( handle ) == nullptr );
 }
 
-TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Insert LValue Value Is Inserted And Returns Valid Handle",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"DenseSlotMap Insert LValue Value Is Inserted And Returns Valid Handle", "[slot_map]", test_types
+)
 {
 	TestType map;
 	const std::string value = "hello";
@@ -183,9 +183,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Insert LValue Value Is Inserted And Retur
 	CHECK( *ptr == value );
 }
 
-TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Insert RValue Value Is Inserted And Returns Valid Handle",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"DenseSlotMap Insert RValue Value Is Inserted And Returns Valid Handle", "[slot_map]", test_types
+)
 {
 	TestType map;
 	std::string value = "hello";
@@ -220,9 +220,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Emplace Value Is Inserted And Returns Val
 	CHECK( *ptr == value );
 }
 
-TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Emplace And Get Value Is Inserted And Returns Valid Handle",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"DenseSlotMap Emplace And Get Value Is Inserted And Returns Valid Handle", "[slot_map]", test_types
+)
 {
 	TestType map;
 	const std::string value( 6, 'a' );
@@ -505,9 +505,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Erase If Erases Expected Handles", "[slot
 	CHECK_THAT( map, UnorderedRangeEquals( expectedValues ) );
 }
 
-TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Copy Construct Original Unmodified Copy Identical Values",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"DenseSlotMap Copy Construct Original Unmodified Copy Identical Values", "[slot_map]", test_types
+)
 {
 	constexpr std::array expectedValues{ "42", "16", "99" };
 	TestType map1;
@@ -542,9 +542,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Move Construct Original Empty Move Takes 
 	CHECK_THAT( map2, UnorderedRangeEquals( expectedValues ) );
 }
 
-TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Copy Assign Original Unmodified Copy Identical Values",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"DenseSlotMap Copy Assign Original Unmodified Copy Identical Values", "[slot_map]", test_types
+)
 {
 	constexpr std::array expectedValues{ "42", "16", "99" };
 	TestType map1;
@@ -590,9 +590,9 @@ TEMPLATE_LIST_TEST_CASE( "DenseSlotMap Fuzz Testing Works Correctly", "[slot_map
 	}
 }
 
-TEMPLATE_LIST_TEST_CASE( "dense_slot_map handle type, hash different handles, different hashes",
-						 "[slot_map]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"dense_slot_map handle type, hash different handles, different hashes", "[slot_map]", test_types
+)
 {
 	using handle_type = typename TestType::handle_type;
 	TestType map;

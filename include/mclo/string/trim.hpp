@@ -52,8 +52,8 @@ namespace mclo
 	/// @return A view of the remaining string, or an empty view if every character was trimmed.
 	template <typename String>
 	[[nodiscard]] constexpr string_view_t<String> trim_front(
-		const String& string,
-		const string_view_t<String> to_trim = whitespace_characters_v<string_char_t<String>> ) noexcept
+		const String& string, const string_view_t<String> to_trim = whitespace_characters_v<string_char_t<String>>
+	) noexcept
 	{
 		const string_view_t<String> view{ string };
 		const auto start = view.find_first_not_of( to_trim );
@@ -70,8 +70,8 @@ namespace mclo
 	/// @return A view of the remaining string, or an empty view if every character was trimmed.
 	template <typename String>
 	[[nodiscard]] constexpr string_view_t<String> trim_back(
-		const String& string,
-		const string_view_t<String> to_trim = whitespace_characters_v<string_char_t<String>> ) noexcept
+		const String& string, const string_view_t<String> to_trim = whitespace_characters_v<string_char_t<String>>
+	) noexcept
 	{
 		const string_view_t<String> view{ string };
 		const auto end = view.find_last_not_of( to_trim );
@@ -88,8 +88,8 @@ namespace mclo
 	/// @return A view of the remaining string, or an empty view if every character was trimmed.
 	template <typename String>
 	[[nodiscard]] constexpr string_view_t<String> trim(
-		const String& string,
-		const string_view_t<String> to_trim = whitespace_characters_v<string_char_t<String>> ) noexcept
+		const String& string, const string_view_t<String> to_trim = whitespace_characters_v<string_char_t<String>>
+	) noexcept
 	{
 		const string_view_t<String> view{ string };
 		auto start = view.find_first_not_of( to_trim );

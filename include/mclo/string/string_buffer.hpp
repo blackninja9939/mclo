@@ -398,8 +398,9 @@ namespace mclo
 		/// @pre The combined length must not exceed @ref max_string_size.
 		constexpr void append( const view_type& string ) noexcept
 		{
-			MCLO_DEBUG_ASSERT( string.size() + m_length < max_string_size,
-							   "Count would be larger than max string size" );
+			MCLO_DEBUG_ASSERT(
+				string.size() + m_length < max_string_size, "Count would be larger than max string size"
+			);
 			traits_copy( m_data.data() + m_length, string.data(), string.size() );
 			m_length += string.size();
 			null_terminate_end();

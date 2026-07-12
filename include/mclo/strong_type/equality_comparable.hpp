@@ -8,9 +8,9 @@ namespace mclo::strong_type
 		template <typename Derived>
 		struct mixin
 		{
-			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs,
-															const Derived& rhs ) noexcept( noexcept( lhs.value ==
-																									 rhs.value ) )
+			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs, const Derived& rhs ) noexcept(
+				noexcept( lhs.value == rhs.value )
+			)
 			{
 				return lhs.value == rhs.value;
 			}
@@ -29,8 +29,9 @@ namespace mclo::strong_type
 		template <typename Derived>
 		struct mixin
 		{
-			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs,
-															const T& rhs ) noexcept( noexcept( lhs.value == rhs ) )
+			[[nodiscard]] friend constexpr bool operator==( const Derived& lhs, const T& rhs ) noexcept(
+				noexcept( lhs.value == rhs )
+			)
 			{
 				return lhs.value == rhs;
 			}

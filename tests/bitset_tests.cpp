@@ -32,13 +32,13 @@ namespace
 		[[nodiscard]] constexpr bool operator==( const dynamic_bitset_wrapper& other ) const noexcept = default;
 	};
 
-	using test_types =
-		mclo::meta::type_list<mclo::bitset<bitset_size, std::uint32_t>,
-							  dynamic_bitset_wrapper<std::uint32_t>,
-							  dynamic_bitset_wrapper<std::uint32_t, mclo::small_vector<std::uint32_t, 4>>,
-							  mclo::bitset<bitset_size, std::uint64_t>,
-							  dynamic_bitset_wrapper<std::uint64_t>,
-							  dynamic_bitset_wrapper<std::uint64_t, mclo::small_vector<std::uint64_t, 4>>>;
+	using test_types = mclo::meta::type_list<
+		mclo::bitset<bitset_size, std::uint32_t>,
+		dynamic_bitset_wrapper<std::uint32_t>,
+		dynamic_bitset_wrapper<std::uint32_t, mclo::small_vector<std::uint32_t, 4>>,
+		mclo::bitset<bitset_size, std::uint64_t>,
+		dynamic_bitset_wrapper<std::uint64_t>,
+		dynamic_bitset_wrapper<std::uint64_t, mclo::small_vector<std::uint64_t, 4>>>;
 
 	template <typename Bitset, std::size_t Size>
 	void check_only_these_set( const Bitset& bitset, std::array<std::size_t, Size> indices )
@@ -58,9 +58,9 @@ namespace
 	}
 
 	template <typename CharT, std::size_t Size>
-	static std::basic_string<CharT> make_string_for_bits( const std::array<std::size_t, Size>& set_indices,
-														  const CharT unset_char,
-														  const CharT set_char )
+	static std::basic_string<CharT> make_string_for_bits(
+		const std::array<std::size_t, Size>& set_indices, const CharT unset_char, const CharT set_char
+	)
 	{
 		std::basic_string<CharT> str( bitset_size, unset_char );
 		for ( const std::size_t index : set_indices )
@@ -136,9 +136,9 @@ TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string, correct are set", "[bit
 	check_only_these_set( set, set_indices );
 }
 
-TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string with invalid set char, throws invalid_argument",
-						 "[bitset]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"Bitset, construct from string with invalid set char, throws invalid_argument", "[bitset]", test_types
+)
 {
 	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
 	constexpr const char set_char = 'a';
@@ -150,9 +150,9 @@ TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string with invalid set char, t
 	CHECK_THROWS_AS( func(), std::invalid_argument );
 }
 
-TEMPLATE_LIST_TEST_CASE( "Bitset, construct from string with invalid unset char, throws invalid_argument",
-						 "[bitset]",
-						 test_types )
+TEMPLATE_LIST_TEST_CASE(
+	"Bitset, construct from string with invalid unset char, throws invalid_argument", "[bitset]", test_types
+)
 {
 	constexpr auto set_indices = index_array<0, 1, 4, 32, 33>();
 	constexpr const char set_char = 'a';

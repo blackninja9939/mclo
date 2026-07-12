@@ -6,7 +6,8 @@ namespace
 {
 	static_assert(
 		sizeof( std::size_t ) == sizeof( XXH64_hash_t ),
-		"Size of std::size_t must be the same as XXH64_hash_t for the return type of finish() to be correct" );
+		"Size of std::size_t must be the same as XXH64_hash_t for the return type of finish() to be correct"
+	);
 }
 
 mclo::xxhash_64::xxhash_64( const XXH64_hash_t seed ) noexcept
@@ -48,8 +49,9 @@ std::size_t mclo::xxhash_3::finish() const noexcept
 	return XXH3_64bits_digest( m_state.get() );
 }
 
-MCLO_STATIC_CALL_OPERATOR void mclo::xxhash_3::deleter::operator()( XXH3_state_t* data )
-	MCLO_CONST_CALL_OPERATOR noexcept
+MCLO_STATIC_CALL_OPERATOR void mclo::xxhash_3::deleter::operator()(
+	XXH3_state_t* data
+) MCLO_CONST_CALL_OPERATOR noexcept
 {
 	[[maybe_unused]] const XXH_errorcode result = XXH3_freeState( data );
 	MCLO_DEBUG_ASSERT( result == XXH_OK, "Failed to free state at", data );

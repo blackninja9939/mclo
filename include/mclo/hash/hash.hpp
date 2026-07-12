@@ -30,8 +30,9 @@ namespace mclo
 		/// @brief Computes the hash of @p value.
 		/// @param value The value to hash.
 		/// @return The combined hash result.
-		[[nodiscard]] std::size_t operator()( const T& value ) const
-			noexcept( std::is_nothrow_copy_constructible_v<Hasher> )
+		[[nodiscard]] std::size_t operator()(
+			const T& value
+		) const noexcept( std::is_nothrow_copy_constructible_v<Hasher> )
 		{
 			Hasher local = m_hasher;
 			hash_append( local, value );
@@ -49,8 +50,9 @@ namespace mclo
 	/// @return The hash result.
 	template <hasher Hasher = mclo::rapidhash, hashable_with<Hasher> T, typename... Args>
 		requires( std::is_constructible_v<Hasher, Args...> )
-	std::size_t hash_object( const T& value,
-							 Args&&... args ) noexcept( std::is_nothrow_constructible_v<Hasher, Args...> )
+	std::size_t hash_object(
+		const T& value, Args&&... args
+	) noexcept( std::is_nothrow_constructible_v<Hasher, Args...> )
 	{
 		Hasher h( std::forward<Args>( args )... );
 		hash_append( h, value );

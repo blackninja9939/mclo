@@ -27,9 +27,11 @@ namespace
 		}
 	};
 
-	static_assert( sizeof( std::unique_ptr<tracker> ) ==
-					   sizeof( std::unique_ptr<tracker, mclo::allocation_deleter<std::allocator<tracker>>> ),
-				   "For an empty allocator there should be no overhead to the unique_ptr" );
+	static_assert(
+		sizeof( std::unique_ptr<tracker> )
+			== sizeof( std::unique_ptr<tracker, mclo::allocation_deleter<std::allocator<tracker>>> ),
+		"For an empty allocator there should be no overhead to the unique_ptr"
+	);
 }
 
 TEST_CASE( "allocator_new allocates type", "[memory]" )

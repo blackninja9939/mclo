@@ -24,15 +24,15 @@ namespace mclo
 	/// @param proj The projection used to obtain each element's weight.
 	/// @return The index of the selected element.
 	/// @pre @p total must equal the sum of the projected weights and must be positive.
-	template <std::uniform_random_bit_generator Engine,
-			  std::ranges::forward_range Rng,
-			  std::indirectly_unary_invocable<std::ranges::iterator_t<Rng>> Proj = std::identity,
-			  typename WeightType = std::remove_cvref_t<std::indirect_result_t<Proj&, std::ranges::iterator_t<Rng>>>>
+	template <
+		std::uniform_random_bit_generator Engine,
+		std::ranges::forward_range Rng,
+		std::indirectly_unary_invocable<std::ranges::iterator_t<Rng>> Proj = std::identity,
+		typename WeightType = std::remove_cvref_t<std::indirect_result_t<Proj&, std::ranges::iterator_t<Rng>>>>
 		requires std::integral<WeightType>
-	[[nodiscard]] std::ranges::range_difference_t<Rng> weighted_index( Engine& engine,
-																	   Rng&& rng,
-																	   const std::type_identity_t<WeightType> total,
-																	   Proj proj = {} )
+	[[nodiscard]] std::ranges::range_difference_t<Rng> weighted_index(
+		Engine& engine, Rng&& rng, const std::type_identity_t<WeightType> total, Proj proj = {}
+	)
 	{
 		MCLO_DEBUG_ASSERT( total > 0, "Total weight must be positive" );
 
@@ -70,10 +70,11 @@ namespace mclo
 	/// @param proj The projection used to obtain each element's weight.
 	/// @return The index of the selected element.
 	/// @pre @p rng must not be empty, all weights must be non-negative, and the total weight must be positive.
-	template <std::uniform_random_bit_generator Engine,
-			  std::ranges::forward_range Rng,
-			  std::indirectly_unary_invocable<std::ranges::iterator_t<Rng>> Proj = std::identity,
-			  typename WeightType = std::remove_cvref_t<std::indirect_result_t<Proj&, std::ranges::iterator_t<Rng>>>>
+	template <
+		std::uniform_random_bit_generator Engine,
+		std::ranges::forward_range Rng,
+		std::indirectly_unary_invocable<std::ranges::iterator_t<Rng>> Proj = std::identity,
+		typename WeightType = std::remove_cvref_t<std::indirect_result_t<Proj&, std::ranges::iterator_t<Rng>>>>
 		requires std::integral<WeightType>
 	[[nodiscard]] std::ranges::range_difference_t<Rng> weighted_index( Engine& engine, Rng&& rng, Proj proj = {} )
 	{

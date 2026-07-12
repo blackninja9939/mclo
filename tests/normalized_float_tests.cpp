@@ -36,8 +36,9 @@ TEMPLATE_LIST_TEST_CASE( "Construction from Float", "[math][normalized_float]", 
 
 TEMPLATE_LIST_TEST_CASE( "Construction from Underlying Type", "[math][normalized_float]", test_types )
 {
-	const TestType nf_from_underlying( mclo::from_underlying,
-									   std::numeric_limits<typename TestType::underlying_type>::max() );
+	const TestType nf_from_underlying(
+		mclo::from_underlying, std::numeric_limits<typename TestType::underlying_type>::max()
+	);
 
 	CHECK_THAT( static_cast<float>( nf_from_underlying ), WithinRel( 1.0f ) );
 }

@@ -67,8 +67,9 @@ namespace mclo
 		/// access count into the object. @p amount is a signed displacement and is applied modulo 2^32.
 		/// @param ptr The object whose external counter is updated.
 		/// @param amount The signed displacement to add to the external counter.
-		friend void atomic_shared_ptr_ref_counter_add_external( const atomic_shared_ptr_ref_counter<Derived>* const ptr,
-																const std::int64_t amount ) noexcept
+		friend void atomic_shared_ptr_ref_counter_add_external(
+			const atomic_shared_ptr_ref_counter<Derived>* const ptr, const std::int64_t amount
+		) noexcept
 		{
 			ptr->add_external_counters( amount );
 		}
@@ -77,7 +78,8 @@ namespace mclo
 		/// @details Used by @c atomic_shared_ptr when a reservation outlives the slot it was taken against.
 		/// @param ptr The object whose external counter is decremented.
 		friend void atomic_shared_ptr_ref_counter_remove_external(
-			const atomic_shared_ptr_ref_counter<Derived>* const ptr ) noexcept
+			const atomic_shared_ptr_ref_counter<Derived>* const ptr
+		) noexcept
 		{
 			ptr->remove_external_counter();
 		}
@@ -164,6 +166,6 @@ namespace mclo
 
 		mutable std::atomic<counter> m_counter{
 			counter{ 0, 0 }
-        };
+		};
 	};
 }

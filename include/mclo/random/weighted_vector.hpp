@@ -20,10 +20,11 @@ namespace mclo
 	/// @tparam Weight The integral weight type associated with each element.
 	/// @tparam ValueContainer The contiguous container type holding the elements.
 	/// @tparam WeightContainer The contiguous container type holding the weights.
-	template <typename T,
-			  std::integral Weight = int,
-			  std::ranges::contiguous_range ValueContainer = std::vector<T>,
-			  std::ranges::contiguous_range WeightContainer = std::vector<Weight>>
+	template <
+		typename T,
+		std::integral Weight = int,
+		std::ranges::contiguous_range ValueContainer = std::vector<T>,
+		std::ranges::contiguous_range WeightContainer = std::vector<Weight>>
 	class weighted_vector
 	{
 	public:

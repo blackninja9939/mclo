@@ -89,8 +89,8 @@ SOFTWARE.
  *  Endianness macros.
  */
 #ifndef RAPIDHASH_LITTLE_ENDIAN
-#if defined( _WIN32 ) || defined( __LITTLE_ENDIAN__ ) ||                                                               \
-	( defined( __BYTE_ORDER__ ) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ )
+#if defined( _WIN32 ) || defined( __LITTLE_ENDIAN__ )                                                                  \
+	|| ( defined( __BYTE_ORDER__ ) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__ )
 #define RAPIDHASH_LITTLE_ENDIAN
 #elif defined( __BIG_ENDIAN__ ) || ( defined( __BYTE_ORDER__ ) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__ )
 #define RAPIDHASH_BIG_ENDIAN
@@ -103,7 +103,8 @@ SOFTWARE.
 namespace
 {
 	RAPIDHASH_CONSTEXPR uint64_t RAPID_SECRET[ 3 ] = {
-		0x2d358dccaa6c78a5ull, 0x8bb84b93962eacc9ull, 0x4b33a62ed433d4a3ull };
+		0x2d358dccaa6c78a5ull, 0x8bb84b93962eacc9ull, 0x4b33a62ed433d4a3ull
+	};
 
 	RAPIDHASH_INLINE void rapid_mum( uint64_t* MCLO_RESTRICT A, uint64_t* MCLO_RESTRICT B ) RAPIDHASH_NOEXCEPT
 	{
@@ -223,16 +224,19 @@ namespace
 	{
 		uint64_t v;
 		std::memcpy( &v, p, 8 );
-		return ( ( ( v >> 56 ) & 0xff ) | ( ( v >> 40 ) & 0xff00 ) | ( ( v >> 24 ) & 0xff0000 ) |
-				 ( ( v >> 8 ) & 0xff000000 ) | ( ( v << 8 ) & 0xff00000000 ) | ( ( v << 24 ) & 0xff0000000000 ) |
-				 ( ( v << 40 ) & 0xff000000000000 ) | ( ( v << 56 ) & 0xff00000000000000 ) );
+		return (
+			( ( v >> 56 ) & 0xff ) | ( ( v >> 40 ) & 0xff00 ) | ( ( v >> 24 ) & 0xff0000 ) | ( ( v >> 8 ) & 0xff000000 )
+			| ( ( v << 8 ) & 0xff00000000 ) | ( ( v << 24 ) & 0xff0000000000 ) | ( ( v << 40 ) & 0xff000000000000 )
+			| ( ( v << 56 ) & 0xff00000000000000 )
+		);
 	}
 	RAPIDHASH_INLINE uint64_t rapid_read32( const std::byte* p ) RAPIDHASH_NOEXCEPT
 	{
 		uint32_t v;
 		std::memcpy( &v, p, 4 );
-		return ( ( ( v >> 24 ) & 0xff ) | ( ( v >> 8 ) & 0xff00 ) | ( ( v << 8 ) & 0xff0000 ) |
-				 ( ( v << 24 ) & 0xff000000 ) );
+		return (
+			( ( v >> 24 ) & 0xff ) | ( ( v >> 8 ) & 0xff00 ) | ( ( v << 8 ) & 0xff0000 ) | ( ( v << 24 ) & 0xff000000 )
+		);
 	}
 #endif
 
@@ -249,8 +253,8 @@ namespace
 	 */
 	RAPIDHASH_INLINE uint64_t rapid_readSmall( const std::byte* p, size_t k ) RAPIDHASH_NOEXCEPT
 	{
-		return ( ( ( uint64_t )p[ 0 ] ) << 56 ) | ( ( ( uint64_t )p[ k >> 1 ] ) << 32 ) |
-			   std::to_integer<std::uint8_t>( p[ k - 1 ] );
+		return ( ( ( uint64_t )p[ 0 ] ) << 56 ) | ( ( ( uint64_t )p[ k >> 1 ] ) << 32 )
+			| std::to_integer<std::uint8_t>( p[ k - 1 ] );
 	}
 }
 
@@ -329,8 +333,9 @@ namespace mclo
 			}
 			if ( i > 16 )
 			{
-				m_seed = rapid_mix( rapid_read64( p ) ^ RAPID_SECRET[ 2 ],
-									rapid_read64( p + 8 ) ^ m_seed ^ RAPID_SECRET[ 1 ] );
+				m_seed = rapid_mix(
+					rapid_read64( p ) ^ RAPID_SECRET[ 2 ], rapid_read64( p + 8 ) ^ m_seed ^ RAPID_SECRET[ 1 ]
+				);
 				if ( i > 32 )
 				{
 					m_seed = rapid_mix( rapid_read64( p + 16 ) ^ RAPID_SECRET[ 2 ], rapid_read64( p + 24 ) ^ m_seed );
