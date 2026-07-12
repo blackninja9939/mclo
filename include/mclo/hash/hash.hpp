@@ -8,6 +8,16 @@
 
 namespace mclo
 {
+	/*
+	 * todo(mc) I am rethinking the entire concept of this hash_append work it has a lot of issues in practice
+	 * hash_append provides a way to get the values we want to use in building a hash state
+	 * A such all the hashers use a streaming interface
+	 * Most streaming interface hashes have large state, they are designed for hashing a lot of data
+	 * As such they do not fit well with being used in hash tables in C++
+	 * When hashing a large data set it is likely already in byte form (file/networked) not in C++ object form
+	 * So I am thinking there is not actually a need for any of this mechanics in practice?
+	 */
+
 	/// @brief A hash functor compatible with the standard library's hash-based containers.
 	/// @details Hashes a value of type @p T using @p Hasher via @ref hash_append, mirroring the interface of
 	/// @c std::hash. A copy of the stored hasher is taken per call so any seed state is preserved across invocations.
