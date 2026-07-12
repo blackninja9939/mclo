@@ -102,9 +102,9 @@ TEST_CASE( "hash bitwise type", "[hash]" )
 TEST_CASE( "hash range", "[hash]" )
 {
 	const std::vector<test_type> vec{
-		{42, 42},
-		{11, 11},
-		{16, 32},
+		{ 42, 42 },
+		{ 11, 11 },
+		{ 16, 32 },
 	};
 	const std::size_t result = mclo::hash_range( vec );
 	CHECK( result != 0 );
@@ -113,9 +113,9 @@ TEST_CASE( "hash range", "[hash]" )
 TEST_CASE( "hash contiguous bitwise hashable range", "[hash]" )
 {
 	const std::vector<bitwise_hashable_type> vec{
-		{42, 42},
-		{11, 11},
-		{16, 32},
+		{ 42, 42 },
+		{ 11, 11 },
+		{ 16, 32 },
 	};
 	const std::size_t result = mclo::hash_range( vec );
 	CHECK( result != 0 );
@@ -124,9 +124,9 @@ TEST_CASE( "hash contiguous bitwise hashable range", "[hash]" )
 TEMPLATE_LIST_TEST_CASE( "hash specific hashers", "[hash]", hasher_types )
 {
 	const std::vector<test_type> vec{
-		{42, 42},
-		{11, 11},
-		{16, 32},
+		{ 42, 42 },
+		{ 11, 11 },
+		{ 16, 32 },
 	};
 	const std::size_t result = mclo::hash_range<TestType>( vec );
 	CHECK( result != 0 );
@@ -139,9 +139,9 @@ TEMPLATE_LIST_TEST_CASE( "hash specific hashers", "[hash]", hasher_types )
 TEMPLATE_LIST_TEST_CASE( "hash specific hashers bitwise types", "[hash]", hasher_types )
 {
 	const std::vector<bitwise_hashable_type> vec{
-		{42, 42},
-		{11, 11},
-		{16, 32},
+		{ 42, 42 },
+		{ 11, 11 },
+		{ 16, 32 },
 	};
 	const std::size_t result = mclo::hash_range<TestType>( vec );
 	CHECK( result != 0 );
@@ -183,9 +183,9 @@ TEMPLATE_LIST_TEST_CASE( "hash_object forwards seed to hasher", "[hash]", seedab
 TEMPLATE_LIST_TEST_CASE( "hash_range forwards seed to hasher", "[hash]", seedable_hasher_types )
 {
 	const std::vector<test_type> vec{
-		{42, 42},
-		{11, 11},
-		{16, 32},
+		{ 42, 42 },
+		{ 11, 11 },
+		{ 16, 32 },
 	};
 	constexpr std::uint32_t seed = 0x12345678;
 

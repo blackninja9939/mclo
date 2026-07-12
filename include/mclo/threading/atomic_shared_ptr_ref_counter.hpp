@@ -164,8 +164,6 @@ namespace mclo
 			}
 		}
 
-		mutable std::atomic<counter> m_counter{
-			counter{ 0, 0 }
-		};
+		mutable std::atomic<counter> m_counter{ counter{ 0, 0 } };
 	};
 }

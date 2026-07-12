@@ -2,7 +2,7 @@
 BasedOnStyle: Microsoft
 AccessModifierOffset: -4
 AlignAfterOpenBracket: BlockIndent
-AlignArrayOfStructures: Right
+AlignArrayOfStructures: None
 AlignOperands: DontAlign
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false

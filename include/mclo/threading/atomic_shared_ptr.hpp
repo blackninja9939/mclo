@@ -302,8 +302,6 @@ namespace mclo
 		}
 
 	private:
-		mutable atomic128<counted_ptr> m_slot{
-			counted_ptr{ nullptr, 0 }
-		};
+		mutable atomic128<counted_ptr> m_slot{ counted_ptr{ nullptr, 0 } };
 	};
 }

@@ -960,9 +960,7 @@ namespace mclo
 
 			// We return the original slot index and the generation, generation will be changed in erasure for
 			// invalidating existing handles
-			return {
-				m_data.values()[ data_index ], { slot_index, handle.generation }
-			};
+			return { m_data.values()[ data_index ], { slot_index, handle.generation } };
 		}
 
 		/// @brief Erase an entry in the slot map from its handle

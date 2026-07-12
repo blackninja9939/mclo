@@ -801,9 +801,7 @@ using indexed_array =
 
 TEST_CASE( "strong_type indexed exposes a subscript operator", "[strong_type]" )
 {
-	indexed_array object{
-		std::array<int, 3>{ 10, 20, 30 }
-	};
+	indexed_array object{ std::array<int, 3>{ 10, 20, 30 } };
 
 	CHECK( object[ 0 ] == 10 );
 	CHECK( object[ 2 ] == 30 );
@@ -858,9 +856,7 @@ static_assert( !std::ranges::sized_range<int_list> );
 
 TEST_CASE( "strong_type range iterates and dispatches to ranges algorithms", "[strong_type]" )
 {
-	int_vector object{
-		std::vector<int>{ 1, 2, 3, 4 }
-	};
+	int_vector object{ std::vector<int>{ 1, 2, 3, 4 } };
 
 	int sum = 0;
 	for ( const int value : object )
@@ -877,9 +873,7 @@ TEST_CASE( "strong_type range iterates and dispatches to ranges algorithms", "[s
 
 TEST_CASE( "strong_type range exposes size and empty for sized ranges", "[strong_type]" )
 {
-	const fixed_ints object{
-		std::array<int, 3>{ 5, 6, 7 }
-	};
+	const fixed_ints object{ std::array<int, 3>{ 5, 6, 7 } };
 
 	CHECK( object.size() == 3 );
 	CHECK_FALSE( object.empty() );
