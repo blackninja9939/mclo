@@ -25,4 +25,4 @@
 /// @param TYPE The element type to reserve space for.
 /// @param AMOUNT The number of elements to reserve space for.
 /// @warning The returned pointer is only valid until the enclosing function returns; see @ref MCLO_ALLOCA_RAW.
-#define MCLO_ALLOCA_TYPED( TYPE, AMOUNT ) reinterpret_cast<TYPE*>( MCLO_ALLOCA_RAW( sizeof( TYPE ) * AMOUNT ) )
+#define MCLO_ALLOCA_TYPED( TYPE, AMOUNT ) reinterpret_cast<TYPE*>( MCLO_ALLOCA_RAW( sizeof( TYPE ) * ( AMOUNT ) ) )
