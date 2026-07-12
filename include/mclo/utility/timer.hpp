@@ -7,9 +7,10 @@ namespace mclo
 	/// @brief Measures elapsed wall clock time from a recorded reference point.
 	/// @details Records a time point on construction and reports the duration since then. Use @ref elapsed to
 	/// read the time without resetting, @ref tick to read and restart in one step, or @ref reset to restart.
-	/// @tparam Clock The clock type used to take measurements.
+	/// @tparam Clock The clock type used to take measurements. Default is @c std::chrono::steady_clock, which is
+	/// monotonic and not affected by system clock changes.
 	/// @tparam Duration The duration type that elapsed times are reported in.
-	template <typename Clock = std::chrono::high_resolution_clock, typename Duration = typename Clock::duration>
+	template <typename Clock = std::chrono::steady_clock, typename Duration = typename Clock::duration>
 	class timer
 	{
 		using time_point = typename Clock::time_point;
