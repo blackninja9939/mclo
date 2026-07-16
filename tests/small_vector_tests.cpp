@@ -907,3 +907,41 @@ TEST_CASE( "SmallVector_StdEraseIfOverload_IsCorrect", "[small_vector]" )
 	CHECK( countRemoved == 3 );
 	CHECK_THAT( vec, RangeEquals( { 9, 16, 32 } ) );
 }
+
+// When T is std::byte the two set_data overloads would be identical, so one is constrained away. This asserts the
+// specialisation still compiles.
+static_assert( std::is_default_constructible_v<mclo::small_vector<std::byte, 4>> );
+
+TEST_CASE( "SmallVector_ByteElementGrowsPastCapacity_ReallocatesObjects", "[small_vector]" )
+{
+	// Given a byte vector at its internal capacity
+	mclo::small_vector<std::byte, 4> vec{ std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 } };
+	REQUIRE( 4u == vec.capacity() );
+
+	// Growing past capacity goes through set_data to move onto the heap
+	vec.push_back( std::byte{ 5 } );
+
+	CHECK( 5u == vec.size() );
+	CHECK( vec.capacity() > 4u );
+	CHECK_THAT(
+		vec,
+		RangeEquals( ( std::array{ std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 }, std::byte{ 5 } } ) )
+	);
+}
+
+TEST_CASE( "SmallVector_ByteElementMoveAssignExternal_TakesOwnership", "[small_vector]" )
+{
+	// Given a byte vector whose storage is external (heap allocated)
+	const std::initializer_list<std::byte> initList{
+		std::byte{ 1 }, std::byte{ 2 }, std::byte{ 3 }, std::byte{ 4 }, std::byte{ 5 }
+	};
+	mclo::small_vector<std::byte, 4> source{ initList };
+	mclo::small_vector<std::byte, 4> dest;
+
+	// Move assignment steals the external buffer via set_data
+	dest = std::move( source );
+
+	CHECK( 5u == dest.size() );
+	CHECK_THAT( dest, RangeEquals( initList ) );
+	CHECK( source.empty() );
+}

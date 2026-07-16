@@ -656,8 +656,9 @@ namespace mclo
 		{
 			uninitialized_unique_ptr new_data = allocate_uninitialized( new_capacity );
 
-			if constexpr ( std::is_nothrow_move_constructible_v<value_type>
-						   || !std::is_copy_constructible_v<value_type> )
+			if constexpr (
+				std::is_nothrow_move_constructible_v<value_type> || !std::is_copy_constructible_v<value_type>
+			)
 			{
 				std::uninitialized_move( begin(), end(), new_data.get() );
 			}
@@ -709,8 +710,9 @@ namespace mclo
 
 			if ( insert_pos == end() )
 			{
-				if constexpr ( std::is_nothrow_move_constructible_v<value_type>
-							   || !std::is_copy_constructible_v<value_type> )
+				if constexpr (
+					std::is_nothrow_move_constructible_v<value_type> || !std::is_copy_constructible_v<value_type>
+				)
 				{
 					std::uninitialized_move( begin(), end(), new_data );
 				}
@@ -888,7 +890,10 @@ namespace mclo
 			larger.m_size = overlap_size;
 		}
 
+		// When T is std::byte, pointer is already std::byte* and this overload would be identical to the one below,
+		// so it is constrained away to leave a single set_data and let small_vector<std::byte> compile.
 		void set_data( const pointer new_data, const size_type new_capacity, const size_type new_size ) noexcept
+			requires( !std::same_as<pointer, std::byte*> )
 		{
 			set_data( reinterpret_cast<std::byte*>( new_data ), new_capacity, new_size );
 		}
