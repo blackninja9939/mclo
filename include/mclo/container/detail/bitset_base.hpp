@@ -2,7 +2,6 @@
 
 #include "mclo/container/span.hpp"
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash_append_range.hpp"
 #include "mclo/numeric/math.hpp"
 #include <bit>
 #include <climits>
@@ -649,16 +648,6 @@ namespace mclo::detail
 			std::basic_string<CharT, Traits, Allocator> result( length, unset_char );
 			for_each_set( [ & ]( const size_type index ) { result[ length - 1 - index ] = set_char; } );
 			return result;
-		}
-
-		/// @brief Append hash data for the bitset
-		/// @tparam Hasher Type meeting the hasher concept
-		/// @param hasher The hasher instance
-		/// @param value The bitset to hash
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const Derived& value ) noexcept
-		{
-			hash_append_range( hasher, value.underlying() );
 		}
 
 	private:

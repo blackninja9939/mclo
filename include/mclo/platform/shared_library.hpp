@@ -1,11 +1,11 @@
 #pragma once
 
 #include "mclo/enum/enum_set.hpp"
-#include "mclo/hash/hash_append.hpp"
 #include "mclo/utility/expected.hpp"
 
 #include <cstddef>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <system_error>
 #include <type_traits>
@@ -168,15 +168,6 @@ namespace mclo
 		[[nodiscard]] bool operator==( const shared_library& other ) const noexcept
 		{
 			return native_handle() == other.native_handle();
-		}
-
-		/// @brief Appends this shared library to a hasher, hashing by its native handle.
-		/// @param hasher The hasher to append to.
-		/// @param library The shared library to hash.
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const shared_library& library ) noexcept
-		{
-			hash_append( hasher, library.native_handle() );
 		}
 
 		struct impl;

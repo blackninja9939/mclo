@@ -1,8 +1,9 @@
 #pragma once
 
-#include "mclo/hash/hash.hpp"
 #include "mclo/numeric/bit.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
+
+#include <functional>
 
 namespace mclo
 {
@@ -52,15 +53,6 @@ namespace mclo
 		/// @brief Compares two Morton indices by their interleaved value, giving Z-order ordering.
 		[[nodiscard]] constexpr auto operator<=>( const morton_index& rhs ) const noexcept = default;
 
-		/// @brief Appends this Morton index value to a hasher, hashing by its underlying representation.
-		/// @param hasher The hasher to append to.
-		/// @param value The Morton index value to hash.
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const morton_index& value ) noexcept
-		{
-			hash_append( hasher, value.value );
-		}
-
 		/// @brief The interleaved index value.
 		value_type value;
 
@@ -87,6 +79,10 @@ namespace mclo
 }
 
 template <std::unsigned_integral T>
-struct std::hash<mclo::morton_index<T>> : mclo::hash<mclo::morton_index<T>>
+struct std::hash<mclo::morton_index<T>>
 {
+	[[nodiscard]] std::size_t operator()( const mclo::morton_index<T> value ) const noexcept
+	{
+		return std::hash<T>{}( value.value );
+	}
 };

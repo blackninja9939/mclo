@@ -2,6 +2,7 @@
 
 #include <compare>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
 
@@ -57,3 +58,14 @@ namespace mclo
 	/// @return The string representation of @p version.
 	std::string format_as( const sem_version& version );
 }
+
+template <>
+struct std::hash<mclo::sem_version>
+{
+	[[nodiscard]] std::size_t operator()( const mclo::sem_version& version ) const noexcept
+	{
+		const std::uint32_t combined = ( static_cast<std::uint32_t>( version.major ) << 16 )
+			| ( static_cast<std::uint32_t>( version.minor ) << 8 ) | static_cast<std::uint32_t>( version.patch );
+		return std::hash<std::uint32_t>{}( combined );
+	}
+};

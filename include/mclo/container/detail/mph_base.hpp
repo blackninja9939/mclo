@@ -2,9 +2,9 @@
 
 #include "mclo/container/detail/nontrivial_dummy_type.hpp"
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/constexpr_hash.hpp"
 #include "mclo/platform/attributes.hpp"
 #include "mclo/platform/cpp_feature_compat.hpp"
+#include "mclo/utility/constexpr_hash.hpp"
 
 #include <algorithm>
 #include <array>

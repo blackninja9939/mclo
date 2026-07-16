@@ -3,7 +3,6 @@
 
 #include "consteval_check.hpp"
 
-#include "mclo/hash/hash.hpp"
 #include "mclo/numeric/fixed_point.hpp"
 #include "mclo/numeric/fixed_point_io.hpp"
 
@@ -302,12 +301,11 @@ TEST_CASE( "fixed_point converting construction truncates lost precision toward 
 
 TEST_CASE( "fixed_point hashing", "[math][fixed_point]" )
 {
-	const std::size_t a = mclo::hash_object( binary( 1.5 ) );
-	const std::size_t b = mclo::hash_object( binary( 1.5 ) );
-	const std::size_t c = mclo::hash_object( binary( 2.5 ) );
+	const std::size_t a = std::hash<binary>{}( binary( 1.5 ) );
+	const std::size_t b = std::hash<binary>{}( binary( 1.5 ) );
+	const std::size_t c = std::hash<binary>{}( binary( 2.5 ) );
 	CHECK( a == b );
 	CHECK( a != c );
-	CHECK( std::hash<binary>{}( binary( 1.5 ) ) == a );
 }
 
 TEST_CASE( "fixed_point stream output is exact", "[math][fixed_point]" )

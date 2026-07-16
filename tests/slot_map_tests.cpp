@@ -599,9 +599,9 @@ TEMPLATE_LIST_TEST_CASE(
 	const handle_type handle = map.insert( "42" );
 	const handle_type handle2 = map.insert( "16" );
 
-	const auto null_handle_hash = mclo::hash_object( handle_type{} );
-	const auto handle1_hash = mclo::hash_object( handle );
-	const auto handle2_hash = mclo::hash_object( handle2 );
+	const auto null_handle_hash = std::hash<handle_type>{}( handle_type{} );
+	const auto handle1_hash = std::hash<handle_type>{}( handle );
+	const auto handle2_hash = std::hash<handle_type>{}( handle2 );
 
 	CHECK( null_handle_hash != handle1_hash );
 	CHECK( null_handle_hash != handle2_hash );

@@ -19,11 +19,10 @@ It grew out of code written for game development, so the components lean towards
 
 ## What's inside
 
-The public API is organised by domain under `include/mclo/`, each directory grouping a related family of components: `container/`, `enum/`, `hash/`, `memory/`, `numeric/`, `random/`, `strong_type/`, `string/`, `threading/`, and `utility/`. Browse the headers for the full set, a few highlights from each:
+The public API is organised by domain under `include/mclo/`, each directory grouping a related family of components: `container/`, `enum/`, `memory/`, `numeric/`, `random/`, `strong_type/`, `string/`, `threading/`, and `utility/`. Browse the headers for the full set, a few highlights from each:
 
 - **Containers** - `bitset`, `dynamic_bitset`, `small_vector`, `dense_slot_map`, and packed integer storage.
 - **Enum** - `enum_map`, `enum_set`, and `enum_range` for treating enums as keys and iterables.
-- **Hash** - a single streaming hash API where you pick the hasher (fnv1a, murmur3, rapidhash, xxhash) and append values to it, decoupling how types hash from which algorithm runs.
 - **Memory** - value-semantic `indirect` / `polymorphic`, `copy_on_write`, `tagged_ptr`, and `intrusive_ptr`.
 - **Numeric** - `fixed_point`, `log2` / `pow2` helpers, and checked/saturated/overflowing math.
 - **Random** - `chacha` and `xoshiro` generators you can use directly, plus `random_generator`, a wrapper around any generator for convenient RNG operations.
@@ -36,7 +35,7 @@ The public API is organised by domain under `include/mclo/`, each directory grou
 
 - A C++20 compiler (MSVC, Clang, or GCC).
 - CMake 3.28+.
-- [vcpkg](https://vcpkg.io) for dependency management (`xsimd`, `xxhash`, plus `catch2` for tests and `benchmark` for benchmarks).
+- [vcpkg](https://vcpkg.io) for dependency management (`xsimd`, plus `catch2` for tests and `benchmark` for benchmarks).
 
 ## Building
 
@@ -68,7 +67,7 @@ find_package(mclo CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE mclo::mclo)
 ```
 
-The library requires C++20 (`cxx_std_20`) for consumers and links its public dependencies (`xsimd`, `xxHash`) transitively.
+The library requires C++20 (`cxx_std_20`) for consumers and links its public dependencies (`xsimd`) transitively.
 
 ## License
 

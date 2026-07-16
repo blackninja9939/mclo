@@ -35,8 +35,7 @@ namespace mclo
 
 	/// @brief Computes a hash over an array at compile time.
 	/// @details A constexpr-friendly FNV-1a hash, suitable for hashing data during constant evaluation (e.g. building
-	/// compile-time lookup tables) where the regular @ref hasher framework cannot be used. Each element is passed
-	/// through @p transform before being mixed in.
+	/// compile-time lookup tables). Each element is passed through @p transform before being mixed in.
 	/// @tparam T The element type.
 	/// @tparam Transform A callable mapping an element to a value convertible to @c std::size_t, defaulting to
 	/// identity.

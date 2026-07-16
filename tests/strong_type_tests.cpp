@@ -26,8 +26,6 @@
 #include "mclo/strong_type/streamable.hpp"
 #include "mclo/strong_type/type.hpp"
 
-#include "mclo/hash/fnv1a_hasher.hpp"
-#include "mclo/hash/std_types.hpp"
 #include "mclo/meta/type_list.hpp"
 
 #include <algorithm>
@@ -48,9 +46,6 @@ namespace
 {
 	template <typename T>
 	concept std_hashable = requires( const T& value ) { std::hash<T>{}( value ); };
-
-	template <typename T>
-	concept mclo_hashable = mclo::hashable_with<T, mclo::fnv1a_hasher>;
 }
 
 // --- Core construction and access ---------------------------------------------------------------
@@ -569,24 +564,12 @@ using hashable_int = mclo::strong_type::type<int, struct hashable_tag, mclo::str
 
 static_assert( std_hashable<hashable_int> );
 static_assert( !std_hashable<plain_int> );
-static_assert( mclo_hashable<hashable_int> );
 static_assert( noexcept( std::hash<hashable_int>{}( std::declval<hashable_int>() ) ) );
 static_assert( mclo::strong_type::has_mixin<hashable_int, mclo::strong_type::hashable> );
 
 TEST_CASE( "strong_type hashable matches the underlying std::hash", "[strong_type]" )
 {
 	CHECK( std::hash<hashable_int>{}( hashable_int{ 13 } ) == std::hash<int>{}( 13 ) );
-}
-
-TEST_CASE( "strong_type hashable hash_append matches the underlying", "[strong_type]" )
-{
-	mclo::fnv1a_hasher object_hasher;
-	hash_append( object_hasher, hashable_int{ 13 } );
-
-	mclo::fnv1a_hasher value_hasher;
-	hash_append( value_hasher, 13 );
-
-	CHECK( object_hasher.finish() == value_hasher.finish() );
 }
 
 // --- Formattable and streamable mixins ----------------------------------------------------------

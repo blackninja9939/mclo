@@ -3,11 +3,11 @@
 #include "ascii_string_utils.hpp"
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash.hpp"
 
 #include <array>
 #include <compare>
 #include <format>
+#include <functional>
 #include <stdexcept>
 #include <string_view>
 
@@ -487,13 +487,6 @@ namespace mclo
 		}
 #endif
 
-		/// @brief Hashing hook feeding the string's characters into @p hasher.
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const basic_string_buffer& str ) noexcept
-		{
-			hash_append( hasher, view_type( str ) );
-		}
-
 	private:
 		static constexpr void traits_copy( pointer dest, const const_pointer src, const size_type count ) noexcept
 		{
@@ -594,7 +587,12 @@ namespace std
 	};
 
 	template <typename CharT, std::size_t Size>
-	struct hash<mclo::basic_string_buffer<CharT, Size>> : mclo::hash<mclo::basic_string_buffer<CharT, Size>>
+	struct hash<mclo::basic_string_buffer<CharT, Size>>
 	{
+		[[nodiscard]] std::size_t operator()( const mclo::basic_string_buffer<CharT, Size>& value ) const noexcept
+		{
+			using view_type = typename mclo::basic_string_buffer<CharT, Size>::view_type;
+			return std::hash<view_type>{}( view_type( value ) );
+		}
 	};
 }

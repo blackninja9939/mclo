@@ -1,11 +1,12 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
-#include "mclo/hash/hash.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
+#include "mclo/utility/constexpr_hash.hpp"
 
 #include <array>
 #include <cinttypes>
+#include <functional>
 
 namespace mclo
 {
@@ -130,7 +131,12 @@ namespace mclo
 namespace std
 {
 	template <std::size_t Bits, std::unsigned_integral UnderlyingType>
-	struct hash<mclo::bitset<Bits, UnderlyingType>> : mclo::hash<mclo::bitset<Bits, UnderlyingType>>
+	struct hash<mclo::bitset<Bits, UnderlyingType>>
 	{
+		[[nodiscard]] std::size_t operator()( const mclo::bitset<Bits, UnderlyingType>& value ) const noexcept
+		{
+			const auto data = value.underlying();
+			return mclo::constexpr_hash( data.data(), data.size() );
+		}
 	};
 }

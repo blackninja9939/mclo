@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash.hpp"
 #include "mclo/memory/allocate_from_tuple.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
@@ -11,6 +10,7 @@
 #include <cinttypes>
 #include <climits>
 #include <cstddef>
+#include <functional>
 
 namespace mclo
 {
@@ -245,14 +245,6 @@ namespace mclo
 			lhs.swap( rhs );
 		}
 
-		/// @brief Hashes the tagged pointer by combining its pointer and tag.
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const tagged_ptr& ptr ) noexcept
-		{
-			hash_append( hasher, ptr.get() );
-			hash_append( hasher, ptr.tag() );
-		}
-
 	private:
 		[[nodiscard]] static packed_type pack_ptr( pointer ptr ) noexcept
 		{
@@ -446,6 +438,10 @@ namespace mclo
 }
 
 template <typename T, typename Tag>
-struct std::hash<mclo::tagged_ptr<T, Tag>> : mclo::hash<mclo::tagged_ptr<T, Tag>>
+struct std::hash<mclo::tagged_ptr<T, Tag>>
 {
+	[[nodiscard]] std::size_t operator()( const mclo::tagged_ptr<T, Tag>& ptr ) const noexcept
+	{
+		return std::hash<std::uintptr_t>{}( ptr.packed() );
+	}
 };

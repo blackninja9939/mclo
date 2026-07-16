@@ -6,7 +6,6 @@ add_executable( benchmarks
 	"enum_range_benchmarks.cpp"
 	"enum_bi_map_benchmarks.cpp"
 	"slot_map_benchmarks.cpp"
-	"hash_benchmarks.cpp"
 	"bit_benchmarks.cpp"
 	"math_benchmarks.cpp"
 	"packed_int_vector_benchmarks.cpp"

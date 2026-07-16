@@ -1,9 +1,9 @@
 #pragma once
 
-#include "mclo/hash/constexpr_hash.hpp"
 #include "mclo/platform/cpp_feature_compat.hpp"
 #include "mclo/string/ascii_string_utils.hpp"
 #include "mclo/string/string_view_type.hpp"
+#include "mclo/utility/constexpr_hash.hpp"
 
 #include <string_view>
 

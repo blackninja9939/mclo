@@ -2,7 +2,6 @@
 
 #include "mclo/concepts/derived_from.hpp"
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash.hpp"
 #include <compare>
 #include <concepts>
 #include <functional>
@@ -334,18 +333,6 @@ namespace mclo
 		{
 			lhs.swap( rhs );
 		}
-
-		/// @brief Appends the optional to a hasher, hashing the value if present.
-		/// @param hasher The hasher to append to.
-		/// @param value The optional to hash.
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const small_optional& value ) noexcept
-		{
-			if ( value )
-			{
-				hash_append( hasher, *value );
-			}
-		}
 	};
 
 	/// @brief Compares two optionals for equality.
@@ -437,6 +424,10 @@ namespace mclo
 }
 
 template <typename T>
-struct std::hash<mclo::small_optional<T>> : mclo::hash<mclo::small_optional<T>>
+struct std::hash<mclo::small_optional<T>>
 {
+	[[nodiscard]] std::size_t operator()( const mclo::small_optional<T>& value ) const noexcept
+	{
+		return value ? std::hash<T>{}( *value ) : std::size_t{ 0 };
+	}
 };

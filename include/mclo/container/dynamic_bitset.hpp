@@ -2,8 +2,9 @@
 #pragma once
 
 #include "mclo/container/detail/bitset_base.hpp"
-#include "mclo/hash/hash.hpp"
+#include "mclo/utility/constexpr_hash.hpp"
 
+#include <functional>
 #include <vector>
 
 namespace mclo
@@ -142,7 +143,13 @@ namespace std
 {
 	template <std::unsigned_integral UnderlyingType, typename Allocator>
 	struct hash<mclo::dynamic_bitset<UnderlyingType, Allocator>>
-		: mclo::hash<mclo::dynamic_bitset<UnderlyingType, Allocator>>
 	{
+		[[nodiscard]] std::size_t operator()(
+			const mclo::dynamic_bitset<UnderlyingType, Allocator>& value
+		) const noexcept
+		{
+			const auto data = value.underlying();
+			return mclo::constexpr_hash( data.data(), data.size() );
+		}
 	};
 }

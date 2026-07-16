@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mclo/hash/hash.hpp"
 #include "mclo/numeric/pow2.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 
 #include <compare>
+#include <functional>
 #include <limits>
 
 namespace mclo
@@ -95,7 +95,14 @@ namespace std
 {
 	template <typename T, std::size_t TotalBits, std::size_t GenerationBits>
 	struct hash<mclo::slot_map_handle<T, TotalBits, GenerationBits>>
-		: mclo::hash<mclo::slot_map_handle<T, TotalBits, GenerationBits>>
 	{
+		[[nodiscard]] std::size_t operator()(
+			const mclo::slot_map_handle<T, TotalBits, GenerationBits>& value
+		) const noexcept
+		{
+			using representation_type =
+				typename mclo::slot_map_handle<T, TotalBits, GenerationBits>::representation_type;
+			return std::hash<representation_type>{}( value.get_combined() );
+		}
 	};
 }

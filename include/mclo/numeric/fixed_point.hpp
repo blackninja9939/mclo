@@ -1,13 +1,13 @@
 #pragma once
 
 #include "mclo/debug/assert.hpp"
-#include "mclo/hash/hash.hpp"
 #include "mclo/numeric/128_bit_integer.hpp"
 #include "mclo/numeric/standard_integer_type.hpp"
 #include "mclo/utility/from_underlying.hpp"
 
 #include <climits>
 #include <concepts>
+#include <functional>
 #include <limits>
 #include <type_traits>
 
@@ -367,15 +367,6 @@ namespace mclo
 			return value < low ? low : high < value ? high : value;
 		}
 
-		/// @brief Appends this fixed point value to a hasher, hashing by its underlying representation.
-		/// @param hasher The hasher to append to.
-		/// @param value The fixed point value to hash.
-		template <hasher Hasher>
-		friend void hash_append( Hasher& hasher, const fixed_point value ) noexcept
-		{
-			hash_append( hasher, value.m_value );
-		}
-
 	private:
 		Rep m_value = 0;
 	};
@@ -513,6 +504,10 @@ public:
 };
 
 template <std::integral Rep, int Fraction, mclo::fixed_point_base Base>
-struct std::hash<mclo::fixed_point<Rep, Fraction, Base>> : mclo::hash<mclo::fixed_point<Rep, Fraction, Base>>
+struct std::hash<mclo::fixed_point<Rep, Fraction, Base>>
 {
+	[[nodiscard]] std::size_t operator()( const mclo::fixed_point<Rep, Fraction, Base> value ) const noexcept
+	{
+		return std::hash<Rep>{}( value.underlying() );
+	}
 };
