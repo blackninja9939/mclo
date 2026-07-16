@@ -1,5 +1,7 @@
 #include "mclo/allocator/arena_allocator.hpp"
 
+#include "mclo/debug/assert.hpp"
+
 #include <memory>
 #include <new>
 #include <utility>
@@ -27,6 +29,8 @@ namespace mclo
 
 	void* memory_arena::allocate( const std::size_t size, std::size_t alignment /*= alignof( std::max_align_t ) */ )
 	{
+		MCLO_DEBUG_ASSERT( m_head, "allocate called on a moved-from arena" );
+
 		void* ptr = m_current;
 		std::size_t space = static_cast<std::size_t>( m_current_chunk->end() - m_current );
 
@@ -48,12 +52,22 @@ namespace mclo
 
 	void memory_arena::reset() noexcept
 	{
+		MCLO_DEBUG_ASSERT( m_head, "reset called on a moved-from arena" );
 		m_current_chunk = m_head;
 		m_current = m_current_chunk->begin();
 	}
 
 	void memory_arena::reset_consolidate()
 	{
+		MCLO_DEBUG_ASSERT( m_head, "reset_consolidate called on a moved-from arena" );
+
+		// If there is only one chunk, we can just reset the arena and return.
+		if ( !m_head->m_next )
+		{
+			reset();
+			return;
+		}
+
 		std::size_t total_size = 0;
 
 		chunk* head = m_head;

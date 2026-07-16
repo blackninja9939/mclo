@@ -10,12 +10,11 @@ namespace mclo
 	/// larger chunk is allocated and linked into the list. Individual allocations cannot be freed, only the whole arena
 	/// can be reset or released, making allocation extremely cheap. Use @ref arena_allocator to plug an arena into
 	/// standard containers.
+	/// @note An arena must be constructed with an initial size; it is not default constructible. A moved-from arena is
+	/// left in a valid but unspecified state on which only reassignment or destruction is permitted.
 	class memory_arena
 	{
 	public:
-		/// @brief Constructs an empty arena that allocates its first chunk on the first allocation.
-		memory_arena() = default;
-
 		/// @brief Constructs an arena with an initial chunk of at least @p size bytes pre-allocated.
 		/// @param size The number of bytes to reserve up front.
 		explicit memory_arena( const std::size_t size )
@@ -40,15 +39,18 @@ namespace mclo
 		/// @param size The number of bytes to allocate.
 		/// @param alignment The required alignment of the returned pointer.
 		/// @return A pointer to the allocated memory.
+		/// @pre The arena must not be in a moved-from state.
 		void* allocate( const std::size_t size, std::size_t alignment = alignof( std::max_align_t ) );
 
 		/// @brief Resets the arena so all chunks can be reused, keeping the allocated chunks for future allocations.
 		/// @details Does not return memory to the system; subsequent allocations reuse the existing chunks.
+		/// @pre The arena must not be in a moved-from state.
 		void reset() noexcept;
 
 		/// @brief Resets the arena and consolidates all chunks into a single chunk large enough to hold them.
 		/// @details Releases the existing chunks and allocates one chunk sized to the total previous capacity, reducing
 		/// fragmentation for the next round of allocations.
+		/// @pre The arena must not be in a moved-from state.
 		void reset_consolidate();
 
 		/// @brief Releases all chunks back to the system, leaving the arena empty.

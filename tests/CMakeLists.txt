@@ -58,6 +58,7 @@ add_executable( tests
 	"allocate_unique_tests.cpp"
 	"work_stealing_deque_tests.cpp"
 	"static_string_tests.cpp"
+	"arena_allocator_tests.cpp"
 	"flexible_array_tests.cpp"
 	"scope_guard_tests.cpp"
 	"hex_convert_tests.cpp"
