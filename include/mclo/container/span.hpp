@@ -6,6 +6,7 @@
 #include <iterator>
 #include <limits>
 #include <ranges>
+#include <stdexcept>
 #include <type_traits>
 
 namespace mclo
@@ -88,7 +89,9 @@ namespace mclo
 		using reference = T&;
 		using const_reference = const T&;
 		using iterator = pointer;
+		using const_iterator = const_pointer;
 		using reverse_iterator = std::reverse_iterator<iterator>;
+		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 		static constexpr std::size_t extent = Extent;
 
@@ -203,6 +206,15 @@ namespace mclo
 			return m_data[ index ];
 		}
 
+		[[nodiscard]] constexpr reference at( const size_type index ) const
+		{
+			if ( index >= m_size )
+			{
+				throw brstd::out_of_range( "Index out of bounds" );
+			}
+			return m_data[ index ];
+		}
+
 		[[nodiscard]] constexpr pointer data() const noexcept
 		{
 			return m_data;
@@ -304,13 +316,31 @@ namespace mclo
 			return m_data + m_size;
 		}
 
-		[[nodiscard]] constexpr iterator rbegin() const noexcept
+		[[nodiscard]] constexpr const_iterator cbegin() const noexcept
+		{
+			return m_data;
+		}
+		[[nodiscard]] constexpr const_iterator cend() const noexcept
+		{
+			return m_data + m_size;
+		}
+
+		[[nodiscard]] constexpr reverse_iterator rbegin() const noexcept
 		{
 			return std::make_reverse_iterator( end() );
 		}
-		[[nodiscard]] constexpr iterator rend() const noexcept
+		[[nodiscard]] constexpr reverse_iterator rend() const noexcept
 		{
 			return std::make_reverse_iterator( begin() );
+		}
+
+		[[nodiscard]] constexpr const_reverse_iterator crbegin() const noexcept
+		{
+			return std::make_reverse_iterator( cend() );
+		}
+		[[nodiscard]] constexpr const_reverse_iterator crend() const noexcept
+		{
+			return std::make_reverse_iterator( cbegin() );
 		}
 	};
 
@@ -337,6 +367,7 @@ namespace mclo
 	}
 
 	template <typename T, std::size_t N>
+		requires( !std::is_const_v<T> )
 	auto as_writable_bytes( const span<T, N> s ) noexcept
 	{
 		using return_type = span<std::byte, N == dynamic_extent ? dynamic_extent : N * sizeof( T )>;
