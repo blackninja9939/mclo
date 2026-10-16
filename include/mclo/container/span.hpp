@@ -210,7 +210,7 @@ namespace mclo
 		{
 			if ( index >= m_size )
 			{
-				throw brstd::out_of_range( "Index out of bounds" );
+				throw std::out_of_range( "Index out of bounds" );
 			}
 			return m_data[ index ];
 		}
