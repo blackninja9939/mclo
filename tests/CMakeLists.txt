@@ -15,6 +15,7 @@ add_executable( tests
 	"math_tests.cpp"
 	"slot_map_tests.cpp"
 	"enum_map_tests.cpp"
+	"enum_bi_map_tests.cpp"
 	"enum_set_tests.cpp"
 	"bitset_tests.cpp"
 	"enum_range_tests.cpp"
