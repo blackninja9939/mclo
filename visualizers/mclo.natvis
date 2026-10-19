@@ -45,16 +45,20 @@
 	<Type Name="mclo::tagged_ptr&lt;*,*&gt;">
 		<Intrinsic Name="ptr_bits" Expression="( m_bits &amp; ptr_mask ) >> free_upper_bits"/>
 		<Intrinsic Name="tag_bits" Expression="m_bits &amp; tag_mask"/>
-		<Intrinsic Name="ptr" Expression="($T1*)ptr_bits()"/>
-		<Intrinsic Optional="true" Name="tag" Expression="($T2)tag_bits()"/>
+		<Intrinsic Name="ptr" Expression="(pointer)ptr_bits()"/>
+		<Intrinsic Optional="true" Name="tag" Expression="(tag_type)tag_bits()"/>
 		<SmartPointer Usage="Minimal">ptr()</SmartPointer>
 		<DisplayString Condition="m_bits == 0">empty</DisplayString>
-		<DisplayString Condition="ptr_bits() != 0 &amp;&amp; tag_bits() == 0">tagged_ptr {*ptr()}</DisplayString>
-		<DisplayString Condition="ptr_bits() == 0 &amp;&amp; tag_bits() != 0">tagged_ptr nullptr [tag: {tag()}]</DisplayString>
-		<DisplayString Condition="ptr_bits() != 0 &amp;&amp; tag_bits() != 0">tagged_ptr {*ptr()} [tag: {tag()}]</DisplayString>
+		<DisplayString Optional="true" Condition="ptr_bits() != 0 &amp;&amp; tag_bits() == 0">tagged_ptr {*ptr()}</DisplayString>
+		<DisplayString Optional="true" Condition="ptr_bits() == 0 &amp;&amp; tag_bits() != 0">tagged_ptr nullptr [tag: {tag()}]</DisplayString>
+		<DisplayString Optional="true" Condition="ptr_bits() != 0 &amp;&amp; tag_bits() != 0">tagged_ptr {*ptr()} [tag: {tag()}]</DisplayString>
+		<DisplayString Optional="true" Condition="ptr_bits() != 0">tagged_ptr {ptr()} [tag: {tag()}]</DisplayString>
+		<DisplayString Condition="ptr_bits() == 0">tagged_ptr nullptr [tag bits: {tag_bits(),x}]</DisplayString>
+		<DisplayString>tagged_ptr {ptr()} [tag bits: {tag_bits(),x}]</DisplayString>
 		<Expand>
 			<Item Condition="ptr_bits() != 0" Name="[ptr]">ptr()</Item>
-			<Item Condition="tag_bits() != 0" Name="[tag]">tag()</Item>
+			<Item Optional="true" Condition="is_integer &amp;&amp; tag_bits() != 0" Name="[tag]">tag()</Item>
+			<Item Condition="!is_integer &amp;&amp; tag_bits() != 0" Name="[tag bits]">tag_bits(),x</Item>
 		</Expand>
 	</Type>
 
@@ -104,6 +108,34 @@
 		</Expand>
 	</Type>
 
+	<Type Name="mclo::enum_map_iterator&lt;*,*&gt;">
+		<Intrinsic Name="key" Expression="(key_type)m_index"/>
+		<DisplayString>{{ key={key()}, value={m_it} }}</DisplayString>
+		<Expand>
+			<Item Name="[key]">key()</Item>
+			<Item Name="[iterator]">m_it</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::enum_set&lt;*,*&gt;">
+		<Intrinsic Name="contains" Expression="((m_container.m_container[index / m_container.bits_per_value] &gt;&gt; (index % m_container.bits_per_value)) &amp; 1) != 0">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<DisplayString>{{ capacity={size_max} }}</DisplayString>
+		<Expand>
+			<CustomListItems>
+				<Variable Name="i" InitialValue="(size_t)0"/>
+				<Loop Condition="i &lt; size_max">
+					<If Condition="contains(i)">
+						<!-- Resolve names through the enum's debug symbols, as enum_map does. -->
+						<Item Name="{(value_type)i}">(value_type)i</Item>
+					</If>
+					<Exec>i++</Exec>
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+
 	<Type Name="mclo::small_vector_base&lt;*&gt;">
 		<Intrinsic Name="get_internal_buffer" Expression="(std::byte*)this + offset"/>
 		<Intrinsic Name="is_internal" Expression="m_data == get_internal_buffer()"/>
@@ -115,33 +147,6 @@
 				<Size>m_size</Size>
 				<ValuePointer>($T1*)m_data</ValuePointer>
 			</ArrayItems>
-		</Expand>
-	</Type>
-
-	<Type Name="mclo::vec2&lt;*&gt;">
-		<DisplayString>{{ x={m_data[0]}, y={m_data[1]} }}</DisplayString>
-		<Expand>
-			<Item Name="[x]">m_data[0]</Item>
-			<Item Name="[y]">m_data[1]</Item>
-		</Expand>
-	</Type>
-
-	<Type Name="mclo::vec3&lt;*&gt;">
-		<DisplayString>{{ x={m_data[0]}, y={m_data[1]}, z={m_data[2]} }}</DisplayString>
-		<Expand>
-			<Item Name="[x]">m_data[0]</Item>
-			<Item Name="[y]">m_data[1]</Item>
-			<Item Name="[z]">m_data[2]</Item>
-		</Expand>
-	</Type>
-
-	<Type Name="mclo::vec4&lt;*&gt;">
-		<DisplayString>{{ x={m_data[0]}, y={m_data[1]}, z={m_data[2]}, z={m_data[3]} }}</DisplayString>
-		<Expand>
-			<Item Name="[x]">m_data[0]</Item>
-			<Item Name="[y]">m_data[1]</Item>
-			<Item Name="[z]">m_data[2]</Item>
-			<Item Name="[w]">m_data[3]</Item>
 		</Expand>
 	</Type>
 
@@ -158,37 +163,37 @@
 		</Expand>
 	</Type>
 
-  <Type Name="mclo::intrusive_forward_list_iterator&lt;*&gt;">
-    <SmartPointer Usage="Minimal">m_data</SmartPointer>
-    <DisplayString Condition="m_data == 0">end</DisplayString>
-    <DisplayString Condition="m_data != 0">{**this}</DisplayString>
-  </Type>
+	<Type Name="mclo::intrusive_forward_list_iterator&lt;*&gt;">
+		<SmartPointer Usage="Minimal">m_data</SmartPointer>
+		<DisplayString Condition="m_data == 0">end</DisplayString>
+		<DisplayString Condition="m_data != 0">{**this}</DisplayString>
+	</Type>
 
-  <Type Name="mclo::intrusive_forward_list&lt;*,*&gt;">
-    <Intrinsic Name="head" Expression="m_head.m_next"/>
-    <DisplayString Condition="head() == 0">empty</DisplayString>
-    <DisplayString Condition="head() != 0">non-empty</DisplayString>
-    <Expand>
-      <LinkedListItems>
-        <HeadPointer>($T1*)head()</HeadPointer>
-        <NextPointer>($T1*)m_next</NextPointer>
-        <ValueNode>*($T1*)this</ValueNode>
-      </LinkedListItems>
-    </Expand>
-  </Type>
+	<Type Name="mclo::intrusive_forward_list&lt;*,*&gt;">
+		<Intrinsic Name="head" Expression="m_head.m_next"/>
+		<DisplayString Condition="head() == 0">empty</DisplayString>
+		<DisplayString Condition="head() != 0">non-empty</DisplayString>
+		<Expand>
+			<LinkedListItems>
+				<HeadPointer>($T1*)head()</HeadPointer>
+				<NextPointer>($T1*)m_next</NextPointer>
+				<ValueNode>*($T1*)this</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
 
-  <Type Name="mclo::atomic_intrusive_forward_list&lt;*,*&gt;">
-    <Intrinsic Name="head" Expression="m_head._Storage._Value"/>
-    <DisplayString Condition="head() == 0">empty</DisplayString>
-    <DisplayString Condition="head() != 0">non-empty</DisplayString>
-    <Expand>
-      <LinkedListItems>
-        <HeadPointer>($T1*)head()</HeadPointer>
-        <NextPointer>($T1*)m_next</NextPointer>
-        <ValueNode>*($T1*)this</ValueNode>
-      </LinkedListItems>
-    </Expand>
-  </Type>
+	<Type Name="mclo::atomic_intrusive_forward_list&lt;*,*&gt;">
+		<Intrinsic Name="head" Expression="m_head._Storage._Value"/>
+		<DisplayString Condition="head() == 0">empty</DisplayString>
+		<DisplayString Condition="head() != 0">non-empty</DisplayString>
+		<Expand>
+			<LinkedListItems>
+				<HeadPointer>($T1*)head()</HeadPointer>
+				<NextPointer>($T1*)m_next</NextPointer>
+				<ValueNode>*($T1*)this</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
 
 	<Type Name="mclo::thread_local_key">
 		<DisplayString>{m_key}</DisplayString>
@@ -197,14 +202,17 @@
 	<Type Name="mclo::instanced_thread_local&lt;*&gt;">
 		<DisplayString>{{ key={m_key} }}</DisplayString>
 		<Expand>
-      <ExpandedItem>m_list</ExpandedItem>
+			<ExpandedItem>m_list</ExpandedItem>
 		</Expand>
 	</Type>
 
 	<Type Name="mclo::instanced_thread_local&lt;*&gt;::iterator">
-    <SmartPointer Usage="Minimal">m_data</SmartPointer>
-    <DisplayString Condition="m_data == 0">end</DisplayString>
-    <DisplayString Condition="m_data != 0">{(**this).m_object}</DisplayString>
+		<SmartPointer Usage="Minimal">m_data ? &amp;m_data->m_object : (pointer)0</SmartPointer>
+		<DisplayString Condition="m_data == 0">end</DisplayString>
+		<DisplayString Condition="m_data != 0">{m_data->m_object}</DisplayString>
+		<Expand>
+			<Item Condition="m_data != 0" Name="[value]">m_data->m_object</Item>
+		</Expand>
 	</Type>
 
 	<Type Name="mclo::instanced_thread_local_value&lt;*&gt;">
@@ -242,31 +250,292 @@
 		</Expand>
 	</Type>
 
-  <Type Name="mclo::basic_string_flyweight&lt;*&gt;">
-    <Intrinsic Name="header" Expression="m_handle.m_string.m_ptr"/>
-    <Intrinsic Name="string" Expression="(char*)header() + sizeof(void*)"/>
-    <Intrinsic Name="size" Expression="header()->m_size"/>
-    <DisplayString>{string(),[size()]s}</DisplayString>
-    <StringView>string(),[size()]s</StringView>
-    <Expand>
-      <Item Name="[size]" ExcludeView="simple">size()</Item>
-      <ArrayItems>
-        <Size>size()</Size>
-        <ValuePointer>string()</ValuePointer>
-      </ArrayItems>
-    </Expand>
-  </Type>
+	<Type Name="mclo::basic_string_flyweight&lt;*&gt;">
+		<Intrinsic Name="data" Expression="m_handle ? m_handle->data() : (const $T2*)0"/>
+		<Intrinsic Name="size" Expression="m_handle ? m_handle->size() : 0"/>
+		<DisplayString Condition="size() == 0">""</DisplayString>
+		<DisplayString>{data(),[size()]na}</DisplayString>
+		<StringView>data(),[size()]na</StringView>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">size()</Item>
+			<ArrayItems>
+				<Size>size()</Size>
+				<ValuePointer>data()</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
 
-  <Type Name="mclo::indirect&lt;*&gt;">
-    <SmartPointer Usage="Minimal">m_ptr</SmartPointer>
-    <DisplayString Condition="!m_ptr">{{ valueless after move }}</DisplayString>
-    <DisplayString Condition="m_ptr">{ *m_ptr }</DisplayString>
-    <Expand>
-      <ExpandedItem>m_ptr</ExpandedItem>
-    </Expand>
-  </Type>
+	<Type Name="mclo::indirect&lt;*&gt;">
+		<SmartPointer Usage="Minimal">m_ptr</SmartPointer>
+		<DisplayString Condition="!m_ptr">{{ valueless after move }}</DisplayString>
+		<DisplayString Condition="m_ptr">{ *m_ptr }</DisplayString>
+		<Expand>
+			<ExpandedItem>m_ptr</ExpandedItem>
+		</Expand>
+	</Type>
 
-  <Type Name="mclo::normalized_float&lt;*&gt;">
-    <DisplayString>{ float( m_value ) / scale }</DisplayString>
-  </Type>
+	<Type Name="mclo::normalized_float&lt;*&gt;">
+		<DisplayString>{ ($T1)m_value / ($T1)scale }</DisplayString>
+	</Type>
+
+	<!--
+		The derived type ($T4) must define these Natvis intrinsics:
+		  natvis_size(): the number of logical integers, excluding storage padding.
+		  natvis_word(size_t index): the unsigned physical storage word at index, not a logical integer.
+		These are debugger-only adapters, not C++ member functions. The base calls them through $T4;
+		the derived visualizers delegate their display and expansion back to this base.
+		Keep the adapter names distinct from size()/word() to avoid recursive intrinsic lookup.
+	-->
+	<Type Name="mclo::detail::packed_int_base&lt;*,*,*,*&gt;">
+		<Intrinsic Name="size" Expression="(($T4*)this)->natvis_size()"/>
+		<Intrinsic Name="word" Expression="(unsigned __int64)(($T4*)this)->natvis_word(index)">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<Intrinsic Name="get" Expression="((word(index * bit_width / bits_per_underlying) &gt;&gt; (index * bit_width % bits_per_underlying)) | (bit_width &gt; bits_per_underlying - (index * bit_width % bits_per_underlying) ? word(index * bit_width / bits_per_underlying + 1) &lt;&lt; (bits_per_underlying - (index * bit_width % bits_per_underlying)) : 0)) &amp; (unsigned __int64)mask">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<DisplayString>{{ size={size()}, bit_width={bit_width} }}</DisplayString>
+		<Expand>
+			<IndexListItems>
+				<Size>size()</Size>
+				<ValueNode>get($i),d</ValueNode>
+			</IndexListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::packed_int_array&lt;*,*,*&gt;">
+		<Intrinsic Name="natvis_size" Expression="$T2"/>
+		<Intrinsic Name="natvis_word" Expression="m_storage[index]">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<DisplayString>{*(base*)this}</DisplayString>
+		<Expand>
+			<ExpandedItem>*(base*)this</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::packed_int_vector&lt;*,*,*&gt;">
+		<Intrinsic Name="natvis_size" Expression="m_size"/>
+		<Intrinsic Name="natvis_word" Expression="m_container[index]">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<DisplayString>{*(base*)this}</DisplayString>
+		<Expand>
+			<ExpandedItem>*(base*)this</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::flexible_array&lt;*,*,*&gt;">
+		<Intrinsic Name="size" Expression="m_header ? m_header->m_size : 0"/>
+		<Intrinsic Name="data" Expression="m_header ? (value_type*)((std::byte*)m_header + data_offset) : (value_type*)0"/>
+		<DisplayString>{{ size={size()} }}</DisplayString>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">size()</Item>
+			<ArrayItems>
+				<Size>size()</Size>
+				<ValuePointer>data()</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::fixed_point&lt;*,*,*&gt;">
+		<!-- scale already includes the selected binary or decimal radix; the display is approximate. -->
+		<DisplayString>{(double)m_value / (double)scale}</DisplayString>
+		<Expand>
+			<Item Name="[underlying]">m_value,d</Item>
+			<Item Name="[scale]">scale,d</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::pointer_variant&lt;*&gt;">
+		<Intrinsic Name="index" Expression="m_ptr.tag_bits()"/>
+		<Intrinsic Name="ptr" Expression="m_ptr.ptr()"/>
+		<SmartPointer Usage="Minimal">ptr()</SmartPointer>
+		<DisplayString Condition="ptr() == 0">{{ index={index(),d}, ptr=nullptr }}</DisplayString>
+		<!-- Match the first 32 alternatives explicitly; retain the raw pointer for larger packs. -->
+		<DisplayString Optional="true" Condition="index() == 0">{{ index=0, ptr={($T1*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 1">{{ index=1, ptr={($T2*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 2">{{ index=2, ptr={($T3*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 3">{{ index=3, ptr={($T4*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 4">{{ index=4, ptr={($T5*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 5">{{ index=5, ptr={($T6*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 6">{{ index=6, ptr={($T7*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 7">{{ index=7, ptr={($T8*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 8">{{ index=8, ptr={($T9*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 9">{{ index=9, ptr={($T10*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 10">{{ index=10, ptr={($T11*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 11">{{ index=11, ptr={($T12*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 12">{{ index=12, ptr={($T13*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 13">{{ index=13, ptr={($T14*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 14">{{ index=14, ptr={($T15*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 15">{{ index=15, ptr={($T16*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 16">{{ index=16, ptr={($T17*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 17">{{ index=17, ptr={($T18*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 18">{{ index=18, ptr={($T19*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 19">{{ index=19, ptr={($T20*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 20">{{ index=20, ptr={($T21*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 21">{{ index=21, ptr={($T22*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 22">{{ index=22, ptr={($T23*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 23">{{ index=23, ptr={($T24*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 24">{{ index=24, ptr={($T25*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 25">{{ index=25, ptr={($T26*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 26">{{ index=26, ptr={($T27*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 27">{{ index=27, ptr={($T28*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 28">{{ index=28, ptr={($T29*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 29">{{ index=29, ptr={($T30*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 30">{{ index=30, ptr={($T31*)ptr()} }}</DisplayString>
+		<DisplayString Optional="true" Condition="index() == 31">{{ index=31, ptr={($T32*)ptr()} }}</DisplayString>
+		<DisplayString>{{ index={index(),d}, ptr={ptr()} }}</DisplayString>
+		<Expand>
+			<Item Name="[index]">index(),d</Item>
+			<Item Optional="true" Condition="index() == 0" Name="[ptr]">($T1*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 1" Name="[ptr]">($T2*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 2" Name="[ptr]">($T3*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 3" Name="[ptr]">($T4*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 4" Name="[ptr]">($T5*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 5" Name="[ptr]">($T6*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 6" Name="[ptr]">($T7*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 7" Name="[ptr]">($T8*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 8" Name="[ptr]">($T9*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 9" Name="[ptr]">($T10*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 10" Name="[ptr]">($T11*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 11" Name="[ptr]">($T12*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 12" Name="[ptr]">($T13*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 13" Name="[ptr]">($T14*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 14" Name="[ptr]">($T15*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 15" Name="[ptr]">($T16*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 16" Name="[ptr]">($T17*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 17" Name="[ptr]">($T18*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 18" Name="[ptr]">($T19*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 19" Name="[ptr]">($T20*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 20" Name="[ptr]">($T21*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 21" Name="[ptr]">($T22*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 22" Name="[ptr]">($T23*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 23" Name="[ptr]">($T24*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 24" Name="[ptr]">($T25*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 25" Name="[ptr]">($T26*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 26" Name="[ptr]">($T27*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 27" Name="[ptr]">($T28*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 28" Name="[ptr]">($T29*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 29" Name="[ptr]">($T30*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 30" Name="[ptr]">($T31*)ptr()</Item>
+			<Item Optional="true" Condition="index() == 31" Name="[ptr]">($T32*)ptr()</Item>
+			<Item Condition="index() &gt;= 32" Name="[ptr]">ptr()</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::expected&lt;*,*&gt;">
+		<Intrinsic Name="has_value" Expression="m_has_value"/>
+		<DisplayString Condition="has_value()">{{ value={m_value} }}</DisplayString>
+		<DisplayString Condition="!has_value()">{{ error={m_error} }}</DisplayString>
+		<Expand>
+			<Item Condition="has_value()" Name="[value]">m_value</Item>
+			<Item Condition="!has_value()" Name="[error]">m_error</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::expected&lt;void,*&gt;" Priority="MediumHigh">
+		<AlternativeType Name="mclo::expected&lt;void const,*&gt;"/>
+		<AlternativeType Name="mclo::expected&lt;void volatile,*&gt;"/>
+		<AlternativeType Name="mclo::expected&lt;void const volatile,*&gt;"/>
+		<Intrinsic Name="has_value" Expression="m_has_value"/>
+		<DisplayString Condition="has_value()">{{ value=void }}</DisplayString>
+		<DisplayString Condition="!has_value()">{{ error={m_error} }}</DisplayString>
+		<Expand>
+			<Item Condition="!has_value()" Name="[error]">m_error</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::unexpected&lt;*&gt;">
+		<DisplayString>{{ error={m_error} }}</DisplayString>
+		<Expand>
+			<Item Name="[error]">m_error</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::intrusive_ptr&lt;*&gt;">
+		<SmartPointer Usage="Minimal">m_ptr</SmartPointer>
+		<DisplayString Condition="m_ptr == 0">nullptr</DisplayString>
+		<DisplayString>{*m_ptr}</DisplayString>
+		<Expand>
+			<Item Name="[ptr]">m_ptr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::copy_on_write&lt;*&gt;">
+		<SmartPointer Usage="Minimal">m_ptr ? &amp;m_ptr->m_value : (value_type*)0</SmartPointer>
+		<DisplayString Condition="m_ptr == 0">{{ valueless after move }}</DisplayString>
+		<DisplayString>{m_ptr->m_value}</DisplayString>
+		<Expand>
+			<Item Condition="m_ptr != 0" Name="[value]">m_ptr->m_value</Item>
+			<Item Condition="m_ptr != 0" Name="[use_count]" ExcludeView="simple">m_ptr->m_counter</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::polymorphic&lt;*&gt;">
+		<SmartPointer Usage="Minimal">m_control_block ? m_control_block->m_ptr : (pointer)0</SmartPointer>
+		<DisplayString Condition="m_control_block == 0">{{ valueless after move }}</DisplayString>
+		<DisplayString>{*m_control_block->m_ptr}</DisplayString>
+		<Expand>
+			<Item Condition="m_control_block != 0" Name="[ptr]">m_control_block->m_ptr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::fixed_string&lt;*&gt;">
+		<DisplayString>{m_data._Elems,[$T1]s}</DisplayString>
+		<StringView>m_data._Elems,[$T1]s</StringView>
+		<Expand>
+			<Item Name="[size]" ExcludeView="simple">$T1</Item>
+			<ArrayItems>
+				<Size>$T1</Size>
+				<ValuePointer>m_data._Elems</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::basic_static_string&lt;*,*&gt;">
+		<DisplayString>{m_str}</DisplayString>
+		<StringView>m_str.data(),[m_str.size()]na</StringView>
+		<Expand>
+			<ExpandedItem>m_str</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::uuid">
+		<Intrinsic Name="word" Expression="(unsigned short)(((unsigned int)bytes[index] &lt;&lt; 8) | (unsigned int)bytes[index + 1])">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<Intrinsic Name="dword" Expression="((unsigned int)word(index) &lt;&lt; 16) | (unsigned int)word(index + 2)">
+			<Parameter Name="index" Type="size_t"/>
+		</Intrinsic>
+		<DisplayString>{dword(0),xb}-{word(4),xb}-{word(6),xb}-{word(8),xb}-{word(10),xb}{dword(12),xb}</DisplayString>
+		<Expand>
+			<Item Name="[bytes]">bytes</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::sem_version">
+		<DisplayString>{(unsigned int)major,d}.{(unsigned int)minor,d}.{(unsigned int)patch,d}</DisplayString>
+	</Type>
+
+	<Type Name="mclo::synchronized&lt;*,*&gt;">
+		<DisplayString>{m_data}</DisplayString>
+		<Expand>
+			<Item Name="[value]">m_data</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::state_machine&lt;*&gt;">
+		<DisplayString>{m_state}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_state</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="mclo::strong_type::type&lt;*&gt;">
+		<DisplayString>{value}</DisplayString>
+		<Expand>
+			<Item Name="[value]">value</Item>
+		</Expand>
+	</Type>
 </AutoVisualizer>
