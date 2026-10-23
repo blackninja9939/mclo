@@ -39,7 +39,9 @@ namespace mclo
 		/// @return Combined handle value
 		[[nodiscard]] constexpr representation_type get_combined() const noexcept
 		{
-			return ( generation << index_bits ) | index;
+			// Bit-fields promote to int or unsigned int, so widen before shifting to avoid UB for 64-bit handles
+			return ( static_cast<representation_type>( generation ) << index_bits )
+				| static_cast<representation_type>( index );
 		}
 
 		/// @brief Set the handles index and generation from a combined value, generation must be in the upper bits and
